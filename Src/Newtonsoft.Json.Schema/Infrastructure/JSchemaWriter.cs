@@ -46,58 +46,58 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 _resolver.LoadedSchemas.Add(schema);
 
             _writer.WriteStartObject();
-            WritePropertyIfNotNull(_writer, JSchemaConstants.IdPropertyName, schema.Id);
-            WritePropertyIfNotNull(_writer, JSchemaConstants.TitlePropertyName, schema.Title);
-            WritePropertyIfNotNull(_writer, JSchemaConstants.DescriptionPropertyName, schema.Description);
-            WritePropertyIfNotNull(_writer, JSchemaConstants.RequiredPropertyName, schema.Required);
-            WritePropertyIfNotNull(_writer, JSchemaConstants.ReadOnlyPropertyName, schema.ReadOnly);
-            WritePropertyIfNotNull(_writer, JSchemaConstants.HiddenPropertyName, schema.Hidden);
-            WritePropertyIfNotNull(_writer, JSchemaConstants.TransientPropertyName, schema.Transient);
+            WritePropertyIfNotNull(_writer, Constants.PropertyNames.Id, schema.Id);
+            WritePropertyIfNotNull(_writer, Constants.PropertyNames.Title, schema.Title);
+            WritePropertyIfNotNull(_writer, Constants.PropertyNames.Description, schema.Description);
+            WritePropertyIfNotNull(_writer, Constants.PropertyNames.Required, schema.Required);
+            WritePropertyIfNotNull(_writer, Constants.PropertyNames.ReadOnly, schema.ReadOnly);
+            WritePropertyIfNotNull(_writer, Constants.PropertyNames.Hidden, schema.Hidden);
+            WritePropertyIfNotNull(_writer, Constants.PropertyNames.Transient, schema.Transient);
             if (schema.Type != null)
-                WriteType(JSchemaConstants.TypePropertyName, _writer, schema.Type.Value);
+                WriteType(Constants.PropertyNames.Type, _writer, schema.Type.Value);
             if (!schema.AllowAdditionalProperties)
             {
-                _writer.WritePropertyName(JSchemaConstants.AdditionalPropertiesPropertyName);
+                _writer.WritePropertyName(Constants.PropertyNames.AdditionalProperties);
                 _writer.WriteValue(schema.AllowAdditionalProperties);
             }
             else
             {
                 if (schema.AdditionalProperties != null)
                 {
-                    _writer.WritePropertyName(JSchemaConstants.AdditionalPropertiesPropertyName);
+                    _writer.WritePropertyName(Constants.PropertyNames.AdditionalProperties);
                     ReferenceOrWriteSchema(schema.AdditionalProperties);
                 }
             }
             if (!schema.AllowAdditionalItems)
             {
-                _writer.WritePropertyName(JSchemaConstants.AdditionalItemsPropertyName);
+                _writer.WritePropertyName(Constants.PropertyNames.AdditionalItems);
                 _writer.WriteValue(schema.AllowAdditionalItems);
             }
             else
             {
                 if (schema.AdditionalItems != null)
                 {
-                    _writer.WritePropertyName(JSchemaConstants.AdditionalItemsPropertyName);
+                    _writer.WritePropertyName(Constants.PropertyNames.AdditionalItems);
                     ReferenceOrWriteSchema(schema.AdditionalItems);
                 }
             }
-            WriteSchemaDictionaryIfNotNull(_writer, JSchemaConstants.PropertiesPropertyName, schema.Properties);
-            WriteSchemaDictionaryIfNotNull(_writer, JSchemaConstants.PatternPropertiesPropertyName, schema.PatternProperties);
+            WriteSchemaDictionaryIfNotNull(_writer, Constants.PropertyNames.Properties, schema.Properties);
+            WriteSchemaDictionaryIfNotNull(_writer, Constants.PropertyNames.PatternProperties, schema.PatternProperties);
             WriteItems(schema);
-            WritePropertyIfNotNull(_writer, JSchemaConstants.MinimumPropertyName, schema.Minimum);
-            WritePropertyIfNotNull(_writer, JSchemaConstants.MaximumPropertyName, schema.Maximum);
-            WritePropertyIfNotNull(_writer, JSchemaConstants.ExclusiveMinimumPropertyName, schema.ExclusiveMinimum);
-            WritePropertyIfNotNull(_writer, JSchemaConstants.ExclusiveMaximumPropertyName, schema.ExclusiveMaximum);
-            WritePropertyIfNotNull(_writer, JSchemaConstants.MinimumLengthPropertyName, schema.MinimumLength);
-            WritePropertyIfNotNull(_writer, JSchemaConstants.MaximumLengthPropertyName, schema.MaximumLength);
-            WritePropertyIfNotNull(_writer, JSchemaConstants.MinimumItemsPropertyName, schema.MinimumItems);
-            WritePropertyIfNotNull(_writer, JSchemaConstants.MaximumItemsPropertyName, schema.MaximumItems);
-            WritePropertyIfNotNull(_writer, JSchemaConstants.DivisibleByPropertyName, schema.DivisibleBy);
-            WritePropertyIfNotNull(_writer, JSchemaConstants.FormatPropertyName, schema.Format);
-            WritePropertyIfNotNull(_writer, JSchemaConstants.PatternPropertyName, schema.Pattern);
+            WritePropertyIfNotNull(_writer, Constants.PropertyNames.Minimum, schema.Minimum);
+            WritePropertyIfNotNull(_writer, Constants.PropertyNames.Maximum, schema.Maximum);
+            WritePropertyIfNotNull(_writer, Constants.PropertyNames.ExclusiveMinimum, schema.ExclusiveMinimum);
+            WritePropertyIfNotNull(_writer, Constants.PropertyNames.ExclusiveMaximum, schema.ExclusiveMaximum);
+            WritePropertyIfNotNull(_writer, Constants.PropertyNames.MinimumLength, schema.MinimumLength);
+            WritePropertyIfNotNull(_writer, Constants.PropertyNames.MaximumLength, schema.MaximumLength);
+            WritePropertyIfNotNull(_writer, Constants.PropertyNames.MinimumItems, schema.MinimumItems);
+            WritePropertyIfNotNull(_writer, Constants.PropertyNames.MaximumItems, schema.MaximumItems);
+            WritePropertyIfNotNull(_writer, Constants.PropertyNames.DivisibleBy, schema.DivisibleBy);
+            WritePropertyIfNotNull(_writer, Constants.PropertyNames.Format, schema.Format);
+            WritePropertyIfNotNull(_writer, Constants.PropertyNames.Pattern, schema.Pattern);
             if (schema.Enum != null)
             {
-                _writer.WritePropertyName(JSchemaConstants.EnumPropertyName);
+                _writer.WritePropertyName(Constants.PropertyNames.Enum);
                 _writer.WriteStartArray();
                 foreach (JToken token in schema.Enum)
                 {
@@ -107,14 +107,14 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             }
             if (schema.Default != null)
             {
-                _writer.WritePropertyName(JSchemaConstants.DefaultPropertyName);
+                _writer.WritePropertyName(Constants.PropertyNames.Default);
                 schema.Default.WriteTo(_writer);
             }
             if (schema.Disallow != null)
-                WriteType(JSchemaConstants.DisallowPropertyName, _writer, schema.Disallow.Value);
+                WriteType(Constants.PropertyNames.Disallow, _writer, schema.Disallow.Value);
             if (schema.Extends != null && schema.Extends.Count > 0)
             {
-                _writer.WritePropertyName(JSchemaConstants.ExtendsPropertyName);
+                _writer.WritePropertyName(Constants.PropertyNames.Extends);
                 if (schema.Extends.Count == 1)
                 {
                     ReferenceOrWriteSchema(schema.Extends[0]);
@@ -152,7 +152,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             if (schema.Items == null && !schema.PositionalItemsValidation)
                 return;
 
-            _writer.WritePropertyName(JSchemaConstants.ItemsPropertyName);
+            _writer.WritePropertyName(Constants.PropertyNames.Items);
 
             if (!schema.PositionalItemsValidation)
             {

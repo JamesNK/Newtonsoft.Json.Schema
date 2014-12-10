@@ -101,7 +101,22 @@ namespace Newtonsoft.Json.Schema.Tests
             expected = Normalize(expected);
             actual = Normalize(actual);
 
+            if (expected != actual)
+            {
+                Console.WriteLine("Actual content:");
+                Console.WriteLine(EscapeText(actual) ?? "{null}");
+                Console.WriteLine();
+            }
+
             Assert.AreEqual(expected, actual);
+        }
+
+        private static string EscapeText(string t)
+        {
+            if (t == null)
+                return null;
+
+            return @"@""" + t.Replace(@"""", @"""""") + @"""";
         }
 
         public static bool Equals(string s1, string s2)

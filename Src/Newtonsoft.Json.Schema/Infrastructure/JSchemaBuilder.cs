@@ -201,91 +201,91 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             {
                 switch (property.Key)
                 {
-                    case JSchemaConstants.TypePropertyName:
+                    case Constants.PropertyNames.Type:
                         CurrentSchema.Type = ProcessType(property.Value);
                         break;
-                    case JSchemaConstants.IdPropertyName:
+                    case Constants.PropertyNames.Id:
                         CurrentSchema.Id = (string)property.Value;
                         break;
-                    case JSchemaConstants.TitlePropertyName:
+                    case Constants.PropertyNames.Title:
                         CurrentSchema.Title = (string)property.Value;
                         break;
-                    case JSchemaConstants.DescriptionPropertyName:
+                    case Constants.PropertyNames.Description:
                         CurrentSchema.Description = (string)property.Value;
                         break;
-                    case JSchemaConstants.PropertiesPropertyName:
+                    case Constants.PropertyNames.Properties:
                         CurrentSchema.Properties = ProcessProperties(property.Value);
                         break;
-                    case JSchemaConstants.ItemsPropertyName:
+                    case Constants.PropertyNames.Items:
                         ProcessItems(property.Value);
                         break;
-                    case JSchemaConstants.AdditionalPropertiesPropertyName:
+                    case Constants.PropertyNames.AdditionalProperties:
                         ProcessAdditionalProperties(property.Value);
                         break;
-                    case JSchemaConstants.AdditionalItemsPropertyName:
+                    case Constants.PropertyNames.AdditionalItems:
                         ProcessAdditionalItems(property.Value);
                         break;
-                    case JSchemaConstants.PatternPropertiesPropertyName:
+                    case Constants.PropertyNames.PatternProperties:
                         CurrentSchema.PatternProperties = ProcessProperties(property.Value);
                         break;
-                    case JSchemaConstants.RequiredPropertyName:
+                    case Constants.PropertyNames.Required:
                         CurrentSchema.Required = (bool)property.Value;
                         break;
-                    case JSchemaConstants.RequiresPropertyName:
+                    case Constants.PropertyNames.Requires:
                         CurrentSchema.Requires = (string)property.Value;
                         break;
-                    case JSchemaConstants.MinimumPropertyName:
+                    case Constants.PropertyNames.Minimum:
                         CurrentSchema.Minimum = (double)property.Value;
                         break;
-                    case JSchemaConstants.MaximumPropertyName:
+                    case Constants.PropertyNames.Maximum:
                         CurrentSchema.Maximum = (double)property.Value;
                         break;
-                    case JSchemaConstants.ExclusiveMinimumPropertyName:
+                    case Constants.PropertyNames.ExclusiveMinimum:
                         CurrentSchema.ExclusiveMinimum = (bool)property.Value;
                         break;
-                    case JSchemaConstants.ExclusiveMaximumPropertyName:
+                    case Constants.PropertyNames.ExclusiveMaximum:
                         CurrentSchema.ExclusiveMaximum = (bool)property.Value;
                         break;
-                    case JSchemaConstants.MaximumLengthPropertyName:
+                    case Constants.PropertyNames.MaximumLength:
                         CurrentSchema.MaximumLength = (int)property.Value;
                         break;
-                    case JSchemaConstants.MinimumLengthPropertyName:
+                    case Constants.PropertyNames.MinimumLength:
                         CurrentSchema.MinimumLength = (int)property.Value;
                         break;
-                    case JSchemaConstants.MaximumItemsPropertyName:
+                    case Constants.PropertyNames.MaximumItems:
                         CurrentSchema.MaximumItems = (int)property.Value;
                         break;
-                    case JSchemaConstants.MinimumItemsPropertyName:
+                    case Constants.PropertyNames.MinimumItems:
                         CurrentSchema.MinimumItems = (int)property.Value;
                         break;
-                    case JSchemaConstants.DivisibleByPropertyName:
+                    case Constants.PropertyNames.DivisibleBy:
                         CurrentSchema.DivisibleBy = (double)property.Value;
                         break;
-                    case JSchemaConstants.DisallowPropertyName:
+                    case Constants.PropertyNames.Disallow:
                         CurrentSchema.Disallow = ProcessType(property.Value);
                         break;
-                    case JSchemaConstants.DefaultPropertyName:
+                    case Constants.PropertyNames.Default:
                         CurrentSchema.Default = property.Value.DeepClone();
                         break;
-                    case JSchemaConstants.HiddenPropertyName:
+                    case Constants.PropertyNames.Hidden:
                         CurrentSchema.Hidden = (bool)property.Value;
                         break;
-                    case JSchemaConstants.ReadOnlyPropertyName:
+                    case Constants.PropertyNames.ReadOnly:
                         CurrentSchema.ReadOnly = (bool)property.Value;
                         break;
-                    case JSchemaConstants.FormatPropertyName:
+                    case Constants.PropertyNames.Format:
                         CurrentSchema.Format = (string)property.Value;
                         break;
-                    case JSchemaConstants.PatternPropertyName:
+                    case Constants.PropertyNames.Pattern:
                         CurrentSchema.Pattern = (string)property.Value;
                         break;
-                    case JSchemaConstants.EnumPropertyName:
+                    case Constants.PropertyNames.Enum:
                         ProcessEnum(property.Value);
                         break;
-                    case JSchemaConstants.ExtendsPropertyName:
+                    case Constants.PropertyNames.Extends:
                         ProcessExtends(property.Value);
                         break;
-                    case JSchemaConstants.UniqueItemsPropertyName:
+                    case Constants.PropertyNames.UniqueItems:
                         CurrentSchema.UniqueItems = (bool)property.Value;
                         break;
                 }
@@ -410,7 +410,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         internal static JSchemaType MapType(string type)
         {
             JSchemaType mappedType;
-            if (!JSchemaConstants.JsonSchemaTypeMapping.TryGetValue(type, out mappedType))
+            if (!Constants.JsonSchemaTypeMapping.TryGetValue(type, out mappedType))
                 throw new JsonException("Invalid JSON schema type: {0}".FormatWith(CultureInfo.InvariantCulture, type));
 
             return mappedType;
@@ -418,7 +418,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         internal static string MapType(JSchemaType type)
         {
-            return JSchemaConstants.JsonSchemaTypeMapping.Single(kv => kv.Value == type).Key;
+            return Constants.JsonSchemaTypeMapping.Single(kv => kv.Value == type).Key;
         }
     }
 }

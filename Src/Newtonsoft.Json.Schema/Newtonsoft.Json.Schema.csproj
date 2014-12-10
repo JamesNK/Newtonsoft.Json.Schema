@@ -8,11 +8,11 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Newtonsoft.Json.Schema</RootNamespace>
     <AssemblyName>Newtonsoft.Json.Schema</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <TargetFrameworkProfile>Profile328</TargetFrameworkProfile>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Profile259</TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <MinimumVisualStudioVersion>10.0</MinimumVisualStudioVersion>
+    <MinimumVisualStudioVersion>11.0</MinimumVisualStudioVersion>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
     <UpgradeBackupLocation>
@@ -43,7 +43,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json">
-      <HintPath>..\packages\Newtonsoft.Json.6.0.7\lib\portable-net40+sl5+wp80+win8+wpa81\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\packages\Newtonsoft.Json.6.0.7\lib\portable-net45+wp80+win8+wpa81+aspnetcore50\Newtonsoft.Json.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
@@ -57,7 +57,7 @@
     <Compile Include="SchemaExtensions.cs" />
     <Compile Include="JSchema.cs" />
     <Compile Include="Infrastructure\JSchemaBuilder.cs" />
-    <Compile Include="Infrastructure\JSchemaConstants.cs" />
+    <Compile Include="Infrastructure\Constants.cs" />
     <Compile Include="JSchemaException.cs" />
     <Compile Include="JSchemaGenerator.cs" />
     <Compile Include="Infrastructure\JSchemaModel.cs" />
@@ -70,6 +70,22 @@
     <Compile Include="JSchemaUndefinedIdHandling.cs" />
     <Compile Include="SchemaValidationEventArgs.cs" />
     <Compile Include="SchemaValidationEventHandler.cs" />
+    <Compile Include="V4\ExternalSchema.cs" />
+    <Compile Include="V4\Infrastructure\DeferedSchema.cs" />
+    <Compile Include="V4\Infrastructure\DummyJSchema4Resolver.cs" />
+    <Compile Include="V4\Infrastructure\JSchema4Discovery.cs" />
+    <Compile Include="V4\JSchema4UrlResolver.cs" />
+    <Compile Include="V4\JSchemaPreloadedResolver.cs" />
+    <Compile Include="V4\Infrastructure\SchemaDiscovery.cs" />
+    <Compile Include="V4\Infrastructure\WebRequestDownloader.cs" />
+    <Compile Include="V4\Infrastructure\JSchema4Writer.cs" />
+    <Compile Include="V4\JSchema4Resolver.cs" />
+    <Compile Include="V4\Infrastructure\JSchema4Reader.cs" />
+    <Compile Include="V4\Infrastructure\IDownloader.cs" />
+    <Compile Include="V4\JSchema4.cs" />
+    <Compile Include="V4\JSchema4WriteSettings.cs" />
+    <Compile Include="V4\Infrastructure\JSchemaAnnotation.cs" />
+    <Compile Include="V4\JSchema4Generator.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

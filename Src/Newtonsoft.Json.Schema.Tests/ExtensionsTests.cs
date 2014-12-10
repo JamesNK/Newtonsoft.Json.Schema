@@ -437,5 +437,30 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsTrue(a.IsValid(schema, out errorMessages));
             Assert.AreEqual(0, errorMessages.Count);
         }
+
+        [Test]
+        public void IntegerValidatesAgainstFloatFlags()
+        {
+            JSchema schema = JSchema.Parse(@"{
+  ""type"": ""object"",
+  ""$schema"": ""http://json-schema.org/draft-03/schema"",
+  ""required"": false,
+  ""properties"": {
+  ""NumberProperty"": {
+    ""required"": false,
+    ""type"": [
+        ""number"",
+        ""null""
+      ]
+    }
+  }
+}");
+
+            JObject json = JObject.Parse(@"{
+  ""NumberProperty"": 23
+}");
+
+            Assert.IsTrue(json.IsValid(schema));
+        }
     }
 }
