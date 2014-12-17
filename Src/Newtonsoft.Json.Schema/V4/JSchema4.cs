@@ -70,7 +70,13 @@ namespace Newtonsoft.Json.Schema.V4
         /// <value>The <see cref="JSchema"/> of items.</value>
         public IList<JSchema4> Items
         {
-            get { return _items; }
+            get
+            {
+                if (_items == null)
+                    _items = new List<JSchema4>();
+
+                return _items;
+            }
             set { _items = value; }
         }
 
@@ -161,13 +167,13 @@ namespace Newtonsoft.Json.Schema.V4
         /// Gets or sets a flag indicating whether the value can not equal the number defined by the "minimum" attribute.
         /// </summary>
         /// <value>A flag indicating whether the value can not equal the number defined by the "minimum" attribute.</value>
-        public bool? ExclusiveMinimum { get; set; }
+        public bool ExclusiveMinimum { get; set; }
 
         /// <summary>
         /// Gets or sets a flag indicating whether the value can not equal the number defined by the "maximum" attribute.
         /// </summary>
         /// <value>A flag indicating whether the value can not equal the number defined by the "maximum" attribute.</value>
-        public bool? ExclusiveMaximum { get; set; }
+        public bool ExclusiveMaximum { get; set; }
 
         /// <summary>
         /// Gets or sets the minimum number of items.
@@ -180,6 +186,18 @@ namespace Newtonsoft.Json.Schema.V4
         /// </summary>
         /// <value>The maximum number of items.</value>
         public int? MaximumItems { get; set; }
+
+        /// <summary>
+        /// Gets or sets the minimum number of properties.
+        /// </summary>
+        /// <value>The minimum number of properties.</value>
+        public int? MinimumProperties { get; set; }
+
+        /// <summary>
+        /// Gets or sets the maximum number of properties.
+        /// </summary>
+        /// <value>The maximum number of properties.</value>
+        public int? MaximumProperties { get; set; }
 
         public IDictionary<string, JToken> ExtensionData
         {

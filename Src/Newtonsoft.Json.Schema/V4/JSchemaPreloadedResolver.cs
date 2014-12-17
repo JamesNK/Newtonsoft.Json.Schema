@@ -42,13 +42,21 @@ namespace Newtonsoft.Json.Schema.V4
                     string relative = uriText.Substring(knownText.Length);
                     Uri relativeUri = new Uri(relative, UriKind.RelativeOrAbsolute);
 
-                    JSchema4 subSchema = SchemaDiscovery.FindSchema(knownSchema.Schema, knownSchema.Id, relativeUri, new JSchema4Reader(this)
+                    JSchema4Reader resolverSchemaReader = new JSchema4Reader(this)
                     {
                         RootSchema = knownSchema.Schema
-                    });
+                    };
+
+                    JSchema4 subSchema = null;
+                    
+                    SchemaDiscovery.FindSchema(s => subSchema = s, knownSchema.Schema, knownSchema.Id, relativeUri, resolverSchemaReader);
 
                     if (subSchema != null)
+                    {
+                        resolverSchemaReader.ResolveDeferedSchemas();
+
                         return subSchema;
+                    }
                 }
             }
 

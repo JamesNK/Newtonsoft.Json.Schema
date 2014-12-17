@@ -18,15 +18,14 @@ namespace Newtonsoft.Json.Schema.V4
 {
     internal class TypeSchema
     {
-        public Type Type { get; private set; }
-        public JSchema4 Schema { get; private set; }
+        public Type Type;
+        public Required Required;
+        public JSchema4 Schema;
 
-        public TypeSchema(Type type, JSchema4 schema)
+        public TypeSchema(Type type, Required required, JSchema4 schema)
         {
-            ValidationUtils.ArgumentNotNull(type, "type");
-            ValidationUtils.ArgumentNotNull(schema, "schema");
-
             Type = type;
+            Required = required;
             Schema = schema;
         }
     }
@@ -162,21 +161,41 @@ namespace Newtonsoft.Json.Schema.V4
         {
             JsonContainerAttribute containerAttribute = JsonTypeReflector.GetCachedAttribute<JsonContainerAttribute>(type);
 
+            Uri typeId;
+
             if (containerAttribute != null && !string.IsNullOrEmpty(containerAttribute.Id))
-                return new Uri(containerAttribute.Id, UriKind.RelativeOrAbsolute);
-
-            if (explicitOnly)
-                return null;
-
-            switch (UndefinedSchemaIdHandling)
             {
-                case JSchemaUndefinedIdHandling.UseTypeName:
-                    return new Uri(type.FullName, UriKind.RelativeOrAbsolute);
-                case JSchemaUndefinedIdHandling.UseAssemblyQualifiedName:
-                    return new Uri(type.AssemblyQualifiedName, UriKind.RelativeOrAbsolute);
-                default:
-                    return null;
+                typeId = new Uri(containerAttribute.Id, UriKind.RelativeOrAbsolute);
             }
+            else
+            {
+
+                if (explicitOnly)
+                    return null;
+
+                switch (UndefinedSchemaIdHandling)
+                {
+                    case JSchemaUndefinedIdHandling.UseTypeName:
+                        typeId = new Uri(type.FullName, UriKind.RelativeOrAbsolute);
+                        break;
+                    case JSchemaUndefinedIdHandling.UseAssemblyQualifiedName:
+                        typeId = new Uri(type.AssemblyQualifiedName, UriKind.RelativeOrAbsolute);
+                        break;
+                    default:
+                        return null;
+                }
+            }
+
+            // avoid id conflicts
+            Uri resolvedTypeId = typeId;
+            int i = 1;
+            while (_typeSchemas.Any(s => s.Schema.Id == resolvedTypeId))
+            {
+                resolvedTypeId = new Uri(typeId.OriginalString + "-" + i, UriKind.RelativeOrAbsolute);
+                i++;
+            }
+
+            return resolvedTypeId;
         }
 
         public static bool IsDefined(Type type, Type attributeType, bool inherit)
@@ -219,7 +238,7 @@ namespace Newtonsoft.Json.Schema.V4
                 case JsonContractType.Object:
                 case JsonContractType.Array:
                 case JsonContractType.Dictionary:
-                    TypeSchema typeSchema = _typeSchemas.SingleOrDefault(s => s.Type == type);
+                    TypeSchema typeSchema = _typeSchemas.SingleOrDefault(s => s.Type == type && s.Required == valueRequired);
                     if (typeSchema != null)
                         return typeSchema.Schema;
                     break;
@@ -229,7 +248,7 @@ namespace Newtonsoft.Json.Schema.V4
             if (explicitId != null)
                 schema.Id = explicitId;
 
-            _typeSchemas.Add(new TypeSchema(type, schema));
+            _typeSchemas.Add(new TypeSchema(type, valueRequired, schema));
             _knownSchemas.Add(new KnownSchema(schema.Id, schema, KnownSchemaState.External));
 
             schema.Title = GetTitle(type);
@@ -245,14 +264,17 @@ namespace Newtonsoft.Json.Schema.V4
                 switch (contract.ContractType)
                 {
                     case JsonContractType.Object:
+                        if (schema.Id == null)
+                            schema.Id = GetTypeId(type, false);
+
                         schema.Type = AddNullType(JSchemaType.Object, valueRequired);
-                        schema.Id = GetTypeId(type, false);
                         GenerateObjectSchema(schema, type, (JsonObjectContract)contract);
                         break;
                     case JsonContractType.Array:
-                        schema.Type = AddNullType(JSchemaType.Array, valueRequired);
+                        if (schema.Id == null)
+                            schema.Id = GetTypeId(type, false);
 
-                        schema.Id = GetTypeId(type, false);
+                        schema.Type = AddNullType(JSchemaType.Array, valueRequired);
 
                         JsonArrayAttribute arrayAttribute = JsonTypeReflector.GetCachedAttribute<JsonArrayAttribute>(type);
                         bool allowNullItem = (arrayAttribute == null || arrayAttribute.AllowNullItems);
@@ -306,8 +328,10 @@ namespace Newtonsoft.Json.Schema.V4
                         }
                         break;
                     case JsonContractType.Serializable:
+                        if (schema.Id == null)
+                            schema.Id = GetTypeId(type, false);
+
                         schema.Type = AddNullType(JSchemaType.Object, valueRequired);
-                        schema.Id = GetTypeId(type, false);
                         schema.AllowAdditionalProperties = true;
                         break;
                     case JsonContractType.Dynamic:

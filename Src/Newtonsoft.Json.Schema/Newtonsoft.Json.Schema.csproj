@@ -44,7 +44,6 @@
   <ItemGroup>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.6.0.7\lib\portable-net45+wp80+win8+wpa81+aspnetcore50\Newtonsoft.Json.dll</HintPath>
-      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -52,6 +51,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Infrastructure\JsonSchemaTypeHelpers.cs" />
+    <Compile Include="Infrastructure\MathHelpers.cs" />
     <Compile Include="JSchemaValidatingReader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SchemaExtensions.cs" />
@@ -74,7 +75,18 @@
     <Compile Include="V4\Infrastructure\DeferedSchema.cs" />
     <Compile Include="V4\Infrastructure\DummyJSchema4Resolver.cs" />
     <Compile Include="V4\Infrastructure\JSchema4Discovery.cs" />
+    <Compile Include="V4\Infrastructure\Validation\OneOfScope.cs" />
+    <Compile Include="V4\Infrastructure\Validation\AnyOfScope.cs" />
+    <Compile Include="V4\Infrastructure\Validation\NotScope.cs" />
+    <Compile Include="V4\Infrastructure\Validation\AllOfScope.cs" />
+    <Compile Include="V4\Infrastructure\Validation\ArrayScope.cs" />
+    <Compile Include="V4\Infrastructure\Validation\Context.cs" />
+    <Compile Include="V4\Infrastructure\Validation\ObjectScope.cs" />
+    <Compile Include="V4\Infrastructure\Validation\PrimativeScope.cs" />
+    <Compile Include="V4\Infrastructure\Validation\SchemaScope.cs" />
+    <Compile Include="V4\Infrastructure\Validation\Scope.cs" />
     <Compile Include="V4\JSchema4UrlResolver.cs" />
+    <Compile Include="V4\JSchema4ValidatingReader.cs" />
     <Compile Include="V4\JSchemaPreloadedResolver.cs" />
     <Compile Include="V4\Infrastructure\SchemaDiscovery.cs" />
     <Compile Include="V4\Infrastructure\WebRequestDownloader.cs" />
@@ -88,7 +100,9 @@
     <Compile Include="V4\JSchema4Generator.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

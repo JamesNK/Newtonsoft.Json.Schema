@@ -13,6 +13,7 @@ using System.Text;
 using NUnit.Framework;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema;
+using Newtonsoft.Json.Schema.V4;
 
 namespace Newtonsoft.Json.Schema.Tests
 {
@@ -29,19 +30,52 @@ namespace Newtonsoft.Json.Schema.Tests
 
         public override string ToString()
         {
-            return FileName + " - " + TestCaseDescription + " - " + TestDescription;
+            return Version + " - " + FileName + " - " + TestCaseDescription + " - " + TestDescription;
         }
     }
 
     [TestFixture]
     public class JsonSchemaSpecTests : TestFixtureBase
     {
+        private static JSchemaPreloadedResolver _resolver;
+
+        private static JSchemaPreloadedResolver GetResolver()
+        {
+            if (_resolver == null)
+            {
+                var resolver = new JSchemaPreloadedResolver();
+                AddSchema(resolver, "draft3.json", "http://json-schema.org/draft-03/schema");
+                AddSchema(resolver, "draft4.json", "http://json-schema.org/draft-04/schema");
+                AddSchema(resolver, "integer.json", "http://localhost:1234/integer.json");
+                AddSchema(resolver, "folder/folderInteger.json", "http://localhost:1234/folder/folderInteger.json");
+                AddSchema(resolver, "subSchemas.json", "http://localhost:1234/subSchemas.json");
+                
+                _resolver = resolver;
+            }
+
+            return _resolver;
+        }
+
+        private static void AddSchema(JSchemaPreloadedResolver resolver, string schemaFileName, string id)
+        {
+            string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            string baseRemotePath = Path.Combine(baseDirectory, "Specs", "remotes");
+
+            string json = File.ReadAllText(Path.Combine(baseRemotePath, schemaFileName));
+
+            JSchema4 schema = JSchema4.Parse(json);
+
+            resolver.Add(new Uri(id), schema);
+        }
+
         [TestCaseSourceAttribute("GetSpecTestDetails")]
         public void SpecTest(JsonSchemaSpecTest jsonSchemaSpecTest)
         {
             Console.WriteLine("Running JSON Schema {0} test {1}: {2}", jsonSchemaSpecTest.Version, jsonSchemaSpecTest.TestNumber, jsonSchemaSpecTest);
 
-            JsonSchema s = JsonSchema.Read(jsonSchemaSpecTest.Schema.CreateReader());
+            JSchemaPreloadedResolver resolver = GetResolver();
+
+            JSchema4 s = JSchema4.Read(jsonSchemaSpecTest.Schema.CreateReader(), resolver);
 
             IList<string> errorMessages;
             bool v = jsonSchemaSpecTest.Data.IsValid(s, out errorMessages);
@@ -56,7 +90,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             // get test files location relative to the test project dll
             string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-            string baseTestPath = Path.Combine(baseDirectory, "Specs");
+            string baseTestPath = Path.Combine(baseDirectory, "Specs", "tests");
 
             string[] testFiles = Directory.GetFiles(baseTestPath, "*.json", SearchOption.AllDirectories);
 
@@ -89,11 +123,8 @@ namespace Newtonsoft.Json.Schema.Tests
             }
 
             specTests = specTests.Where(s => s.FileName != "dependencies.json"
-                                             && s.Version != "Draft4"
-                                             && s.TestCaseDescription != "multiple disallow subschema"
-                                             && s.TestCaseDescription != "types from separate schemas are merged"
-                                             && s.TestCaseDescription != "when types includes a schema it should fully validate the schema"
-                                             && s.TestCaseDescription != "types can include schemas").ToList();
+                                             //&& s.Version != "Draft4"
+                                             ).ToList();
 
             return specTests;
         }

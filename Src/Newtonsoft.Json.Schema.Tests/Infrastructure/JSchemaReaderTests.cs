@@ -136,6 +136,28 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         }
 
         [Test]
+        public void DeprecatedRequired()
+        {
+            string schemaJson = @"{
+  ""description"":""A person"",
+  ""type"":""object"",
+  ""properties"":
+  {
+    ""name"":{""type"":""string""},
+    ""hobbies"":{""type"":""string"",""required"":true},
+    ""age"":{""type"":""integer"",""required"":true}
+  }
+}";
+
+            JSchema4Reader schemaReader = new JSchema4Reader(DummyJSchema4Resolver.Instance);
+            JSchema4 schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(schemaJson)));
+
+            Assert.AreEqual(2, schema.Required.Count);
+            Assert.AreEqual("hobbies", schema.Required[0]);
+            Assert.AreEqual("age", schema.Required[1]);
+        }
+
+        [Test]
         public void ExclusiveMinimum_ExclusiveMaximum()
         {
             string json = @"{
@@ -205,26 +227,27 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             JSchema4Reader schemaReader = new JSchema4Reader(DummyJSchema4Resolver.Instance);
             JSchema4 schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
 
-            Assert.AreEqual("foo", schema.Dependencies["bar"]);
+            Assert.AreEqual("foo", ((IList<string>)schema.Dependencies["bar"])[0]);
         }
 
         [Test]
         public void Dependencies_SchemaDependency()
         {
-    string json = @"{
+            string json = @"{
   ""dependencies"": {
     ""bar"": ""foo"",
     ""foo"": { ""title"": ""Dependency schema"" },
-    ""stuff"": ""blah""
+    ""stuff"": [""blah"",""blah2""]
   }
 }";
 
             JSchema4Reader schemaReader = new JSchema4Reader(DummyJSchema4Resolver.Instance);
             JSchema4 schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
 
-            Assert.AreEqual("foo", schema.Dependencies["bar"]);
+            Assert.AreEqual("foo", ((IList<string>) schema.Dependencies["bar"])[0]);
             Assert.AreEqual("Dependency schema", ((JSchema4)schema.Dependencies["foo"]).Title);
-            Assert.AreEqual("blah", schema.Dependencies["stuff"]);
+            Assert.AreEqual("blah", ((IList<string>)schema.Dependencies["stuff"])[0]);
+            Assert.AreEqual("blah2", ((IList<string>)schema.Dependencies["stuff"])[1]);
         }
 
         [Test]
@@ -353,6 +376,34 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             Assert.AreEqual(new Uri("nested.json", UriKind.RelativeOrAbsolute), schema.Items[0].Id);
 
             Assert.AreEqual(nested, schema.Items[0]);
+        }
+
+        [Test]
+        public void RootReferenceToNestedSchemaWithIdInResolvedSchema_Root()
+        {
+            JSchema4 nested = new JSchema4();
+            nested.Id = new Uri("nested.json", UriKind.RelativeOrAbsolute);
+
+            JSchema4 root = new JSchema4
+            {
+                Id = new Uri("http://test.test"),
+                ExtensionData =
+                {
+                    { "nested", nested }
+                }
+            };
+
+            string json = @"{""$ref"":""http://test.test/nested.json""}";
+
+            JSchemaPreloadedResolver resolver = new JSchemaPreloadedResolver();
+            resolver.Add(root);
+
+            JSchema4Reader schemaReader = new JSchema4Reader(resolver);
+            JSchema4 schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
+
+            Assert.AreEqual(new Uri("nested.json", UriKind.RelativeOrAbsolute), schema.Id);
+
+            Assert.AreEqual(nested, schema);
         }
 
         [Test]
@@ -759,6 +810,29 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         }
 
         [Test]
+        public void SchemaInDisallow()
+        {
+            JSchema4 schema = JSchema4.Parse(@"{
+                ""disallow"":
+                    [""string"",
+                     {
+                        ""type"": ""object"",
+                        ""properties"": {
+                            ""foo"": {
+                                ""type"": ""string""
+                            }
+                        }
+                     }]
+            }");
+
+            Assert.IsNotNull(schema.Not);
+            Assert.AreEqual(2, schema.Not.AnyOf.Count);
+            Assert.AreEqual(JSchemaType.String, schema.Not.AnyOf[0].Type);
+            Assert.AreEqual(JSchemaType.Object, schema.Not.AnyOf[1].Type);
+            Assert.AreEqual(1, schema.Not.AnyOf[1].Properties.Count);
+        }
+
+        [Test]
         public void ReadSchema()
         {
             string json = @"{
@@ -812,19 +886,12 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
       ""properties"": {
         ""blah"": {
           ""$ref"": ""#""
-        }
-      },
-      ""definitions"": {
-        ""parent"": {
-          ""$ref"": ""#""
-        }
-      }
-    },
-    ""file2"": {
-      ""id"": ""file"",
-      ""properties"": {
-        ""blah"": {
-          ""$ref"": ""#""
+        },
+        ""blah2"": {
+          ""$ref"": ""root""
+        },
+        ""blah3"": {
+          ""$ref"": ""#/definitions/parent""
         }
       },
       ""definitions"": {
@@ -849,7 +916,9 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 
             JSchema4 fileSchema = schema.Properties["storage"];
 
-            Assert.AreEqual(schema, fileSchema.Properties["blah"]);
+            Assert.AreEqual(fileSchema, fileSchema.Properties["blah"]);
+            Assert.AreEqual(schema, fileSchema.Properties["blah2"]);
+            Assert.AreEqual(fileSchema, fileSchema.Properties["blah3"]);
 
             Assert.AreEqual(2, schema.Items.Count);
             Assert.AreEqual(true, schema.ItemsPositionValidation);
@@ -868,6 +937,203 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             Assert.AreEqual(JSchemaType.String, schema.AnyOf[0].Type);
 
             Assert.AreEqual(null, schema.Not.Type);
+        }
+
+        [Test]
+        public void RefToExternalRef()
+        {
+            JSchemaPreloadedResolver resolver = new JSchemaPreloadedResolver();
+
+            JSchema4 subSchema = JSchema4.Parse(@"{
+                ""integer"": {
+                    ""type"": ""integer""
+                }, 
+                ""refToInteger"": {
+                    ""$ref"": ""#/integer""
+                }
+            }");
+
+            resolver.Add(new Uri("http://localhost:1234/subSchemas.json"), subSchema);
+
+            JSchema4 schema = JSchema4.Parse(@"{
+                ""$ref"": ""http://localhost:1234/subSchemas.json#/refToInteger""
+            }", resolver);
+
+            JSchema4 integerSchema = (JSchema4)subSchema.ExtensionData["integer"];
+
+            Assert.AreEqual(integerSchema, schema);
+        }
+
+        [Test]
+        public void NestedRef()
+        {
+            JSchema4 schema = JSchema4.Parse(@"{
+                ""definitions"": {
+                    ""a"": {""type"": ""integer""},
+                    ""b"": {""$ref"": ""#/definitions/a""},
+                    ""c"": {""$ref"": ""#/definitions/b""}
+                },
+                ""$ref"": ""#/definitions/c""
+            }");
+
+            Assert.AreEqual(JSchemaType.Integer, schema.Type);
+        }
+
+        [Test]
+        public void Draft4()
+        {
+            JSchema4 schema = JSchema4.Parse(@"{
+    ""id"": ""http://json-schema.org/draft-04/schema#"",
+    ""$schema"": ""http://json-schema.org/draft-04/schema#"",
+    ""description"": ""Core schema meta-schema"",
+    ""definitions"": {
+        ""schemaArray"": {
+            ""type"": ""array"",
+            ""minItems"": 1,
+            ""items"": { ""$ref"": ""#"" }
+        },
+        ""positiveInteger"": {
+            ""type"": ""integer"",
+            ""minimum"": 0
+        },
+        ""positiveIntegerDefault0"": {
+            ""allOf"": [ { ""$ref"": ""#/definitions/positiveInteger"" }, { ""default"": 0 } ]
+        },
+        ""simpleTypes"": {
+            ""enum"": [ ""array"", ""boolean"", ""integer"", ""null"", ""number"", ""object"", ""string"" ]
+        },
+        ""stringArray"": {
+            ""type"": ""array"",
+            ""items"": { ""type"": ""string"" },
+            ""minItems"": 1,
+            ""uniqueItems"": true
+        }
+    },
+    ""type"": ""object"",
+    ""properties"": {
+        ""id"": {
+            ""type"": ""string"",
+            ""format"": ""uri""
+        },
+        ""$schema"": {
+            ""type"": ""string"",
+            ""format"": ""uri""
+        },
+        ""title"": {
+            ""type"": ""string""
+        },
+        ""description"": {
+            ""type"": ""string""
+        },
+        ""default"": {},
+        ""multipleOf"": {
+            ""type"": ""number"",
+            ""minimum"": 0,
+            ""exclusiveMinimum"": true
+        },
+        ""maximum"": {
+            ""type"": ""number""
+        },
+        ""exclusiveMaximum"": {
+            ""type"": ""boolean"",
+            ""default"": false
+        },
+        ""minimum"": {
+            ""type"": ""number""
+        },
+        ""exclusiveMinimum"": {
+            ""type"": ""boolean"",
+            ""default"": false
+        },
+        ""maxLength"": { ""$ref"": ""#/definitions/positiveInteger"" },
+        ""minLength"": { ""$ref"": ""#/definitions/positiveIntegerDefault0"" },
+        ""pattern"": {
+            ""type"": ""string"",
+            ""format"": ""regex""
+        },
+        ""additionalItems"": {
+            ""anyOf"": [
+                { ""type"": ""boolean"" },
+                { ""$ref"": ""#"" }
+            ],
+            ""default"": {}
+        },
+        ""items"": {
+            ""anyOf"": [
+                { ""$ref"": ""#"" },
+                { ""$ref"": ""#/definitions/schemaArray"" }
+            ],
+            ""default"": {}
+        },
+        ""maxItems"": { ""$ref"": ""#/definitions/positiveInteger"" },
+        ""minItems"": { ""$ref"": ""#/definitions/positiveIntegerDefault0"" },
+        ""uniqueItems"": {
+            ""type"": ""boolean"",
+            ""default"": false
+        },
+        ""maxProperties"": { ""$ref"": ""#/definitions/positiveInteger"" },
+        ""minProperties"": { ""$ref"": ""#/definitions/positiveIntegerDefault0"" },
+        ""required"": { ""$ref"": ""#/definitions/stringArray"" },
+        ""additionalProperties"": {
+            ""anyOf"": [
+                { ""type"": ""boolean"" },
+                { ""$ref"": ""#"" }
+            ],
+            ""default"": {}
+        },
+        ""definitions"": {
+            ""type"": ""object"",
+            ""additionalProperties"": { ""$ref"": ""#"" },
+            ""default"": {}
+        },
+        ""properties"": {
+            ""type"": ""object"",
+            ""additionalProperties"": { ""$ref"": ""#"" },
+            ""default"": {}
+        },
+        ""patternProperties"": {
+            ""type"": ""object"",
+            ""additionalProperties"": { ""$ref"": ""#"" },
+            ""default"": {}
+        },
+        ""dependencies"": {
+            ""type"": ""object"",
+            ""additionalProperties"": {
+                ""anyOf"": [
+                    { ""$ref"": ""#"" },
+                    { ""$ref"": ""#/definitions/stringArray"" }
+                ]
+            }
+        },
+        ""enum"": {
+            ""type"": ""array"",
+            ""minItems"": 1,
+            ""uniqueItems"": true
+        },
+        ""type"": {
+            ""anyOf"": [
+                { ""$ref"": ""#/definitions/simpleTypes"" },
+                {
+                    ""type"": ""array"",
+                    ""items"": { ""$ref"": ""#/definitions/simpleTypes"" },
+                    ""minItems"": 1,
+                    ""uniqueItems"": true
+                }
+            ]
+        },
+        ""allOf"": { ""$ref"": ""#/definitions/schemaArray"" },
+        ""anyOf"": { ""$ref"": ""#/definitions/schemaArray"" },
+        ""oneOf"": { ""$ref"": ""#/definitions/schemaArray"" },
+        ""not"": { ""$ref"": ""#"" }
+    },
+    ""dependencies"": {
+        ""exclusiveMaximum"": [ ""maximum"" ],
+        ""exclusiveMinimum"": [ ""minimum"" ]
+    },
+    ""default"": {}
+}");
+
+            Assert.AreEqual(new Uri("http://json-schema.org/draft-04/schema#"), schema.Id);
         }
     }
 }

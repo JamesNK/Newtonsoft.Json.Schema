@@ -29,6 +29,7 @@ using System.Xml;
 using System.Xml.Schema;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema;
+using Newtonsoft.Json.Schema.V4;
 using Newtonsoft.Json.Utilities;
 
 namespace Newtonsoft.Json.Schema.Tests
@@ -36,13 +37,160 @@ namespace Newtonsoft.Json.Schema.Tests
     [TestFixture]
     public class JValidatingReaderTests : TestFixtureBase
     {
+        private JSchema4ValidatingReader CreateReader(string json, JSchema4 schema, out IList<SchemaValidationEventArgs> errors)
+        {
+            JsonReader reader = new JsonTextReader(new StringReader(json));
+
+            List<SchemaValidationEventArgs> localErrors = new List<SchemaValidationEventArgs>();
+
+            JSchema4ValidatingReader validatingReader = new JSchema4ValidatingReader(reader);
+            validatingReader.ValidationEventHandler += (sender, args) => { localErrors.Add(args); };
+            validatingReader.Schema = schema;
+
+            errors = localErrors;
+            return validatingReader;
+        }
+
+        [Test]
+        public void ValidateInteger()
+        {
+            JSchema4 schema = new JSchema4();
+            schema.Type = JSchemaType.Integer;
+
+            string json = "1";
+
+            IList<SchemaValidationEventArgs> errors;
+            JSchema4ValidatingReader validatingReader = CreateReader(json, schema, out errors);
+
+            Assert.IsTrue(validatingReader.Read());
+
+            Assert.AreEqual(0, errors.Count);
+        }
+
+        [Test]
+        public void ValidateObject()
+        {
+            JSchema4 schema = new JSchema4();
+            schema.Type = JSchemaType.Object;
+
+            string json = "{}";
+
+            IList<SchemaValidationEventArgs> errors;
+            JSchema4ValidatingReader validatingReader = CreateReader(json, schema, out errors);
+
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsFalse(validatingReader.Read());
+
+            Assert.AreEqual(0, errors.Count);
+        }
+
+        [Test]
+        public void ValidateObjectWithProperty()
+        {
+            JSchema4 schema = new JSchema4();
+            schema.Type = JSchemaType.Object;
+            schema.Properties = new Dictionary<string, JSchema4>
+            {
+                { "testProp", new JSchema4 { Type = JSchemaType.Boolean } },
+                { "testProp2", new JSchema4 { Type = JSchemaType.Integer } }
+            };
+
+            string json = "{'testProp':5,'testProp2':true}";
+
+            IList<SchemaValidationEventArgs> errors;
+            JSchema4ValidatingReader validatingReader = CreateReader(json, schema, out errors);
+
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsFalse(validatingReader.Read());
+
+            Assert.AreEqual(2, errors.Count);
+            Assert.AreEqual("Invalid type. Expected Boolean but got Integer. Line 1, position 13.", errors[0].Message);
+            Assert.AreEqual("Invalid type. Expected Integer but got Boolean. Line 1, position 30.", errors[1].Message);
+        }
+
+        [Test]
+        public void ValidateArray()
+        {
+            JSchema4 schema = new JSchema4();
+            schema.Type = JSchemaType.Array;
+            schema.Items.Add(new JSchema4 { Type = JSchemaType.Integer });
+
+            string json = "[1,true,2,'hi']";
+
+            IList<SchemaValidationEventArgs> errors;
+            JSchema4ValidatingReader validatingReader = CreateReader(json, schema, out errors);
+
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsFalse(validatingReader.Read());
+
+            Assert.AreEqual(2, errors.Count);
+            StringAssert.AreEqual(@"Invalid type. Expected Integer but got Boolean. Line 1, position 7.", errors[0].Message);
+            StringAssert.AreEqual(@"Invalid type. Expected Integer but got String. Line 1, position 14.", errors[1].Message);
+        }
+
+        [Test]
+        public void ValidateInteger_AllOfFailure()
+        {
+            JSchema4 schema = new JSchema4();
+            schema.Type = JSchemaType.Integer;
+
+            schema.AllOf.Add(new JSchema4
+            {
+                Maximum = 10
+            });
+            schema.AllOf.Add(new JSchema4
+            {
+                Minimum = 2
+            });
+
+            string json = "1";
+
+            IList<SchemaValidationEventArgs> errors;
+            JSchema4ValidatingReader validatingReader = CreateReader(json, schema, out errors);
+
+            Assert.IsTrue(validatingReader.Read());
+
+            Assert.AreEqual(1, errors.Count);
+        }
+
+        [Test]
+        public void ValidateInteger_BadTypeFailure()
+        {
+            JSchema4 schema = new JSchema4();
+            schema.Type = JSchemaType.Boolean;
+
+            string json = "1";
+            JsonReader reader = new JsonTextReader(new StringReader(json));
+
+            SchemaValidationEventArgs validationEventArgs = null;
+            JSchema4ValidatingReader validatingReader = new JSchema4ValidatingReader(reader);
+            validatingReader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
+            validatingReader.Schema = schema;
+
+            Assert.IsTrue(validatingReader.Read());
+
+            Assert.IsNotNull(validationEventArgs);
+            StringAssert.AreEqual(@"Invalid type. Expected Boolean but got Integer. Line 1, position 1.", validationEventArgs.Message);
+        }
+
         [Test]
         public void CheckInnerReader()
         {
             string json = "{'name':'James','hobbies':['pie','cake']}";
             JsonReader reader = new JsonTextReader(new StringReader(json));
 
-            JSchemaValidatingReader validatingReader = new JSchemaValidatingReader(reader);
+            JSchema4ValidatingReader validatingReader = new JSchema4ValidatingReader(reader);
             Assert.AreEqual(reader, validatingReader.Reader);
         }
 
@@ -65,11 +213,11 @@ namespace Newtonsoft.Json.Schema.Tests
 
             string json = @"{'name':""James"",'hobbies':[""pie"",'cake']}";
 
-            Json.Schema.SchemaValidationEventArgs validationEventArgs = null;
+            SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchema4ValidatingReader reader = new JSchema4ValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
-            JSchema schema = JSchema.Parse(schemaJson);
+            JSchema4 schema = JSchema4.Parse(schemaJson);
             reader.Schema = schema;
             Assert.AreEqual(schema, reader.Schema);
             Assert.AreEqual(0, reader.Depth);
@@ -137,9 +285,9 @@ namespace Newtonsoft.Json.Schema.Tests
 
             Json.Schema.SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchema4ValidatingReader reader = new JSchema4ValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
-            reader.Schema = JSchema.Parse(schemaJson);
+            reader.Schema = JSchema4.Parse(schemaJson);
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.StartArray, reader.TokenType);
@@ -210,11 +358,11 @@ namespace Newtonsoft.Json.Schema.Tests
 
             string json = "'pie'";
 
-            Json.Schema.SchemaValidationEventArgs validationEventArgs = null;
+            SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchema4ValidatingReader reader = new JSchema4ValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
-            reader.Schema = JSchema.Parse(schemaJson);
+            reader.Schema = JSchema4.Parse(schemaJson);
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.String, reader.TokenType);
@@ -234,11 +382,11 @@ namespace Newtonsoft.Json.Schema.Tests
 
             string json = "'The quick brown fox jumps over the lazy dog.'";
 
-            Json.Schema.SchemaValidationEventArgs validationEventArgs = null;
+            SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchema4ValidatingReader reader = new JSchema4ValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
-            reader.Schema = JSchema.Parse(schemaJson);
+            reader.Schema = JSchema4.Parse(schemaJson);
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.String, reader.TokenType);
@@ -263,9 +411,9 @@ namespace Newtonsoft.Json.Schema.Tests
 
             Json.Schema.SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchema4ValidatingReader reader = new JSchema4ValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
-            reader.Schema = JSchema.Parse(schemaJson);
+            reader.Schema = JSchema4.Parse(schemaJson);
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.StartArray, reader.TokenType);
@@ -279,13 +427,13 @@ namespace Newtonsoft.Json.Schema.Tests
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.String, reader.TokenType);
-            Assert.AreEqual(@"Value ""THREE"" is not defined in enum. Line 1, position 20.", validationEventArgs.Message);
-            Assert.AreEqual("[2]", validationEventArgs.Path);
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.EndArray, reader.TokenType);
 
             Assert.IsNotNull(validationEventArgs);
+            Assert.AreEqual(@"Value ""THREE"" is not defined in enum. Line 1, position 20.", validationEventArgs.Message);
+            Assert.AreEqual("[2]", validationEventArgs.Path);
         }
 
         [Test]
@@ -298,11 +446,11 @@ namespace Newtonsoft.Json.Schema.Tests
 
             string json = "'The quick brown fox jumps over the lazy dog.'";
 
-            Json.Schema.SchemaValidationEventArgs validationEventArgs = null;
+            SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchema4ValidatingReader reader = new JSchema4ValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
-            reader.Schema = JSchema.Parse(schemaJson);
+            reader.Schema = JSchema4.Parse(schemaJson);
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.String, reader.TokenType);
@@ -324,9 +472,9 @@ namespace Newtonsoft.Json.Schema.Tests
 
             Json.Schema.SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchema4ValidatingReader reader = new JSchema4ValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
-            reader.Schema = JSchema.Parse(schemaJson);
+            reader.Schema = JSchema4.Parse(schemaJson);
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.Integer, reader.TokenType);
@@ -391,8 +539,8 @@ namespace Newtonsoft.Json.Schema.Tests
   ""maximum"":5
 }";
 
-                JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader("10")));
-                reader.Schema = JSchema.Parse(schemaJson);
+                JSchema4ValidatingReader reader = new JSchema4ValidatingReader(new JsonTextReader(new StringReader("10")));
+                reader.Schema = JSchema4.Parse(schemaJson);
 
                 Assert.IsTrue(reader.Read());
             }, "Integer 10 exceeds maximum value of 5. Line 1, position 2.");
@@ -410,9 +558,9 @@ namespace Newtonsoft.Json.Schema.Tests
 
             Json.Schema.SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchema4ValidatingReader reader = new JSchema4ValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
-            reader.Schema = JSchema.Parse(schemaJson);
+            reader.Schema = JSchema4.Parse(schemaJson);
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.Integer, reader.TokenType);
@@ -437,9 +585,9 @@ namespace Newtonsoft.Json.Schema.Tests
 
             Json.Schema.SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchema4ValidatingReader reader = new JSchema4ValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
-            reader.Schema = JSchema.Parse(schemaJson);
+            reader.Schema = JSchema4.Parse(schemaJson);
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.StartArray, reader.TokenType);
@@ -474,9 +622,9 @@ namespace Newtonsoft.Json.Schema.Tests
 
             Json.Schema.SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchema4ValidatingReader reader = new JSchema4ValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
-            reader.Schema = JSchema.Parse(schemaJson);
+            reader.Schema = JSchema4.Parse(schemaJson);
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.Float, reader.TokenType);
@@ -497,9 +645,9 @@ namespace Newtonsoft.Json.Schema.Tests
 
             Json.Schema.SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchema4ValidatingReader reader = new JSchema4ValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
-            reader.Schema = JSchema.Parse(schemaJson);
+            reader.Schema = JSchema4.Parse(schemaJson);
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.Float, reader.TokenType);
@@ -524,9 +672,9 @@ namespace Newtonsoft.Json.Schema.Tests
 
             Json.Schema.SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchema4ValidatingReader reader = new JSchema4ValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
-            reader.Schema = JSchema.Parse(schemaJson);
+            reader.Schema = JSchema4.Parse(schemaJson);
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.StartArray, reader.TokenType);
@@ -564,9 +712,9 @@ namespace Newtonsoft.Json.Schema.Tests
 
             Json.Schema.SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchema4ValidatingReader reader = new JSchema4ValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
-            reader.Schema = JSchema.Parse(schemaJson);
+            reader.Schema = JSchema4.Parse(schemaJson);
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.StartArray, reader.TokenType);
@@ -580,7 +728,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.Float, reader.TokenType);
-            Assert.AreEqual(@"Float 4.001 is not evenly divisible by 0.1. Line 1, position 14.", validationEventArgs.Message);
+            Assert.AreEqual(@"Float 4.001 is not a multiple of 0.1. Line 1, position 14.", validationEventArgs.Message);
             Assert.AreEqual("[2]", validationEventArgs.Path);
 
             Assert.IsTrue(reader.Read());
@@ -720,9 +868,9 @@ namespace Newtonsoft.Json.Schema.Tests
 
             Json.Schema.SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchema4ValidatingReader reader = new JSchema4ValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
-            reader.Schema = JSchema.Parse(schemaJson);
+            reader.Schema = JSchema4.Parse(schemaJson);
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.StartArray, reader.TokenType);
@@ -752,9 +900,9 @@ namespace Newtonsoft.Json.Schema.Tests
 
             Json.Schema.SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchema4ValidatingReader reader = new JSchema4ValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
-            reader.Schema = JSchema.Parse(schemaJson);
+            reader.Schema = JSchema4.Parse(schemaJson);
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.StartArray, reader.TokenType);
@@ -786,9 +934,9 @@ namespace Newtonsoft.Json.Schema.Tests
 
             Json.Schema.SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchema4ValidatingReader reader = new JSchema4ValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
-            reader.Schema = JSchema.Parse(schemaJson);
+            reader.Schema = JSchema4.Parse(schemaJson);
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.StartArray, reader.TokenType);
@@ -821,9 +969,9 @@ namespace Newtonsoft.Json.Schema.Tests
 
             Json.Schema.SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchema4ValidatingReader reader = new JSchema4ValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
-            reader.Schema = JSchema.Parse(schemaJson);
+            reader.Schema = JSchema4.Parse(schemaJson);
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.StartArray, reader.TokenType);
@@ -839,9 +987,9 @@ namespace Newtonsoft.Json.Schema.Tests
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.EndArray, reader.TokenType);
-            Assert.AreEqual("Array item count 4 exceeds maximum count of 3. Line 1, position 21.", validationEventArgs.Message);
 
             Assert.IsNotNull(validationEventArgs);
+            Assert.AreEqual("Array item count 4 exceeds maximum count of 3. Line 1, position 21.", validationEventArgs.Message);
         }
 
         [Test]
@@ -855,11 +1003,11 @@ namespace Newtonsoft.Json.Schema.Tests
 
             string json = "[null]";
 
-            Json.Schema.SchemaValidationEventArgs validationEventArgs = null;
+            SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchema4ValidatingReader reader = new JSchema4ValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
-            reader.Schema = JSchema.Parse(schemaJson);
+            reader.Schema = JSchema4.Parse(schemaJson);
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.StartArray, reader.TokenType);
@@ -886,11 +1034,11 @@ namespace Newtonsoft.Json.Schema.Tests
 
             string json = "[null,null,null,null]";
 
-            Json.Schema.SchemaValidationEventArgs validationEventArgs = null;
+            SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchema4ValidatingReader reader = new JSchema4ValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
-            reader.Schema = JSchema.Parse(schemaJson);
+            reader.Schema = JSchema4.Parse(schemaJson);
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.StartArray, reader.TokenType);
@@ -912,11 +1060,11 @@ namespace Newtonsoft.Json.Schema.Tests
 
             string json = "['pie',1.1]";
 
-            Json.Schema.SchemaValidationEventArgs validationEventArgs = null;
+            SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchema4ValidatingReader reader = new JSchema4ValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
-            reader.Schema = JSchema.Parse(schemaJson);
+            reader.Schema = JSchema4.Parse(schemaJson);
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.StartArray, reader.TokenType);
@@ -927,12 +1075,13 @@ namespace Newtonsoft.Json.Schema.Tests
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.Float, reader.TokenType);
-            Assert.AreEqual(@"Type Float is disallowed. Line 1, position 10.", validationEventArgs.Message);
+
+            Assert.IsNotNull(validationEventArgs);
+            Assert.AreEqual(@"Not Line 1, position 10.", validationEventArgs.Message);
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.EndArray, reader.TokenType);
 
-            Assert.IsNotNull(validationEventArgs);
         }
 
         [Test]
@@ -953,9 +1102,9 @@ namespace Newtonsoft.Json.Schema.Tests
 
             Json.Schema.SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchema4ValidatingReader reader = new JSchema4ValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
-            reader.Schema = JSchema.Parse(schemaJson);
+            reader.Schema = JSchema4.Parse(schemaJson);
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.StartObject, reader.TokenType);
@@ -995,9 +1144,9 @@ namespace Newtonsoft.Json.Schema.Tests
 
             Json.Schema.SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchema4ValidatingReader reader = new JSchema4ValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
-            reader.Schema = JSchema.Parse(schemaJson);
+            reader.Schema = JSchema4.Parse(schemaJson);
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.StartObject, reader.TokenType);
@@ -1034,9 +1183,9 @@ namespace Newtonsoft.Json.Schema.Tests
 
             Json.Schema.SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchema4ValidatingReader reader = new JSchema4ValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
-            reader.Schema = JSchema.Parse(schemaJson);
+            reader.Schema = JSchema4.Parse(schemaJson);
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.StartObject, reader.TokenType);
@@ -1057,6 +1206,8 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.Null, reader.TokenType);
             Assert.AreEqual(null, reader.Value);
+
+            Assert.IsNotNull(validationEventArgs);
             Assert.AreEqual("Property 'additionalProperty1' has not been defined and the schema does not allow additional properties. Line 1, position 38.", validationEventArgs.Message);
 
             Assert.IsTrue(reader.Read());
@@ -1070,8 +1221,6 @@ namespace Newtonsoft.Json.Schema.Tests
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.EndObject, reader.TokenType);
-
-            Assert.IsNotNull(validationEventArgs);
         }
 
         [Test]
@@ -1091,23 +1240,24 @@ namespace Newtonsoft.Json.Schema.Tests
 
             Json.Schema.SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchema4ValidatingReader reader = new JSchema4ValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) =>
             {
                 validationEventArgs = args;
                 errors.Add(validationEventArgs.Message);
             };
-            reader.Schema = JSchema.Parse(schemaJson);
+            reader.Schema = JSchema4.Parse(schemaJson);
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.String, reader.TokenType);
-            Assert.AreEqual(1, errors.Count);
-            Assert.AreEqual("String 'The quick brown fox jumps over the lazy dog.' exceeds maximum length of 9. Line 1, position 46.", errors[0]);
+            Assert.AreEqual(2, errors.Count);
+            Assert.AreEqual("AllOf Line 1, position 46.", errors[0]);
+            Assert.AreEqual("String 'The quick brown fox jumps over the lazy dog.' exceeds maximum length of 9. Line 1, position 46.", errors[1]);
 
             Assert.IsNotNull(validationEventArgs);
         }
 
-        private JSchema GetExtendedSchema()
+        private JSchema4 GetExtendedSchema()
         {
             string first = @"{
   ""id"":""first"",
@@ -1130,9 +1280,12 @@ namespace Newtonsoft.Json.Schema.Tests
   ""additionalProperties"":false
 }";
 
-            JSchemaResolver resolver = new JSchemaResolver();
-            JSchema firstSchema = JSchema.Parse(first, resolver);
-            JSchema secondSchema = JSchema.Parse(second, resolver);
+            JSchemaPreloadedResolver resolver = new JSchemaPreloadedResolver();
+            JSchema4 firstSchema = JSchema4.Parse(first);
+
+            resolver.Add(firstSchema);
+
+            JSchema4 secondSchema = JSchema4.Parse(second, resolver);
 
             return secondSchema;
         }
@@ -1142,11 +1295,8 @@ namespace Newtonsoft.Json.Schema.Tests
         {
             string json = "{'firstproperty':'blah','secondproperty':'blah2','additional':'blah3','additional2':'blah4'}";
 
-            Json.Schema.SchemaValidationEventArgs validationEventArgs = null;
-
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
-            reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
-            reader.Schema = GetExtendedSchema();
+            IList<SchemaValidationEventArgs> errors;
+            JSchema4ValidatingReader reader = CreateReader(json, GetExtendedSchema(), out errors);
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.StartObject, reader.TokenType);
@@ -1154,27 +1304,29 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.PropertyName, reader.TokenType);
             Assert.AreEqual("firstproperty", reader.Value.ToString());
-            Assert.AreEqual(null, validationEventArgs);
+            Assert.AreEqual(1, errors.Count);
+            StringAssert.AreEqual(@"Property 'firstproperty' has not been defined and the schema does not allow additional properties. Line 1, position 17.", errors[0].Message);
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.String, reader.TokenType);
             Assert.AreEqual("blah", reader.Value.ToString());
-            Assert.AreEqual(null, validationEventArgs);
+            Assert.AreEqual(1, errors.Count);
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.PropertyName, reader.TokenType);
             Assert.AreEqual("secondproperty", reader.Value.ToString());
-            Assert.AreEqual(null, validationEventArgs);
+            Assert.AreEqual(1, errors.Count);
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.String, reader.TokenType);
             Assert.AreEqual("blah2", reader.Value.ToString());
-            Assert.AreEqual(null, validationEventArgs);
+            Assert.AreEqual(1, errors.Count);
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.PropertyName, reader.TokenType);
             Assert.AreEqual("additional", reader.Value.ToString());
-            Assert.AreEqual("Property 'additional' has not been defined and the schema does not allow additional properties. Line 1, position 62.", validationEventArgs.Message);
+            Assert.AreEqual(2, errors.Count);
+            Assert.AreEqual("Property 'additional' has not been defined and the schema does not allow additional properties. Line 1, position 62.", errors[1].Message);
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.String, reader.TokenType);
@@ -1183,7 +1335,8 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.PropertyName, reader.TokenType);
             Assert.AreEqual("additional2", reader.Value.ToString());
-            Assert.AreEqual("Property 'additional2' has not been defined and the schema does not allow additional properties. Line 1, position 84.", validationEventArgs.Message);
+            Assert.AreEqual(3, errors.Count);
+            Assert.AreEqual("Property 'additional2' has not been defined and the schema does not allow additional properties. Line 1, position 84.", errors[2].Message);
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.String, reader.TokenType);
@@ -1202,7 +1355,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             List<string> errors = new List<string>();
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchema4ValidatingReader reader = new JSchema4ValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { errors.Add(args.Message); };
             reader.Schema = GetExtendedSchema();
 
@@ -1212,8 +1365,9 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.EndObject, reader.TokenType);
 
-            Assert.AreEqual(1, errors.Count);
-            Assert.AreEqual("Required properties are missing from object: secondproperty, firstproperty. Line 1, position 2.", errors[0]);
+            Assert.AreEqual(2, errors.Count);
+            Assert.AreEqual("AllOf Line 1, position 2.", errors[0]);
+            Assert.AreEqual("Required properties are missing from object: secondproperty. Line 1, position 2.", errors[1]);
         }
 
         [Test]
@@ -1229,9 +1383,9 @@ namespace Newtonsoft.Json.Schema.Tests
 
             Json.Schema.SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchema4ValidatingReader reader = new JSchema4ValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
-            reader.Schema = JSchema.Parse(schemaJson);
+            reader.Schema = JSchema4.Parse(schemaJson);
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.StartArray, reader.TokenType);
@@ -1275,9 +1429,9 @@ namespace Newtonsoft.Json.Schema.Tests
 
             Json.Schema.SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchema4ValidatingReader reader = new JSchema4ValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
-            reader.Schema = JSchema.Parse(schemaJson);
+            reader.Schema = JSchema4.Parse(schemaJson);
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.StartObject, reader.TokenType);
@@ -1365,11 +1519,11 @@ namespace Newtonsoft.Json.Schema.Tests
   ""additionalProperties"":false
 }";
 
-            JSchemaResolver resolver = new JSchemaResolver();
-            JSchema firstSchema = JSchema.Parse(first, resolver);
-            JSchema secondSchema = JSchema.Parse(second, resolver);
+            JSchemaPreloadedResolver resolver = new JSchemaPreloadedResolver();
+            JSchema4 firstSchema = JSchema4.Parse(first);
+            resolver.Add(firstSchema);
 
-            JSchemaModelBuilder modelBuilder = new JSchemaModelBuilder();
+            JSchema4 secondSchema = JSchema4.Parse(second, resolver);
 
             string json = @"{
   'firstproperty':'blahblahblahblahblahblah',
@@ -1380,10 +1534,10 @@ namespace Newtonsoft.Json.Schema.Tests
   }
 }";
 
-            Json.Schema.SchemaValidationEventArgs validationEventArgs = null;
+            SchemaValidationEventArgs validationEventArgs = null;
             List<string> errors = new List<string>();
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchema4ValidatingReader reader = new JSchema4ValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) =>
             {
                 validationEventArgs = args;
@@ -1397,7 +1551,7 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.PropertyName, reader.TokenType);
             Assert.AreEqual("firstproperty", reader.Value.ToString());
-            Assert.AreEqual(null, validationEventArgs);
+            StringAssert.AreEqual(@"firstproperty - Property 'firstproperty' has not been defined and the schema does not allow additional properties. Line 2, position 19.", errors[0]);
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.String, reader.TokenType);
@@ -1411,7 +1565,6 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(JsonToken.String, reader.TokenType);
             Assert.AreEqual("secasecasecasecaseca", reader.Value.ToString());
             Assert.AreEqual(1, errors.Count);
-            Assert.AreEqual("secondproperty - String 'secasecasecasecaseca' exceeds maximum length of 10. Line 3, position 42.", errors[0]);
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.PropertyName, reader.TokenType);
@@ -1430,29 +1583,31 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.String, reader.TokenType);
             Assert.AreEqual("aaa", reader.Value.ToString());
-            Assert.AreEqual(4, errors.Count);
-            Assert.AreEqual("thirdproperty.thirdproperty_firstproperty - String 'aaa' is less than minimum length of 7. Line 5, position 40.", errors[1]);
-            Assert.AreEqual("thirdproperty.thirdproperty_firstproperty - String 'aaa' does not match regex pattern 'hi'. Line 5, position 40.", errors[2]);
-            Assert.AreEqual("thirdproperty.thirdproperty_firstproperty - String 'aaa' does not match regex pattern 'hi2u'. Line 5, position 40.", errors[3]);
+            Assert.AreEqual(2, errors.Count);
+            StringAssert.AreEqual(@"thirdproperty.thirdproperty_firstproperty - String 'aaa' does not match regex pattern 'hi'. Line 5, position 40.", errors[1]);
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.PropertyName, reader.TokenType);
             Assert.AreEqual("additional", reader.Value.ToString());
-            Assert.AreEqual(4, errors.Count);
+            Assert.AreEqual(2, errors.Count);
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.String, reader.TokenType);
             Assert.AreEqual("three", reader.Value.ToString());
-            Assert.AreEqual(5, errors.Count);
-            Assert.AreEqual("thirdproperty.additional - String 'three' is less than minimum length of 6. Line 6, position 25.", errors[4]);
+            Assert.AreEqual(2, errors.Count);
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.EndObject, reader.TokenType);
+            Assert.AreEqual(3, errors.Count);
+            StringAssert.AreEqual(@"thirdproperty - AllOf Line 7, position 4.", errors[2]);
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.EndObject, reader.TokenType);
+            Assert.AreEqual(4, errors.Count);
+            StringAssert.AreEqual(@" - AllOf Line 8, position 2.", errors[3]);
 
             Assert.IsFalse(reader.Read());
+            Assert.AreEqual(4, errors.Count);
         }
 
         [Test]
@@ -1560,9 +1715,9 @@ namespace Newtonsoft.Json.Schema.Tests
 
             IList<SchemaValidationEventArgs> validationEventArgs = new List<SchemaValidationEventArgs>();
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchema4ValidatingReader reader = new JSchema4ValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs.Add(args); };
-            reader.Schema = JSchema.Parse(schema);
+            reader.Schema = JSchema4.Parse(schema);
 
             while (reader.Read())
             {
@@ -1574,11 +1729,11 @@ namespace Newtonsoft.Json.Schema.Tests
         [Test]
         public void ReadAsBytes()
         {
-            JSchema s = new JSchemaGenerator().Generate(typeof(byte[]));
+            JSchema4 s = new JSchema4Generator().Generate(typeof(byte[]));
 
             byte[] data = Encoding.UTF8.GetBytes("Hello world");
 
-            JsonReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(@"""" + Convert.ToBase64String(data) + @"""")))
+            JsonReader reader = new JSchema4ValidatingReader(new JsonTextReader(new StringReader(@"""" + Convert.ToBase64String(data) + @"""")))
             {
                 Schema = s
             };
@@ -1590,9 +1745,9 @@ namespace Newtonsoft.Json.Schema.Tests
         [Test]
         public void ReadAsInt32()
         {
-            JSchema s = new JSchemaGenerator().Generate(typeof(int));
+            JSchema4 s = new JSchema4Generator().Generate(typeof(int));
 
-            JsonReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(@"1")))
+            JsonReader reader = new JSchema4ValidatingReader(new JsonTextReader(new StringReader(@"1")))
             {
                 Schema = s
             };
@@ -1606,10 +1761,10 @@ namespace Newtonsoft.Json.Schema.Tests
         {
             ExceptionAssert.Throws<JSchemaException>(() =>
             {
-                JSchema s = new JSchemaGenerator().Generate(typeof(int));
+                JSchema4 s = new JSchema4Generator().Generate(typeof(int));
                 s.Maximum = 2;
 
-                JsonReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(@"5")))
+                JsonReader reader = new JSchema4ValidatingReader(new JsonTextReader(new StringReader(@"5")))
                 {
                     Schema = s
                 };
@@ -1620,9 +1775,9 @@ namespace Newtonsoft.Json.Schema.Tests
         [Test]
         public void ReadAsDecimal()
         {
-            JSchema s = new JSchemaGenerator().Generate(typeof(decimal));
+            JSchema4 s = new JSchema4Generator().Generate(typeof(decimal));
 
-            JsonReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(@"1.5")))
+            JsonReader reader = new JSchema4ValidatingReader(new JsonTextReader(new StringReader(@"1.5")))
             {
                 Schema = s
             };
@@ -1636,22 +1791,22 @@ namespace Newtonsoft.Json.Schema.Tests
         {
             ExceptionAssert.Throws<JSchemaException>(() =>
             {
-                JSchema s = new JSchemaGenerator().Generate(typeof(decimal));
-                s.DivisibleBy = 1;
+                JSchema4 s = new JSchema4Generator().Generate(typeof(decimal));
+                s.MultipleOf = 1;
 
-                JsonReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(@"5.5")))
+                JsonReader reader = new JSchema4ValidatingReader(new JsonTextReader(new StringReader(@"5.5")))
                 {
                     Schema = s
                 };
                 reader.ReadAsDecimal();
-            }, "Float 5.5 is not evenly divisible by 1. Line 1, position 3.");
+            }, "Float 5.5 is not a multiple of 1. Line 1, position 3.");
         }
 
         [Test]
         public void ReadAsInt32FromSerializer()
         {
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader("[1,2,3]")));
-            reader.Schema = new JSchemaGenerator().Generate(typeof(int[]));
+            JSchema4ValidatingReader reader = new JSchema4ValidatingReader(new JsonTextReader(new StringReader("[1,2,3]")));
+            reader.Schema = new JSchema4Generator().Generate(typeof(int[]));
             int[] values = new JsonSerializer().Deserialize<int[]>(reader);
 
             Assert.AreEqual(3, values.Length);
@@ -1675,9 +1830,9 @@ namespace Newtonsoft.Json.Schema.Tests
 
             Json.Schema.SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchema4ValidatingReader reader = new JSchema4ValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
-            reader.Schema = JSchema.Parse(schemaJson);
+            reader.Schema = JSchema4.Parse(schemaJson);
 
             reader.Read();
             Assert.AreEqual(JsonToken.StartArray, reader.TokenType);
@@ -1711,9 +1866,9 @@ namespace Newtonsoft.Json.Schema.Tests
 
             Json.Schema.SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchema4ValidatingReader reader = new JSchema4ValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
-            reader.Schema = JSchema.Parse(schemaJson);
+            reader.Schema = JSchema4.Parse(schemaJson);
 
             reader.Read();
             Assert.AreEqual(JsonToken.StartArray, reader.TokenType);

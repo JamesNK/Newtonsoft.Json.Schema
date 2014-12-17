@@ -68,8 +68,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.6.0.7\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework">
@@ -166,7 +165,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
     <EmbeddedResource Include="Resources\Schemas\bower.json" />
     <EmbeddedResource Include="Resources\Schemas\bowerrc.json" />
     <EmbeddedResource Include="Resources\Schemas\chrome-manifest.json" />
@@ -203,151 +204,172 @@
     <EmbeddedResource Include="Resources\Schemas\web-manifest.json" />
     <EmbeddedResource Include="Resources\Schemas\webjob-publish-settings.json" />
     <EmbeddedResource Include="Resources\Schemas\webjobs-list.json" />
-    <None Include="Specs\Draft3\additionalItems.json">
+    <None Include="Specs\tests\Draft3\additionalItems.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Specs\Draft3\additionalProperties.json">
+    <None Include="Specs\tests\Draft3\additionalProperties.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Specs\Draft3\dependencies.json">
+    <None Include="Specs\tests\Draft3\default.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Specs\Draft3\disallow.json">
+    <None Include="Specs\tests\Draft3\dependencies.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Specs\Draft3\divisibleBy.json">
+    <None Include="Specs\tests\Draft3\disallow.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Specs\Draft3\enum.json">
+    <None Include="Specs\tests\Draft3\divisibleBy.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Specs\Draft3\extends.json">
+    <None Include="Specs\tests\Draft3\enum.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Specs\Draft3\items.json">
+    <None Include="Specs\tests\Draft3\extends.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Specs\Draft3\maximum.json">
+    <None Include="Specs\tests\Draft3\items.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Specs\Draft3\maxItems.json">
+    <None Include="Specs\tests\Draft3\maximum.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Specs\Draft3\maxLength.json">
+    <None Include="Specs\tests\Draft3\maxItems.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Specs\Draft3\minimum.json">
+    <None Include="Specs\tests\Draft3\maxLength.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Specs\Draft3\minItems.json">
+    <None Include="Specs\tests\Draft3\minimum.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Specs\Draft3\minLength.json">
+    <None Include="Specs\tests\Draft3\minItems.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Specs\Draft3\pattern.json">
+    <None Include="Specs\tests\Draft3\minLength.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Specs\Draft3\patternProperties.json">
+    <None Include="Specs\tests\Draft3\pattern.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Specs\Draft3\properties.json">
+    <None Include="Specs\tests\Draft3\patternProperties.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Specs\Draft3\ref.json">
+    <None Include="Specs\tests\Draft3\properties.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Specs\Draft3\required.json">
+    <None Include="Specs\tests\Draft3\ref.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Specs\Draft3\type.json">
+    <None Include="Specs\tests\Draft3\refRemote.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Specs\Draft3\uniqueItems.json">
+    <None Include="Specs\tests\Draft3\required.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Specs\Draft4\additionalItems.json">
+    <None Include="Specs\tests\Draft3\type.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Specs\Draft4\additionalProperties.json">
+    <None Include="Specs\tests\Draft3\uniqueItems.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Specs\Draft4\allOf.json">
+    <None Include="Specs\tests\Draft4\additionalItems.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Specs\Draft4\anyOf.json">
+    <None Include="Specs\tests\Draft4\additionalProperties.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Specs\Draft4\default.json">
+    <None Include="Specs\tests\Draft4\allOf.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Specs\Draft4\definitions.json">
+    <None Include="Specs\tests\Draft4\anyOf.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Specs\Draft4\dependencies.json">
+    <None Include="Specs\tests\Draft4\default.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Specs\Draft4\enum.json">
+    <None Include="Specs\tests\Draft4\definitions.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Specs\Draft4\items.json">
+    <None Include="Specs\tests\Draft4\dependencies.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Specs\Draft4\maximum.json">
+    <None Include="Specs\tests\Draft4\enum.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Specs\Draft4\maxItems.json">
+    <None Include="Specs\tests\Draft4\items.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Specs\Draft4\maxLength.json">
+    <None Include="Specs\tests\Draft4\maximum.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Specs\Draft4\maxProperties.json">
+    <None Include="Specs\tests\Draft4\maxItems.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Specs\Draft4\minimum.json">
+    <None Include="Specs\tests\Draft4\maxLength.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Specs\Draft4\minItems.json">
+    <None Include="Specs\tests\Draft4\maxProperties.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Specs\Draft4\minLength.json">
+    <None Include="Specs\tests\Draft4\minimum.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Specs\Draft4\minProperties.json">
+    <None Include="Specs\tests\Draft4\minItems.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Specs\Draft4\multipleOf.json">
+    <None Include="Specs\tests\Draft4\minLength.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Specs\Draft4\not.json">
+    <None Include="Specs\tests\Draft4\minProperties.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Specs\Draft4\oneOf.json">
+    <None Include="Specs\tests\Draft4\multipleOf.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Specs\Draft4\pattern.json">
+    <None Include="Specs\tests\Draft4\not.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Specs\Draft4\patternProperties.json">
+    <None Include="Specs\tests\Draft4\oneOf.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Specs\Draft4\properties.json">
+    <None Include="Specs\tests\Draft4\pattern.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Specs\Draft4\ref.json">
+    <None Include="Specs\tests\Draft4\patternProperties.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Specs\Draft4\refRemote.json">
+    <None Include="Specs\tests\Draft4\properties.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Specs\Draft4\required.json">
+    <None Include="Specs\tests\Draft4\ref.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Specs\Draft4\type.json">
+    <None Include="Specs\tests\Draft4\refRemote.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Specs\Draft4\uniqueItems.json">
+    <None Include="Specs\tests\Draft4\required.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Specs\tests\Draft4\type.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Specs\tests\Draft4\uniqueItems.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Specs\remotes\draft3.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Specs\remotes\draft4.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Specs\remotes\folder\folderInteger.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Specs\remotes\integer.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Specs\remotes\subSchemas.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

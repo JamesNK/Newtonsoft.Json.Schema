@@ -41,6 +41,61 @@ namespace Newtonsoft.Json.Schema.Tests
     public class JSchema4GeneratorTests : TestFixtureBase
     {
         [Test]
+        public void MixedRequired()
+        {
+            JSchema4Generator generator = new JSchema4Generator();
+            generator.UndefinedSchemaIdHandling = JSchemaUndefinedIdHandling.None;
+
+            JSchema4 schema = generator.Generate(typeof(CircularReferenceWithIdClass));
+
+            string json = schema.ToString();
+
+            StringAssert.AreEqual(@"{
+  ""id"": ""MyExplicitId"",
+  ""type"": ""object"",
+  ""properties"": {
+    ""Name"": {
+      ""type"": [
+        ""string"",
+        ""null""
+      ]
+    },
+    ""Child"": {
+      ""id"": ""MyExplicitId-1"",
+      ""type"": [
+        ""object"",
+        ""null""
+      ],
+      ""properties"": {
+        ""Name"": {
+          ""type"": [
+            ""string"",
+            ""null""
+          ]
+        },
+        ""Child"": {
+          ""$ref"": ""MyExplicitId-1""
+        }
+      },
+      ""required"": [
+        ""Name"",
+        ""Child""
+      ]
+    }
+  },
+  ""required"": [
+    ""Name"",
+    ""Child""
+  ]
+}", json);
+
+            CircularReferenceWithIdClass c = new CircularReferenceWithIdClass();
+            JToken t = JToken.Parse(JsonConvert.SerializeObject(c, Formatting.Indented));
+
+            Assert.IsTrue(t.IsValid(schema));
+        }
+
+        [Test]
         public void Generate_GenericDictionary()
         {
             JSchema4Generator generator = new JSchema4Generator();
@@ -274,8 +329,8 @@ namespace Newtonsoft.Json.Schema.Tests
 
             Assert.AreEqual(JSchemaType.String | JSchemaType.Null, schema.Properties["Name"].Type);
             Assert.AreEqual(new Uri("MyExplicitId", UriKind.RelativeOrAbsolute), schema.Id);
-            Assert.AreEqual(JSchemaType.Object, schema.Properties["Child"].Type);
-            Assert.AreEqual(schema, schema.Properties["Child"]);
+            Assert.AreEqual(JSchemaType.Object | JSchemaType.Null, schema.Properties["Child"].Type);
+            Assert.AreNotEqual(schema, schema.Properties["Child"]); // child allow's null
         }
 
         [Test]
@@ -666,12 +721,15 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchema4Generator generator = new JSchema4Generator();
 
             generator.UndefinedSchemaIdHandling = JSchemaUndefinedIdHandling.UseTypeName;
-            JSchema4 jsonSchema = generator.Generate(typeof(JsonPropertyWithHandlingValues));
+            JSchema4 jsonSchema = generator.Generate(typeof(JsonPropertyWithHandlingValues), true);
             string json = jsonSchema.ToString();
 
             Tests.StringAssert.AreEqual(@"{
   ""id"": ""Newtonsoft.Json.Schema.Tests.TestObjects.JsonPropertyWithHandlingValues"",
-  ""type"": ""object"",
+  ""type"": [
+    ""object"",
+    ""null""
+  ],
   ""properties"": {
     ""DefaultValueHandlingIgnoreProperty"": {
       ""type"": [

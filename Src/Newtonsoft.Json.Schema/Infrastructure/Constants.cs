@@ -10,7 +10,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
     internal static class Constants
     {
         public static readonly List<JsonToken> NumberTokens = new List<JsonToken> { JsonToken.Integer, JsonToken.Float };
-        public static readonly List<JsonToken> DependencyTokens = new List<JsonToken> { JsonToken.StartObject, JsonToken.String };
+        public static readonly List<JsonToken> DependencyTokens = new List<JsonToken> { JsonToken.StartObject, JsonToken.StartArray, JsonToken.String };
 
         internal static class PropertyNames
         {
@@ -46,6 +46,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             public const string Extends = "extends";
             public const string Id = "id";
             public const string UniqueItems = "uniqueItems";
+            public const string MinimumProperties = "minProperties";
+            public const string MaximumProperties = "maxProperties";
 
             public const string AnyOf = "anyOf";
             public const string AllOf = "allOf";

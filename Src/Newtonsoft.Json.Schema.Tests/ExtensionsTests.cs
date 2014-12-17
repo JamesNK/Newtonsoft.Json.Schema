@@ -3,6 +3,7 @@
 // License: https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md
 #endregion
 
+using Newtonsoft.Json.Schema.V4;
 using System;
 using System.Collections.Generic;
 using Newtonsoft.Json.Schema.Tests.TestObjects;
@@ -32,7 +33,7 @@ namespace Newtonsoft.Json.Schema.Tests
         [Test]
         public void IsValid()
         {
-            JSchema schema = JSchema.Parse("{'type':'integer'}");
+            JSchema4 schema = JSchema4.Parse("{'type':'integer'}");
             JToken stringToken = JToken.FromObject("pie");
             JToken integerToken = JToken.FromObject(1);
 
@@ -50,7 +51,7 @@ namespace Newtonsoft.Json.Schema.Tests
         [Test]
         public void ValidateWithEventHandler()
         {
-            JSchema schema = JSchema.Parse("{'pattern':'lol'}");
+            JSchema4 schema = JSchema4.Parse("{'pattern':'lol'}");
             JToken stringToken = JToken.FromObject("pie lol");
 
             List<string> errors = new List<string>();
@@ -70,7 +71,7 @@ namespace Newtonsoft.Json.Schema.Tests
         {
             ExceptionAssert.Throws<JSchemaException>(() =>
             {
-                JSchema schema = JSchema.Parse("{'pattern':'lol'}");
+                JSchema4 schema = JSchema4.Parse("{'pattern':'lol'}");
                 JToken stringToken = JToken.FromObject("pie");
                 stringToken.Validate(schema);
             }, @"String 'pie' does not match regex pattern 'lol'.");
@@ -79,7 +80,7 @@ namespace Newtonsoft.Json.Schema.Tests
         [Test]
         public void ValidateWithOutEventHandlerSuccess()
         {
-            JSchema schema = JSchema.Parse("{'pattern':'lol'}");
+            JSchema4 schema = JSchema4.Parse("{'pattern':'lol'}");
             JToken stringToken = JToken.FromObject("pie lol");
             stringToken.Validate(schema);
         }
@@ -88,7 +89,7 @@ namespace Newtonsoft.Json.Schema.Tests
         public void ValidateFailureWithOutLineInfoBecauseOfEndToken()
         {
             // changed in 6.0.6 to now include line info!
-            JSchema schema = JSchema.Parse("{'properties':{'lol':{'required':true}}}");
+            JSchema4 schema = JSchema4.Parse("{'properties':{'lol':{'required':true}}}");
             JObject o = JObject.Parse("{}");
 
             List<string> errors = new List<string>();
@@ -101,7 +102,7 @@ namespace Newtonsoft.Json.Schema.Tests
         [Test]
         public void ValidateRequiredFieldsWithLineInfo()
         {
-            JSchema schema = JSchema.Parse("{'properties':{'lol':{'type':'string'}}}");
+            JSchema4 schema = JSchema4.Parse("{'properties':{'lol':{'type':'string'}}}");
             JObject o = JObject.Parse("{'lol':1}");
 
             List<string> errors = new List<string>();
@@ -138,7 +139,7 @@ namespace Newtonsoft.Json.Schema.Tests
             //  schema = builder.Parse(reader);
             //}
 
-            JSchema schema = JSchema.Parse(schemaJson);
+            JSchema4 schema = JSchema4.Parse(schemaJson);
 
             JObject person = JObject.Parse(@"{
         ""name"": ""James"",
@@ -151,9 +152,9 @@ namespace Newtonsoft.Json.Schema.Tests
 
         private void GenerateSchemaAndSerializeFromType<T>(T value)
         {
-            JSchemaGenerator generator = new JSchemaGenerator();
+            JSchema4Generator generator = new JSchema4Generator();
             generator.UndefinedSchemaIdHandling = JSchemaUndefinedIdHandling.UseAssemblyQualifiedName;
-            JSchema typeSchema = generator.Generate(typeof(T));
+            JSchema4 typeSchema = generator.Generate(typeof(T));
             string schema = typeSchema.ToString();
 
             string json = JsonConvert.SerializeObject(value, Formatting.Indented);
@@ -200,7 +201,7 @@ namespace Newtonsoft.Json.Schema.Tests
         [Test]
         public void UndefinedPropertyOnNoPropertySchema()
         {
-            JSchema schema = JSchema.Parse(@"{
+            JSchema4 schema = JSchema4.Parse(@"{
   ""description"": ""test"",
   ""type"": ""object"",
   ""additionalProperties"": false,
@@ -222,7 +223,7 @@ namespace Newtonsoft.Json.Schema.Tests
         {
             ExceptionAssert.Throws<JSchemaException>(() =>
             {
-                JSchema schema = new JSchema();
+                JSchema4 schema = new JSchema4();
                 schema.Maximum = 10;
                 schema.ExclusiveMaximum = true;
 
@@ -236,7 +237,7 @@ namespace Newtonsoft.Json.Schema.Tests
         {
             ExceptionAssert.Throws<JSchemaException>(() =>
             {
-                JSchema schema = new JSchema();
+                JSchema4 schema = new JSchema4();
                 schema.Maximum = 10.1;
                 schema.ExclusiveMaximum = true;
 
@@ -250,7 +251,7 @@ namespace Newtonsoft.Json.Schema.Tests
         {
             ExceptionAssert.Throws<JSchemaException>(() =>
             {
-                JSchema schema = new JSchema();
+                JSchema4 schema = new JSchema4();
                 schema.Minimum = 10;
                 schema.ExclusiveMinimum = true;
 
@@ -264,7 +265,7 @@ namespace Newtonsoft.Json.Schema.Tests
         {
             ExceptionAssert.Throws<JSchemaException>(() =>
             {
-                JSchema schema = new JSchema();
+                JSchema4 schema = new JSchema4();
                 schema.Minimum = 10.1;
                 schema.ExclusiveMinimum = true;
 
@@ -278,19 +279,19 @@ namespace Newtonsoft.Json.Schema.Tests
         {
             ExceptionAssert.Throws<JSchemaException>(() =>
             {
-                JSchema schema = new JSchema();
-                schema.DivisibleBy = 3;
+                JSchema4 schema = new JSchema4();
+                schema.MultipleOf = 3;
 
                 JValue v = new JValue(10);
                 v.Validate(schema);
-            }, "Integer 10 is not evenly divisible by 3.");
+            }, "Integer 10 is not a multiple of 3.");
         }
 
         [Test]
         public void DivisibleBy_Approx()
         {
-            JSchema schema = new JSchema();
-            schema.DivisibleBy = 0.01;
+            JSchema4 schema = new JSchema4();
+            schema.MultipleOf = 0.01;
 
             JValue v = new JValue(20.49);
             v.Validate(schema);
@@ -299,7 +300,7 @@ namespace Newtonsoft.Json.Schema.Tests
         [Test]
         public void UniqueItems_SimpleUnique()
         {
-            JSchema schema = new JSchema();
+            JSchema4 schema = new JSchema4();
             schema.UniqueItems = true;
 
             JArray a = new JArray(1, 2, 3);
@@ -309,7 +310,7 @@ namespace Newtonsoft.Json.Schema.Tests
         [Test]
         public void UniqueItems_SimpleDuplicate()
         {
-            JSchema schema = new JSchema();
+            JSchema4 schema = new JSchema4();
             schema.UniqueItems = true;
 
             JArray a = new JArray(1, 2, 3, 2, 2);
@@ -323,7 +324,7 @@ namespace Newtonsoft.Json.Schema.Tests
         [Test]
         public void UniqueItems_ComplexDuplicate()
         {
-            JSchema schema = new JSchema();
+            JSchema4 schema = new JSchema4();
             schema.UniqueItems = true;
 
             JArray a = new JArray(1, new JObject(new JProperty("value", "value!")), 3, 2, new JObject(new JProperty("value", "value!")), 4, 2, new JObject(new JProperty("value", "value!")));
@@ -338,16 +339,16 @@ namespace Newtonsoft.Json.Schema.Tests
         [Test]
         public void UniqueItems_NestedDuplicate()
         {
-            JSchema schema = new JSchema();
+            JSchema4 schema = new JSchema4();
             schema.UniqueItems = true;
-            schema.Items = new List<JSchema>
+            schema.Items = new List<JSchema4>
             {
-                new JSchema
+                new JSchema4
                 {
                     UniqueItems = true
                 }
             };
-            schema.PositionalItemsValidation = false;
+            schema.ItemsPositionValidation = false;
 
             JArray a = new JArray(
                 new JArray(1, 2),
@@ -368,12 +369,12 @@ namespace Newtonsoft.Json.Schema.Tests
         [Test]
         public void Enum_Properties()
         {
-            JSchema schema = new JSchema();
-            schema.Properties = new Dictionary<string, JSchema>
+            JSchema4 schema = new JSchema4();
+            schema.Properties = new Dictionary<string, JSchema4>
             {
                 {
                     "bar",
-                    new JSchema
+                    new JSchema4
                     {
                         Enum = new List<JToken>
                         {
@@ -401,12 +402,12 @@ namespace Newtonsoft.Json.Schema.Tests
         [Test]
         public void UniqueItems_Property()
         {
-            JSchema schema = new JSchema();
-            schema.Properties = new Dictionary<string, JSchema>
+            JSchema4 schema = new JSchema4();
+            schema.Properties = new Dictionary<string, JSchema4>
             {
                 {
                     "bar",
-                    new JSchema
+                    new JSchema4
                     {
                         UniqueItems = true
                     }
@@ -424,13 +425,13 @@ namespace Newtonsoft.Json.Schema.Tests
         [Test]
         public void Items_Positional()
         {
-            JSchema schema = new JSchema();
-            schema.Items = new List<JSchema>
+            JSchema4 schema = new JSchema4();
+            schema.Items = new List<JSchema4>
             {
-                new JSchema { Type = JSchemaType.Object },
-                new JSchema { Type = JSchemaType.Integer }
+                new JSchema4 { Type = JSchemaType.Object },
+                new JSchema4 { Type = JSchemaType.Integer }
             };
-            schema.PositionalItemsValidation = true;
+            schema.ItemsPositionValidation = true;
 
             JArray a = new JArray(new JObject(), 1);
             IList<string> errorMessages;
@@ -441,7 +442,7 @@ namespace Newtonsoft.Json.Schema.Tests
         [Test]
         public void IntegerValidatesAgainstFloatFlags()
         {
-            JSchema schema = JSchema.Parse(@"{
+            JSchema4 schema = JSchema4.Parse(@"{
   ""type"": ""object"",
   ""$schema"": ""http://json-schema.org/draft-03/schema"",
   ""required"": false,
@@ -461,6 +462,156 @@ namespace Newtonsoft.Json.Schema.Tests
 }");
 
             Assert.IsTrue(json.IsValid(schema));
+        }
+
+        [Test]
+        public void ComplexEnum()
+        {
+            JSchema4 schema = JSchema4.Parse(@"{""enum"": [6, ""foo"", [], true, {""foo"": 12}]}");
+
+            JObject json = JObject.Parse(@"{""foo"": false}");
+
+            IList<string> errorMessages;
+            Assert.IsFalse(json.IsValid(schema, out errorMessages));
+            Assert.AreEqual(1, errorMessages.Count);
+            StringAssert.AreEqual(@"Value {""foo"":false} is not defined in enum. Line 1, position 1.", errorMessages[0]);
+        }
+
+        [Test]
+        public void AdditionalItemsSchema()
+        {
+            JSchema4 schema = JSchema4.Parse(@"{
+                ""items"": [],
+                ""additionalItems"": {""type"": ""integer""}
+            }");
+
+            JArray json = JArray.Parse(@"[ 1, 2, 3, ""foo"" ]");
+
+            IList<string> errorMessages;
+            Assert.IsFalse(json.IsValid(schema, out errorMessages));
+            Assert.AreEqual(1, errorMessages.Count);
+            StringAssert.AreEqual(@"Invalid type. Expected Integer but got String. Line 1, position 16.", errorMessages[0]);
+        }
+
+        [Test]
+        public void AdditionalPropertiesSchema()
+        {
+            JSchema4 schema = JSchema4.Parse(@"{
+                ""properties"": {""foo"": {}, ""bar"": {}},
+                ""additionalProperties"": {""type"": ""boolean""}
+            }");
+
+            JObject json = JObject.Parse(@"{""foo"" : 1, ""bar"" : 2, ""quux"" : 12}");
+
+            IList<string> errorMessages;
+            Assert.IsFalse(json.IsValid(schema, out errorMessages));
+            Assert.AreEqual(1, errorMessages.Count);
+            StringAssert.AreEqual(@"Invalid type. Expected Boolean but got Integer. Line 1, position 34.", errorMessages[0]);
+        }
+
+        [Test]
+        public void MultipleDisallowSubschema_Pass()
+        {
+            JSchema4 schema = JSchema4.Parse(@"{
+                ""disallow"":
+                    [""string"",
+                     {
+                        ""type"": ""object"",
+                        ""properties"": {
+                            ""foo"": {
+                                ""type"": ""string""
+                            }
+                        }
+                     }]
+            }");
+
+            JToken json = JToken.Parse(@"true");
+
+            IList<string> errorMessages;
+            Assert.IsTrue(json.IsValid(schema, out errorMessages));
+        }
+
+        [Test]
+        public void MultipleDisallowSubschema_Fail()
+        {
+            JSchema4 schema = JSchema4.Parse(@"{
+                ""disallow"":
+                    [""string"",
+                     {
+                        ""type"": ""object"",
+                        ""properties"": {
+                            ""foo"": {
+                                ""type"": ""string""
+                            }
+                        }
+                     }]
+            }");
+
+            JObject json = JObject.Parse(@"{""foo"": ""bar""}");
+
+            IList<string> errorMessages;
+            Assert.IsFalse(json.IsValid(schema, out errorMessages));
+            Assert.AreEqual(1, errorMessages.Count);
+            StringAssert.AreEqual("Not Line 1, position 1.", errorMessages[0]);
+        }
+
+        [Test]
+        public void OneOf_MultipleValid()
+        {
+            JSchema4 schema = JSchema4.Parse(@"{
+                ""type"": ""string"",
+                ""oneOf"" : [
+                    {
+                        ""minLength"": 2
+                    },
+                    {
+                        ""maxLength"": 4
+                    }
+                ]
+            }");
+
+            JToken json = JToken.Parse(@"""foo""");
+
+            IList<string> errorMessages;
+            Assert.IsFalse(json.IsValid(schema, out errorMessages));
+            Assert.AreEqual(1, errorMessages.Count);
+            StringAssert.AreEqual("OneOf Line 1, position 5.", errorMessages[0]);
+        }
+
+        [Test]
+        public void SupCodePoints()
+        {
+            JSchema4 schema = JSchema4.Parse(@"{""maxLength"": 2}");
+
+            JToken json = JToken.Parse(@"""\uD83D\uDCA9\uD83D\uDCA9""");
+
+            IList<string> errorMessages;
+            Assert.IsTrue(json.IsValid(schema, out errorMessages));
+        }
+
+        [Test]
+        public void ResolutionScope()
+        {
+            JSchemaPreloadedResolver resolver = new JSchemaPreloadedResolver();
+
+            JSchema4 subSchema = JSchema4.Parse(@"{
+                ""type"": ""integer""
+            }");
+
+            resolver.Add(new Uri("http://localhost:1234/folder/folderInteger.json"), subSchema);
+
+            JSchema4 schema = JSchema4.Parse(@"{
+                ""id"": ""http://localhost:1234/"",
+                ""items"": {
+                    ""id"": ""folder/"",
+                    ""items"": {""$ref"": ""folderInteger.json""}
+                }
+            }", resolver);
+
+            JToken json = JToken.Parse(@"[[""a""]]");
+
+            IList<string> errorMessages;
+            Assert.IsFalse(json.IsValid(schema, out errorMessages));
         }
     }
 }

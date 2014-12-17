@@ -17,15 +17,17 @@ namespace Newtonsoft.Json.Schema.V4.Infrastructure
             return Uri.UnescapeDataString(reference).Replace("~1", "/").Replace("~0", "~");
         }
 
-        public static JSchema4 FindSchema(JSchema4 schema, Uri rootSchemaId, Uri reference, JSchema4Reader schemaReader)
+        public static bool FindSchema(Action<JSchema4> setSchema, JSchema4 schema, Uri rootSchemaId, Uri reference, JSchema4Reader schemaReader)
         {
             // todo, better way to get parts from Uri
             string[] parts = reference.ToString().Split('/');
 
-            JSchema4 resolvedSchema;
+            bool resolvedSchema;
 
-            if (parts.Length > 0 && parts[0] == "#")
+            if (parts.Length > 0 && (parts[0] == "#" || parts[0] == rootSchemaId + "#"))
             {
+                schemaReader._schemaStack.Push(schema);
+
                 parts = parts.Skip(1).ToArray();
 
                 object current = schema;
@@ -36,6 +38,8 @@ namespace Newtonsoft.Json.Schema.V4.Infrastructure
                     if (current is JSchema4)
                     {
                         JSchema4 s = current as JSchema4;
+
+                        schemaReader._schemaStack.Push(s);
 
                         switch (unescapedPart)
                         {
@@ -154,23 +158,30 @@ namespace Newtonsoft.Json.Schema.V4.Infrastructure
                     JSchemaAnnotation annotation = t.Annotation<JSchemaAnnotation>();
                     if (annotation != null)
                     {
-                        resolvedSchema = annotation.Schema;
+                        setSchema(annotation.Schema);
+                        resolvedSchema = true;
                     }
                     else
                     {
-                        JsonReader reader = t.CreateReader();
-                        reader.Read();
-
-                        resolvedSchema = new JSchema4();
-                        t.AddAnnotation(new JSchemaAnnotation(resolvedSchema));
-
-                        schemaReader.ReadInlineSchema(reader, resolvedSchema);   
+                        schemaReader.ReadInlineSchema(setSchema, t);
+                        resolvedSchema = true;
                     }
                 }
                 else
                 {
-                    resolvedSchema = current as JSchema4;
+                    var s = current as JSchema4;
+                    if (s != null)
+                    {
+                        setSchema(s);
+                        resolvedSchema = true;
+                    }
+                    else
+                    {
+                        resolvedSchema = false;
+                    }
                 }
+
+                schemaReader._schemaStack.Clear();
             }
             else
             {
@@ -179,12 +190,35 @@ namespace Newtonsoft.Json.Schema.V4.Infrastructure
 
                 Uri resolvedReference = ResolveSchemaId(rootSchemaId, reference);
 
-                KnownSchema knownSchema = discovery.KnownSchemas.SingleOrDefault(s => s.Id == resolvedReference);
+                // default Uri comparison ignores fragments
+                KnownSchema knownSchema = discovery.KnownSchemas.SingleOrDefault(s => s.Id.OriginalString.TrimEnd('#') == resolvedReference.OriginalString.TrimEnd('#'));
 
                 if (knownSchema != null)
-                    resolvedSchema = knownSchema.Schema;
+                {
+                    resolvedSchema = true;
+                    setSchema(knownSchema.Schema);
+                }
                 else
-                    resolvedSchema = null;
+                {
+                    int hashIndex = resolvedReference.OriginalString.IndexOf('#');
+                    if (hashIndex != -1)
+                    {
+                        Uri path = new Uri(resolvedReference.OriginalString.Substring(0, hashIndex), UriKind.RelativeOrAbsolute);
+                        Uri fragment = new Uri(resolvedReference.OriginalString.Substring(hashIndex), UriKind.RelativeOrAbsolute);
+
+                        // default Uri comparison ignores fragments
+                        knownSchema = discovery.KnownSchemas.SingleOrDefault(s => s.Id.OriginalString.TrimEnd('#') == path.OriginalString);
+
+                        if (knownSchema != null)
+                            resolvedSchema = FindSchema(setSchema, knownSchema.Schema, path, fragment, schemaReader);
+                        else
+                            resolvedSchema = false;
+                    }
+                    else
+                    {
+                        resolvedSchema = false;
+                    }
+                }
             }
             return resolvedSchema;
         }

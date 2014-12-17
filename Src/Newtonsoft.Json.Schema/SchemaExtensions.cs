@@ -5,6 +5,7 @@
 
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Schema.V4;
 using Newtonsoft.Json.Utilities;
 
 namespace Newtonsoft.Json.Schema
@@ -22,7 +23,7 @@ namespace Newtonsoft.Json.Schema
         /// <returns>
         /// 	<c>true</c> if the specified <see cref="JToken"/> is valid; otherwise, <c>false</c>.
         /// </returns>
-        public static bool IsValid(this JToken source, JSchema schema)
+        public static bool IsValid(this JToken source, JSchema4 schema)
         {
             bool valid = true;
             source.Validate(schema, (sender, args) => { valid = false; });
@@ -38,7 +39,7 @@ namespace Newtonsoft.Json.Schema
         /// <returns>
         /// 	<c>true</c> if the specified <see cref="JToken"/> is valid; otherwise, <c>false</c>.
         /// </returns>
-        public static bool IsValid(this JToken source, JSchema schema, out IList<string> errorMessages)
+        public static bool IsValid(this JToken source, JSchema4 schema, out IList<string> errorMessages)
         {
             IList<string> errors = new List<string>();
 
@@ -53,7 +54,7 @@ namespace Newtonsoft.Json.Schema
         /// </summary>
         /// <param name="source">The source <see cref="JToken"/> to test.</param>
         /// <param name="schema">The schema to test with.</param>
-        public static void Validate(this JToken source, JSchema schema)
+        public static void Validate(this JToken source, JSchema4 schema)
         {
             source.Validate(schema, null);
         }
@@ -64,12 +65,12 @@ namespace Newtonsoft.Json.Schema
         /// <param name="source">The source <see cref="JToken"/> to test.</param>
         /// <param name="schema">The schema to test with.</param>
         /// <param name="validationEventHandler">The validation event handler.</param>
-        public static void Validate(this JToken source, JSchema schema, SchemaValidationEventHandler validationEventHandler)
+        public static void Validate(this JToken source, JSchema4 schema, SchemaValidationEventHandler validationEventHandler)
         {
             ValidationUtils.ArgumentNotNull(source, "source");
             ValidationUtils.ArgumentNotNull(schema, "schema");
 
-            using (JSchemaValidatingReader reader = new JSchemaValidatingReader(source.CreateReader()))
+            using (JSchema4ValidatingReader reader = new JSchema4ValidatingReader(source.CreateReader()))
             {
                 reader.Schema = schema;
                 if (validationEventHandler != null)
