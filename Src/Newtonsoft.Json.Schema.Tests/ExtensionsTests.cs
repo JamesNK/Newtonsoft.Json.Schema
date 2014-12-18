@@ -3,6 +3,7 @@
 // License: https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md
 #endregion
 
+using System.Linq;
 using Newtonsoft.Json.Schema.V4;
 using System;
 using System.Collections.Generic;
@@ -525,6 +526,24 @@ namespace Newtonsoft.Json.Schema.Tests
                      }]
             }");
 
+            StringAssert.AreEqual(@"{
+  ""not"": {
+    ""anyOf"": [
+      {
+        ""type"": ""string""
+      },
+      {
+        ""type"": ""object"",
+        ""properties"": {
+          ""foo"": {
+            ""type"": ""string""
+          }
+        }
+      }
+    ]
+  }
+}", schema.ToString());
+
             JToken json = JToken.Parse(@"true");
 
             IList<string> errorMessages;
@@ -579,6 +598,34 @@ namespace Newtonsoft.Json.Schema.Tests
         }
 
         [Test]
+        public void OneOf_NoneValid()
+        {
+            JSchema4 schema = JSchema4.Parse(@"{
+                ""type"": ""string"",
+                ""oneOf"" : [
+                    {
+                        ""type"": ""object""
+                    },
+                    {
+                        ""maxLength"": 4
+                    }
+                ]
+            }");
+
+            JToken json = JToken.Parse(@"""foo foo""");
+
+            IList<ISchemaError> errors;
+            Assert.IsFalse(json.IsValid(schema, out errors));
+            Assert.AreEqual(1, errors.Count);
+
+            ISchemaError error = errors.Single();
+            StringAssert.AreEqual("OneOf Line 1, position 9.", error.Message);
+            Assert.AreEqual(2, error.ChildErrors.Count);
+            StringAssert.AreEqual(@"String 'foo foo' exceeds maximum length of 4. Line 1, position 9.", error.ChildErrors[0].Message);
+            StringAssert.AreEqual(@"Invalid type. Expected Object but got String. Line 1, position 9.", error.ChildErrors[1].Message);
+        }
+
+        [Test]
         public void SupCodePoints()
         {
             JSchema4 schema = JSchema4.Parse(@"{""maxLength"": 2}");
@@ -612,6 +659,81 @@ namespace Newtonsoft.Json.Schema.Tests
 
             IList<string> errorMessages;
             Assert.IsFalse(json.IsValid(schema, out errorMessages));
+        }
+
+        [Test]
+        public void MissingDependency_Single()
+        {
+            JSchema4 schema = JSchema4.Parse(@"{
+                ""dependencies"": {""bar"": ""foo""}
+            }");
+
+            JToken json = JToken.Parse(@"{""bar"": 2}");
+
+            IList<string> errorMessages;
+            Assert.IsFalse(json.IsValid(schema, out errorMessages));
+            Assert.AreEqual(1, errorMessages.Count);
+            StringAssert.AreEqual("Dependency! Line 1, position 1.", errorMessages[0]);
+        }
+
+        [Test]
+        public void MissingDependency_Multiple()
+        {
+            JSchema4 schema = JSchema4.Parse(@"{
+                ""dependencies"": {""quux"": [""foo"", ""bar""]}
+            }");
+
+            JToken json = JToken.Parse(@"{""foo"": 1, ""quux"": 2}");
+
+            IList<string> errorMessages;
+            Assert.IsFalse(json.IsValid(schema, out errorMessages));
+            Assert.AreEqual(1, errorMessages.Count);
+            StringAssert.AreEqual("Dependency! Line 1, position 1.", errorMessages[0]);
+        }
+
+        [Test]
+        public void MissingDependency_Schema()
+        {
+            JSchema4 schema = JSchema4.Parse(@"{
+                ""dependencies"": {
+                    ""bar"": {
+                        ""properties"": {
+                            ""foo"": {""type"": ""integer""},
+                            ""bar"": {""type"": ""integer""}
+                        }
+                    }
+                }
+            }");
+
+            JToken json = JToken.Parse(@"{""foo"": ""quux"", ""bar"": 2}");
+
+            IList<string> errorMessages;
+            Assert.IsFalse(json.IsValid(schema, out errorMessages));
+            Assert.AreEqual(1, errorMessages.Count);
+            StringAssert.AreEqual("Dependency! Line 1, position 1.", errorMessages[0]);
+        }
+
+        [Test]
+        public void UnusedFailingDependencySchema_InsideAllOf()
+        {
+            JSchema4 schema = JSchema4.Parse(@"{
+                ""dependencies"": {
+                    ""bar"": {
+                        ""properties"": {
+                            ""foo"": {""type"": ""integer""},
+                            ""bar"": {""type"": ""integer""}
+                        }
+                    }
+                }
+            }");
+
+            JSchema4 root = new JSchema4();
+            root.AllOf.Add(schema);
+
+            JToken json = JToken.Parse(@"{""foo"":""quux""}");
+
+            IList<string> errorMessages;
+            Assert.IsTrue(json.IsValid(root, out errorMessages));
         }
     }
 }

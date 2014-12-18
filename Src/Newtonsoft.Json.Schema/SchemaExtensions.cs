@@ -35,7 +35,7 @@ namespace Newtonsoft.Json.Schema
         /// </summary>
         /// <param name="source">The source <see cref="JToken"/> to test.</param>
         /// <param name="schema">The schema to test with.</param>
-        /// <param name="errorMessages">When this method returns, contains any error messages generated while validating. </param>
+        /// <param name="errorMessages">When this method returns, contains any error messages generated while validating.</param>
         /// <returns>
         /// 	<c>true</c> if the specified <see cref="JToken"/> is valid; otherwise, <c>false</c>.
         /// </returns>
@@ -47,6 +47,25 @@ namespace Newtonsoft.Json.Schema
 
             errorMessages = errors;
             return (errorMessages.Count == 0);
+        }
+
+        /// <summary>
+        /// Determines whether the <see cref="JToken"/> is valid.
+        /// </summary>
+        /// <param name="source">The source <see cref="JToken"/> to test.</param>
+        /// <param name="schema">The schema to test with.</param>
+        /// <param name="errors">When this method returns, contains any errors generated while validating.</param>
+        /// <returns>
+        /// 	<c>true</c> if the specified <see cref="JToken"/> is valid; otherwise, <c>false</c>.
+        /// </returns>
+        public static bool IsValid(this JToken source, JSchema4 schema, out IList<ISchemaError> errors)
+        {
+            IList<ISchemaError> schemaErrors = new List<ISchemaError>();
+
+            source.Validate(schema, (sender, args) => schemaErrors.Add(args.Exception));
+
+            errors = schemaErrors;
+            return (errors.Count == 0);
         }
 
         /// <summary>

@@ -15,13 +15,12 @@ namespace Newtonsoft.Json.Schema.V4
     /// <summary>
     /// Represents a reader that provides <see cref="JSchema"/> validation.
     /// </summary>
-    public class JSchema4ValidatingReader : JsonReader, IJsonLineInfo
+    public class JSchema4ValidatingReader : JsonReader, IJsonLineInfo, IValidator
     {
-        //private SchemaScope _rootScope;
         private readonly JsonReader _reader;
+        private readonly List<Scope> _scopes;
         private JSchema4 _schema;
-        private List<Scope> _scopes;
-        private Context _context;
+        private ValidatorContext _context;
 
         /// <summary>
         /// Sets an event handler for receiving schema validation errors.
@@ -240,11 +239,11 @@ namespace Newtonsoft.Json.Schema.V4
         {
             if (_scopes.Count == 0)
             {
-                _context = new Context();
-                _context.RaiseErrorEvent = RaiseError;
+                _context = new ValidatorContext();
+                _context.Validator = this;
                 _context.Scopes = _scopes;
 
-                SchemaScope.CreateTokenScope(_reader.TokenType, _schema, _context, null, _reader.Depth, true);
+                SchemaScope.CreateTokenScope(_reader.TokenType, _schema, _context, null, _reader.Depth);
             }
 
             if (_context.TokenWriter != null)
@@ -269,17 +268,6 @@ namespace Newtonsoft.Json.Schema.V4
                 _context.TokenWriter = null;
         }
 
-        internal void RaiseError(string message, JSchema4 schema)
-        {
-            IJsonLineInfo lineInfo = this;
-
-            string exceptionMessage = (lineInfo.HasLineInfo())
-                ? message + " Line {0}, position {1}.".FormatWith(CultureInfo.InvariantCulture, lineInfo.LineNumber, lineInfo.LinePosition)
-                : message;
-
-            OnValidationEvent(new JSchemaException(exceptionMessage, null, Path, lineInfo.LineNumber, lineInfo.LinePosition));
-        }
-
         private void OnValidationEvent(JSchemaException exception)
         {
             SchemaValidationEventHandler handler = ValidationEventHandler;
@@ -287,6 +275,36 @@ namespace Newtonsoft.Json.Schema.V4
                 handler(this, new SchemaValidationEventArgs(exception));
             else
                 throw exception;
+        }
+
+        internal ISchemaError CreateError(string message, JSchema4 schema, IList<ISchemaError> childErrors)
+        {
+            IJsonLineInfo lineInfo = this;
+
+            string exceptionMessage = (lineInfo.HasLineInfo())
+                ? message + " Line {0}, position {1}.".FormatWith(CultureInfo.InvariantCulture, lineInfo.LineNumber, lineInfo.LinePosition)
+                : message;
+
+            JSchemaException exception = new JSchemaException(exceptionMessage, null);
+            exception.Path = Path;
+            exception.LineNumber = lineInfo.LineNumber;
+            exception.LinePosition = lineInfo.LinePosition;
+            exception.Schema = schema;
+            exception.ChildErrors = childErrors ?? new List<ISchemaError>();
+
+            return exception;
+
+        }
+
+        void IValidator.RaiseError(string message, JSchema4 schema, IList<ISchemaError> childErrors)
+        {
+            JSchemaException exception = (JSchemaException)CreateError(message, schema, childErrors);
+            OnValidationEvent(exception);
+        }
+
+        ISchemaError IValidator.CreateError(string message, JSchema4 schema, IList<ISchemaError> childErrors)
+        {
+            return CreateError(message, schema, childErrors);
         }
     }
 }

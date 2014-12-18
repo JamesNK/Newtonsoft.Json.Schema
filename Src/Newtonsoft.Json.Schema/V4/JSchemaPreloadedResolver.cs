@@ -12,8 +12,6 @@ namespace Newtonsoft.Json.Schema.V4
     public class JSchemaPreloadedResolver : JSchema4Resolver
     {
         private readonly List<KnownSchema> _knownSchemas;
-        //private readonly List<JSchema4> _schemas;
-        //private readonly Dictionary<Uri, JSchema4> _uriSchemas;
         private readonly JSchema4Resolver _resolver;
 
         public JSchemaPreloadedResolver(JSchema4Resolver resolver)

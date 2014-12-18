@@ -5,28 +5,29 @@ using System.Threading.Tasks;
 
 namespace Newtonsoft.Json.Schema.V4.Infrastructure.Validation
 {
-    internal class NotScope : Scope
+    internal class NotScope : ConditionalScope
     {
         private readonly JSchema4 _schema;
 
-        public NotScope(Scope parent, JSchema4 schema, Context context, int depth, bool raiseErrors)
-            : base(context, parent, depth, raiseErrors)
+        public NotScope(SchemaScope parent, JSchema4 schema, ContextBase context, int depth)
+            : base(context, parent, depth)
         {
             _schema = schema;
         }
 
         public void InitializeScopes(JsonToken token)
         {
-            SchemaScope.CreateTokenScope(token, _schema, Context, this, InitialDepth, false);
+            SchemaScope.CreateTokenScope(token, _schema, ConditionalContext, this, InitialDepth);
         }
 
         protected override bool EvaluateTokenCore(JsonToken token, object value, int depth)
         {
             if (depth == InitialDepth && (JsonWriter.IsEndToken(token) || JsonReader.IsPrimitiveToken(token)))
             {
-                if (Context.Scopes.Where(s => s.Parent == this).Any(s => s.IsValid))
+                IEnumerable<SchemaScope> children = Context.Scopes.Where(s => s.Parent == this).OfType<SchemaScope>();
+                if (children.Any(s => s.IsValid))
                 {
-                    RaiseError("Not", null);
+                    RaiseError("Not", ParentSchemaScope.Schema, ConditionalContext.Errors);
                 }
 
                 return true;

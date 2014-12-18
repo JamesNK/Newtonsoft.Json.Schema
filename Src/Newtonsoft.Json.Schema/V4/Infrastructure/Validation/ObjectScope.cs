@@ -13,12 +13,22 @@ namespace Newtonsoft.Json.Schema.V4.Infrastructure.Validation
         private int _propertyCount;
         private string _currentPropertyName;
         private readonly List<string> _requiredProperties;
-        
-        public ObjectScope(Context context, Scope scope, int initialDepth, JSchema4 schema, bool raiseErrors)
-            : base(context, scope, initialDepth, schema, raiseErrors)
+        private readonly List<string> _readProperties;
+        private readonly Dictionary<string, SchemaScope> _dependencyScopes;
+
+        public ObjectScope(ContextBase context, Scope scope, int initialDepth, JSchema4 schema)
+            : base(context, scope, initialDepth, schema)
         {
             if (schema._required != null)
                 _requiredProperties = schema._required.ToList();
+
+            if (schema._dependencies != null && schema._dependencies.Count > 0)
+            {
+                _readProperties = new List<string>();
+
+                if (schema._dependencies.Values.OfType<JSchema4>().Any())
+                    _dependencyScopes = new Dictionary<string, SchemaScope>();
+            }
         }
 
         protected override bool EvaluateTokenCore(JsonToken token, object value, int depth)
@@ -36,14 +46,36 @@ namespace Newtonsoft.Json.Schema.V4.Infrastructure.Validation
                         return false;
                     case JsonToken.EndObject:
                         if (_requiredProperties != null && _requiredProperties.Count > 0)
-                            RaiseError("Required properties are missing from object: {0}.".FormatWith(CultureInfo.InvariantCulture, string.Join(", ", _requiredProperties)), Schema);
+                            RaiseError("Required properties are missing from object: {0}.".FormatWith(CultureInfo.InvariantCulture, string.Join(", ", _requiredProperties)), Schema, null);
 
                         if (Schema.MaximumProperties != null && _propertyCount > Schema.MaximumProperties)
-                            RaiseError("Object property count {0} exceeds maximum count of {1}.".FormatWith(CultureInfo.InvariantCulture, _propertyCount, Schema.MaximumProperties), Schema);
+                            RaiseError("Object property count {0} exceeds maximum count of {1}.".FormatWith(CultureInfo.InvariantCulture, _propertyCount, Schema.MaximumProperties), Schema, null);
 
                         if (Schema.MinimumProperties != null && _propertyCount < Schema.MinimumProperties)
-                            RaiseError("Object property count {0} is less than minimum count of {1}.".FormatWith(CultureInfo.InvariantCulture, _propertyCount, Schema.MinimumProperties), Schema);
+                            RaiseError("Object property count {0} is less than minimum count of {1}.".FormatWith(CultureInfo.InvariantCulture, _propertyCount, Schema.MinimumProperties), Schema, null);
 
+                        if (_readProperties != null)
+                        {
+                            foreach (string readProperty in _readProperties)
+                            {
+                                object dependency;
+                                if (Schema._dependencies.TryGetValue(readProperty, out dependency))
+                                {
+                                    List<string> requiredProperties = dependency as List<string>;
+                                    if (requiredProperties != null)
+                                    {
+                                        if (!requiredProperties.All(r => _readProperties.Contains(r)))
+                                            RaiseError("Dependency!", Schema, null);
+                                    }
+                                    else
+                                    {
+                                        SchemaScope dependencyScope = _dependencyScopes[readProperty];
+                                        if (dependencyScope.Context.HasErrors)
+                                            RaiseError("Dependency!", Schema, ((ConditionalContext) dependencyScope.Context).Errors);
+                                    }
+                                }
+                            }
+                        }
                         return true;
                     default:
                         throw new Exception("Unexpected token.");
@@ -59,11 +91,13 @@ namespace Newtonsoft.Json.Schema.V4.Infrastructure.Validation
 
                     if (_requiredProperties != null)
                         _requiredProperties.Remove(_currentPropertyName);
+                    if (_readProperties != null)
+                        _readProperties.Add(_currentPropertyName);
 
                     if (!Schema.AllowAdditionalProperties)
                     {
                         if (!IsPropertyDefinied(Schema, _currentPropertyName))
-                            RaiseError("Property '{0}' has not been defined and the schema does not allow additional properties.".FormatWith(CultureInfo.InvariantCulture, _currentPropertyName), Schema);
+                            RaiseError("Property '{0}' has not been defined and the schema does not allow additional properties.".FormatWith(CultureInfo.InvariantCulture, _currentPropertyName), Schema, null);
                     }
                 }
                 else
@@ -120,6 +154,22 @@ namespace Newtonsoft.Json.Schema.V4.Infrastructure.Validation
             }
 
             return false;
+        }
+
+        public void InitializeScopes(JsonToken token)
+        {
+            if (_dependencyScopes != null)
+            {
+                foreach (KeyValuePair<string, object> dependency in Schema._dependencies)
+                {
+                    JSchema4 dependencySchema = dependency.Value as JSchema4;
+                    if (dependencySchema != null)
+                    {
+                        SchemaScope scope = CreateTokenScope(token, dependencySchema, ConditionalContext.Create(Context), this, InitialDepth);
+                        _dependencyScopes.Add(dependency.Key, scope);
+                    }
+                }
+            }
         }
     }
 }

@@ -5,12 +5,12 @@ using System.Threading.Tasks;
 
 namespace Newtonsoft.Json.Schema.V4.Infrastructure.Validation
 {
-    internal class AllOfScope : Scope
+    internal class AllOfScope : ConditionalScope
     {
         private readonly IList<JSchema4> _schemas;
 
-        public AllOfScope(Scope parent, IList<JSchema4> schemas, Context context, int depth, bool raiseErrors)
-            : base(context, parent, depth, raiseErrors)
+        public AllOfScope(SchemaScope parent, IList<JSchema4> schemas, ContextBase context, int depth)
+            : base(context, parent, depth)
         {
             _schemas = schemas;
         }
@@ -19,7 +19,7 @@ namespace Newtonsoft.Json.Schema.V4.Infrastructure.Validation
         {
             foreach (JSchema4 schema in _schemas)
             {
-                SchemaScope.CreateTokenScope(token, schema, Context, this, InitialDepth, false);
+                SchemaScope.CreateTokenScope(token, schema, ConditionalContext, this, InitialDepth);
             }
         }
 
@@ -29,9 +29,10 @@ namespace Newtonsoft.Json.Schema.V4.Infrastructure.Validation
             {
                 if (!Context.Scopes
                     .Where(s => s.Parent == this)
+                    .OfType<SchemaScope>()
                     .All(s => s.IsValid))
                 {
-                    RaiseError("AllOf", null);
+                    RaiseError("AllOf", ParentSchemaScope.Schema, ConditionalContext.Errors);
                 }
 
                 return true;

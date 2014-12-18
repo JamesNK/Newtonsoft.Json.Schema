@@ -248,7 +248,12 @@ namespace Newtonsoft.Json.Schema
                 ? message + " Line {0}, position {1}.".FormatWith(CultureInfo.InvariantCulture, lineInfo.LineNumber, lineInfo.LinePosition)
                 : message;
 
-            OnValidationEvent(new JSchemaException(exceptionMessage, null, Path, lineInfo.LineNumber, lineInfo.LinePosition));
+            JSchemaException exception = new JSchemaException(exceptionMessage, null);
+            exception.Path = Path;
+            exception.LineNumber = lineInfo.LineNumber;
+            exception.LinePosition = lineInfo.LinePosition;
+
+            OnValidationEvent(exception);
         }
 
         private void OnValidationEvent(JSchemaException exception)

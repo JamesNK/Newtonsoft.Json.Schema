@@ -12,8 +12,8 @@ namespace Newtonsoft.Json.Schema.V4.Infrastructure.Validation
         private int _index = -1;
         private readonly List<JToken> _uniqueArrayItems;
 
-        public ArrayScope(Context context, Scope scope, int initialDepth, JSchema4 schema, bool raiseErrors)
-            : base(context, scope, initialDepth, schema, raiseErrors)
+        public ArrayScope(ContextBase context, Scope scope, int initialDepth, JSchema4 schema)
+            : base(context, scope, initialDepth, schema)
         {
             if (schema.UniqueItems)
                 _uniqueArrayItems = new List<JToken>();
@@ -36,10 +36,10 @@ namespace Newtonsoft.Json.Schema.V4.Infrastructure.Validation
                         int itemCount = _index + 1;
 
                         if (Schema.MaximumItems != null && itemCount > Schema.MaximumItems)
-                            RaiseError("Array item count {0} exceeds maximum count of {1}.".FormatWith(CultureInfo.InvariantCulture, itemCount, Schema.MaximumItems), Schema);
+                            RaiseError("Array item count {0} exceeds maximum count of {1}.".FormatWith(CultureInfo.InvariantCulture, itemCount, Schema.MaximumItems), Schema, null);
 
                         if (Schema.MinimumItems != null && itemCount < Schema.MinimumItems)
-                            RaiseError("Array item count {0} is less than minimum count of {1}.".FormatWith(CultureInfo.InvariantCulture, itemCount, Schema.MinimumItems), Schema);
+                            RaiseError("Array item count {0} is less than minimum count of {1}.".FormatWith(CultureInfo.InvariantCulture, itemCount, Schema.MinimumItems), Schema, null);
 
                         return true;
                     default:
@@ -75,7 +75,7 @@ namespace Newtonsoft.Json.Schema.V4.Infrastructure.Validation
                         else
                         {
                             if (!Schema.AllowAdditionalItems)
-                                RaiseError("Index {0} has not been defined and the schema does not allow additional items.".FormatWith(CultureInfo.InvariantCulture, _index + 1), Schema);
+                                RaiseError("Index {0} has not been defined and the schema does not allow additional items.".FormatWith(CultureInfo.InvariantCulture, _index + 1), Schema, null);
                             else if (Schema.AdditionalItems != null)
                                 CreateScopesAndEvaluateToken(token, value, depth, Schema.AdditionalItems);
                         }
@@ -92,7 +92,7 @@ namespace Newtonsoft.Json.Schema.V4.Infrastructure.Validation
                     if (Schema.UniqueItems)
                     {
                         if (_uniqueArrayItems.Contains(Context.TokenWriter.CurrentToken, JToken.EqualityComparer))
-                            RaiseError("Non-unique array item at index {0}.".FormatWith(CultureInfo.InvariantCulture, _index), Schema);
+                            RaiseError("Non-unique array item at index {0}.".FormatWith(CultureInfo.InvariantCulture, _index), Schema, null);
                         else
                             _uniqueArrayItems.Add(Context.TokenWriter.CurrentToken);
                     }

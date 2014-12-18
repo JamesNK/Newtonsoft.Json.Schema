@@ -122,10 +122,6 @@ namespace Newtonsoft.Json.Schema.Tests
                 }
             }
 
-            specTests = specTests.Where(s => s.FileName != "dependencies.json"
-                                             //&& s.Version != "Draft4"
-                                             ).ToList();
-
             return specTests;
         }
     }

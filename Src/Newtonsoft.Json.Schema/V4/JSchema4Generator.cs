@@ -16,20 +16,6 @@ using Newtonsoft.Json.Schema.V4.Infrastructure;
 
 namespace Newtonsoft.Json.Schema.V4
 {
-    internal class TypeSchema
-    {
-        public Type Type;
-        public Required Required;
-        public JSchema4 Schema;
-
-        public TypeSchema(Type type, Required required, JSchema4 schema)
-        {
-            Type = type;
-            Required = required;
-            Schema = schema;
-        }
-    }
-
     /// <summary>
     /// Generates a <see cref="JSchema4"/> from a specified <see cref="Type"/>.
     /// </summary>

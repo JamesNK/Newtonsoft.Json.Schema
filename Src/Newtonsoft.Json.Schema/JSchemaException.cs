@@ -4,7 +4,10 @@
 #endregion
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
+using Newtonsoft.Json.Schema.V4;
 
 namespace Newtonsoft.Json.Schema
 {
@@ -14,26 +17,31 @@ namespace Newtonsoft.Json.Schema
 #if !(NETFX_CORE || PORTABLE40 || PORTABLE)
     [Serializable]
 #endif
-    public class JSchemaException : JsonException
+    public class JSchemaException : JsonException, ISchemaError
     {
         /// <summary>
         /// Gets the line number indicating where the error occurred.
         /// </summary>
         /// <value>The line number indicating where the error occurred.</value>
-        public int LineNumber { get; private set; }
-
+        public int LineNumber { get; internal set; }
 
         /// <summary>
         /// Gets the line position indicating where the error occurred.
         /// </summary>
         /// <value>The line position indicating where the error occurred.</value>
-        public int LinePosition { get; private set; }
+        public int LinePosition { get; internal set; }
 
         /// <summary>
         /// Gets the path to the JSON where the error occurred.
         /// </summary>
         /// <value>The path to the JSON where the error occurred.</value>
-        public string Path { get; private set; }
+        public string Path { get; internal set; }
+
+        public JSchema4 Schema { get; internal set; }
+
+        public ErrorType ErrorType { get; internal set; }
+
+        public IList<ISchemaError> ChildErrors { get; internal set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="JSchemaException"/> class.
@@ -76,13 +84,5 @@ namespace Newtonsoft.Json.Schema
         {
         }
 #endif
-
-        internal JSchemaException(string message, Exception innerException, string path, int lineNumber, int linePosition)
-            : base(message, innerException)
-        {
-            Path = path;
-            LineNumber = lineNumber;
-            LinePosition = linePosition;
-        }
     }
 }

@@ -13,39 +13,6 @@ using Newtonsoft.Json.Utilities;
 
 namespace Newtonsoft.Json.Schema.V4.Infrastructure
 {
-    internal enum KnownSchemaState
-    {
-        External,
-        InlinePending,
-        InlineWritten
-    }
-
-    internal class KnownSchema
-    {
-        public Uri Id;
-        public JSchema4 Schema;
-        public KnownSchemaState State;
-
-        public KnownSchema(Uri id, JSchema4 schema, KnownSchemaState state)
-        {
-            Id = id;
-            Schema = schema;
-            State = state;
-        }
-    }
-
-    internal class SchemaPath
-    {
-        public readonly Uri Id;
-        public readonly string Path;
-
-        public SchemaPath(Uri id, string path)
-        {
-            Id = id;
-            Path = path;
-        }
-    }
-
     internal class JSchema4Writer
     {
         private readonly JsonWriter _writer;
