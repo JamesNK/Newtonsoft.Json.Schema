@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Newtonsoft.Json.Schema.V4;
 
 namespace Newtonsoft.Json.Schema
 {
@@ -9,7 +8,7 @@ namespace Newtonsoft.Json.Schema
         int LineNumber { get; }
         int LinePosition { get; }
         string Path { get; }
-        JSchema4 Schema { get; }
+        JSchema Schema { get; }
         ErrorType ErrorType { get; }
         IList<ISchemaError> ChildErrors { get; }
     }

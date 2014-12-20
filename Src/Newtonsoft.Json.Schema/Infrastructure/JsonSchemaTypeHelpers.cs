@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using Newtonsoft.Json.Utilities;
 
 namespace Newtonsoft.Json.Schema.Infrastructure
 {
@@ -23,6 +24,20 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 return true;
 
             return false;
+        }
+
+        internal static JSchemaType MapType(string type)
+        {
+            JSchemaType mappedType;
+            if (!Constants.JsonSchemaTypeMapping.TryGetValue(type, out mappedType))
+                throw new JsonException("Invalid JSON schema type: {0}".FormatWith(CultureInfo.InvariantCulture, type));
+
+            return mappedType;
+        }
+
+        internal static string MapType(JSchemaType type)
+        {
+            return Constants.JsonSchemaTypeMapping.Single(kv => kv.Value == type).Key;
         }
     }
 }

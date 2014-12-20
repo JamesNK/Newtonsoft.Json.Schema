@@ -7,7 +7,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
-using Newtonsoft.Json.Schema.V4;
 
 namespace Newtonsoft.Json.Schema
 {
@@ -37,7 +36,7 @@ namespace Newtonsoft.Json.Schema
         /// <value>The path to the JSON where the error occurred.</value>
         public string Path { get; internal set; }
 
-        public JSchema4 Schema { get; internal set; }
+        public JSchema Schema { get; internal set; }
 
         public ErrorType ErrorType { get; internal set; }
 

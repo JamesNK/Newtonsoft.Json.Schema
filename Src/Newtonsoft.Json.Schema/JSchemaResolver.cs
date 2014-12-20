@@ -4,43 +4,36 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Net;
 
 namespace Newtonsoft.Json.Schema
 {
-    /// <summary>
-    /// Resolves <see cref="JSchema"/> from an id.
-    /// </summary>
-    public class JSchemaResolver
+    public abstract class JSchemaResolver
     {
-        /// <summary>
-        /// Gets or sets the loaded schemas.
-        /// </summary>
-        /// <value>The loaded schemas.</value>
-        public IList<JSchema> LoadedSchemas { get; protected set; }
+        public abstract JSchema GetSchema(Uri uri);
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="JSchemaResolver"/> class.
-        /// </summary>
-        public JSchemaResolver()
+        public virtual Uri GetReference(Uri scopeId, JSchema schema)
         {
-            LoadedSchemas = new List<JSchema>();
+            return schema.Id;
         }
 
-        /// <summary>
-        /// Gets a <see cref="JSchema"/> for the specified reference.
-        /// </summary>
-        /// <param name="reference">The id.</param>
-        /// <returns>A <see cref="JSchema"/> for the specified reference.</returns>
-        public virtual JSchema GetSchema(string reference)
+        public virtual Uri ResolveUri(Uri baseUri, Uri relativeUri)
         {
-            JSchema schema = LoadedSchemas.SingleOrDefault(s => string.Equals(s.Id, reference, StringComparison.Ordinal));
+            if (baseUri == null || (!baseUri.IsAbsoluteUri && baseUri.OriginalString.Length == 0))
+                return relativeUri;
 
-            if (schema == null)
-                schema = LoadedSchemas.SingleOrDefault(s => string.Equals(s.Location, reference, StringComparison.Ordinal));
+            if (relativeUri == null)
+                return baseUri;
 
-            return schema;
+            if (!baseUri.IsAbsoluteUri)
+                return new Uri(baseUri.OriginalString + relativeUri.OriginalString, UriKind.RelativeOrAbsolute);
+
+            return new Uri(baseUri, relativeUri);
+        }
+
+        public virtual ICredentials Credentials
+        {
+            set { }
         }
     }
 }

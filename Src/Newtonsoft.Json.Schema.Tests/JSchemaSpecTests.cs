@@ -13,7 +13,6 @@ using System.Text;
 using NUnit.Framework;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema;
-using Newtonsoft.Json.Schema.V4;
 
 namespace Newtonsoft.Json.Schema.Tests
 {
@@ -63,7 +62,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             string json = File.ReadAllText(Path.Combine(baseRemotePath, schemaFileName));
 
-            JSchema4 schema = JSchema4.Parse(json);
+            JSchema schema = JSchema.Parse(json);
 
             resolver.Add(new Uri(id), schema);
         }
@@ -77,11 +76,11 @@ namespace Newtonsoft.Json.Schema.Tests
 
             JSchemaPreloadedResolver resolver = GetResolver();
 
-            JSchema4 s = JSchema4.Read(jsonSchemaSpecTest.Schema.CreateReader(), resolver);
+            JSchema s = JSchema.Read(jsonSchemaSpecTest.Schema.CreateReader(), resolver);
 
             JsonReader jsonReader = jsonSchemaSpecTest.Data.CreateReader();
 
-            using (JSchema4ValidatingReader reader = new JSchema4ValidatingReader(jsonReader))
+            using (JSchemaValidatingReader reader = new JSchemaValidatingReader(jsonReader))
             {
                 reader.Schema = s;
                 reader.ValidationEventHandler += (sender, args) => errorMessages.Add(args.Message);
@@ -105,13 +104,13 @@ namespace Newtonsoft.Json.Schema.Tests
 
             JSchemaPreloadedResolver resolver = GetResolver();
 
-            JSchema4 s = JSchema4.Read(jsonSchemaSpecTest.Schema.CreateReader(), resolver);
+            JSchema s = JSchema.Read(jsonSchemaSpecTest.Schema.CreateReader(), resolver);
 
             JsonReader jsonReader = jsonSchemaSpecTest.Data.CreateReader();
 
             StringWriter sw = new StringWriter();
             JsonTextWriter writer = new JsonTextWriter(sw);
-            using (JSchema4ValidatingWriter validatingWriter = new JSchema4ValidatingWriter(writer))
+            using (JSchemaValidatingWriter validatingWriter = new JSchemaValidatingWriter(writer))
             {
                 validatingWriter.Schema = s;
                 validatingWriter.ValidationEventHandler += (sender, args) => errorMessages.Add(args.Message);

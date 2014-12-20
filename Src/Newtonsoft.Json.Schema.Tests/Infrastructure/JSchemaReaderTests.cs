@@ -17,8 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Schema.V4;
-using Newtonsoft.Json.Schema.V4.Infrastructure;
+using Newtonsoft.Json.Schema.Infrastructure;
 using NUnit.Framework;
 
 namespace Newtonsoft.Json.Schema.Tests.Infrastructure
@@ -43,8 +42,8 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
   }
 }";
 
-            JSchema4Reader schemaReader = new JSchema4Reader(DummyJSchema4Resolver.Instance);
-            JSchema4 schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
+            JSchemaReader schemaReader = new JSchemaReader(DummyJSchemaResolver.Instance);
+            JSchema schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
 
             Assert.AreEqual("A person", schema.Description);
             Assert.AreEqual(JSchemaType.Object, schema.Type);
@@ -64,8 +63,8 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
   ""type"":[""string"", ""integer""]
 }";
 
-            JSchema4Reader schemaReader = new JSchema4Reader(DummyJSchema4Resolver.Instance);
-            JSchema4 schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
+            JSchemaReader schemaReader = new JSchemaReader(DummyJSchemaResolver.Instance);
+            JSchema schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
 
             Assert.AreEqual("Age", schema.Description);
             Assert.AreEqual(JSchemaType.String | JSchemaType.Integer, schema.Type);
@@ -80,8 +79,8 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
   ""items"": [{""type"":""string""},{""type"":""array""}]
 }";
 
-            JSchema4Reader schemaReader = new JSchema4Reader(DummyJSchema4Resolver.Instance);
-            JSchema4 schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
+            JSchemaReader schemaReader = new JSchemaReader(DummyJSchemaResolver.Instance);
+            JSchema schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
 
             Assert.AreEqual("MultipleItems", schema.Description);
             Assert.AreEqual(JSchemaType.String, schema.Items[0].Type);
@@ -96,8 +95,8 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
   ""description"":""Extends""
 }";
 
-            JSchema4Reader schemaReader = new JSchema4Reader(DummyJSchema4Resolver.Instance);
-            JSchema4 schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
+            JSchemaReader schemaReader = new JSchemaReader(DummyJSchemaResolver.Instance);
+            JSchema schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
 
             Assert.AreEqual("Extends", schema.Description);
             Assert.AreEqual(JSchemaType.String, schema.AllOf[0].Type);
@@ -113,8 +112,8 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
   ""additionalProperties"":{""type"":[""object"", ""boolean""]}
 }";
 
-            JSchema4Reader schemaReader = new JSchema4Reader(DummyJSchema4Resolver.Instance);
-            JSchema4 schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
+            JSchemaReader schemaReader = new JSchemaReader(DummyJSchemaResolver.Instance);
+            JSchema schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
 
             Assert.AreEqual("AdditionalProperties", schema.Description);
             Assert.AreEqual(JSchemaType.Object | JSchemaType.Boolean, schema.AdditionalProperties.Type);
@@ -128,8 +127,8 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
   ""required"":true
 }";
 
-            JSchema4Reader schemaReader = new JSchema4Reader(DummyJSchema4Resolver.Instance);
-            JSchema4 schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
+            JSchemaReader schemaReader = new JSchemaReader(DummyJSchemaResolver.Instance);
+            JSchema schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
 
             Assert.AreEqual("Required", schema.Description);
             Assert.AreEqual(true, schema.DeprecatedRequired);
@@ -149,8 +148,8 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
   }
 }";
 
-            JSchema4Reader schemaReader = new JSchema4Reader(DummyJSchema4Resolver.Instance);
-            JSchema4 schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(schemaJson)));
+            JSchemaReader schemaReader = new JSchemaReader(DummyJSchemaResolver.Instance);
+            JSchema schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(schemaJson)));
 
             Assert.AreEqual(2, schema.Required.Count);
             Assert.AreEqual("hobbies", schema.Required[0]);
@@ -165,8 +164,8 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
   ""exclusiveMaximum"":true
 }";
 
-            JSchema4Reader schemaReader = new JSchema4Reader(DummyJSchema4Resolver.Instance);
-            JSchema4 schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
+            JSchemaReader schemaReader = new JSchemaReader(DummyJSchemaResolver.Instance);
+            JSchema schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
 
             Assert.AreEqual(true, schema.ExclusiveMinimum);
             Assert.AreEqual(true, schema.ExclusiveMaximum);
@@ -180,8 +179,8 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
   ""id"":""testid""
 }";
 
-            JSchema4Reader schemaReader = new JSchema4Reader(DummyJSchema4Resolver.Instance);
-            JSchema4 schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
+            JSchemaReader schemaReader = new JSchemaReader(DummyJSchemaResolver.Instance);
+            JSchema schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
 
             Assert.AreEqual("Id", schema.Description);
             Assert.AreEqual(new Uri("testid", UriKind.RelativeOrAbsolute), schema.Id);
@@ -195,8 +194,8 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
   ""title"":""testtitle""
 }";
 
-            JSchema4Reader schemaReader = new JSchema4Reader(DummyJSchema4Resolver.Instance);
-            JSchema4 schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
+            JSchemaReader schemaReader = new JSchemaReader(DummyJSchemaResolver.Instance);
+            JSchema schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
 
             Assert.AreEqual("Title", schema.Description);
             Assert.AreEqual("testtitle", schema.Title);
@@ -210,8 +209,8 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
   ""pattern"":""testpattern""
 }";
 
-            JSchema4Reader schemaReader = new JSchema4Reader(DummyJSchema4Resolver.Instance);
-            JSchema4 schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
+            JSchemaReader schemaReader = new JSchemaReader(DummyJSchemaResolver.Instance);
+            JSchema schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
 
             Assert.AreEqual("Pattern", schema.Description);
             Assert.AreEqual("testpattern", schema.Pattern);
@@ -224,8 +223,8 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             ""dependencies"": {""bar"": ""foo""}
         }";
 
-            JSchema4Reader schemaReader = new JSchema4Reader(DummyJSchema4Resolver.Instance);
-            JSchema4 schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
+            JSchemaReader schemaReader = new JSchemaReader(DummyJSchemaResolver.Instance);
+            JSchema schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
 
             Assert.AreEqual("foo", ((IList<string>)schema.Dependencies["bar"])[0]);
         }
@@ -241,11 +240,11 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
   }
 }";
 
-            JSchema4Reader schemaReader = new JSchema4Reader(DummyJSchema4Resolver.Instance);
-            JSchema4 schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
+            JSchemaReader schemaReader = new JSchemaReader(DummyJSchemaResolver.Instance);
+            JSchema schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
 
             Assert.AreEqual("foo", ((IList<string>) schema.Dependencies["bar"])[0]);
-            Assert.AreEqual("Dependency schema", ((JSchema4)schema.Dependencies["foo"]).Title);
+            Assert.AreEqual("Dependency schema", ((JSchema)schema.Dependencies["foo"]).Title);
             Assert.AreEqual("blah", ((IList<string>)schema.Dependencies["stuff"])[0]);
             Assert.AreEqual("blah2", ((IList<string>)schema.Dependencies["stuff"])[1]);
         }
@@ -264,8 +263,8 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
   ""divisibleBy"":3,
 }";
 
-            JSchema4Reader schemaReader = new JSchema4Reader(DummyJSchema4Resolver.Instance);
-            JSchema4 schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
+            JSchemaReader schemaReader = new JSchemaReader(DummyJSchemaResolver.Instance);
+            JSchema schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
 
             Assert.AreEqual("MinimumMaximum", schema.Description);
             Assert.AreEqual(1.1, schema.Minimum);
@@ -285,8 +284,8 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
           ""disallow"":""string""
         }";
 
-            JSchema4Reader schemaReader = new JSchema4Reader(DummyJSchema4Resolver.Instance);
-            JSchema4 schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
+            JSchemaReader schemaReader = new JSchemaReader(DummyJSchemaResolver.Instance);
+            JSchema schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
 
             Assert.AreEqual("DisallowSingleType", schema.Description);
             Assert.AreEqual(JSchemaType.String, schema.Not.Type);
@@ -300,8 +299,8 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
           ""disallow"":[""string"",""number""]
         }";
 
-            JSchema4Reader schemaReader = new JSchema4Reader(DummyJSchema4Resolver.Instance);
-            JSchema4 schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
+            JSchemaReader schemaReader = new JSchemaReader(DummyJSchemaResolver.Instance);
+            JSchema schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
 
             Assert.AreEqual("DisallowMultipleTypes", schema.Description);
             Assert.AreEqual(JSchemaType.String | JSchemaType.Float, schema.Not.Type);
@@ -316,8 +315,8 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
   ""enum"":[""string"",""object"",""array"",""boolean"",""number"",""integer"",""null"",""any""]
 }";
 
-            JSchema4Reader schemaReader = new JSchema4Reader(DummyJSchema4Resolver.Instance);
-            JSchema4 schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
+            JSchemaReader schemaReader = new JSchemaReader(DummyJSchemaResolver.Instance);
+            JSchema schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
 
             Assert.AreEqual("Type", schema.Description);
             Assert.AreEqual(JSchemaType.String | JSchemaType.Array, schema.Type);
@@ -337,8 +336,8 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
   ""items"":{""$ref"":""CircularReferenceArray""}
 }";
 
-            JSchema4Reader schemaReader = new JSchema4Reader(DummyJSchema4Resolver.Instance);
-            JSchema4 schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
+            JSchemaReader schemaReader = new JSchemaReader(DummyJSchemaResolver.Instance);
+            JSchema schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
 
             Assert.AreEqual("CircularReference", schema.Description);
             Assert.AreEqual(new Uri("CircularReferenceArray", UriKind.RelativeOrAbsolute), schema.Id);
@@ -350,10 +349,10 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         [Test]
         public void ReferenceToNestedSchemaWithIdInResolvedSchema()
         {
-            JSchema4 nested = new JSchema4();
+            JSchema nested = new JSchema();
             nested.Id = new Uri("nested.json", UriKind.RelativeOrAbsolute);
 
-            JSchema4 root = new JSchema4
+            JSchema root = new JSchema
             {
                 Id = new Uri("http://test.test"),
                 ExtensionData =
@@ -370,8 +369,8 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             JSchemaPreloadedResolver resolver = new JSchemaPreloadedResolver();
             resolver.Add(root);
 
-            JSchema4Reader schemaReader = new JSchema4Reader(resolver);
-            JSchema4 schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
+            JSchemaReader schemaReader = new JSchemaReader(resolver);
+            JSchema schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
 
             Assert.AreEqual(new Uri("nested.json", UriKind.RelativeOrAbsolute), schema.Items[0].Id);
 
@@ -381,10 +380,10 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         [Test]
         public void RootReferenceToNestedSchemaWithIdInResolvedSchema_Root()
         {
-            JSchema4 nested = new JSchema4();
+            JSchema nested = new JSchema();
             nested.Id = new Uri("nested.json", UriKind.RelativeOrAbsolute);
 
-            JSchema4 root = new JSchema4
+            JSchema root = new JSchema
             {
                 Id = new Uri("http://test.test"),
                 ExtensionData =
@@ -398,8 +397,8 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             JSchemaPreloadedResolver resolver = new JSchemaPreloadedResolver();
             resolver.Add(root);
 
-            JSchema4Reader schemaReader = new JSchema4Reader(resolver);
-            JSchema4 schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
+            JSchemaReader schemaReader = new JSchemaReader(resolver);
+            JSchema schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
 
             Assert.AreEqual(new Uri("nested.json", UriKind.RelativeOrAbsolute), schema.Id);
 
@@ -418,7 +417,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
   ""items"":{""$ref"":""MyUnresolvedReference""}
 }";
 
-                JSchema4Reader schemaReader = new JSchema4Reader(DummyJSchema4Resolver.Instance);
+                JSchemaReader schemaReader = new JSchemaReader(DummyJSchemaResolver.Instance);
                 schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
             }, @"Could not resolve schema reference 'MyUnresolvedReference'.");
         }
@@ -432,8 +431,8 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
   }
 }";
 
-            JSchema4Reader schemaReader = new JSchema4Reader(DummyJSchema4Resolver.Instance);
-            JSchema4 schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
+            JSchemaReader schemaReader = new JSchemaReader(DummyJSchemaResolver.Instance);
+            JSchema schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
 
             Assert.IsNotNull(schema.PatternProperties);
             Assert.AreEqual(1, schema.PatternProperties.Count);
@@ -448,8 +447,8 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
     ""additionalItems"": {""type"": ""integer""}
 }";
 
-            JSchema4Reader schemaReader = new JSchema4Reader(DummyJSchema4Resolver.Instance);
-            JSchema4 schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
+            JSchemaReader schemaReader = new JSchemaReader(DummyJSchemaResolver.Instance);
+            JSchema schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
 
             Assert.IsNotNull(schema.AdditionalItems);
             Assert.AreEqual(JSchemaType.Integer, schema.AdditionalItems.Type);
@@ -464,8 +463,8 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
     ""additionalItems"": false
 }";
 
-            JSchema4Reader schemaReader = new JSchema4Reader(DummyJSchema4Resolver.Instance);
-            JSchema4 schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
+            JSchemaReader schemaReader = new JSchemaReader(DummyJSchemaResolver.Instance);
+            JSchema schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
 
             Assert.IsNull(schema.AdditionalItems);
             Assert.AreEqual(false, schema.AllowAdditionalItems);
@@ -479,8 +478,8 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
     ""additionalItems"": false
 }";
 
-            JSchema4Reader schemaReader = new JSchema4Reader(DummyJSchema4Resolver.Instance);
-            JSchema4 schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
+            JSchemaReader schemaReader = new JSchemaReader(DummyJSchemaResolver.Instance);
+            JSchema schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
 
             Assert.IsNull(schema.AdditionalItems);
             Assert.AreEqual(false, schema.AllowAdditionalItems);
@@ -496,8 +495,8 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
   }
 }";
 
-            JSchema4Reader schemaReader = new JSchema4Reader(DummyJSchema4Resolver.Instance);
-            JSchema4 schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
+            JSchemaReader schemaReader = new JSchemaReader(DummyJSchemaResolver.Instance);
+            JSchema schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
 
             Assert.AreEqual(schema.Properties["foo"], schema.Properties["bar"]);
         }
@@ -512,8 +511,8 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
   }
 }";
 
-            JSchema4Reader schemaReader = new JSchema4Reader(DummyJSchema4Resolver.Instance);
-            JSchema4 schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
+            JSchemaReader schemaReader = new JSchemaReader(DummyJSchemaResolver.Instance);
+            JSchema schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
 
             Assert.AreEqual(schema.Properties["foo"], schema.Properties["bar"]);
         }
@@ -537,12 +536,12 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
   }
 }";
 
-            JSchema4Reader schemaReader = new JSchema4Reader(DummyJSchema4Resolver.Instance);
-            JSchema4 schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
+            JSchemaReader schemaReader = new JSchemaReader(DummyJSchemaResolver.Instance);
+            JSchema schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
 
-            Assert.AreEqual((JSchema4)schema.ExtensionData["common"]["foo"], schema.Properties["foo"]);
-            Assert.AreEqual((JSchema4)schema.ExtensionData["common"]["foo"], schema.Properties["foo2"]);
-            Assert.AreEqual((JSchema4)schema.ExtensionData["common"]["foo"]["bar"], schema.Properties["bar"]);
+            Assert.AreEqual((JSchema)schema.ExtensionData["common"]["foo"], schema.Properties["foo"]);
+            Assert.AreEqual((JSchema)schema.ExtensionData["common"]["foo"], schema.Properties["foo2"]);
+            Assert.AreEqual((JSchema)schema.ExtensionData["common"]["foo"]["bar"], schema.Properties["bar"]);
         }
 
         [Test]
@@ -559,8 +558,8 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
   }
 }";
 
-            JSchema4Reader schemaReader = new JSchema4Reader(DummyJSchema4Resolver.Instance);
-            JSchema4 schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
+            JSchemaReader schemaReader = new JSchemaReader(DummyJSchemaResolver.Instance);
+            JSchema schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
 
             Assert.AreEqual(JSchemaType.Integer, schema.Properties["tilda"].Type);
             Assert.AreEqual(JSchemaType.Object, schema.Properties["slash"].Type);
@@ -580,8 +579,8 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             }
         }";
 
-            JSchema4Reader schemaReader = new JSchema4Reader(DummyJSchema4Resolver.Instance);
-            JSchema4 schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
+            JSchemaReader schemaReader = new JSchemaReader(DummyJSchemaResolver.Instance);
+            JSchema schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
 
             Assert.AreEqual(JSchemaType.Integer, schema.Properties["array"].Type);
             Assert.AreEqual(JSchemaType.Object, schema.Properties["arrayprop"].Type);
@@ -603,7 +602,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 
             ExceptionAssert.Throws<JsonException>(() =>
             {
-                JSchema4Reader schemaReader = new JSchema4Reader(DummyJSchema4Resolver.Instance);
+                JSchemaReader schemaReader = new JSchemaReader(DummyJSchemaResolver.Instance);
                 schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
             }, "Could not resolve schema reference '#/array/10'.");
         }
@@ -621,7 +620,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 
             ExceptionAssert.Throws<JsonException>(() =>
             {
-                JSchema4Reader schemaReader = new JSchema4Reader(DummyJSchema4Resolver.Instance);
+                JSchemaReader schemaReader = new JSchemaReader(DummyJSchemaResolver.Instance);
                 schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
             }, "Could not resolve schema reference '#/array/-1'.");
         }
@@ -639,7 +638,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 
             ExceptionAssert.Throws<JsonException>(() =>
             {
-                JSchema4Reader schemaReader = new JSchema4Reader(DummyJSchema4Resolver.Instance);
+                JSchemaReader schemaReader = new JSchemaReader(DummyJSchemaResolver.Instance);
                 schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
             }, "Could not resolve schema reference '#/array/one'.");
         }
@@ -657,7 +656,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 
             ExceptionAssert.Throws<JsonException>(() =>
             {
-                JSchema4Reader schemaReader = new JSchema4Reader(DummyJSchema4Resolver.Instance);
+                JSchemaReader schemaReader = new JSchemaReader(DummyJSchemaResolver.Instance);
                 schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
             }, "Could not resolve schema reference '#/items/one'.");
         }
@@ -674,23 +673,23 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         [Test]
         public void Reference_InnerSchemaOfExternalSchema()
         {
-            JSchema4 baseSchema = TestHelpers.OpenSchemaResource("grunt-task.json");
+            JSchema baseSchema = TestHelpers.OpenSchemaResource("grunt-task.json");
 
-            JSchema4 fileFormatSchema = (JSchema4)baseSchema.ExtensionData["definitions"]["fileFormat"];
+            JSchema fileFormatSchema = (JSchema)baseSchema.ExtensionData["definitions"]["fileFormat"];
 
             Assert.AreEqual("JSON schema for any Grunt task", baseSchema.Title);
 
             JSchemaPreloadedResolver resolver = new JSchemaPreloadedResolver();
             resolver.Add(new Uri("http://json.schemastore.org/grunt-task"), baseSchema);
 
-            JSchema4 cleanSchema = TestHelpers.OpenSchemaResource("grunt-clean-task.json", resolver);
+            JSchema cleanSchema = TestHelpers.OpenSchemaResource("grunt-clean-task.json", resolver);
             Assert.AreEqual(fileFormatSchema, cleanSchema.AdditionalProperties.AnyOf[0]);
         }
 
         [Test]
         public void Reference_UnusedInnerSchemaOfExternalSchema()
         {
-            JSchema4 baseSchema = JSchema4.Parse(@"{
+            JSchema baseSchema = JSchema.Parse(@"{
   ""definitions"": {
     ""unused"": {
       ""not"": {
@@ -712,11 +711,11 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
   }
 }";
 
-            JSchema4Reader schemaReader = new JSchema4Reader(resolver);
-            JSchema4 refSchema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
+            JSchemaReader schemaReader = new JSchemaReader(resolver);
+            JSchema refSchema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
 
-            var unused = (JSchema4)baseSchema.ExtensionData["definitions"]["unused"];
-            var usedByUnused = (JSchema4)baseSchema.ExtensionData["definitions"]["used_by_unused"];
+            var unused = (JSchema)baseSchema.ExtensionData["definitions"]["unused"];
+            var usedByUnused = (JSchema)baseSchema.ExtensionData["definitions"]["used_by_unused"];
 
             Assert.AreEqual(usedByUnused, unused.Not);
 
@@ -732,7 +731,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
   ""additionalProperties"":{""type"":""string""}
 }";
 
-            JSchema4 s = JSchema4.Parse(json);
+            JSchema s = JSchema.Parse(json);
 
             StringWriter writer = new StringWriter();
             JsonTextWriter jsonWriter = new JsonTextWriter(writer);
@@ -758,7 +757,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
   ""additionalProperties"":{""type"":""string""}
 }";
 
-            s = JSchema4.Parse(json);
+            s = JSchema.Parse(json);
 
             writer = new StringWriter();
             jsonWriter = new JsonTextWriter(writer);
@@ -785,7 +784,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
   ""additionalProperties"":{""type"":""string""}
 }";
 
-            s = JSchema4.Parse(json);
+            s = JSchema.Parse(json);
 
             writer = new StringWriter();
             jsonWriter = new JsonTextWriter(writer);
@@ -812,7 +811,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         [Test]
         public void SchemaInDisallow()
         {
-            JSchema4 schema = JSchema4.Parse(@"{
+            JSchema schema = JSchema.Parse(@"{
                 ""disallow"":
                     [""string"",
                      {
@@ -903,9 +902,9 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
   }
 }";
 
-            JSchema4Reader schemaReader = new JSchema4Reader(DummyJSchema4Resolver.Instance);
+            JSchemaReader schemaReader = new JSchemaReader(DummyJSchemaResolver.Instance);
 
-            JSchema4 schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
+            JSchema schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
 
             JToken t1 = schema.ExtensionData["definitions"]["file"];
             JSchemaAnnotation a1 = t1.Annotation<JSchemaAnnotation>();
@@ -914,7 +913,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             Assert.AreEqual(1, schema.Properties.Count);
             Assert.AreEqual(a1.Schema, schema.Properties["storage"]);
 
-            JSchema4 fileSchema = schema.Properties["storage"];
+            JSchema fileSchema = schema.Properties["storage"];
 
             Assert.AreEqual(fileSchema, fileSchema.Properties["blah"]);
             Assert.AreEqual(schema, fileSchema.Properties["blah2"]);
@@ -944,7 +943,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         {
             JSchemaPreloadedResolver resolver = new JSchemaPreloadedResolver();
 
-            JSchema4 subSchema = JSchema4.Parse(@"{
+            JSchema subSchema = JSchema.Parse(@"{
                 ""integer"": {
                     ""type"": ""integer""
                 }, 
@@ -955,11 +954,11 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 
             resolver.Add(new Uri("http://localhost:1234/subSchemas.json"), subSchema);
 
-            JSchema4 schema = JSchema4.Parse(@"{
+            JSchema schema = JSchema.Parse(@"{
                 ""$ref"": ""http://localhost:1234/subSchemas.json#/refToInteger""
             }", resolver);
 
-            JSchema4 integerSchema = (JSchema4)subSchema.ExtensionData["integer"];
+            JSchema integerSchema = (JSchema)subSchema.ExtensionData["integer"];
 
             Assert.AreEqual(integerSchema, schema);
         }
@@ -967,7 +966,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         [Test]
         public void NestedRef()
         {
-            JSchema4 schema = JSchema4.Parse(@"{
+            JSchema schema = JSchema.Parse(@"{
                 ""definitions"": {
                     ""a"": {""type"": ""integer""},
                     ""b"": {""$ref"": ""#/definitions/a""},
@@ -982,7 +981,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         [Test]
         public void Draft4()
         {
-            JSchema4 schema = JSchema4.Parse(@"{
+            JSchema schema = JSchema.Parse(@"{
     ""id"": ""http://json-schema.org/draft-04/schema#"",
     ""$schema"": ""http://json-schema.org/draft-04/schema#"",
     ""description"": ""Core schema meta-schema"",

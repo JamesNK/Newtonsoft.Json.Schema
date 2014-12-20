@@ -10,8 +10,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Schema.V4;
-using Newtonsoft.Json.Schema.V4.Infrastructure;
 using NUnit.Framework;
 
 namespace Newtonsoft.Json.Schema.Tests.Infrastructure
@@ -26,7 +24,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             JsonTextWriter jsonWriter = new JsonTextWriter(writer);
             jsonWriter.Formatting = Formatting.Indented;
 
-            JSchema4 schema = JSchema4.Parse(@"{
+            JSchema schema = JSchema.Parse(@"{
   ""description"":""AdditionalProperties"",
   ""type"":[""string"", ""integer""],
   ""additionalProperties"":{""type"":[""object"", ""boolean""]}
@@ -54,7 +52,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         [Test]
         public void WriteTo_Properties()
         {
-            JSchema4 schema = JSchema4.Parse(@"{
+            JSchema schema = JSchema.Parse(@"{
   ""description"":""A person"",
   ""type"":""object"",
   ""properties"":
@@ -96,7 +94,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         [Test]
         public void WriteTo_Enum()
         {
-            JSchema4 schema = JSchema4.Parse(@"{
+            JSchema schema = JSchema.Parse(@"{
   ""description"":""Type"",
   ""type"":[""string"",""array""],
   ""items"":{},
@@ -141,7 +139,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
   ""items"":{""$ref"":""CircularReferenceArray""}
 }";
 
-            JSchema4 schema = JSchema4.Parse(json);
+            JSchema schema = JSchema.Parse(json);
 
             StringWriter writer = new StringWriter();
             JsonTextWriter jsonWriter = new JsonTextWriter(writer);
@@ -164,7 +162,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         [Test]
         public void WriteTo_DisallowMultiple()
         {
-            JSchema4 schema = JSchema4.Parse(@"{
+            JSchema schema = JSchema.Parse(@"{
   ""description"":""Type"",
   ""type"":[""string"",""array""],
   ""items"":{},
@@ -199,7 +197,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         [Test]
         public void WriteTo_DisallowSingle()
         {
-            JSchema4 schema = JSchema4.Parse(@"{
+            JSchema schema = JSchema.Parse(@"{
   ""description"":""Type"",
   ""type"":[""string"",""array""],
   ""items"":{},
@@ -230,18 +228,18 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         [Test]
         public void WriteTo_InnerSchemaOfIdInternalSchema()
         {
-            JSchema4 nestedInId = new JSchema4
+            JSchema nestedInId = new JSchema
             {
                 Type = JSchemaType.Boolean
             };
-            JSchema4 hasId = new JSchema4
+            JSchema hasId = new JSchema
             {
                 Id = new Uri("purpleMonkeyDishwasher", UriKind.RelativeOrAbsolute),
                 Not = nestedInId
             };
 
-            JSchema4 root = new JSchema4();
-            root.Properties = new Dictionary<string, JSchema4>
+            JSchema root = new JSchema();
+            root.Properties = new Dictionary<string, JSchema>
             {
                 { "prop1", hasId }
             };
@@ -253,21 +251,21 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         [Test]
         public void WriteTo_InnerSchemaOfExternalResolvedReference()
         {
-            JSchema4 nestedReference = new JSchema4()
+            JSchema nestedReference = new JSchema()
             {
                 Type = JSchemaType.Boolean
             };
 
-            JSchema4 referenceSchema = new JSchema4
+            JSchema referenceSchema = new JSchema
             {
                 Id = new Uri("http://localhost/test"),
-                Items = new List<JSchema4>
+                Items = new List<JSchema>
                 {
                     nestedReference
                 }
             };
 
-            JSchema4 root = new JSchema4
+            JSchema root = new JSchema
             {
                 Id = new Uri("#root", UriKind.RelativeOrAbsolute),
                 Not = nestedReference
@@ -277,7 +275,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             JsonTextWriter jsonWriter = new JsonTextWriter(writer);
             jsonWriter.Formatting = Formatting.Indented;
 
-            root.WriteTo(jsonWriter, new JSchema4WriteSettings
+            root.WriteTo(jsonWriter, new JSchemaWriteSettings
             {
                 ExternalSchemas = new List<ExternalSchema>
                 {
@@ -298,7 +296,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         [Test]
         public void WriteTo_MultipleItems()
         {
-            JSchema4 schema = JSchema4.Parse(@"{
+            JSchema schema = JSchema.Parse(@"{
   ""items"":[{},{}]
 }");
 
@@ -321,11 +319,11 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         [Test]
         public void WriteTo_Required()
         {
-            JSchema4 schema = new JSchema4
+            JSchema schema = new JSchema
             {
                 Properties =
                 {
-                    { "prop1", new JSchema4() }
+                    { "prop1", new JSchema() }
                 },
                 Required =
                 {
@@ -354,7 +352,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         [Test]
         public void WriteTo_ExclusiveMinimum_ExclusiveMaximum()
         {
-            JSchema4 schema = new JSchema4();
+            JSchema schema = new JSchema();
             schema.ExclusiveMinimum = true;
             schema.ExclusiveMaximum = true;
 
@@ -375,10 +373,10 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         [Test]
         public void WriteTo_PatternProperties()
         {
-            JSchema4 schema = new JSchema4();
-            schema.PatternProperties = new Dictionary<string, JSchema4>
+            JSchema schema = new JSchema();
+            schema.PatternProperties = new Dictionary<string, JSchema>
             {
-                { "[abc]", new JSchema4() }
+                { "[abc]", new JSchema() }
             };
 
             StringWriter writer = new StringWriter();
@@ -399,7 +397,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         [Test]
         public void ToString_AdditionalItems()
         {
-            JSchema4 schema = JSchema4.Parse(@"{
+            JSchema schema = JSchema.Parse(@"{
     ""additionalItems"": {""type"": ""integer""}
 }");
 
@@ -415,7 +413,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         [Test]
         public void WriteTo_PositionalItemsValidation_True()
         {
-            JSchema4 schema = new JSchema4();
+            JSchema schema = new JSchema();
             schema.ItemsPositionValidation = true;
 
             StringWriter writer = new StringWriter();
@@ -434,9 +432,9 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         [Test]
         public void WriteTo_PositionalItemsValidation_TrueWithItemsSchema()
         {
-            JSchema4 schema = new JSchema4();
+            JSchema schema = new JSchema();
             schema.ItemsPositionValidation = true;
-            schema.Items = new List<JSchema4> { new JSchema4 { Type = JSchemaType.String } };
+            schema.Items = new List<JSchema> { new JSchema { Type = JSchemaType.String } };
 
             StringWriter writer = new StringWriter();
             JsonTextWriter jsonWriter = new JsonTextWriter(writer);
@@ -458,8 +456,8 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         [Test]
         public void WriteTo_PositionalItemsValidation_FalseWithItemsSchema()
         {
-            JSchema4 schema = new JSchema4();
-            schema.Items = new List<JSchema4> { new JSchema4 { Type = JSchemaType.String } };
+            JSchema schema = new JSchema();
+            schema.Items = new List<JSchema> { new JSchema { Type = JSchemaType.String } };
 
             StringWriter writer = new StringWriter();
             JsonTextWriter jsonWriter = new JsonTextWriter(writer);
@@ -479,12 +477,12 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         [Test]
         public void WriteTo_ExternalResolvedReferenceInDefinition()
         {
-            JSchema4 referenceSchema = new JSchema4
+            JSchema referenceSchema = new JSchema
             {
                 Id = new Uri("http://localhost/test")
             };
 
-            JSchema4 root = new JSchema4
+            JSchema root = new JSchema
             {
                 Id = new Uri("#root", UriKind.RelativeOrAbsolute),
                 Not = referenceSchema,
@@ -504,7 +502,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             JsonTextWriter jsonWriter = new JsonTextWriter(writer);
             jsonWriter.Formatting = Formatting.Indented;
 
-            root.WriteTo(jsonWriter, new JSchema4WriteSettings
+            root.WriteTo(jsonWriter, new JSchemaWriteSettings
             {
                 ExternalSchemas = new List<ExternalSchema>
                 {
@@ -530,13 +528,13 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         [Test]
         public void WriteComplex()
         {
-            JSchema4 schema = new JSchema4();
+            JSchema schema = new JSchema();
             schema.Id = new Uri("root", UriKind.RelativeOrAbsolute);
             schema.Type = JSchemaType.Boolean;
 
-            JSchema4 file = new JSchema4();
+            JSchema file = new JSchema();
             file.Id = new Uri("file", UriKind.RelativeOrAbsolute);
-            file.Properties = new Dictionary<string, JSchema4>
+            file.Properties = new Dictionary<string, JSchema>
             {
                 { "blah", schema }
             };
@@ -545,7 +543,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
                 { "parent", schema }
             };
 
-            schema.Properties = new Dictionary<string, JSchema4>
+            schema.Properties = new Dictionary<string, JSchema>
             {
                 { "storage", file }
             };
@@ -554,9 +552,9 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
                 { "file", file },
                 { "file2", file }
             };
-            schema.Items = new List<JSchema4>
+            schema.Items = new List<JSchema>
             {
-                new JSchema4
+                new JSchema
                 {
                     Type = JSchemaType.Integer | JSchemaType.Null
                 },
@@ -565,24 +563,24 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             schema.ItemsPositionValidation = true;
             schema.Not = file;
             schema.AllOf.Add(file);
-            schema.AllOf.Add(new JSchema4
+            schema.AllOf.Add(new JSchema
             {
                 Type = JSchemaType.Integer | JSchemaType.Null
             });
             schema.AllOf.Add(file);
-            schema.AnyOf = new List<JSchema4>
+            schema.AnyOf = new List<JSchema>
             {
                 file,
-                new JSchema4
+                new JSchema
                 {
                     Type = JSchemaType.Integer | JSchemaType.Null
                 },
                 schema
             };
-            schema.OneOf = new List<JSchema4>
+            schema.OneOf = new List<JSchema>
             {
                 file,
-                new JSchema4
+                new JSchema
                 {
                     Type = JSchemaType.Integer | JSchemaType.Null
                 },
@@ -590,7 +588,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             };
             schema.Not = file;
 
-            JSchema4 file2 = (JSchema4)schema.ExtensionData["definitions"]["file"];
+            JSchema file2 = (JSchema)schema.ExtensionData["definitions"]["file"];
 
             Assert.AreEqual(file, file2);
 
