@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Newtonsoft")]
-[assembly: AssemblyProduct("Json.NET Schema Tests")]
+[assembly: AssemblyProduct("Json.NET Schema")]
 [assembly: AssemblyCopyright("Copyright © Newtonsoft 2014")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

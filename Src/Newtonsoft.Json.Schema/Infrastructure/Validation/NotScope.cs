@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Validation
@@ -22,10 +23,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
         {
             if (depth == InitialDepth && (JsonWriter.IsEndToken(token) || JsonReader.IsPrimitiveToken(token)))
             {
-                IEnumerable<SchemaScope> children = Context.Scopes.Where(s => s.Parent == this).OfType<SchemaScope>();
-                if (children.Any(s => s.IsValid))
+                if (GetChildren().Any(IsValidPredicate))
                 {
-                    RaiseError("Not", ParentSchemaScope.Schema, ConditionalContext.Errors);
+                    RaiseError("JSON is valid against schema from 'not'.", ParentSchemaScope.Schema, ConditionalContext.Errors);
                 }
 
                 return true;

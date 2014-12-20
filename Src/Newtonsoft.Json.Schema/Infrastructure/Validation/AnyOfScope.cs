@@ -25,10 +25,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
         {
             if (depth == InitialDepth && (JsonWriter.IsEndToken(token) || JsonReader.IsPrimitiveToken(token)))
             {
-                IEnumerable<Scope> children = Context.Scopes.Where(s => s.Parent == this);
-                if (!children.OfType<SchemaScope>().Any(s => s.IsValid))
+                if (!GetChildren().Any(IsValidPredicate))
                 {
-                    RaiseError("AnyOf", ParentSchemaScope.Schema, ConditionalContext.Errors);
+                    RaiseError("JSON does not match any schemas from 'anyOf'.", ParentSchemaScope.Schema, ConditionalContext.Errors);
                 }
 
                 return true;

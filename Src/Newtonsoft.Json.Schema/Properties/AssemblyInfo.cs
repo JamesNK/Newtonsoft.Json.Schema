@@ -11,7 +11,7 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyDescription("Json.NET Schema")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Newtonsoft")]
-[assembly: AssemblyProduct("Json.NET")]
+[assembly: AssemblyProduct("Json.NET Schema")]
 [assembly: AssemblyCopyright("Copyright © Newtonsoft 2014")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

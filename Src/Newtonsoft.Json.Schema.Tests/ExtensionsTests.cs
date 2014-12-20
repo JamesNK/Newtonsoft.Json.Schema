@@ -570,7 +570,7 @@ namespace Newtonsoft.Json.Schema.Tests
             IList<string> errorMessages;
             Assert.IsFalse(json.IsValid(schema, out errorMessages));
             Assert.AreEqual(1, errorMessages.Count);
-            StringAssert.AreEqual("Not Line 1, position 1.", errorMessages[0]);
+            StringAssert.AreEqual("JSON is valid against schema from 'not'. Line 1, position 1.", errorMessages[0]);
         }
 
         [Test]
@@ -593,7 +593,8 @@ namespace Newtonsoft.Json.Schema.Tests
             IList<string> errorMessages;
             Assert.IsFalse(json.IsValid(schema, out errorMessages));
             Assert.AreEqual(1, errorMessages.Count);
-            StringAssert.AreEqual("OneOf Line 1, position 5.", errorMessages[0]);
+
+            StringAssert.AreEqual("JSON is valid against more than one schema from 'oneOf'. Valid schema indexes: 0, 1. Line 1, position 5.", errorMessages[0]);
         }
 
         [Test]
@@ -618,7 +619,7 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(1, errors.Count);
 
             ISchemaError error = errors.Single();
-            StringAssert.AreEqual("OneOf Line 1, position 9.", error.Message);
+            StringAssert.AreEqual("JSON is valid against more than one schema from 'oneOf'. No valid schemas. Line 1, position 9.", error.Message);
             Assert.AreEqual(2, error.ChildErrors.Count);
             StringAssert.AreEqual(@"String 'foo foo' exceeds maximum length of 4. Line 1, position 9.", error.ChildErrors[0].Message);
             StringAssert.AreEqual(@"Invalid type. Expected Object but got String. Line 1, position 9.", error.ChildErrors[1].Message);

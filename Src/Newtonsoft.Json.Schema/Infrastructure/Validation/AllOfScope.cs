@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using Newtonsoft.Json.Utilities;
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 {
@@ -25,12 +27,20 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
         {
             if (depth == InitialDepth && (JsonWriter.IsEndToken(token) || JsonReader.IsPrimitiveToken(token)))
             {
-                if (!Context.Scopes
-                    .Where(s => s.Parent == this)
-                    .OfType<SchemaScope>()
-                    .All(s => s.IsValid))
+                if (!GetChildren().All(IsValidPredicate))
                 {
-                    RaiseError("AllOf", ParentSchemaScope.Schema, ConditionalContext.Errors);
+                    List<int> invalidIndexes = new List<int>();
+                    int index = 0;
+                    foreach (SchemaScope schemaScope in GetChildren())
+                    {
+                        if (!schemaScope.IsValid)
+                            invalidIndexes.Add(index);
+
+                        index++;
+                    }
+
+                    string message = "JSON does not match all schemas from 'allOf'. Invalid schema indexes: {0}.".FormatWith(CultureInfo.InvariantCulture, string.Join(", ", invalidIndexes));
+                    RaiseError(message, ParentSchemaScope.Schema, ConditionalContext.Errors);
                 }
 
                 return true;
