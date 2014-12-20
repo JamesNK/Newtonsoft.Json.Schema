@@ -93,7 +93,6 @@
     <Compile Include="V4\Infrastructure\Validation\SchemaScope.cs" />
     <Compile Include="V4\Infrastructure\Validation\Scope.cs" />
     <Compile Include="V4\Infrastructure\Validation\ValidatorContext.cs" />
-    <Compile Include="V4\IValidator.cs" />
     <Compile Include="V4\JSchema4UrlResolver.cs" />
     <Compile Include="V4\JSchema4ValidatingReader.cs" />
     <Compile Include="V4\JSchema4ValidatingWriter.cs" />
@@ -109,6 +108,7 @@
     <Compile Include="V4\Infrastructure\JSchemaAnnotation.cs" />
     <Compile Include="V4\JSchema4Generator.cs" />
     <Compile Include="V4\TypeSchema.cs" />
+    <Compile Include="V4\Infrastructure\Validation\Validator.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config">

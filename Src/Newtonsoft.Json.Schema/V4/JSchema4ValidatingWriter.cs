@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,12 +8,26 @@ using Newtonsoft.Json.Utilities;
 
 namespace Newtonsoft.Json.Schema.V4
 {
-    public class JSchema4ValidatingWriter : JsonWriter, IValidator
+    public class JSchema4ValidatingWriter : JsonWriter
     {
+        internal class WriterValidator : Validator
+        {
+            private readonly JSchema4ValidatingWriter _writer;
+
+            public WriterValidator(JSchema4ValidatingWriter writer)
+                : base(writer)
+            {
+                _writer = writer;
+            }
+
+            public override ISchemaError CreateError(string message, JSchema4 schema, IList<ISchemaError> childErrors)
+            {
+                return CreateError(message, schema, childErrors, null, _writer.Path);
+            }
+        }
+
         private readonly JsonWriter _writer;
-        private readonly List<Scope> _scopes;
-        private JSchema4 _schema;
-        private ValidatorContext _context;
+        private readonly WriterValidator _validator;
 
         /// <summary>
         /// Gets or sets the schema.
@@ -22,13 +35,13 @@ namespace Newtonsoft.Json.Schema.V4
         /// <value>The schema.</value>
         public JSchema4 Schema
         {
-            get { return _schema; }
+            get { return _validator.Schema; }
             set
             {
                 if (_writer.WriteState != WriteState.Start)
                     throw new InvalidOperationException("Cannot change schema while validating JSON.");
 
-                _schema = value;
+                _validator.Schema = value;
             }
         }
 
@@ -36,13 +49,17 @@ namespace Newtonsoft.Json.Schema.V4
         {
             ValidationUtils.ArgumentNotNull(writer, "writer");
             _writer = writer;
-            _scopes = new List<Scope>();
+            _validator = new WriterValidator(this);
         }
 
         /// <summary>
         /// Sets an event handler for receiving schema validation errors.
         /// </summary>
-        public event SchemaValidationEventHandler ValidationEventHandler;
+        public event SchemaValidationEventHandler ValidationEventHandler
+        {
+            add { _validator.ValidationEventHandler += value; }
+            remove { _validator.ValidationEventHandler -= value; }
+        }
 
         /// <summary>
         /// Flushes whatever is in the buffer to the underlying streams and also flushes the underlying stream.
@@ -438,79 +455,9 @@ namespace Newtonsoft.Json.Schema.V4
         }
         #endregion
 
-        private void ValidateCurrentToken(JsonToken token, object value, int depth)
+        public void ValidateCurrentToken(JsonToken token, object value, int depth)
         {
-            if (_scopes.Count == 0)
-            {
-                _context = new ValidatorContext();
-                _context.Validator = this;
-                _context.Scopes = _scopes;
-
-                SchemaScope.CreateTokenScope(token, _schema, _context, null, depth);
-            }
-
-            if (_context.TokenWriter != null)
-                _context.TokenWriter.WriteToken(token, value);
-
-            for (int i = _scopes.Count - 1; i >= 0; i--)
-            {
-                Scope scope = _scopes[i];
-
-                scope.EvaluateToken(token, value, depth);
-            }
-
-            for (int i = _scopes.Count - 1; i >= 0; i--)
-            {
-                Scope scope = _scopes[i];
-
-                if (scope.Complete)
-                    _scopes.RemoveAt(i);
-            }
-
-            if (_context.TokenWriter != null && _context.TokenWriter.Top == 0)
-                _context.TokenWriter = null;
-        }
-
-        private void OnValidationEvent(JSchemaException exception)
-        {
-            SchemaValidationEventHandler handler = ValidationEventHandler;
-            if (handler != null)
-                handler(this, new SchemaValidationEventArgs(exception));
-            else
-                throw exception;
-        }
-
-        internal ISchemaError CreateError(string message, JSchema4 schema, IList<ISchemaError> childErrors)
-        {
-            IJsonLineInfo lineInfo = null;
-
-            string exceptionMessage = (lineInfo != null && lineInfo.HasLineInfo())
-                ? message + " Line {0}, position {1}.".FormatWith(CultureInfo.InvariantCulture, lineInfo.LineNumber, lineInfo.LinePosition)
-                : message;
-
-            JSchemaException exception = new JSchemaException(exceptionMessage, null);
-            exception.Path = Path;
-            if (lineInfo != null)
-            {
-                exception.LineNumber = lineInfo.LineNumber;
-                exception.LinePosition = lineInfo.LinePosition;
-            }
-            exception.Schema = schema;
-            exception.ChildErrors = childErrors ?? new List<ISchemaError>();
-
-            return exception;
-
-        }
-
-        void IValidator.RaiseError(string message, JSchema4 schema, IList<ISchemaError> childErrors)
-        {
-            JSchemaException exception = (JSchemaException)CreateError(message, schema, childErrors);
-            OnValidationEvent(exception);
-        }
-
-        ISchemaError IValidator.CreateError(string message, JSchema4 schema, IList<ISchemaError> childErrors)
-        {
-            return CreateError(message, schema, childErrors);
+            _validator.ValidateCurrentToken(token, value, depth);
         }
     }
 }

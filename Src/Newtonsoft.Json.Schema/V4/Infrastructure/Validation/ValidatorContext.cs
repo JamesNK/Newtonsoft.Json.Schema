@@ -6,6 +6,11 @@ namespace Newtonsoft.Json.Schema.V4.Infrastructure.Validation
     {
         private bool _hasErrors;
 
+        public ValidatorContext(Validator validator)
+            : base(validator)
+        {
+        }
+
         public override void RaiseError(string message, JSchema4 schema, IList<ISchemaError> childErrors)
         {
             _hasErrors = true;

@@ -6,6 +6,11 @@ namespace Newtonsoft.Json.Schema.V4.Infrastructure.Validation
     {
         public List<ISchemaError> Errors;
 
+        public ConditionalContext(Validator validator)
+            : base(validator)
+        {
+        }
+
         public override void RaiseError(string message, JSchema4 schema, IList<ISchemaError> childErrors)
         {
             if (Errors == null)
@@ -16,12 +21,7 @@ namespace Newtonsoft.Json.Schema.V4.Infrastructure.Validation
 
         public static ConditionalContext Create(ContextBase context)
         {
-            return new ConditionalContext
-            {
-                Validator = context.Validator,
-                Scopes = context.Scopes,
-                TokenWriter = context.TokenWriter
-            };
+            return new ConditionalContext(context.Validator);
         }
 
         public override bool HasErrors
