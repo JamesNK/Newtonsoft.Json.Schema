@@ -69,24 +69,72 @@ namespace Newtonsoft.Json.Schema.Tests
         }
 
         [TestCaseSourceAttribute("GetSpecTestDetails")]
-        public void SpecTest(JsonSchemaSpecTest jsonSchemaSpecTest)
+        public void ReadSpecTest(JsonSchemaSpecTest jsonSchemaSpecTest)
         {
-            Console.WriteLine("Running JSON Schema {0} test {1}: {2}", jsonSchemaSpecTest.Version, jsonSchemaSpecTest.TestNumber, jsonSchemaSpecTest);
+            Console.WriteLine("Running reader JSON Schema {0} test {1}: {2}", jsonSchemaSpecTest.Version, jsonSchemaSpecTest.TestNumber, jsonSchemaSpecTest);
+
+            IList<string> errorMessages = new List<string>();
 
             JSchemaPreloadedResolver resolver = GetResolver();
 
             JSchema4 s = JSchema4.Read(jsonSchemaSpecTest.Schema.CreateReader(), resolver);
 
-            IList<string> errorMessages;
-            bool v = jsonSchemaSpecTest.Data.IsValid(s, out errorMessages);
-            errorMessages = errorMessages ?? new List<string>();
+            JsonReader jsonReader = jsonSchemaSpecTest.Data.CreateReader();
 
-            Assert.AreEqual(jsonSchemaSpecTest.IsValid, v, jsonSchemaSpecTest.TestCaseDescription + " - " + jsonSchemaSpecTest.TestDescription + " - errors: " + string.Join(", ", errorMessages));
+            using (JSchema4ValidatingReader reader = new JSchema4ValidatingReader(jsonReader))
+            {
+                reader.Schema = s;
+                reader.ValidationEventHandler += (sender, args) => errorMessages.Add(args.Message);
+
+                while (reader.Read())
+                {
+                }
+            }
+
+            bool isValid = (errorMessages.Count == 0);
+
+            Assert.AreEqual(jsonSchemaSpecTest.IsValid, isValid, jsonSchemaSpecTest.TestCaseDescription + " - " + jsonSchemaSpecTest.TestDescription + " - errors: " + string.Join(", ", errorMessages));
         }
+
+        [TestCaseSourceAttribute("GetSpecTestDetails")]
+        public void WriteSpecTest(JsonSchemaSpecTest jsonSchemaSpecTest)
+        {
+            Console.WriteLine("Running writer JSON Schema {0} test {1}: {2}", jsonSchemaSpecTest.Version, jsonSchemaSpecTest.TestNumber, jsonSchemaSpecTest);
+
+            IList<string> errorMessages = new List<string>();
+
+            JSchemaPreloadedResolver resolver = GetResolver();
+
+            JSchema4 s = JSchema4.Read(jsonSchemaSpecTest.Schema.CreateReader(), resolver);
+
+            JsonReader jsonReader = jsonSchemaSpecTest.Data.CreateReader();
+
+            StringWriter sw = new StringWriter();
+            JsonTextWriter writer = new JsonTextWriter(sw);
+            using (JSchema4ValidatingWriter validatingWriter = new JSchema4ValidatingWriter(writer))
+            {
+                validatingWriter.Schema = s;
+                validatingWriter.ValidationEventHandler += (sender, args) => errorMessages.Add(args.Message);
+
+                while (jsonReader.Read())
+                {
+                    validatingWriter.WriteToken(jsonReader.TokenType, jsonReader.Value);
+                }
+            }
+
+            bool isValid = (errorMessages.Count == 0);
+
+            Assert.AreEqual(jsonSchemaSpecTest.IsValid, isValid, jsonSchemaSpecTest.TestCaseDescription + " - " + jsonSchemaSpecTest.TestDescription + " - errors: " + string.Join(", ", errorMessages));
+        }
+
+        private IList<JsonSchemaSpecTest> _specTests;
 
         public IList<JsonSchemaSpecTest> GetSpecTestDetails()
         {
-            IList<JsonSchemaSpecTest> specTests = new List<JsonSchemaSpecTest>();
+            if (_specTests != null)
+                return _specTests;
+
+            _specTests = new List<JsonSchemaSpecTest>();
 
             // get test files location relative to the test project dll
             string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
@@ -115,14 +163,14 @@ namespace Newtonsoft.Json.Schema.Tests
                         jsonSchemaSpecTest.TestDescription = (string)test["description"];
                         jsonSchemaSpecTest.Data = test["data"];
                         jsonSchemaSpecTest.IsValid = (bool)test["valid"];
-                        jsonSchemaSpecTest.TestNumber = specTests.Count(t => t.Version == jsonSchemaSpecTest.Version) + 1;
+                        jsonSchemaSpecTest.TestNumber = _specTests.Count(t => t.Version == jsonSchemaSpecTest.Version) + 1;
 
-                        specTests.Add(jsonSchemaSpecTest);
+                        _specTests.Add(jsonSchemaSpecTest);
                     }
                 }
             }
 
-            return specTests;
+            return _specTests;
         }
     }
 }

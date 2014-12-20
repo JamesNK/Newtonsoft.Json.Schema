@@ -112,6 +112,7 @@
   <ItemGroup>
     <Compile Include="Infrastructure\JSchema4DiscoveryTests.cs" />
     <Compile Include="Infrastructure\JSchemaWriterTests.cs" />
+    <Compile Include="JSchema4ValidatingWriterTests.cs" />
     <Compile Include="JSchemaSpecTests.cs" />
     <Compile Include="JValidatingReaderTests.cs" />
     <Compile Include="ExtensionsTests.cs" />

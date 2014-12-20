@@ -96,6 +96,7 @@
     <Compile Include="V4\IValidator.cs" />
     <Compile Include="V4\JSchema4UrlResolver.cs" />
     <Compile Include="V4\JSchema4ValidatingReader.cs" />
+    <Compile Include="V4\JSchema4ValidatingWriter.cs" />
     <Compile Include="V4\JSchemaPreloadedResolver.cs" />
     <Compile Include="V4\Infrastructure\SchemaDiscovery.cs" />
     <Compile Include="V4\Infrastructure\WebRequestDownloader.cs" />
