@@ -16,7 +16,7 @@ using Newtonsoft.Json.Schema;
 
 namespace Newtonsoft.Json.Schema.Tests
 {
-    public class JsonSchemaSpecTest
+    public class SchemaSpecTest
     {
         public string FileName { get; set; }
         public string Version { get; set; }
@@ -34,7 +34,7 @@ namespace Newtonsoft.Json.Schema.Tests
     }
 
     [TestFixture]
-    public class JsonSchemaSpecTests : TestFixtureBase
+    public class JSchemaSpecTests : TestFixtureBase
     {
         private static JSchemaPreloadedResolver _resolver;
 
@@ -68,17 +68,17 @@ namespace Newtonsoft.Json.Schema.Tests
         }
 
         [TestCaseSourceAttribute("GetSpecTestDetails")]
-        public void ReadSpecTest(JsonSchemaSpecTest jsonSchemaSpecTest)
+        public void ReadSpecTest(SchemaSpecTest schemaSpecTest)
         {
-            Console.WriteLine("Running reader JSON Schema {0} test {1}: {2}", jsonSchemaSpecTest.Version, jsonSchemaSpecTest.TestNumber, jsonSchemaSpecTest);
+            Console.WriteLine("Running reader JSON Schema {0} test {1}: {2}", schemaSpecTest.Version, schemaSpecTest.TestNumber, schemaSpecTest);
 
             IList<string> errorMessages = new List<string>();
 
             JSchemaPreloadedResolver resolver = GetResolver();
 
-            JSchema s = JSchema.Read(jsonSchemaSpecTest.Schema.CreateReader(), resolver);
+            JSchema s = JSchema.Read(schemaSpecTest.Schema.CreateReader(), resolver);
 
-            JsonReader jsonReader = jsonSchemaSpecTest.Data.CreateReader();
+            JsonReader jsonReader = schemaSpecTest.Data.CreateReader();
 
             using (JSchemaValidatingReader reader = new JSchemaValidatingReader(jsonReader))
             {
@@ -92,21 +92,21 @@ namespace Newtonsoft.Json.Schema.Tests
 
             bool isValid = (errorMessages.Count == 0);
 
-            Assert.AreEqual(jsonSchemaSpecTest.IsValid, isValid, jsonSchemaSpecTest.TestCaseDescription + " - " + jsonSchemaSpecTest.TestDescription + " - errors: " + string.Join(", ", errorMessages));
+            Assert.AreEqual(schemaSpecTest.IsValid, isValid, schemaSpecTest.TestCaseDescription + " - " + schemaSpecTest.TestDescription + " - errors: " + string.Join(", ", errorMessages));
         }
 
         [TestCaseSourceAttribute("GetSpecTestDetails")]
-        public void WriteSpecTest(JsonSchemaSpecTest jsonSchemaSpecTest)
+        public void WriteSpecTest(SchemaSpecTest schemaSpecTest)
         {
-            Console.WriteLine("Running writer JSON Schema {0} test {1}: {2}", jsonSchemaSpecTest.Version, jsonSchemaSpecTest.TestNumber, jsonSchemaSpecTest);
+            Console.WriteLine("Running writer JSON Schema {0} test {1}: {2}", schemaSpecTest.Version, schemaSpecTest.TestNumber, schemaSpecTest);
 
             IList<string> errorMessages = new List<string>();
 
             JSchemaPreloadedResolver resolver = GetResolver();
 
-            JSchema s = JSchema.Read(jsonSchemaSpecTest.Schema.CreateReader(), resolver);
+            JSchema s = JSchema.Read(schemaSpecTest.Schema.CreateReader(), resolver);
 
-            JsonReader jsonReader = jsonSchemaSpecTest.Data.CreateReader();
+            JsonReader jsonReader = schemaSpecTest.Data.CreateReader();
 
             StringWriter sw = new StringWriter();
             JsonTextWriter writer = new JsonTextWriter(sw);
@@ -123,17 +123,17 @@ namespace Newtonsoft.Json.Schema.Tests
 
             bool isValid = (errorMessages.Count == 0);
 
-            Assert.AreEqual(jsonSchemaSpecTest.IsValid, isValid, jsonSchemaSpecTest.TestCaseDescription + " - " + jsonSchemaSpecTest.TestDescription + " - errors: " + string.Join(", ", errorMessages));
+            Assert.AreEqual(schemaSpecTest.IsValid, isValid, schemaSpecTest.TestCaseDescription + " - " + schemaSpecTest.TestDescription + " - errors: " + string.Join(", ", errorMessages));
         }
 
-        private IList<JsonSchemaSpecTest> _specTests;
+        private IList<SchemaSpecTest> _specTests;
 
-        public IList<JsonSchemaSpecTest> GetSpecTestDetails()
+        public IList<SchemaSpecTest> GetSpecTestDetails()
         {
             if (_specTests != null)
                 return _specTests;
 
-            _specTests = new List<JsonSchemaSpecTest>();
+            _specTests = new List<SchemaSpecTest>();
 
             // get test files location relative to the test project dll
             string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
@@ -152,19 +152,19 @@ namespace Newtonsoft.Json.Schema.Tests
                 {
                     foreach (JObject test in testCase["tests"])
                     {
-                        JsonSchemaSpecTest jsonSchemaSpecTest = new JsonSchemaSpecTest();
+                        SchemaSpecTest schemaSpecTest = new SchemaSpecTest();
 
-                        jsonSchemaSpecTest.FileName = Path.GetFileName(testFile);
-                        jsonSchemaSpecTest.Version = Directory.GetParent(testFile).Name;
-                        jsonSchemaSpecTest.TestCaseDescription = (string)testCase["description"];
-                        jsonSchemaSpecTest.Schema = (JObject)testCase["schema"];
+                        schemaSpecTest.FileName = Path.GetFileName(testFile);
+                        schemaSpecTest.Version = Directory.GetParent(testFile).Name;
+                        schemaSpecTest.TestCaseDescription = (string)testCase["description"];
+                        schemaSpecTest.Schema = (JObject)testCase["schema"];
 
-                        jsonSchemaSpecTest.TestDescription = (string)test["description"];
-                        jsonSchemaSpecTest.Data = test["data"];
-                        jsonSchemaSpecTest.IsValid = (bool)test["valid"];
-                        jsonSchemaSpecTest.TestNumber = _specTests.Count(t => t.Version == jsonSchemaSpecTest.Version) + 1;
+                        schemaSpecTest.TestDescription = (string)test["description"];
+                        schemaSpecTest.Data = test["data"];
+                        schemaSpecTest.IsValid = (bool)test["valid"];
+                        schemaSpecTest.TestNumber = _specTests.Count(t => t.Version == schemaSpecTest.Version) + 1;
 
-                        _specTests.Add(jsonSchemaSpecTest);
+                        _specTests.Add(schemaSpecTest);
                     }
                 }
             }

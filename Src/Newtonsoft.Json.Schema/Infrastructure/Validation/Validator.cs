@@ -20,7 +20,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             get { return _scopes; }
         }
 
-        public abstract ISchemaError CreateError(string message, JSchema schema, IList<ISchemaError> childErrors);
+        public abstract ISchemaError CreateError(string message, ErrorType errorType, JSchema schema, IList<ISchemaError> childErrors);
 
         protected Validator(object publicValidator)
         {
@@ -29,9 +29,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             _context = new ValidatorContext(this);
         }
 
-        public void RaiseError(string message, JSchema schema, IList<ISchemaError> childErrors)
+        public void RaiseError(string message, ErrorType errorType, JSchema schema, IList<ISchemaError> childErrors)
         {
-            JSchemaException ex = (JSchemaException)CreateError(message, schema, childErrors);
+            JSchemaException ex = (JSchemaException)CreateError(message, errorType, schema, childErrors);
 
             SchemaValidationEventHandler handler = ValidationEventHandler;
             if (handler != null)
@@ -40,13 +40,14 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 throw ex;
         }
 
-        protected ISchemaError CreateError(string message, JSchema schema, IList<ISchemaError> childErrors, IJsonLineInfo lineInfo, string path)
+        protected ISchemaError CreateError(string message, ErrorType errorType, JSchema schema, IList<ISchemaError> childErrors, IJsonLineInfo lineInfo, string path)
         {
             string exceptionMessage = (lineInfo != null && lineInfo.HasLineInfo())
                 ? message + " Line {0}, position {1}.".FormatWith(CultureInfo.InvariantCulture, lineInfo.LineNumber, lineInfo.LinePosition)
                 : message;
 
             JSchemaException exception = new JSchemaException(exceptionMessage, null);
+            exception.ErrorType = errorType;
             exception.Path = path;
             if (lineInfo != null)
             {

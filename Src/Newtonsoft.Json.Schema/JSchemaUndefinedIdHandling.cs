@@ -6,7 +6,7 @@
 namespace Newtonsoft.Json.Schema
 {
     /// <summary>
-    /// Specifies undefined schema Id handling options for the <see cref="JsonSchemaGenerator"/>.
+    /// Specifies undefined schema Id handling options for the <see cref="JSchemaGenerator"/>.
     /// </summary>
     public enum JSchemaUndefinedIdHandling
     {

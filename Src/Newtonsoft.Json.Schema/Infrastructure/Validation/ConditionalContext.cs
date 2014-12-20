@@ -11,12 +11,12 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
         {
         }
 
-        public override void RaiseError(string message, JSchema schema, IList<ISchemaError> childErrors)
+        public override void RaiseError(string message, ErrorType errorType, JSchema schema, IList<ISchemaError> childErrors)
         {
             if (Errors == null)
                 Errors = new List<ISchemaError>();
 
-            Errors.Add(Validator.CreateError(message, schema, childErrors));
+            Errors.Add(Validator.CreateError(message, errorType, schema, childErrors));
         }
 
         public static ConditionalContext Create(ContextBase context)

@@ -11,18 +11,21 @@ using Newtonsoft.Json.Schema.Infrastructure;
 namespace Newtonsoft.Json.Schema
 {
     /// <summary>
-    /// Resolves <see cref="JSchema"/> from an id.
+    /// Resolves external JSON Schemas named by a Uniform Resource Identifier (URI).
     /// </summary>
     public class JSchemaUrlResolver : JSchemaResolver
     {
-        private IDownloader _downloader;
         private ICredentials _credentials;
 
 #if DEBUG
+        private IDownloader _downloader;
+
         internal void SetDownloader(IDownloader downloader)
         {
             _downloader = downloader;
         }
+#else
+        private readonly IDownloader _downloader;
 #endif
 
         /// <summary>
@@ -33,6 +36,11 @@ namespace Newtonsoft.Json.Schema
             _downloader = new WebRequestDownloader();
         }
 
+        /// <summary>
+        /// Gets the schema for a given URI.
+        /// </summary>
+        /// <param name="uri">The schema URI to resolve.</param>
+        /// <returns>The resolved schema.</returns>
         public override JSchema GetSchema(Uri uri)
         {
             using (Stream s = _downloader.GetStream(uri, _credentials))
@@ -43,6 +51,9 @@ namespace Newtonsoft.Json.Schema
             }
         }
 
+        /// <summary>
+        /// Sets the credentials used to authenticate web requests.
+        /// </summary>
         public override ICredentials Credentials
         {
             set { _credentials = value; }

@@ -23,7 +23,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             Validator = validator;
         }
         
-        public abstract void RaiseError(string message, JSchema schema, IList<ISchemaError> childErrors);
+        public abstract void RaiseError(string message, ErrorType errorType, JSchema schema, IList<ISchemaError> childErrors);
         public abstract bool HasErrors { get; }
     }
 }

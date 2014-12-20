@@ -20,9 +20,9 @@ namespace Newtonsoft.Json.Schema
                 _reader = reader;
             }
 
-            public override ISchemaError CreateError(string message, JSchema schema, IList<ISchemaError> childErrors)
+            public override ISchemaError CreateError(string message, ErrorType errorType, JSchema schema, IList<ISchemaError> childErrors)
             {
-                return CreateError(message, schema, childErrors, _reader, _reader.Path);
+                return CreateError(message, errorType, schema, childErrors, _reader, _reader.Path);
             }
         }
 
@@ -239,16 +239,18 @@ namespace Newtonsoft.Json.Schema
             if (!_reader.Read())
                 return false;
 
-            if (_reader.TokenType == JsonToken.Comment)
-                return true;
-
             ValidateCurrentToken();
             return true;
         }
 
         private void ValidateCurrentToken()
         {
-            _validator.ValidateCurrentToken(_reader.TokenType, _reader.Value, _reader.Depth);
+            JsonToken token = _reader.TokenType;
+
+            if (token == JsonToken.Comment)
+                return;
+
+            _validator.ValidateCurrentToken(token, _reader.Value, _reader.Depth);
         }
     }
 }

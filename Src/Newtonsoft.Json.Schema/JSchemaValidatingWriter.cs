@@ -17,9 +17,9 @@ namespace Newtonsoft.Json.Schema
                 _writer = writer;
             }
 
-            public override ISchemaError CreateError(string message, JSchema schema, IList<ISchemaError> childErrors)
+            public override ISchemaError CreateError(string message, ErrorType errorType, JSchema schema, IList<ISchemaError> childErrors)
             {
-                return CreateError(message, schema, childErrors, null, _writer.Path);
+                return CreateError(message, errorType, schema, childErrors, null, _writer.Path);
             }
         }
 
@@ -42,6 +42,11 @@ namespace Newtonsoft.Json.Schema
             }
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="JSchemaValidatingWriter"/> class that
+        /// validates the content that will be written to the given <see cref="JsonWriter"/>.
+        /// </summary>
+        /// <param name="writer">The <see cref="JsonWriter"/> to write to while validating.</param>
         public JSchemaValidatingWriter(JsonWriter writer)
         {
             ValidationUtils.ArgumentNotNull(writer, "writer");
@@ -452,7 +457,7 @@ namespace Newtonsoft.Json.Schema
         }
         #endregion
 
-        public void ValidateCurrentToken(JsonToken token, object value, int depth)
+        private void ValidateCurrentToken(JsonToken token, object value, int depth)
         {
             _validator.ValidateCurrentToken(token, value, depth);
         }

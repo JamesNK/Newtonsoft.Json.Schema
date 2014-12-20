@@ -7,7 +7,7 @@ using Newtonsoft.Json.Utilities;
 
 namespace Newtonsoft.Json.Schema.Infrastructure
 {
-    internal static class JsonSchemaTypeHelpers
+    internal static class JSchemaTypeHelpers
     {
         internal static bool HasFlag(JSchemaType? value, JSchemaType flag)
         {
@@ -29,7 +29,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         internal static JSchemaType MapType(string type)
         {
             JSchemaType mappedType;
-            if (!Constants.JsonSchemaTypeMapping.TryGetValue(type, out mappedType))
+            if (!Constants.JSchemaTypeMapping.TryGetValue(type, out mappedType))
                 throw new JsonException("Invalid JSON schema type: {0}".FormatWith(CultureInfo.InvariantCulture, type));
 
             return mappedType;
@@ -37,7 +37,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         internal static string MapType(JSchemaType type)
         {
-            return Constants.JsonSchemaTypeMapping.Single(kv => kv.Value == type).Key;
+            return Constants.JSchemaTypeMapping.Single(kv => kv.Value == type).Key;
         }
     }
 }

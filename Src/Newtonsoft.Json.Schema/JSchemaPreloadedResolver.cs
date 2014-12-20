@@ -5,7 +5,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 using Newtonsoft.Json.Schema.Infrastructure;
+using Newtonsoft.Json.Utilities;
 
 namespace Newtonsoft.Json.Schema
 {
@@ -25,6 +28,11 @@ namespace Newtonsoft.Json.Schema
             _knownSchemas = new List<KnownSchema>();
         }
 
+        /// <summary>
+        /// Gets the schema for a given URI.
+        /// </summary>
+        /// <param name="uri">The schema URI to resolve.</param>
+        /// <returns>The resolved schema.</returns>
         public override JSchema GetSchema(Uri uri)
         {
             foreach (KnownSchema knownSchema in _knownSchemas)
@@ -66,6 +74,9 @@ namespace Newtonsoft.Json.Schema
 
         public void Add(Uri uri, JSchema schema)
         {
+            if (_knownSchemas.Any(s => Uri.Compare(s.Id, uri, UriComponents.AbsoluteUri, UriFormat.UriEscaped, StringComparison.Ordinal) == 0))
+                throw new JsonException("Resolver already has a JSON Schema for URI '{0}'.".FormatWith(CultureInfo.InvariantCulture, uri));
+
             _knownSchemas.Add(new KnownSchema(uri, schema, KnownSchemaState.External));
         }
 

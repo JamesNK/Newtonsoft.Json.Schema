@@ -342,14 +342,14 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
             if (types.Count == 1)
             {
-                writer.WriteValue(JsonSchemaTypeHelpers.MapType(types[0]));
+                writer.WriteValue(JSchemaTypeHelpers.MapType(types[0]));
                 return;
             }
 
             writer.WriteStartArray();
-            foreach (JSchemaType jsonSchemaType in types)
+            foreach (JSchemaType schemaType in types)
             {
-                writer.WriteValue(JsonSchemaTypeHelpers.MapType(jsonSchemaType));
+                writer.WriteValue(JSchemaTypeHelpers.MapType(schemaType));
             }
             writer.WriteEndArray();
         }

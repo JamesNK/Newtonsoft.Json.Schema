@@ -13,9 +13,13 @@ using Newtonsoft.Json.Utilities;
 
 namespace Newtonsoft.Json.Schema
 {
+    /// <summary>
+    /// An in-memory representation of a JSON Schema.
+    /// </summary>
     public class JSchema
     {
-        internal string Location { get; set; }
+        internal Uri Reference { get; set; }
+        internal bool DeprecatedRequired { get; set; }
 
         internal Dictionary<string, JToken> _extensionData;
         internal List<JSchema> _items;
@@ -28,15 +32,27 @@ namespace Newtonsoft.Json.Schema
         internal Dictionary<string, JSchema> _patternProperties;
         internal List<string> _required;
 
+        /// <summary>
+        /// Gets or sets the ID.
+        /// </summary>
         public Uri Id { get; set; }
-        internal Uri Reference { get; set; }
+
+        /// <summary>
+        /// Gets or sets the types of values allowed by the object.
+        /// </summary>
+        /// <value>The type.</value>
         public JSchemaType? Type { get; set; }
+
+        /// <summary>
+        /// Gets or sets the default value.
+        /// </summary>
+        /// <value>The default value.</value>
         public JToken Default { get; set; }
 
         /// <summary>
-        /// Gets or sets the <see cref="JSchema"/> of properties.
+        /// Gets the object property <see cref="JSchema"/>s.
         /// </summary>
-        /// <value>The <see cref="JSchema"/> of properties.</value>
+        /// <value>The object property <see cref="JSchema"/>s.</value>
         public IDictionary<string, JSchema> Properties
         {
             get
@@ -49,9 +65,9 @@ namespace Newtonsoft.Json.Schema
         }
 
         /// <summary>
-        /// Gets or sets the <see cref="JSchema"/> of items.
+        /// Gets the array item <see cref="JSchema"/>s.
         /// </summary>
-        /// <value>The <see cref="JSchema"/> of items.</value>
+        /// <value>The array item <see cref="JSchema"/>s.</value>
         public IList<JSchema> Items
         {
             get
@@ -71,6 +87,10 @@ namespace Newtonsoft.Json.Schema
         /// </value>
         public bool ItemsPositionValidation { get; set; }
 
+        /// <summary>
+        /// Gets the required object properties.
+        /// </summary>
+        /// <value>The required object properties.</value>
         public IList<string> Required
         {
             get
@@ -118,7 +138,7 @@ namespace Newtonsoft.Json.Schema
         public JSchema Not { get; set; }
 
         /// <summary>
-        /// Gets or sets the a collection of valid enum values allowed.
+        /// Gets the collection of valid enum values allowed.
         /// </summary>
         /// <value>A collection of valid enum values allowed.</value>
         public IList<JToken> Enum
@@ -138,27 +158,27 @@ namespace Newtonsoft.Json.Schema
         public bool UniqueItems { get; set; }
 
         /// <summary>
-        /// Gets or sets the minimum length.
+        /// Gets or sets the minimum length of a string.
         /// </summary>
-        /// <value>The minimum length.</value>
+        /// <value>The minimum length of a string.</value>
         public int? MinimumLength { get; set; }
 
         /// <summary>
-        /// Gets or sets the maximum length.
+        /// Gets or sets the maximum length of a string.
         /// </summary>
-        /// <value>The maximum length.</value>
+        /// <value>The maximum length of a string.</value>
         public int? MaximumLength { get; set; }
 
         /// <summary>
-        /// Gets or sets the minimum.
+        /// Gets or sets the minimum value of a number.
         /// </summary>
-        /// <value>The minimum.</value>
+        /// <value>The minimum value of a number.</value>
         public double? Minimum { get; set; }
 
         /// <summary>
-        /// Gets or sets the maximum.
+        /// Gets or sets the maximum value of a number.
         /// </summary>
-        /// <value>The maximum.</value>
+        /// <value>The maximum value of a number.</value>
         public double? Maximum { get; set; }
 
         /// <summary>
@@ -174,29 +194,33 @@ namespace Newtonsoft.Json.Schema
         public bool ExclusiveMaximum { get; set; }
 
         /// <summary>
-        /// Gets or sets the minimum number of items.
+        /// Gets or sets the minimum number of array items.
         /// </summary>
-        /// <value>The minimum number of items.</value>
+        /// <value>The minimum number of array items.</value>
         public int? MinimumItems { get; set; }
 
         /// <summary>
-        /// Gets or sets the maximum number of items.
+        /// Gets or sets the maximum number of array items.
         /// </summary>
-        /// <value>The maximum number of items.</value>
+        /// <value>The maximum number of array items.</value>
         public int? MaximumItems { get; set; }
 
         /// <summary>
-        /// Gets or sets the minimum number of properties.
+        /// Gets or sets the minimum number of object properties.
         /// </summary>
-        /// <value>The minimum number of properties.</value>
+        /// <value>The minimum number of object properties.</value>
         public int? MinimumProperties { get; set; }
 
         /// <summary>
-        /// Gets or sets the maximum number of properties.
+        /// Gets or sets the maximum number of object properties.
         /// </summary>
-        /// <value>The maximum number of properties.</value>
+        /// <value>The maximum number of object properties.</value>
         public int? MaximumProperties { get; set; }
 
+        /// <summary>
+        /// Gets the extension data for the <see cref="JSchema"/>.
+        /// </summary>
+        /// <value>The extension data for the <see cref="JSchema"/>.</value>
         public IDictionary<string, JToken> ExtensionData
         {
             get
@@ -208,27 +232,40 @@ namespace Newtonsoft.Json.Schema
             }
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="JSchema"/> class.
+        /// </summary>
         public JSchema()
         {
             AllowAdditionalProperties = true;
             AllowAdditionalItems = true;
         }
 
-        public static implicit operator JToken(JSchema x)
+        /// <summary>
+        /// Gets a <see cref="JToken"/> associated with the <see cref="JSchema"/>.
+        /// </summary>
+        /// <param name="s">The schema.</param>
+        /// <returns>A <see cref="JToken"/> associated with the <see cref="JSchema"/>.</returns>
+        public static implicit operator JToken(JSchema s)
         {
             JObject token = new JObject();
-            token.AddAnnotation(new JSchemaAnnotation(x));
+            token.AddAnnotation(new JSchemaAnnotation(s));
 
             return token;
         }
 
-        public static explicit operator JSchema(JToken x)
+        /// <summary>
+        /// Gets the <see cref="JSchema"/> associated with the <see cref="JToken"/>.
+        /// </summary>
+        /// <param name="t">The token.</param>
+        /// <returns>The <see cref="JSchema"/> associated with the <see cref="JToken"/>.</returns>
+        public static explicit operator JSchema(JToken t)
         {
-            JSchemaAnnotation annotation = x.Annotation<JSchemaAnnotation>();
+            JSchemaAnnotation annotation = t.Annotation<JSchemaAnnotation>();
             if (annotation != null)
                 return annotation.Schema;
 
-            throw new Exception("TODO: load schema from JSON");
+            throw new JsonException("Cannot convert JToken to JSchema. No schema is associated with this token.");
         }
 
         /// <summary>
@@ -278,15 +315,18 @@ namespace Newtonsoft.Json.Schema
         }
 
         /// <summary>
-        /// Gets or sets the title.
+        /// Gets or sets the title of the schema.
         /// </summary>
         public string Title { get; set; }
 
         /// <summary>
-        /// Gets or sets the description of the object.
+        /// Gets or sets the description of the schema.
         /// </summary>
         public string Description { get; set; }
 
+        /// <summary>
+        /// Gets or sets the multiple of.
+        /// </summary>
         public double? MultipleOf { get; set; }
 
         /// <summary>
@@ -295,6 +335,9 @@ namespace Newtonsoft.Json.Schema
         /// <value>The pattern.</value>
         public string Pattern { get; set; }
 
+        /// <summary>
+        /// Gets the object property dependencies.
+        /// </summary>
         public IDictionary<string, object> Dependencies
         {
             get
@@ -307,15 +350,15 @@ namespace Newtonsoft.Json.Schema
         }
 
         /// <summary>
-        /// Gets or sets the <see cref="JSchema"/> of additional properties.
+        /// Gets or sets the <see cref="JSchema"/> for additional properties.
         /// </summary>
-        /// <value>The <see cref="JSchema"/> of additional properties.</value>
+        /// <value>The <see cref="JSchema"/> for additional properties.</value>
         public JSchema AdditionalProperties { get; set; }
 
         /// <summary>
-        /// Gets or sets the pattern properties.
+        /// Gets the object pattern properties.
         /// </summary>
-        /// <value>The pattern properties.</value>
+        /// <value>The object pattern properties.</value>
         public IDictionary<string, JSchema> PatternProperties
         {
             get
@@ -336,9 +379,9 @@ namespace Newtonsoft.Json.Schema
         public bool AllowAdditionalProperties { get; set; }
 
         /// <summary>
-        /// Gets or sets the <see cref="JSchema"/> of additional items.
+        /// Gets or sets the <see cref="JSchema"/> for additional items.
         /// </summary>
-        /// <value>The <see cref="JSchema"/> of additional items.</value>
+        /// <value>The <see cref="JSchema"/> for additional items.</value>
         public JSchema AdditionalItems { get; set; }
 
         /// <summary>
@@ -348,8 +391,6 @@ namespace Newtonsoft.Json.Schema
         /// 	<c>true</c> if additional items are allowed; otherwise, <c>false</c>.
         /// </value>
         public bool AllowAdditionalItems { get; set; }
-
-        internal bool DeprecatedRequired { get; set; }
 
         /// <summary>
         /// Reads a <see cref="JSchema"/> from the specified <see cref="JsonReader"/>.

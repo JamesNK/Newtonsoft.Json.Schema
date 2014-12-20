@@ -17,7 +17,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             {
                 if (GetChildren().Any(IsValidPredicate))
                 {
-                    RaiseError("JSON is valid against schema from 'not'.", ParentSchemaScope.Schema, ConditionalContext.Errors);
+                    RaiseError("JSON is valid against schema from 'not'.", ErrorType.Not, ParentSchemaScope.Schema, ConditionalContext.Errors);
                 }
 
                 return true;

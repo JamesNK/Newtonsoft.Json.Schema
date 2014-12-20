@@ -37,7 +37,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     else
                         message += "No valid schemas.";
 
-                    RaiseError(message, ParentSchemaScope.Schema, ConditionalContext.Errors);
+                    RaiseError(message, ErrorType.OneOf, ParentSchemaScope.Schema, ConditionalContext.Errors);
                 }
 
                 return true;

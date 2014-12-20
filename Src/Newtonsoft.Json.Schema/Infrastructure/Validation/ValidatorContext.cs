@@ -11,10 +11,10 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
         {
         }
 
-        public override void RaiseError(string message, JSchema schema, IList<ISchemaError> childErrors)
+        public override void RaiseError(string message, ErrorType errorType, JSchema schema, IList<ISchemaError> childErrors)
         {
             _hasErrors = true;
-            Validator.RaiseError(message, schema, childErrors);
+            Validator.RaiseError(message, errorType, schema, childErrors);
         }
 
         public override bool HasErrors

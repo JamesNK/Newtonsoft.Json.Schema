@@ -24,7 +24,7 @@ namespace Newtonsoft.Json.Schema
         /// <summary>
         /// Gets the <see cref="JSchemaException"/> associated with the validation error.
         /// </summary>
-        /// <value>The JsonSchemaException associated with the validation error.</value>
+        /// <value>The <see cref="JSchemaException"/> associated with the validation error.</value>
         public JSchemaException Exception
         {
             get { return _ex; }

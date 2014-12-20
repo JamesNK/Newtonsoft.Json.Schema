@@ -16,13 +16,13 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             InitialDepth = initialDepth;
         }
 
-        internal virtual void RaiseError(string message, JSchema schema, IList<ISchemaError> childErrors)
+        internal virtual void RaiseError(string message, ErrorType errorType, JSchema schema, IList<ISchemaError> childErrors)
         {
             SchemaScope schemaParent = Parent as SchemaScope;
             if (schemaParent != null)
                 schemaParent.IsValid = false;
 
-            Context.RaiseError(message, schema, childErrors);
+            Context.RaiseError(message, errorType, schema, childErrors);
         }
 
         public void EvaluateToken(JsonToken token, object value, int depth)

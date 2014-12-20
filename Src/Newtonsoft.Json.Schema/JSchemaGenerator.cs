@@ -183,7 +183,7 @@ namespace Newtonsoft.Json.Schema
             return resolvedTypeId;
         }
 
-        public static bool IsDefined(Type type, Type attributeType, bool inherit)
+        private static bool IsDefined(Type type, Type attributeType, bool inherit)
         {
             return type.GetTypeInfo().CustomAttributes.Any(a => a.AttributeType == attributeType);
         }

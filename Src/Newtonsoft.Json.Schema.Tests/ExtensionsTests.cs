@@ -131,14 +131,6 @@ namespace Newtonsoft.Json.Schema.Tests
 }
 ";
 
-            //JsonSchema schema;
-
-            //using (JsonTextReader reader = new JsonTextReader(new StringReader(schemaJson)))
-            //{
-            //  JsonSchemaBuilder builder = new JsonSchemaBuilder(new JsonSchemaResolver());
-            //  schema = builder.Parse(reader);
-            //}
-
             JSchema schema = JSchema.Parse(schemaJson);
 
             JObject person = JObject.Parse(@"{
@@ -681,7 +673,7 @@ namespace Newtonsoft.Json.Schema.Tests
             IList<string> errorMessages;
             Assert.IsFalse(json.IsValid(schema, out errorMessages));
             Assert.AreEqual(1, errorMessages.Count);
-            StringAssert.AreEqual("Dependency! Line 1, position 1.", errorMessages[0]);
+            StringAssert.AreEqual(@"Dependencies for property 'bar' failed. Missing required keys: foo. Line 1, position 1.", errorMessages[0]);
         }
 
         [Test]
@@ -696,7 +688,7 @@ namespace Newtonsoft.Json.Schema.Tests
             IList<string> errorMessages;
             Assert.IsFalse(json.IsValid(schema, out errorMessages));
             Assert.AreEqual(1, errorMessages.Count);
-            StringAssert.AreEqual("Dependency! Line 1, position 1.", errorMessages[0]);
+            StringAssert.AreEqual(@"Dependencies for property 'quux' failed. Missing required keys: bar. Line 1, position 1.", errorMessages[0]);
         }
 
         [Test]
@@ -715,10 +707,12 @@ namespace Newtonsoft.Json.Schema.Tests
 
             JToken json = JToken.Parse(@"{""foo"": ""quux"", ""bar"": 2}");
 
-            IList<string> errorMessages;
+            IList<ISchemaError> errorMessages;
             Assert.IsFalse(json.IsValid(schema, out errorMessages));
             Assert.AreEqual(1, errorMessages.Count);
-            StringAssert.AreEqual("Dependency! Line 1, position 1.", errorMessages[0]);
+            StringAssert.AreEqual(@"Dependencies for property 'bar' failed. Line 1, position 1.", errorMessages[0].Message);
+            Assert.AreEqual(1, errorMessages[0].ChildErrors.Count);
+            StringAssert.AreEqual(@"Invalid type. Expected Integer but got String. Line 1, position 14.", errorMessages[0].ChildErrors[0].Message);
         }
 
         [Test]

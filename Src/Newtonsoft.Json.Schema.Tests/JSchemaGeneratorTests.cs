@@ -679,10 +679,10 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaGenerator generator = new JSchemaGenerator();
 
             generator.UndefinedSchemaIdHandling = JSchemaUndefinedIdHandling.UseTypeName;
-            JSchema jsonSchema = generator.Generate(type);
+            JSchema schema = generator.Generate(type);
 
             // should succeed
-            Assert.IsNotNull(jsonSchema);
+            Assert.IsNotNull(schema);
         }
 
         [Test]
@@ -691,8 +691,8 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaGenerator generator = new JSchemaGenerator();
 
             generator.UndefinedSchemaIdHandling = JSchemaUndefinedIdHandling.UseTypeName;
-            JSchema jsonSchema = generator.Generate(typeof(CircularReferenceClass), true);
-            string json = jsonSchema.ToString();
+            JSchema schema = generator.Generate(typeof(CircularReferenceClass), true);
+            string json = schema.ToString();
 
             Tests.StringAssert.AreEqual(@"{
   ""id"": ""Newtonsoft.Json.Schema.Tests.TestObjects.CircularReferenceClass"",
@@ -720,8 +720,8 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaGenerator generator = new JSchemaGenerator();
 
             generator.UndefinedSchemaIdHandling = JSchemaUndefinedIdHandling.UseTypeName;
-            JSchema jsonSchema = generator.Generate(typeof(JsonPropertyWithHandlingValues), true);
-            string json = jsonSchema.ToString();
+            JSchema schema = generator.Generate(typeof(JsonPropertyWithHandlingValues), true);
+            string json = schema.ToString();
 
             Tests.StringAssert.AreEqual(@"{
   ""id"": ""Newtonsoft.Json.Schema.Tests.TestObjects.JsonPropertyWithHandlingValues"",
@@ -796,8 +796,8 @@ namespace Newtonsoft.Json.Schema.Tests
         {
             JSchemaGenerator generator = new JSchemaGenerator();
 
-            JSchema jsonSchema = generator.Generate(typeof(NullableInt32TestClass));
-            string json = jsonSchema.ToString();
+            JSchema schema = generator.Generate(typeof(NullableInt32TestClass));
+            string json = schema.ToString();
 
             Tests.StringAssert.AreEqual(@"{
   ""type"": ""object"",
