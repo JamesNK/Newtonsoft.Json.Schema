@@ -220,11 +220,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             WritePropertyIfNotNull(_writer, Constants.PropertyNames.MaximumProperties, schema.MaximumProperties);
             WritePropertyIfNotNull(_writer, Constants.PropertyNames.MultipleOf, schema.MultipleOf);
             WritePropertyIfNotNull(_writer, Constants.PropertyNames.Pattern, schema.Pattern);
-            if (schema.Enum != null)
+            if (schema._enum != null && schema._enum.Count > 0)
             {
                 _writer.WritePropertyName(Constants.PropertyNames.Enum);
                 _writer.WriteStartArray();
-                foreach (JToken token in schema.Enum)
+                foreach (JToken token in schema._enum)
                 {
                     token.WriteTo(_writer);
                 }
@@ -261,7 +261,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             }
         }
 
-        private void WriteSchemas(IList<JSchema> schemas, string name)
+        private void WriteSchemas(List<JSchema> schemas, string name)
         {
             if (schemas != null && schemas.Count > 0)
             {

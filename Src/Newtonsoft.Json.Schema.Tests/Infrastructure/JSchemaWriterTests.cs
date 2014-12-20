@@ -238,10 +238,12 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
                 Not = nestedInId
             };
 
-            JSchema root = new JSchema();
-            root.Properties = new Dictionary<string, JSchema>
+            JSchema root = new JSchema
             {
-                { "prop1", hasId }
+                Properties =
+                {
+                    { "prop1", hasId }
+                }
             };
             root.Not = nestedInId;
 
@@ -259,7 +261,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             JSchema referenceSchema = new JSchema
             {
                 Id = new Uri("http://localhost/test"),
-                Items = new List<JSchema>
+                Items =
                 {
                     nestedReference
                 }
@@ -373,10 +375,12 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         [Test]
         public void WriteTo_PatternProperties()
         {
-            JSchema schema = new JSchema();
-            schema.PatternProperties = new Dictionary<string, JSchema>
+            JSchema schema = new JSchema
             {
-                { "[abc]", new JSchema() }
+                PatternProperties =
+                {
+                    { "[abc]", new JSchema() }
+                }
             };
 
             StringWriter writer = new StringWriter();
@@ -434,7 +438,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         {
             JSchema schema = new JSchema();
             schema.ItemsPositionValidation = true;
-            schema.Items = new List<JSchema> { new JSchema { Type = JSchemaType.String } };
+            schema.Items.Add(new JSchema { Type = JSchemaType.String });
 
             StringWriter writer = new StringWriter();
             JsonTextWriter jsonWriter = new JsonTextWriter(writer);
@@ -457,7 +461,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         public void WriteTo_PositionalItemsValidation_FalseWithItemsSchema()
         {
             JSchema schema = new JSchema();
-            schema.Items = new List<JSchema> { new JSchema { Type = JSchemaType.String } };
+            schema.Items.Add(new JSchema { Type = JSchemaType.String });
 
             StringWriter writer = new StringWriter();
             JsonTextWriter jsonWriter = new JsonTextWriter(writer);
@@ -534,32 +538,23 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 
             JSchema file = new JSchema();
             file.Id = new Uri("file", UriKind.RelativeOrAbsolute);
-            file.Properties = new Dictionary<string, JSchema>
-            {
-                { "blah", schema }
-            };
+            file.Properties.Add("blah", schema);
             file.ExtensionData["definitions"] = new JObject
             {
                 { "parent", schema }
             };
 
-            schema.Properties = new Dictionary<string, JSchema>
-            {
-                { "storage", file }
-            };
+            schema.Properties.Add("storage", file);
             schema.ExtensionData["definitions"] = new JObject
             {
                 { "file", file },
                 { "file2", file }
             };
-            schema.Items = new List<JSchema>
-            {
-                new JSchema
+            schema.Items.Add(new JSchema
                 {
                     Type = JSchemaType.Integer | JSchemaType.Null
-                },
-                file
-            };
+                });
+            schema.Items.Add(file);
             schema.ItemsPositionValidation = true;
             schema.Not = file;
             schema.AllOf.Add(file);
@@ -568,24 +563,18 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
                 Type = JSchemaType.Integer | JSchemaType.Null
             });
             schema.AllOf.Add(file);
-            schema.AnyOf = new List<JSchema>
-            {
-                file,
-                new JSchema
+            schema.AnyOf.Add(file);
+            schema.AnyOf.Add(new JSchema
                 {
                     Type = JSchemaType.Integer | JSchemaType.Null
-                },
-                schema
-            };
-            schema.OneOf = new List<JSchema>
-            {
-                file,
-                new JSchema
+                });
+            schema.AnyOf.Add(schema);
+            schema.OneOf.Add(file);
+            schema.OneOf.Add(new JSchema
                 {
                     Type = JSchemaType.Integer | JSchemaType.Null
-                },
-                schema
-            };
+                });
+            schema.OneOf.Add(schema);
             schema.Not = file;
 
             JSchema file2 = (JSchema)schema.ExtensionData["definitions"]["file"];

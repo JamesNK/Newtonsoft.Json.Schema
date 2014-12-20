@@ -23,7 +23,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             JSchema prop = new JSchema();
             JSchema root = new JSchema
             {
-                Properties = new Dictionary<string, JSchema>
+                Properties =
                 {
                     { "prop1", prop },
                     { "prop2", prop }
@@ -47,7 +47,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             JSchema root = new JSchema
             {
                 Id = new Uri("http://localhost/"),
-                Properties = new Dictionary<string, JSchema>
+                Properties =
                 {
                     { "prop1", prop },
                     { "prop2", prop }
@@ -70,13 +70,13 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             JSchema prop1 = new JSchema
             {
                 Id = new Uri("test.json/", UriKind.RelativeOrAbsolute),
-                Items = new List<JSchema>
+                Items =
                 {
                     new JSchema(),
                     new JSchema
                     {
                         Id = new Uri("#fragmentItem2", UriKind.RelativeOrAbsolute),
-                        Items = new List<JSchema>
+                        Items =
                         {
                             new JSchema(),
                             new JSchema { Id = new Uri("#fragmentItem2Item2", UriKind.RelativeOrAbsolute) },
@@ -94,7 +94,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             JSchema root = new JSchema
             {
                 Id = new Uri("http://localhost/", UriKind.RelativeOrAbsolute),
-                Properties = new Dictionary<string, JSchema>
+                Properties =
                 {
                     { "prop1", prop1 },
                     { "prop2", prop2 }

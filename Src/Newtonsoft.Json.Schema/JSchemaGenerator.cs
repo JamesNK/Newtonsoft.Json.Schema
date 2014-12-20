@@ -267,7 +267,6 @@ namespace Newtonsoft.Json.Schema
                         Type collectionItemType = ReflectionUtils.GetCollectionItemType(type);
                         if (collectionItemType != null)
                         {
-                            schema.Items = new List<JSchema>();
                             schema.Items.Add(GenerateInternal(collectionItemType, (!allowNullItem) ? Required.Always : Required.Default));
                         }
                         break;
@@ -276,8 +275,6 @@ namespace Newtonsoft.Json.Schema
 
                         if (schema.Type == JSchemaType.Integer && type.IsEnum() && !IsDefined(type, typeof(FlagsAttribute), true))
                         {
-                            schema.Enum = new List<JToken>();
-
                             IList<EnumValue<long>> enumValues = EnumUtils.GetNamesAndValues<long>(type);
                             foreach (EnumValue<long> enumValue in enumValues)
                             {
@@ -346,7 +343,6 @@ namespace Newtonsoft.Json.Schema
 
         private void GenerateObjectSchema(JSchema schema, Type type, JsonObjectContract contract)
         {
-            schema.Properties = new Dictionary<string, JSchema>();
             foreach (JsonProperty property in contract.Properties)
             {
                 if (!property.Ignored)

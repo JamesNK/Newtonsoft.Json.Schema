@@ -339,13 +339,15 @@ namespace Newtonsoft.Json.Schema.Tests
         [Test]
         public void UniqueItems_NestedDuplicate()
         {
-            JSchema schema = new JSchema();
-            schema.UniqueItems = true;
-            schema.Items = new List<JSchema>
+            JSchema schema = new JSchema
             {
-                new JSchema
+                UniqueItems = true,
+                Items =
                 {
-                    UniqueItems = true
+                    new JSchema
+                    {
+                        UniqueItems = true
+                    }
                 }
             };
             schema.ItemsPositionValidation = false;
@@ -369,17 +371,19 @@ namespace Newtonsoft.Json.Schema.Tests
         [Test]
         public void Enum_Properties()
         {
-            JSchema schema = new JSchema();
-            schema.Properties = new Dictionary<string, JSchema>
+            JSchema schema = new JSchema
             {
+                Properties =
                 {
-                    "bar",
-                    new JSchema
                     {
-                        Enum = new List<JToken>
+                        "bar",
+                        new JSchema
                         {
-                            new JValue(1),
-                            new JValue(2)
+                            Enum =
+                            {
+                                new JValue(1),
+                                new JValue(2)
+                            }
                         }
                     }
                 }
@@ -402,14 +406,16 @@ namespace Newtonsoft.Json.Schema.Tests
         [Test]
         public void UniqueItems_Property()
         {
-            JSchema schema = new JSchema();
-            schema.Properties = new Dictionary<string, JSchema>
+            JSchema schema = new JSchema
             {
+                Properties =
                 {
-                    "bar",
-                    new JSchema
                     {
-                        UniqueItems = true
+                        "bar",
+                        new JSchema
+                        {
+                            UniqueItems = true
+                        }
                     }
                 }
             };
@@ -425,11 +431,13 @@ namespace Newtonsoft.Json.Schema.Tests
         [Test]
         public void Items_Positional()
         {
-            JSchema schema = new JSchema();
-            schema.Items = new List<JSchema>
+            JSchema schema = new JSchema
             {
-                new JSchema { Type = JSchemaType.Object },
-                new JSchema { Type = JSchemaType.Integer }
+                Items =
+                {
+                    new JSchema { Type = JSchemaType.Object },
+                    new JSchema { Type = JSchemaType.Integer }
+                }
             };
             schema.ItemsPositionValidation = true;
 

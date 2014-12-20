@@ -87,12 +87,14 @@ namespace Newtonsoft.Json.Schema.Tests
         [Test]
         public void ValidateObjectWithProperty()
         {
-            JSchema schema = new JSchema();
-            schema.Type = JSchemaType.Object;
-            schema.Properties = new Dictionary<string, JSchema>
+            JSchema schema = new JSchema
             {
-                { "testProp", new JSchema { Type = JSchemaType.Boolean } },
-                { "testProp2", new JSchema { Type = JSchemaType.Integer } }
+                Type = JSchemaType.Object,
+                Properties =
+                {
+                    { "testProp", new JSchema { Type = JSchemaType.Boolean } },
+                    { "testProp2", new JSchema { Type = JSchemaType.Integer } }
+                }
             };
 
             string json = "{'testProp':5,'testProp2':true}";
@@ -890,7 +892,7 @@ namespace Newtonsoft.Json.Schema.Tests
   ""type"":""array"",
   ""items"":{
     ""type"":""null"",
-    ""enum"":[]
+    ""enum"":[1234567]
   },
   ""maxItems"":3
 }";

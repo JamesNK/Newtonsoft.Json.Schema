@@ -78,7 +78,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
         protected void EnsureEnum(JsonToken token, object value)
         {
-            if (Schema.Enum != null)
+            if (Schema._enum != null && Schema._enum.Count > 0)
             {
                 if (JsonTokenHelpers.IsPrimitiveOrStartToken(token))
                 {
@@ -91,7 +91,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
                 if (JsonTokenHelpers.IsPrimitiveOrEndToken(token))
                 {
-                    if (!Schema.Enum.ContainsValue(Context.TokenWriter.CurrentToken, JToken.EqualityComparer))
+                    if (!Schema._enum.ContainsValue(Context.TokenWriter.CurrentToken, JToken.EqualityComparer))
                     {
                         StringWriter sw = new StringWriter(CultureInfo.InvariantCulture);
                         Context.TokenWriter.CurrentToken.WriteTo(new JsonTextWriter(sw));

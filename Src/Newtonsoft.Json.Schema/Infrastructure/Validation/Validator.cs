@@ -22,7 +22,6 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
         public abstract ISchemaError CreateError(string message, JSchema schema, IList<ISchemaError> childErrors);
 
-
         protected Validator(object publicValidator)
         {
             _publicValidator = publicValidator;

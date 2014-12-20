@@ -17,28 +17,16 @@ namespace Newtonsoft.Json.Schema
     {
         internal string Location { get; set; }
 
-        //private JObject _token;
-        internal IDictionary<string, JToken> _extensionData;
-        internal IList<JSchema> _items;
-        internal IList<JSchema> _anyOf;
-        internal IList<JSchema> _allOf;
-        internal IList<JSchema> _oneOf;
-        internal IDictionary<string, object> _dependencies;
-        internal IList<JToken> _enum;
-        internal IDictionary<string, JSchema> _properties;
-        internal IDictionary<string, JSchema> _patternProperties;
-        internal IList<string> _required;
-
-        //private JObject GetToken()
-        //{
-        //    if (_token == null)
-        //    {
-        //        _token = new JObject();
-        //        _token.AddAnnotation(new JSchemaAnnotation { Schema = this });
-        //    }
-
-        //    return _token;
-        //}
+        internal Dictionary<string, JToken> _extensionData;
+        internal List<JSchema> _items;
+        internal List<JSchema> _anyOf;
+        internal List<JSchema> _allOf;
+        internal List<JSchema> _oneOf;
+        internal Dictionary<string, object> _dependencies;
+        internal List<JToken> _enum;
+        internal Dictionary<string, JSchema> _properties;
+        internal Dictionary<string, JSchema> _patternProperties;
+        internal List<string> _required;
 
         public Uri Id { get; set; }
         internal Uri Reference { get; set; }
@@ -58,7 +46,6 @@ namespace Newtonsoft.Json.Schema
 
                 return _properties;
             }
-            set { _properties = value; }
         }
 
         /// <summary>
@@ -74,7 +61,6 @@ namespace Newtonsoft.Json.Schema
 
                 return _items;
             }
-            set { _items = value; }
         }
 
         /// <summary>
@@ -109,14 +95,24 @@ namespace Newtonsoft.Json.Schema
 
         public IList<JSchema> AnyOf
         {
-            get { return _anyOf; }
-            set { _anyOf = value; }
+            get
+            {
+                if (_anyOf == null)
+                    _anyOf = new List<JSchema>();
+
+                return _anyOf;
+            }
         }
 
         public IList<JSchema> OneOf
         {
-            get { return _oneOf; }
-            set { _oneOf = value; }
+            get
+            {
+                if (_oneOf == null)
+                    _oneOf = new List<JSchema>();
+
+                return _oneOf;
+            }
         }
 
         public JSchema Not { get; set; }
@@ -127,8 +123,13 @@ namespace Newtonsoft.Json.Schema
         /// <value>A collection of valid enum values allowed.</value>
         public IList<JToken> Enum
         {
-            get { return _enum; }
-            set { _enum = value; }
+            get
+            {
+                if (_enum == null)
+                    _enum = new List<JToken>();
+
+                return _enum;
+            }
         }
 
         /// <summary>
@@ -317,8 +318,13 @@ namespace Newtonsoft.Json.Schema
         /// <value>The pattern properties.</value>
         public IDictionary<string, JSchema> PatternProperties
         {
-            get { return _patternProperties; }
-            set { _patternProperties = value; }
+            get
+            {
+                if (_patternProperties == null)
+                    _patternProperties = new Dictionary<string, JSchema>();
+
+                return _patternProperties;
+            }
         }
 
         /// <summary>
