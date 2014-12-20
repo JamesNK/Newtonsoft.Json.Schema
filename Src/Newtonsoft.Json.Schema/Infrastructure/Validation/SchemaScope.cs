@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Utilities;
 
@@ -8,7 +9,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 {
     internal abstract class SchemaScope : Scope
     {
-        public JSchema Schema { get; set; }
+        public JSchema Schema;
         public bool IsValid;
 
         protected SchemaScope(ContextBase context, Scope parent, int initialDepth, JSchema schema)
@@ -45,31 +46,31 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
             if (schema._allOf != null && schema._allOf.Count > 0)
             {
-                var allOfScope = new AllOfScope(scope, schema._allOf, context, depth);
+                AllOfScope allOfScope = new AllOfScope(scope, context, depth);
                 context.Scopes.Add(allOfScope);
 
-                allOfScope.InitializeScopes(token);
+                allOfScope.InitializeScopes(token, schema._allOf);
             }
             if (schema._anyOf != null && schema._anyOf.Count > 0)
             {
-                var anyOfScope = new AnyOfScope(scope, schema._anyOf, context, depth);
+                AnyOfScope anyOfScope = new AnyOfScope(scope, context, depth);
                 context.Scopes.Add(anyOfScope);
 
-                anyOfScope.InitializeScopes(token);
+                anyOfScope.InitializeScopes(token, schema._anyOf);
             }
             if (schema._oneOf != null && schema._oneOf.Count > 0)
             {
-                var oneOfScope = new OneOfScope(scope, schema._oneOf, context, depth);
+                OneOfScope oneOfScope = new OneOfScope(scope, context, depth);
                 context.Scopes.Add(oneOfScope);
 
-                oneOfScope.InitializeScopes(token);
+                oneOfScope.InitializeScopes(token, schema._oneOf);
             }
             if (schema.Not != null)
             {
-                var notScope = new NotScope(scope, schema.Not, context, depth);
+                NotScope notScope = new NotScope(scope, context, depth);
                 context.Scopes.Add(notScope);
 
-                notScope.InitializeScopes(token);
+                notScope.InitializeScopes(token, Enumerable.Repeat(schema.Not, 1));
             }
 
             return scope;
@@ -79,7 +80,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
         {
             if (Schema.Enum != null)
             {
-                if (JsonReader.IsPrimitiveToken(token) || JsonReader.IsStartToken(token))
+                if (JsonTokenHelpers.IsPrimitiveOrStartToken(token))
                 {
                     if (Context.TokenWriter == null)
                     {
@@ -88,7 +89,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     }
                 }
 
-                if (JsonReader.IsPrimitiveToken(token) || JsonWriter.IsEndToken(token))
+                if (JsonTokenHelpers.IsPrimitiveOrEndToken(token))
                 {
                     if (!Schema.Enum.ContainsValue(Context.TokenWriter.CurrentToken, JToken.EqualityComparer))
                     {

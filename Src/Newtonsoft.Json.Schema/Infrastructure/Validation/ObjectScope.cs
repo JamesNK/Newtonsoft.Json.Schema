@@ -101,7 +101,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 }
                 else
                 {
-                    if (JsonReader.IsPrimitiveToken(token) || JsonReader.IsStartToken(token))
+                    if (JsonTokenHelpers.IsPrimitiveOrStartToken(token))
                     {
                         bool matched = false;
                         if (Schema._properties != null)

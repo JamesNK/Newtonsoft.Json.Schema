@@ -49,7 +49,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
             if (relativeDepth == 1)
             {
-                if (JsonReader.IsPrimitiveToken(token) || JsonReader.IsStartToken(token))
+                if (JsonTokenHelpers.IsPrimitiveOrStartToken(token))
                 {
                     _index++;
 
@@ -87,7 +87,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     }
                 }
 
-                if (JsonReader.IsPrimitiveToken(token) || JsonWriter.IsEndToken(token))
+                if (JsonTokenHelpers.IsPrimitiveOrEndToken(token))
                 {
                     if (Schema.UniqueItems)
                     {

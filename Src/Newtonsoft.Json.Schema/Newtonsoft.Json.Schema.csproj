@@ -54,6 +54,7 @@
     <Compile Include="ErrorType.cs" />
     <Compile Include="ExternalSchema.cs" />
     <Compile Include="Infrastructure\JsonSchemaTypeHelpers.cs" />
+    <Compile Include="Infrastructure\JsonTokenHelpers.cs" />
     <Compile Include="Infrastructure\MathHelpers.cs" />
     <Compile Include="ISchemaError.cs" />
     <Compile Include="JSchema.cs" />

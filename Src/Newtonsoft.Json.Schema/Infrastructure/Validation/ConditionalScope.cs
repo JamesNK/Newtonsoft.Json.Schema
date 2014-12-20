@@ -14,6 +14,14 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             ConditionalContext = ConditionalContext.Create(context);
         }
 
+        public void InitializeScopes(JsonToken token, IEnumerable<JSchema> schemas)
+        {
+            foreach (JSchema schema in schemas)
+            {
+                SchemaScope.CreateTokenScope(token, schema, ConditionalContext, this, InitialDepth);
+            }
+        }
+
         protected IEnumerable<SchemaScope> GetChildren()
         {
             foreach (Scope scope in Context.Scopes)

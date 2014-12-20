@@ -77,14 +77,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             {
                 Scope scope = _scopes[i];
 
-                scope.EvaluateToken(token, value, depth);
-            }
-
-            for (int i = _scopes.Count - 1; i >= 0; i--)
-            {
-                Scope scope = _scopes[i];
-
-                if (scope.Complete)
+                if (!scope.Complete)
+                    scope.EvaluateToken(token, value, depth);
+                else
                     _scopes.RemoveAt(i);
             }
 
