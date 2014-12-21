@@ -102,6 +102,10 @@ namespace Newtonsoft.Json.Schema
             }
         }
 
+        /// <summary>
+        /// Gets the AllOf schemas.
+        /// </summary>
+        /// <value>The AllOf schemas.</value>
         public IList<JSchema> AllOf
         {
             get
@@ -113,6 +117,10 @@ namespace Newtonsoft.Json.Schema
             }
         }
 
+        /// <summary>
+        /// Gets the AnyOf schemas.
+        /// </summary>
+        /// <value>The AnyOf schemas.</value>
         public IList<JSchema> AnyOf
         {
             get
@@ -124,6 +132,10 @@ namespace Newtonsoft.Json.Schema
             }
         }
 
+        /// <summary>
+        /// Gets the OneOf schemas.
+        /// </summary>
+        /// <value>The OneOf schemas.</value>
         public IList<JSchema> OneOf
         {
             get
@@ -135,6 +147,10 @@ namespace Newtonsoft.Json.Schema
             }
         }
 
+        /// <summary>
+        /// Gets the Not schema.
+        /// </summary>
+        /// <value>The Not schema.</value>
         public JSchema Not { get; set; }
 
         /// <summary>
@@ -153,8 +169,9 @@ namespace Newtonsoft.Json.Schema
         }
 
         /// <summary>
-        /// Gets or sets whether the array items must be unique.
+        /// Gets or sets a flag indicating whether the array items must be unique.
         /// </summary>
+        /// <value>A flag indicating whether the array items must be unique.</value>
         public bool UniqueItems { get; set; }
 
         /// <summary>
@@ -282,7 +299,7 @@ namespace Newtonsoft.Json.Schema
         /// </summary>
         /// <param name="writer">A <see cref="JsonWriter"/> into which this method will write.</param>
         /// <param name="settings">The settings used to write the schema.</param>
-        public void WriteTo(JsonWriter writer, JSchemaWriteSettings settings)
+        public void WriteTo(JsonWriter writer, JSchemaWriterSettings settings)
         {
             ValidationUtils.ArgumentNotNull(writer, "writer");
             ValidationUtils.ArgumentNotNull(settings, "settings");
@@ -290,7 +307,7 @@ namespace Newtonsoft.Json.Schema
             WriteToInternal(writer, settings);
         }
 
-        private void WriteToInternal(JsonWriter writer, JSchemaWriteSettings settings)
+        private void WriteToInternal(JsonWriter writer, JSchemaWriterSettings settings)
         {
             JSchemaWriter schemaWriter = new JSchemaWriter(writer, settings);
 

@@ -5,6 +5,9 @@ using Newtonsoft.Json.Utilities;
 
 namespace Newtonsoft.Json.Schema
 {
+    /// <summary>
+    /// Represents a writer that provides <see cref="JSchema"/> validation.
+    /// </summary>
     public class JSchemaValidatingWriter : JsonWriter
     {
         internal class WriterValidator : Validator

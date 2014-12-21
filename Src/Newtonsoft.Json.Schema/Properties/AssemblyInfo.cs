@@ -17,7 +17,7 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyCulture("")]
 
 [assembly: AssemblyVersion("6.0.0.0")]
-[assembly: AssemblyFileVersion("6.0.7.18008")]
+[assembly: AssemblyFileVersion("6.0.7.18021")]
 
 [assembly: CLSCompliant(true)]
 

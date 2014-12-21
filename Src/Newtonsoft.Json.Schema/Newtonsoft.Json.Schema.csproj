@@ -44,6 +44,7 @@
   <ItemGroup>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.6.0.7\lib\portable-net45+wp80+win8+wpa81+aspnetcore50\Newtonsoft.Json.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -63,7 +64,7 @@
     <Compile Include="JSchemaUrlResolver.cs" />
     <Compile Include="JSchemaValidatingReader.cs" />
     <Compile Include="JSchemaValidatingWriter.cs" />
-    <Compile Include="JSchemaWriteSettings.cs" />
+    <Compile Include="JSchemaWriterSettings.cs" />
     <Compile Include="JSchemaPreloadedResolver.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SchemaExtensions.cs" />

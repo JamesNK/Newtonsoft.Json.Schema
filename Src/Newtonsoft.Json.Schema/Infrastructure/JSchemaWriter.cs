@@ -15,17 +15,15 @@ namespace Newtonsoft.Json.Schema.Infrastructure
     internal class JSchemaWriter
     {
         private readonly JsonWriter _writer;
-        private readonly JSchemaResolver _resolver;
-
         private readonly List<KnownSchema> _knownSchemas;
-        private IList<ExternalSchema> _externalSchemas;
+        private readonly IList<ExternalSchema> _externalSchemas;
 
         public JSchemaWriter(JsonWriter writer)
             : this(writer, null)
         {
         }
 
-        public JSchemaWriter(JsonWriter writer, JSchemaWriteSettings settings)
+        public JSchemaWriter(JsonWriter writer, JSchemaWriterSettings settings)
         {
             ValidationUtils.ArgumentNotNull(writer, "writer");
 
@@ -34,12 +32,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
             if (settings != null)
             {
-                _resolver = settings.SchemaResolver;
                 _externalSchemas = settings.ExternalSchemas;
             }
-
-            if (_resolver == null)
-                _resolver = DummyJSchemaResolver.Instance;
         }
 
         private void ReferenceOrWriteSchema(JSchema schema)

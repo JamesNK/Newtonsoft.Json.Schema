@@ -680,7 +680,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             Assert.AreEqual("JSON schema for any Grunt task", baseSchema.Title);
 
             JSchemaPreloadedResolver resolver = new JSchemaPreloadedResolver();
-            resolver.Add(new Uri("http://json.schemastore.org/grunt-task"), baseSchema);
+            resolver.Add(baseSchema, new Uri("http://json.schemastore.org/grunt-task"));
 
             JSchema cleanSchema = TestHelpers.OpenSchemaResource("grunt-clean-task.json", resolver);
             Assert.AreEqual(fileFormatSchema, cleanSchema.AdditionalProperties.AnyOf[0]);
@@ -703,7 +703,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 }");
 
             JSchemaPreloadedResolver resolver = new JSchemaPreloadedResolver();
-            resolver.Add(new Uri("http://localhost/base"), baseSchema);
+            resolver.Add(baseSchema, new Uri("http://localhost/base"));
 
             string json = @"{
   ""not"": {
@@ -952,7 +952,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
                 }
             }");
 
-            resolver.Add(new Uri("http://localhost:1234/subSchemas.json"), subSchema);
+            resolver.Add(subSchema, new Uri("http://localhost:1234/subSchemas.json"));
 
             JSchema schema = JSchema.Parse(@"{
                 ""$ref"": ""http://localhost:1234/subSchemas.json#/refToInteger""

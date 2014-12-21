@@ -36,10 +36,22 @@ namespace Newtonsoft.Json.Schema
         /// <value>The path to the JSON where the error occurred.</value>
         public string Path { get; internal set; }
 
+        /// <summary>
+        /// Gets the <see cref="JSchema"/> that generated the error.
+        /// </summary>
+        /// <value>The <see cref="JSchema"/> that generated the error.</value>
         public JSchema Schema { get; internal set; }
 
+        /// <summary>
+        /// Gets the type of error that occurred.
+        /// </summary>
+        /// <value>The type of error that occurred.</value>
         public ErrorType ErrorType { get; internal set; }
 
+        /// <summary>
+        /// Gets a collection of <see cref="ISchemaError"/> containing any child errors.
+        /// </summary>
+        /// <value>A collection of <see cref="ISchemaError"/> containing any child errors.</value>
         public IList<ISchemaError> ChildErrors { get; internal set; }
 
         /// <summary>

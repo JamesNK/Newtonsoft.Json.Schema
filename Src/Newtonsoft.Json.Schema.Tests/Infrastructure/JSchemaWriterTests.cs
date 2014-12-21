@@ -277,9 +277,9 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             JsonTextWriter jsonWriter = new JsonTextWriter(writer);
             jsonWriter.Formatting = Formatting.Indented;
 
-            root.WriteTo(jsonWriter, new JSchemaWriteSettings
+            root.WriteTo(jsonWriter, new JSchemaWriterSettings
             {
-                ExternalSchemas = new List<ExternalSchema>
+                ExternalSchemas =
                 {
                     new ExternalSchema(referenceSchema)
                 }
@@ -506,7 +506,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             JsonTextWriter jsonWriter = new JsonTextWriter(writer);
             jsonWriter.Formatting = Formatting.Indented;
 
-            root.WriteTo(jsonWriter, new JSchemaWriteSettings
+            root.WriteTo(jsonWriter, new JSchemaWriterSettings
             {
                 ExternalSchemas = new List<ExternalSchema>
                 {

@@ -645,7 +645,7 @@ namespace Newtonsoft.Json.Schema.Tests
                 ""type"": ""integer""
             }");
 
-            resolver.Add(new Uri("http://localhost:1234/folder/folderInteger.json"), subSchema);
+            resolver.Add(subSchema, new Uri("http://localhost:1234/folder/folderInteger.json"));
 
             JSchema schema = JSchema.Parse(@"{
                 ""id"": ""http://localhost:1234/"",

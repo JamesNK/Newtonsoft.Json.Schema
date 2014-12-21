@@ -20,8 +20,6 @@ namespace Newtonsoft.Json.Schema
     /// </summary>
     public class JSchemaGenerator
     {
-        private readonly List<ExternalSchema> _externalSchemas;
-        private readonly List<KnownSchema> _knownSchemas;
         private readonly List<TypeSchema> _typeSchemas;
 
         private JSchemaResolver _resolver;
@@ -48,15 +46,11 @@ namespace Newtonsoft.Json.Schema
             set { _contractResolver = value; }
         }
 
-        public IList<ExternalSchema> ExternalSchemas
-        {
-            get { return _externalSchemas; }
-        }
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="JSchemaGenerator"/> class.
+        /// </summary>
         public JSchemaGenerator()
         {
-            _externalSchemas = new List<ExternalSchema>();
-            _knownSchemas = new List<KnownSchema>();
             _typeSchemas = new List<TypeSchema>();
         }
 
@@ -105,13 +99,6 @@ namespace Newtonsoft.Json.Schema
             ValidationUtils.ArgumentNotNull(resolver, "resolver");
 
             _resolver = resolver;
-
-            _knownSchemas.Clear();
-            foreach (ExternalSchema externalSchema in _externalSchemas)
-            {
-                JSchemaDiscovery discovery = new JSchemaDiscovery(_knownSchemas, KnownSchemaState.External);
-                discovery.Discover(externalSchema.Schema, null);
-            }
 
             return GenerateInternal(type, (!rootSchemaNullable) ? Required.Always : Required.Default);
         }
@@ -234,7 +221,6 @@ namespace Newtonsoft.Json.Schema
                 schema.Id = explicitId;
 
             _typeSchemas.Add(new TypeSchema(type, valueRequired, schema));
-            _knownSchemas.Add(new KnownSchema(schema.Id, schema, KnownSchemaState.External));
 
             schema.Title = GetTitle(type);
             schema.Description = GetDescription(type);
