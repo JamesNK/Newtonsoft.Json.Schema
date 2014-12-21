@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 using Newtonsoft.Json.Schema.Infrastructure.Validation;
 using Newtonsoft.Json.Utilities;
 
@@ -224,7 +226,11 @@ namespace Newtonsoft.Json.Schema
             _writer.WriteValue(value);
 
             base.WriteValue(value);
-            ValidateCurrentToken(JsonToken.String, value, _writer.Top);
+
+            if (value != null)
+                ValidateCurrentToken(JsonToken.String, value, _writer.Top);
+            else
+                ValidateCurrentToken(JsonToken.Null, null, _writer.Top);
         }
 
         /// <summary>
@@ -396,7 +402,14 @@ namespace Newtonsoft.Json.Schema
             _writer.WriteValue(value);
 
             base.WriteValue(value);
-            ValidateCurrentToken(JsonToken.Date, value, _writer.Top);
+
+            DateTime resolvedDate = DateTimeUtils.EnsureDateTime(value, _writer.DateTimeZoneHandling);
+
+            StringWriter sw = new StringWriter(CultureInfo.InvariantCulture);
+            DateTimeUtils.WriteDateTimeString(sw, resolvedDate, _writer.DateFormatHandling, _writer.DateFormatString, _writer.Culture);
+
+            string dateText = sw.ToString();
+            ValidateCurrentToken(JsonToken.String, dateText, _writer.Top);
         }
 
         /// <summary>
@@ -408,7 +421,12 @@ namespace Newtonsoft.Json.Schema
             _writer.WriteValue(value);
 
             base.WriteValue(value);
-            ValidateCurrentToken(JsonToken.Date, value, _writer.Top);
+
+            StringWriter sw = new StringWriter(CultureInfo.InvariantCulture);
+            DateTimeUtils.WriteDateTimeOffsetString(sw, value, DateFormatHandling, DateFormatString, Culture);
+
+            string dateText = sw.ToString();
+            ValidateCurrentToken(JsonToken.String, dateText, _writer.Top);
         }
 
         /// <summary>

@@ -32,7 +32,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     case JsonToken.StartArray:
                         TestType(Schema, JSchemaType.Array);
                         return false;
+                    case JsonToken.StartConstructor:
+                        RaiseError("Invalid type. Expected {0} but got {1}.".FormatWith(CultureInfo.InvariantCulture, Schema.Type, "Constructor"), ErrorType.Type, Schema, null);
+                        return false;
                     case JsonToken.EndArray:
+                    case JsonToken.EndConstructor:
                         int itemCount = _index + 1;
 
                         if (Schema.MaximumItems != null && itemCount > Schema.MaximumItems)

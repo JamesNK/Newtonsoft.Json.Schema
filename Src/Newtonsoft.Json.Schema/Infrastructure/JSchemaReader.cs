@@ -439,15 +439,6 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             throw JsonReaderException.Create(reader, "Unexpected end when reading schemas for '{0}'.".FormatWith(CultureInfo.InvariantCulture, name));
         }
 
-        internal static JSchemaType MapType(string type)
-        {
-            JSchemaType mappedType;
-            if (!Constants.JSchemaTypeMapping.TryGetValue(type, out mappedType))
-                throw new JsonException("Invalid JSON schema type: {0}".FormatWith(CultureInfo.InvariantCulture, type));
-
-            return mappedType;
-        }
-
         private object ReadType(JsonReader reader, string name)
         {
             EnsureRead(reader, name);
@@ -458,14 +449,14 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             switch (reader.TokenType)
             {
                 case JsonToken.String:
-                    return MapType((string)reader.Value);
+                    return JSchemaTypeHelpers.MapType((string)reader.Value);
                 case JsonToken.StartArray:
                     while (reader.Read())
                     {
                         switch (reader.TokenType)
                         {
                             case JsonToken.String:
-                                JSchemaType t = MapType((string)reader.Value);
+                                JSchemaType t = JSchemaTypeHelpers.MapType((string)reader.Value);
                                 if (typeSchemas != null)
                                     typeSchemas.Add(new JSchema { Type = t });
                                 else

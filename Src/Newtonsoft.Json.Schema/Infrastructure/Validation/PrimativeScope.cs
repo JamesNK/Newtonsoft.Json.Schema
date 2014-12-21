@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using System.IO;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Utilities;
@@ -26,7 +27,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                         return true;
                     break;
                 case JsonToken.String:
-                    if (!ValidateString(Schema, (string)value))
+                    if (!ValidateString(Schema, value.ToString()))
                         return true;
                     break;
                 case JsonToken.Boolean:
@@ -38,9 +39,16 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                         return true;
                     break;
                 case JsonToken.Bytes:
-                case JsonToken.Date:
+                    byte[] data = value as byte[];
+                    if (data == null)
+                        data = ((Guid)value).ToByteArray();
+
+                    string s = Convert.ToBase64String(data);
+                    if (!ValidateString(Schema, s))
+                        return true;
+                    break;
                 case JsonToken.Undefined:
-                    // these have no equivalent in JSON schema
+                    RaiseError("Invalid type. Expected {0} but got {1}.".FormatWith(CultureInfo.InvariantCulture, Schema.Type, token), ErrorType.Type, Schema, null);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException("Unexpected token: " + token);

@@ -201,5 +201,204 @@ namespace Newtonsoft.Json.Schema.Tests
 
             Assert.IsNull(a);
         }
+
+        [Test]
+        public void WriteValue()
+        {
+            JSchema schema = new JSchema();
+            schema.Type = JSchemaType.Array;
+            schema.Items.Add(new JSchema
+            {
+                Type = JSchemaType.Integer
+            });
+
+            SchemaValidationEventArgs a = null;
+
+            StringWriter sw = new StringWriter();
+            JsonTextWriter writer = new JsonTextWriter(sw);
+            writer.Formatting = Formatting.Indented;
+            JSchemaValidatingWriter validatingWriter = new JSchemaValidatingWriter(writer);
+            validatingWriter.Schema = schema;
+            validatingWriter.ValidationEventHandler += (sender, args) =>
+            {
+                a = args;
+            };
+
+            validatingWriter.WriteStartArray();
+
+            validatingWriter.WriteValue("string");
+            Assert.IsNotNull(a);
+            StringAssert.AreEqual("Invalid type. Expected Integer but got String.", a.Message);
+            a = null;
+
+            validatingWriter.WriteValue((string)null);
+            Assert.IsNotNull(a);
+            StringAssert.AreEqual("Invalid type. Expected Integer but got Null.", a.Message);
+            a = null;
+
+            validatingWriter.WriteValue('e');
+            Assert.IsNotNull(a);
+            StringAssert.AreEqual("Invalid type. Expected Integer but got String.", a.Message);
+            a = null;
+
+            validatingWriter.WriteValue(true);
+            Assert.IsNotNull(a);
+            StringAssert.AreEqual("Invalid type. Expected Integer but got Boolean.", a.Message);
+            a = null;
+
+            validatingWriter.WriteValue((int?)null);
+            Assert.IsNotNull(a);
+            StringAssert.AreEqual("Invalid type. Expected Integer but got Null.", a.Message);
+            a = null;
+
+            validatingWriter.WriteNull();
+            Assert.IsNotNull(a);
+            StringAssert.AreEqual("Invalid type. Expected Integer but got Null.", a.Message);
+            a = null;
+
+            validatingWriter.WriteUndefined();
+            Assert.IsNotNull(a);
+            StringAssert.AreEqual("Invalid type. Expected Integer but got Undefined.", a.Message);
+            a = null;
+
+            validatingWriter.WriteValue((ushort)12);
+            Assert.IsNull(a);
+            validatingWriter.WriteValue((short)12);
+            Assert.IsNull(a);
+            validatingWriter.WriteValue((byte)12);
+            Assert.IsNull(a);
+            validatingWriter.WriteValue((sbyte)12);
+            Assert.IsNull(a);
+            validatingWriter.WriteValue((long)12);
+            Assert.IsNull(a);
+            validatingWriter.WriteValue((ulong)12);
+            Assert.IsNull(a);
+            validatingWriter.WriteValue((int)12);
+            Assert.IsNull(a);
+            validatingWriter.WriteValue((uint)12);
+            Assert.IsNull(a);
+
+            validatingWriter.WriteValue(1.1m);
+            Assert.IsNotNull(a);
+            StringAssert.AreEqual("Invalid type. Expected Integer but got Float.", a.Message);
+            a = null;
+
+            validatingWriter.WriteValue(1.1d);
+            Assert.IsNotNull(a);
+            StringAssert.AreEqual("Invalid type. Expected Integer but got Float.", a.Message);
+            a = null;
+
+            validatingWriter.WriteValue(1.1f);
+            Assert.IsNotNull(a);
+            StringAssert.AreEqual("Invalid type. Expected Integer but got Float.", a.Message);
+            a = null;
+
+            validatingWriter.WriteValue(new Uri("http://test.test"));
+            Assert.IsNotNull(a);
+            StringAssert.AreEqual("Invalid type. Expected Integer but got String.", a.Message);
+            a = null;
+
+            validatingWriter.WriteValue(TimeSpan.FromMinutes(1.0));
+            Assert.IsNotNull(a);
+            StringAssert.AreEqual("Invalid type. Expected Integer but got String.", a.Message);
+            a = null;
+
+            validatingWriter.WriteValue(new Guid("3D1A74E8-0B2D-43F2-9D55-2E9DD4A1598E"));
+            Assert.IsNotNull(a);
+            StringAssert.AreEqual("Invalid type. Expected Integer but got String.", a.Message);
+            a = null;
+
+            validatingWriter.WriteValue(Encoding.UTF8.GetBytes("Hello world."));
+            Assert.IsNotNull(a);
+            StringAssert.AreEqual("Invalid type. Expected Integer but got String.", a.Message);
+            a = null;
+
+            validatingWriter.WriteValue(new DateTimeOffset(2000, 12, 2, 5, 6, 2, TimeSpan.Zero));
+            Assert.IsNotNull(a);
+            StringAssert.AreEqual("Invalid type. Expected Integer but got String.", a.Message);
+            a = null;
+
+            validatingWriter.WriteValue(new DateTime(2000, 12, 2, 5, 6, 2, DateTimeKind.Utc));
+            Assert.IsNotNull(a);
+            StringAssert.AreEqual("Invalid type. Expected Integer but got String.", a.Message);
+            a = null;
+
+            validatingWriter.WriteEndArray();
+            Assert.IsNull(a);
+
+            validatingWriter.Flush();
+
+            string json = sw.ToString();
+            Console.WriteLine(json);
+
+            Assert.AreEqual(@"[
+  ""string"",
+  null,
+  ""e"",
+  true,
+  null,
+  null,
+  undefined,
+  12,
+  12,
+  12,
+  12,
+  12,
+  12,
+  12,
+  12,
+  1.1,
+  1.1,
+  1.1,
+  ""http://test.test"",
+  ""00:01:00"",
+  ""3d1a74e8-0b2d-43f2-9d55-2e9dd4a1598e"",
+  ""SGVsbG8gd29ybGQu"",
+  ""2000-12-02T05:06:02+00:00"",
+  ""2000-12-02T05:06:02Z""
+]", json);
+        }
+
+        [Test]
+        public void WriteStartConstructor()
+        {
+            JSchema schema = new JSchema();
+            schema.Type = JSchemaType.Array;
+            schema.Items.Add(new JSchema
+            {
+                Type = JSchemaType.Integer
+            });
+
+            SchemaValidationEventArgs a = null;
+
+            StringWriter sw = new StringWriter();
+            JsonTextWriter writer = new JsonTextWriter(sw);
+            JSchemaValidatingWriter validatingWriter = new JSchemaValidatingWriter(writer);
+            validatingWriter.Schema = schema;
+            validatingWriter.ValidationEventHandler += (sender, args) =>
+            {
+                a = args;
+            };
+
+            validatingWriter.WriteStartConstructor("Test");
+
+            Assert.IsNotNull(a);
+            StringAssert.AreEqual(@"Invalid type. Expected Array but got Constructor.", a.Message);
+            a = null;
+
+            validatingWriter.WriteValue(1);
+            Assert.IsNull(a);
+
+            validatingWriter.WriteValue('e');
+            Assert.IsNotNull(a);
+            StringAssert.AreEqual("Invalid type. Expected Integer but got String.", a.Message);
+            a = null;
+
+            validatingWriter.WriteComment("comment!");
+            Assert.IsNull(a);
+
+            validatingWriter.WriteEndConstructor();
+            Assert.IsNull(a);
+        }
     }
 }

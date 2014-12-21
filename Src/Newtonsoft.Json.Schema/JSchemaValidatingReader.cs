@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 using Newtonsoft.Json.Schema.Infrastructure.Validation;
 using Newtonsoft.Json.Utilities;
 
@@ -250,7 +252,30 @@ namespace Newtonsoft.Json.Schema
             if (token == JsonToken.Comment)
                 return;
 
-            _validator.ValidateCurrentToken(token, _reader.Value, _reader.Depth);
+            object value = _reader.Value;
+            if (token == JsonToken.Date)
+            {
+                if (value is DateTimeOffset)
+                {
+                    StringWriter sw = new StringWriter(CultureInfo.InvariantCulture);
+                    DateTimeUtils.WriteDateTimeOffsetString(sw, (DateTimeOffset)value, DateFormatHandling.IsoDateFormat, _reader.DateFormatString, _reader.Culture);
+
+                    value = sw.ToString();
+                }
+                else
+                {
+                    DateTime resolvedDate = DateTimeUtils.EnsureDateTime((DateTime)value, _reader.DateTimeZoneHandling);
+
+                    StringWriter sw = new StringWriter(CultureInfo.InvariantCulture);
+                    DateTimeUtils.WriteDateTimeString(sw, resolvedDate, DateFormatHandling.IsoDateFormat, _reader.DateFormatString, _reader.Culture);
+
+                    value = sw.ToString();
+                }
+
+                token = JsonToken.String;
+            }
+
+            _validator.ValidateCurrentToken(token, value, _reader.Depth);
         }
     }
 }

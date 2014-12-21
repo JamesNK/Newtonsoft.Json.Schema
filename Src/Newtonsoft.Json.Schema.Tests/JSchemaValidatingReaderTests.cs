@@ -856,6 +856,205 @@ namespace Newtonsoft.Json.Schema.Tests
 #endif
 
         [Test]
+        public void ReadDateTimes()
+        {
+            string schemaJson = @"{
+  ""type"":""array"",
+  ""items"":{
+    ""type"":""string"",
+    ""minLength"":21
+  }
+}";
+
+            string json = @"[
+  ""2000-12-02T05:06:02+00:00"",
+  ""2000-12-02T05:06:02Z"",
+  1
+]";
+
+            SchemaValidationEventArgs a = null;
+
+            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            reader.ValidationEventHandler += (sender, args) => { a = args; };
+            reader.Schema = JSchema.Parse(schemaJson);
+
+            Assert.IsTrue(reader.Read());
+            Assert.AreEqual(JsonToken.StartArray, reader.TokenType);
+            Assert.IsNull(a);
+
+            Assert.IsTrue(reader.Read());
+            Assert.AreEqual(JsonToken.Date, reader.TokenType);
+            Assert.IsNull(a);
+
+            Assert.IsTrue(reader.Read());
+            Assert.AreEqual(JsonToken.Date, reader.TokenType);
+            Assert.IsNotNull(a);
+            StringAssert.AreEqual(@"String '2000-12-02T05:06:02Z' is less than minimum length of 21. Line 3, position 25.", a.Message);
+            a = null;
+
+            Assert.IsTrue(reader.Read());
+            Assert.AreEqual(JsonToken.Integer, reader.TokenType);
+            Assert.IsNotNull(a);
+            StringAssert.AreEqual("Invalid type. Expected String but got Integer. Line 4, position 4.", a.Message);
+            a = null;
+
+            Assert.IsTrue(reader.Read());
+            Assert.AreEqual(JsonToken.EndArray, reader.TokenType);
+            Assert.IsNull(a);
+        }
+
+        [Test]
+        public void ReadDateTimes_DateParseHandling()
+        {
+            string schemaJson = @"{
+  ""type"":""array"",
+  ""items"":{
+    ""type"":""string"",
+    ""minLength"":21
+  }
+}";
+
+            string json = @"[
+  ""2000-12-02T05:06:02+00:00"",
+  ""2000-12-02T05:06:02Z"",
+  1 // hi
+]";
+
+            SchemaValidationEventArgs a = null;
+
+            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json))
+            {
+                DateParseHandling = DateParseHandling.DateTimeOffset
+            });
+            reader.ValidationEventHandler += (sender, args) => { a = args; };
+            reader.Schema = JSchema.Parse(schemaJson);
+
+            Assert.IsTrue(reader.Read());
+            Assert.AreEqual(JsonToken.StartArray, reader.TokenType);
+            Assert.IsNull(a);
+
+            Assert.IsTrue(reader.Read());
+            Assert.AreEqual(JsonToken.Date, reader.TokenType);
+            Assert.IsNull(a);
+
+            reader.ReadAsString();
+            Assert.AreEqual(JsonToken.String, reader.TokenType);
+            Assert.IsNotNull(a);
+            StringAssert.AreEqual(@"String '2000-12-02T05:06:02Z' is less than minimum length of 21. Line 3, position 25.", a.Message);
+            a = null;
+
+            Assert.IsTrue(reader.Read());
+            Assert.AreEqual(JsonToken.Integer, reader.TokenType);
+            Assert.IsNotNull(a);
+            StringAssert.AreEqual("Invalid type. Expected String but got Integer. Line 4, position 4.", a.Message);
+            a = null;
+
+            Assert.IsTrue(reader.Read());
+            Assert.AreEqual(JsonToken.Comment, reader.TokenType);
+            Assert.IsNull(a);
+
+            Assert.IsTrue(reader.Read());
+            Assert.AreEqual(JsonToken.EndArray, reader.TokenType);
+            Assert.IsNull(a);
+        }
+
+        [Test]
+        public void ReadDateTimes_ReadAsDateTime()
+        {
+            string schemaJson = @"{
+  ""type"":""array"",
+  ""items"":{
+    ""type"":""string"",
+    ""minLength"":21
+  }
+}";
+
+            string json = @"[
+  ""2000-12-02T05:06:02+00:00"",
+  ""2000-12-02T05:06:02Z"",
+  1
+]";
+
+            SchemaValidationEventArgs a = null;
+
+            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            reader.ValidationEventHandler += (sender, args) => { a = args; };
+            reader.Schema = JSchema.Parse(schemaJson);
+
+            Assert.IsTrue(reader.Read());
+            Assert.AreEqual(JsonToken.StartArray, reader.TokenType);
+            Assert.IsNull(a);
+
+            reader.ReadAsDateTime();
+            Assert.AreEqual(JsonToken.Date, reader.TokenType);
+            Assert.IsNull(a);
+
+            reader.ReadAsDateTime();
+            Assert.AreEqual(JsonToken.Date, reader.TokenType);
+            Assert.IsNotNull(a);
+            StringAssert.AreEqual(@"String '2000-12-02T05:06:02Z' is less than minimum length of 21. Line 3, position 25.", a.Message);
+            a = null;
+
+            Assert.IsTrue(reader.Read());
+            Assert.AreEqual(JsonToken.Integer, reader.TokenType);
+            Assert.IsNotNull(a);
+            StringAssert.AreEqual("Invalid type. Expected String but got Integer. Line 4, position 4.", a.Message);
+            a = null;
+
+            Assert.IsTrue(reader.Read());
+            Assert.AreEqual(JsonToken.EndArray, reader.TokenType);
+            Assert.IsNull(a);
+        }
+
+        [Test]
+        public void ReadDateTimes_ReadAsDateTimeOffset()
+        {
+            string schemaJson = @"{
+  ""type"":""array"",
+  ""items"":{
+    ""type"":""string"",
+    ""minLength"":21
+  }
+}";
+
+            string json = @"[
+  ""2000-12-02T05:06:02+00:00"",
+  ""2000-12-02T05:06:02Z"",
+  1
+]";
+
+            SchemaValidationEventArgs a = null;
+
+            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            reader.ValidationEventHandler += (sender, args) => { a = args; };
+            reader.Schema = JSchema.Parse(schemaJson);
+
+            Assert.IsTrue(reader.Read());
+            Assert.AreEqual(JsonToken.StartArray, reader.TokenType);
+            Assert.IsNull(a);
+
+            reader.ReadAsDateTimeOffset();
+            Assert.AreEqual(JsonToken.Date, reader.TokenType);
+            Assert.IsNull(a);
+
+            reader.ReadAsString();
+            Assert.AreEqual(JsonToken.String, reader.TokenType);
+            Assert.IsNotNull(a);
+            StringAssert.AreEqual(@"String '2000-12-02T05:06:02Z' is less than minimum length of 21. Line 3, position 25.", a.Message);
+            a = null;
+
+            Assert.IsTrue(reader.Read());
+            Assert.AreEqual(JsonToken.Integer, reader.TokenType);
+            Assert.IsNotNull(a);
+            StringAssert.AreEqual("Invalid type. Expected String but got Integer. Line 4, position 4.", a.Message);
+            a = null;
+
+            Assert.IsTrue(reader.Read());
+            Assert.AreEqual(JsonToken.EndArray, reader.TokenType);
+            Assert.IsNull(a);
+        }
+
+        [Test]
         public void IntValidForNumber()
         {
             string schemaJson = @"{
