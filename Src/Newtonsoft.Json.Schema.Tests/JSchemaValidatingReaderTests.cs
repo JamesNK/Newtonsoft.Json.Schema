@@ -1936,7 +1936,7 @@ namespace Newtonsoft.Json.Schema.Tests
             {
             }
 
-            Assert.AreEqual(1, validationEventArgs.Count);
+            Assert.AreEqual(2, validationEventArgs.Count);
         }
 
         [Test]

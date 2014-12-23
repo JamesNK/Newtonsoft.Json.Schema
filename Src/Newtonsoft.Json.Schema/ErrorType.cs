@@ -92,6 +92,10 @@ namespace Newtonsoft.Json.Schema
         /// <summary>
         /// A 'not' error.
         /// </summary>
-        Not
+        Not,
+        /// <summary>
+        /// A 'format' error.
+        /// </summary>
+        Format
     }
 }

@@ -137,13 +137,15 @@ namespace Newtonsoft.Json.Schema.Tests
 
             // get test files location relative to the test project dll
             string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-            string baseTestPath = Path.Combine(baseDirectory, "Specs", "tests");
+            string baseTestPath = Path.Combine(baseDirectory, "Specs", "tests") + @"\";
 
             string[] testFiles = Directory.GetFiles(baseTestPath, "*.json", SearchOption.AllDirectories);
 
             // read through each of the *.json test files and extract the test details
             foreach (string testFile in testFiles)
             {
+                string relativePath = MakeRelativePath(baseTestPath, testFile);
+                string version = relativePath.Split('\\').First();
                 string testJson = System.IO.File.ReadAllText(testFile);
 
                 JArray a = JArray.Parse(testJson);
@@ -155,7 +157,7 @@ namespace Newtonsoft.Json.Schema.Tests
                         SchemaSpecTest schemaSpecTest = new SchemaSpecTest();
 
                         schemaSpecTest.FileName = Path.GetFileName(testFile);
-                        schemaSpecTest.Version = Directory.GetParent(testFile).Name;
+                        schemaSpecTest.Version = version;
                         schemaSpecTest.TestCaseDescription = (string)testCase["description"];
                         schemaSpecTest.Schema = (JObject)testCase["schema"];
 
@@ -170,6 +172,24 @@ namespace Newtonsoft.Json.Schema.Tests
             }
 
             return _specTests;
+        }
+
+        public static string MakeRelativePath(string fromPath, string toPath)
+        {
+            Uri fromUri = new Uri(fromPath);
+            Uri toUri = new Uri(toPath);
+
+            if (fromUri.Scheme != toUri.Scheme) { return toPath; } // path can't be made relative.
+
+            Uri relativeUri = fromUri.MakeRelativeUri(toUri);
+            String relativePath = Uri.UnescapeDataString(relativeUri.ToString());
+
+            if (toUri.Scheme.ToUpperInvariant() == "FILE")
+            {
+                relativePath = relativePath.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
+            }
+
+            return relativePath;
         }
     }
 }

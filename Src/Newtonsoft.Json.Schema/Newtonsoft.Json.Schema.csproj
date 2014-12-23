@@ -54,6 +54,8 @@
   <ItemGroup>
     <Compile Include="ErrorType.cs" />
     <Compile Include="ExternalSchema.cs" />
+    <Compile Include="Infrastructure\ColorHelpers.cs" />
+    <Compile Include="Infrastructure\EmailHelpers.cs" />
     <Compile Include="Infrastructure\JSchemaTypeHelpers.cs" />
     <Compile Include="Infrastructure\JsonTokenHelpers.cs" />
     <Compile Include="Infrastructure\MathHelpers.cs" />

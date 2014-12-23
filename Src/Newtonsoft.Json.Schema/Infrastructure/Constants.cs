@@ -15,7 +15,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         public static readonly List<JsonToken> NumberTokens = new List<JsonToken> { JsonToken.Integer, JsonToken.Float };
         public static readonly List<JsonToken> DependencyTokens = new List<JsonToken> { JsonToken.StartObject, JsonToken.StartArray, JsonToken.String };
 
-        internal static class PropertyNames
+        public static class PropertyNames
         {
             public const string Type = "type";
             public const string Properties = "properties";
@@ -60,8 +60,24 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             public const string Ref = "$ref";
         }
 
-        public const string OptionValue = "value";
-        public const string OptionLabel = "label";
+        public static class Formats
+        {
+            public const string Draft3Hostname = "host-name";
+            public const string Draft3IPv4 = "ip-address";
+            public const string Hostname = "hostname";
+            public const string DateTime = "date-time";
+            public const string Date = "date";
+            public const string Time = "time";
+            public const string UtcMilliseconds = "utc-millisec";
+            public const string Regex = "regex";
+            public const string Color = "color";
+            public const string Style = "style";
+            public const string Phone = "phone";
+            public const string Uri = "uri";
+            public const string IPv6 = "ipv6";
+            public const string IPv4 = "ipv4";
+            public const string Email = "email";
+        }
 
         public static readonly IDictionary<string, JSchemaType> JSchemaTypeMapping = new Dictionary<string, JSchemaType>
         {

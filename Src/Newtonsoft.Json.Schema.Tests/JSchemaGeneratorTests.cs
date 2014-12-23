@@ -127,8 +127,7 @@ namespace Newtonsoft.Json.Schema.Tests
             string valueJson = JsonConvert.SerializeObject(value, Formatting.Indented);
             JObject o = JObject.Parse(valueJson);
 
-            //todo
-            //Assert.IsTrue(o.IsValid(schema));
+            Assert.IsTrue(o.IsValid(schema));
         }
 
         [Test]
@@ -345,8 +344,7 @@ namespace Newtonsoft.Json.Schema.Tests
             string json = JsonConvert.SerializeObject(typeof(Version), Formatting.Indented);
 
             JValue v = new JValue(json);
-            //todo
-            //Assert.IsTrue(v.IsValid(schema));
+            Assert.IsTrue(v.IsValid(schema));
         }
 
         [Test]
@@ -504,8 +502,7 @@ namespace Newtonsoft.Json.Schema.Tests
             serializer.Serialize(jsonWriter, temp);
 
             List<string> errors = new List<string>();
-            //todo
-            //jsonWriter.Token.Validate(schema, (sender, args) => errors.Add(args.Message));
+            jsonWriter.Token.Validate(schema, (sender, args) => errors.Add(args.Message));
 
             Assert.AreEqual(0, errors.Count);
         }

@@ -410,6 +410,12 @@ namespace Newtonsoft.Json.Schema
         public bool AllowAdditionalItems { get; set; }
 
         /// <summary>
+        /// Gets or sets the format.
+        /// </summary>
+        /// <value>The format.</value>
+        public string Format { get; set; }
+
+        /// <summary>
         /// Reads a <see cref="JSchema"/> from the specified <see cref="JsonReader"/>.
         /// </summary>
         /// <param name="reader">The <see cref="JsonReader"/> containing the JSON Schema to read.</param>

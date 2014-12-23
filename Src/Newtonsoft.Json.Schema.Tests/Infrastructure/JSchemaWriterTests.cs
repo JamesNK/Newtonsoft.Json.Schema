@@ -667,5 +667,26 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
   }
 }", json);
         }
+
+        [Test]
+        public void WriteTo_Format()
+        {
+            StringWriter writer = new StringWriter();
+            JsonTextWriter jsonWriter = new JsonTextWriter(writer);
+            jsonWriter.Formatting = Formatting.Indented;
+
+            JSchema schema = new JSchema
+            {
+                Format = "a-format"
+            };
+
+            schema.WriteTo(jsonWriter);
+
+            string json = writer.ToString();
+
+            StringAssert.AreEqual(@"{
+  ""format"": ""a-format""
+}", json);
+        }
     }
 }

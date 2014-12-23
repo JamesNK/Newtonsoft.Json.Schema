@@ -603,6 +603,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 case Constants.PropertyNames.Description:
                     schema.Description = ReadString(reader, name);
                     break;
+                case Constants.PropertyNames.Format:
+                    schema.Format = ReadString(reader, name);
+                    break;
                 case Constants.PropertyNames.AdditionalProperties:
                     ReadAdditionalProperties(reader, schema);
                     break;

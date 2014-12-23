@@ -737,5 +737,23 @@ namespace Newtonsoft.Json.Schema.Tests
             IList<string> errorMessages;
             Assert.IsTrue(json.IsValid(root, out errorMessages));
         }
+
+        [Test]
+        public void Format_IPv4_Hex()
+        {
+            JSchema s = JSchema.Parse(@"{""format"": ""ipv4""}");
+            JToken t = JToken.Parse("'0x7f000001'");
+
+            Assert.IsFalse(t.IsValid(s));
+        }
+
+        [Test]
+        public void Format_Hostname_InvalidCharacters()
+        {
+            JSchema s = JSchema.Parse(@"{""format"": ""hostname""}");
+            JToken t = JToken.Parse(@"""not_a_valid_host_name""");
+
+            Assert.IsFalse(t.IsValid(s));
+        }
     }
 }

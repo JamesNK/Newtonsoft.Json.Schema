@@ -214,6 +214,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             WritePropertyIfNotNull(_writer, Constants.PropertyNames.MaximumProperties, schema.MaximumProperties);
             WritePropertyIfNotNull(_writer, Constants.PropertyNames.MultipleOf, schema.MultipleOf);
             WritePropertyIfNotNull(_writer, Constants.PropertyNames.Pattern, schema.Pattern);
+            WritePropertyIfNotNull(_writer, Constants.PropertyNames.Format, schema.Format);
             if (schema._enum != null && schema._enum.Count > 0)
             {
                 _writer.WritePropertyName(Constants.PropertyNames.Enum);
