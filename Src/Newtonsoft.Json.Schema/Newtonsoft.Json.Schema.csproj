@@ -43,7 +43,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json">
-      <HintPath>..\packages\Newtonsoft.Json.6.0.7\lib\portable-net45+wp80+win8+wpa81+aspnetcore50\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\packages\Newtonsoft.Json.7.0.1-beta1\lib\portable-net45+wp80+win8+wpa81+aspnetcore50\Newtonsoft.Json.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
@@ -54,6 +54,7 @@
   <ItemGroup>
     <Compile Include="ErrorType.cs" />
     <Compile Include="ExternalSchema.cs" />
+    <Compile Include="Generation\JSchemaTypeGenerationContext.cs" />
     <Compile Include="Infrastructure\ColorHelpers.cs" />
     <Compile Include="Infrastructure\EmailHelpers.cs" />
     <Compile Include="Infrastructure\JSchemaTypeHelpers.cs" />
@@ -61,7 +62,9 @@
     <Compile Include="Infrastructure\MathHelpers.cs" />
     <Compile Include="ISchemaError.cs" />
     <Compile Include="JSchema.cs" />
+    <Compile Include="Generation\JSchemaGenerationProviderAttribute.cs" />
     <Compile Include="JSchemaGenerator.cs" />
+    <Compile Include="Generation\JSchemaGenerationProvider.cs" />
     <Compile Include="JSchemaResolver.cs" />
     <Compile Include="JSchemaUrlResolver.cs" />
     <Compile Include="JSchemaValidatingReader.cs" />
@@ -102,12 +105,11 @@
     <Compile Include="Infrastructure\IDownloader.cs" />
     <Compile Include="Infrastructure\JSchemaAnnotation.cs" />
     <Compile Include="Infrastructure\Validation\Validator.cs" />
+    <Compile Include="Generation\StringEnumGenerationProvider.cs" />
     <Compile Include="TypeSchema.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config">
-      <SubType>Designer</SubType>
-    </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

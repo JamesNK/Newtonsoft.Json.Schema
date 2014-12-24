@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 #endregion
 
+using System.Reflection;
 using Newtonsoft.Json.Schema.Infrastructure;
 using NUnit.Framework;
 

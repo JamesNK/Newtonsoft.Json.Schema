@@ -6,8 +6,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Schema.Generation;
 using Newtonsoft.Json.Schema.Tests.TestObjects;
 using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json.Schema.Tests;
@@ -39,6 +41,158 @@ namespace Newtonsoft.Json.Schema.Tests
     [TestFixture]
     public class JSchemaGeneratorTests : TestFixtureBase
     {
+        public class GeneratorTestClass
+        {
+            [Required]
+            public string RequiredProperty { get; set; }
+        }
+
+        [Test]
+        public void RequiredPropertyTest()
+        {
+            JSchemaGenerator generator = new JSchemaGenerator();
+
+            JSchema schema = generator.Generate(typeof(GeneratorTestClass));
+
+            JSchema propertySchema = schema.Properties["RequiredProperty"];
+
+            Assert.AreEqual(JSchemaType.String, propertySchema.Type);
+        }
+
+        public class EnumTestClass
+        {
+            public StringComparison EnumProperty { get; set; }
+        }
+
+        public class EnumWithAttributeTestClass
+        {
+            public StringComparison EnumProperty1 { get; set; }
+            [JSchemaGenerationProvider(typeof(StringEnumGenerationProvider))]
+            public StringComparison EnumProperty2 { get; set; }
+            [JSchemaGenerationProvider(typeof(StringEnumGenerationProvider))]
+            public StringComparison? EnumProperty3 { get; set; }
+        }
+
+        [JSchemaGenerationProvider(typeof(StringEnumGenerationProvider))]
+        public enum EnumWithAttribute
+        {
+            One,
+            Two,
+            Three
+        }
+
+        [Test]
+        public void ProviderAttributeOnProperty()
+        {
+            JSchemaGenerator generator = new JSchemaGenerator();
+            JSchema schema = generator.Generate(typeof(EnumWithAttributeTestClass));
+
+            Assert.AreEqual(JSchemaType.Object, schema.Type);
+
+            JSchema enumProp1 = schema.Properties["EnumProperty1"];
+            Assert.AreEqual(JSchemaType.Integer, enumProp1.Type);
+            Assert.AreEqual(6, enumProp1.Enum.Count);
+
+            JSchema enumProp2 = schema.Properties["EnumProperty2"];
+            Assert.AreEqual(JSchemaType.String, enumProp2.Type);
+            Assert.AreEqual(6, enumProp2.Enum.Count);
+
+            JSchema enumProp3 = schema.Properties["EnumProperty3"];
+            Assert.AreEqual(JSchemaType.String | JSchemaType.Null, enumProp3.Type);
+            Assert.AreEqual(6, enumProp3.Enum.Count);
+        }
+
+        [Test]
+        public void EnumOnType()
+        {
+            JSchemaGenerator generator = new JSchemaGenerator();
+            JSchema schema = generator.Generate(typeof(EnumWithAttribute));
+
+            Assert.AreEqual(JSchemaType.String, schema.Type);
+            Assert.AreEqual(3, schema.Enum.Count);
+            Assert.AreEqual("One", (string)schema.Enum[0]);
+            Assert.AreEqual("Two", (string)schema.Enum[1]);
+            Assert.AreEqual("Three", (string)schema.Enum[2]);
+        }
+
+        [Test]
+        public void EnumOnTypeNullable()
+        {
+            JSchemaGenerator generator = new JSchemaGenerator();
+            JSchema schema = generator.Generate(typeof(EnumWithAttribute?));
+
+            Assert.AreEqual(JSchemaType.String, schema.Type);
+            Assert.AreEqual(3, schema.Enum.Count);
+            Assert.AreEqual("One", (string)schema.Enum[0]);
+            Assert.AreEqual("Two", (string)schema.Enum[1]);
+            Assert.AreEqual("Three", (string)schema.Enum[2]);
+        }
+
+        [Test]
+        public void EnumOnTypeNullable_AllowNull()
+        {
+            JSchemaGenerator generator = new JSchemaGenerator();
+            JSchema schema = generator.Generate(typeof(EnumWithAttribute?), true);
+
+            Assert.AreEqual(JSchemaType.String | JSchemaType.Null, schema.Type);
+            Assert.AreEqual(3, schema.Enum.Count);
+            Assert.AreEqual("One", (string)schema.Enum[0]);
+            Assert.AreEqual("Two", (string)schema.Enum[1]);
+            Assert.AreEqual("Three", (string)schema.Enum[2]);
+        }
+
+        [Test]
+        public void NullableTypeAtRoot()
+        {
+            JSchemaGenerator generator = new JSchemaGenerator();
+            JSchema schema = generator.Generate(typeof(StringComparison?));
+
+            Assert.AreEqual(JSchemaType.Integer, schema.Type);
+            Assert.AreEqual(6, schema.Enum.Count);
+            Assert.AreEqual(0, (int)schema.Enum[0]);
+            Assert.AreEqual(1, (int)schema.Enum[1]);
+            Assert.AreEqual(2, (int)schema.Enum[2]);
+            Assert.AreEqual(3, (int)schema.Enum[3]);
+            Assert.AreEqual(4, (int)schema.Enum[4]);
+            Assert.AreEqual(5, (int)schema.Enum[5]);
+        }
+
+        [Test]
+        public void NullableTypeAtRoot_AllowNull()
+        {
+            JSchemaGenerator generator = new JSchemaGenerator();
+            JSchema schema = generator.Generate(typeof(StringComparison?), true);
+
+            Assert.AreEqual(JSchemaType.Integer | JSchemaType.Null, schema.Type);
+            Assert.AreEqual(6, schema.Enum.Count);
+            Assert.AreEqual(0, (int)schema.Enum[0]);
+            Assert.AreEqual(1, (int)schema.Enum[1]);
+            Assert.AreEqual(2, (int)schema.Enum[2]);
+            Assert.AreEqual(3, (int)schema.Enum[3]);
+            Assert.AreEqual(4, (int)schema.Enum[4]);
+            Assert.AreEqual(5, (int)schema.Enum[5]);
+        }
+
+        [Test]
+        public void ProvidersCollection()
+        {
+            JSchemaGenerator generator = new JSchemaGenerator();
+            generator.GenerationProviders.Add(new StringEnumGenerationProvider());
+
+            JSchema schema = generator.Generate(typeof(EnumTestClass));
+
+            JSchema propertySchema = schema.Properties["EnumProperty"];
+
+            Assert.AreEqual(JSchemaType.String, propertySchema.Type);
+            Assert.AreEqual(6, propertySchema.Enum.Count);
+            Assert.AreEqual("CurrentCulture", (string)propertySchema.Enum[0]);
+            Assert.AreEqual("CurrentCultureIgnoreCase", (string)propertySchema.Enum[1]);
+            Assert.AreEqual("InvariantCulture", (string)propertySchema.Enum[2]);
+            Assert.AreEqual("InvariantCultureIgnoreCase", (string)propertySchema.Enum[3]);
+            Assert.AreEqual("Ordinal", (string)propertySchema.Enum[4]);
+            Assert.AreEqual("OrdinalIgnoreCase", (string)propertySchema.Enum[5]);
+        }
+
         [Test]
         public void MixedRequired()
         {

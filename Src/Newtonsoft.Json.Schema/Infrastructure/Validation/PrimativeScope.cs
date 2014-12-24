@@ -142,7 +142,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
             if (schema.Format != null)
             {
-                bool valid = ValidateFormat(schema, value);
+                bool valid = ValidateFormat(schema.Format, value);
 
                 if (!valid)
                     RaiseError("String '{0}' does not validate against format '{1}'.".FormatWith(CultureInfo.InvariantCulture, value, schema.Format), ErrorType.Format, schema, null);
@@ -151,101 +151,87 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             return true;
         }
 
-        private static bool ValidateFormat(JSchema schema, string value)
+        private static bool ValidateFormat(string format, string value)
         {
-            bool valid = true;
-
-            switch (schema.Format)
+            switch (format)
             {
                 case Constants.Formats.Color:
                 {
-                    if (!ColorHelpers.IsValid(value))
-                        valid = false;
-                    break;
+                    return ColorHelpers.IsValid(value);
                 }
                 case Constants.Formats.Hostname:
                 case Constants.Formats.Draft3Hostname:
                 {
                     // http://stackoverflow.com/questions/1418423/the-hostname-regex
-                    valid = Regex.IsMatch(value, @"^(?=.{1,255}$)[0-9A-Za-z](?:(?:[0-9A-Za-z]|-){0,61}[0-9A-Za-z])?(?:\.[0-9A-Za-z](?:(?:[0-9A-Za-z]|-){0,61}[0-9A-Za-z])?)*\.?$", RegexOptions.CultureInvariant);
-                    break;
+                    return Regex.IsMatch(value, @"^(?=.{1,255}$)[0-9A-Za-z](?:(?:[0-9A-Za-z]|-){0,61}[0-9A-Za-z])?(?:\.[0-9A-Za-z](?:(?:[0-9A-Za-z]|-){0,61}[0-9A-Za-z])?)*\.?$", RegexOptions.CultureInvariant);
                 }
                 case Constants.Formats.IPv4:
                 case Constants.Formats.Draft3IPv4:
                 {
                     string[] parts = value.Split('.');
-                    if (parts.Length == 4)
+                    if (parts.Length != 4)
+                        return false;
+
+                    for (int i = 0; i < parts.Length; i++)
                     {
-                        for (int i = 0; i < parts.Length; i++)
+                        int num;
+                        if (!int.TryParse(parts[i], NumberStyles.Integer, CultureInfo.InvariantCulture, out num)
+                            || (num < 0 || num > 255))
                         {
-                            int num;
-                            if (!int.TryParse(parts[i], NumberStyles.Integer, CultureInfo.InvariantCulture, out num)
-                                || (num < 0 || num > 255))
-                            {
-                                valid = false;
-                                break;
-                            }
+                            return false;
                         }
                     }
-                    else
-                    {
-                        valid = false;
-                    }
-                    break;
+                    return true;
                 }
                 case Constants.Formats.IPv6:
                 {
-                    valid = (Uri.CheckHostName(value) == UriHostNameType.IPv6);
-                    break;
+                    return (Uri.CheckHostName(value) == UriHostNameType.IPv6);
                 }
                 case Constants.Formats.Email:
                 {
-                    valid = EmailHelpers.Validate(value, true);
-                    break;
+                    return EmailHelpers.Validate(value, true);
                 }
                 case Constants.Formats.Uri:
                 {
-                    valid = Uri.IsWellFormedUriString(value, UriKind.Absolute);
-                    break;
+                    return Uri.IsWellFormedUriString(value, UriKind.Absolute);
                 }
                 case Constants.Formats.Date:
                 {
                     DateTime temp;
-                    valid = DateTime.TryParseExact(value, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out temp);
-                    break;
+                    return DateTime.TryParseExact(value, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out temp);
                 }
                 case Constants.Formats.Time:
                 {
                     DateTime temp;
-                    valid = DateTime.TryParseExact(value, "hh:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out temp);
-                    break;
+                    return DateTime.TryParseExact(value, "hh:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out temp);
                 }
                 case Constants.Formats.DateTime:
                 {
                     DateTime temp;
-                    valid = DateTime.TryParseExact(value, @"yyyy-MM-dd\THH:mm:ss.FFFFFFFK", CultureInfo.InvariantCulture, DateTimeStyles.None, out temp);
-                    break;
+                    return DateTime.TryParseExact(value, @"yyyy-MM-dd\THH:mm:ss.FFFFFFFK", CultureInfo.InvariantCulture, DateTimeStyles.None, out temp);
                 }
                 case Constants.Formats.UtcMilliseconds:
                 {
                     double temp;
-                    valid = Double.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out temp);
-                    break;
+                    return Double.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out temp);
                 }
                 case Constants.Formats.Regex:
                 {
                     try
                     {
                         new Regex(value);
+                        return true;
                     }
                     catch
                     {
-                        valid = false;
+                        return false;
                     }
-                    break;
+                }
+                default:
+                {
+                    return true;
                 }
             }
-            return valid;
         }
 
         private bool ValidateFloat(JSchema schema, double value)
