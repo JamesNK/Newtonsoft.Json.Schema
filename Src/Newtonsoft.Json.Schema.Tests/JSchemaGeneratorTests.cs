@@ -193,6 +193,241 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual("OrdinalIgnoreCase", (string)propertySchema.Enum[5]);
         }
 
+        public class DictionaryWithMinAndMaxLength
+        {
+            [MinLength(5)]
+            [MaxLength(10)]
+            public IDictionary<string, int> Dictionary1 { get; set; }
+            public IDictionary<string, int> Dictionary2 { get; set; }
+            [MinLength(5)]
+            [MaxLength(10)]
+            public IDictionary<string, int> Dictionary3 { get; set; }
+        }
+
+        [Test]
+        public void DictionaryWithLength()
+        {
+            JSchemaGenerator generator = new JSchemaGenerator();
+            JSchema schema = generator.Generate(typeof(DictionaryWithMinAndMaxLength));
+
+            JSchema dictionary1 = schema.Properties["Dictionary1"];
+            JSchema dictionary2 = schema.Properties["Dictionary2"];
+            JSchema dictionary3 = schema.Properties["Dictionary3"];
+
+            Assert.AreNotEqual(dictionary1, dictionary2);
+            Assert.AreEqual(dictionary1, dictionary3);
+
+            Assert.AreEqual(JSchemaType.Object | JSchemaType.Null, dictionary1.Type);
+            Assert.AreEqual(5, dictionary1.MinimumProperties);
+            Assert.AreEqual(10, dictionary1.MaximumProperties);
+
+            Assert.AreEqual(JSchemaType.Object | JSchemaType.Null, dictionary2.Type);
+            Assert.AreEqual(null, dictionary2.MinimumProperties);
+            Assert.AreEqual(null, dictionary2.MaximumProperties);
+        }
+
+        public class ListWithMinAndMaxLength
+        {
+            [MinLength(5)]
+            [MaxLength(10)]
+            public IList<int> List1 { get; set; }
+            public IList<int> List2 { get; set; }
+            [MinLength(5)]
+            [MaxLength(10)]
+            public IList<int> List3 { get; set; }
+        }
+
+        [Test]
+        public void ListWithLength()
+        {
+            JSchemaGenerator generator = new JSchemaGenerator();
+            JSchema schema = generator.Generate(typeof(ListWithMinAndMaxLength));
+
+            JSchema list1 = schema.Properties["List1"];
+            JSchema list2 = schema.Properties["List2"];
+            JSchema list3 = schema.Properties["List3"];
+
+            Assert.AreNotEqual(list1, list2);
+            Assert.AreEqual(list1, list3);
+
+            Assert.AreEqual(JSchemaType.Array | JSchemaType.Null, list1.Type);
+            Assert.AreEqual(5, list1.MinimumItems);
+            Assert.AreEqual(10, list1.MaximumItems);
+
+            Assert.AreEqual(JSchemaType.Array | JSchemaType.Null, list2.Type);
+            Assert.AreEqual(null, list2.MinimumItems);
+            Assert.AreEqual(null, list2.MaximumItems);
+        }
+
+        public class NumberWithRange
+        {
+            [System.ComponentModel.DataAnnotations.RangeAttribute(5, 10)]
+            public int IntegerProperty { get; set; }
+            [System.ComponentModel.DataAnnotations.RangeAttribute(5.5, 10.5)]
+            public decimal DecimalProperty { get; set; }
+            [System.ComponentModel.DataAnnotations.RangeAttribute(0.5, 1.5)]
+            public double DoubleProperty { get; set; }
+        }
+
+        [Test]
+        public void NumberWithRangeTests()
+        {
+            JSchemaGenerator generator = new JSchemaGenerator();
+            JSchema schema = generator.Generate(typeof(NumberWithRange));
+
+            JSchema integerProperty = schema.Properties["IntegerProperty"];
+            JSchema decimalProperty = schema.Properties["DecimalProperty"];
+            JSchema doubleProperty = schema.Properties["DoubleProperty"];
+
+            Assert.AreEqual(JSchemaType.Integer, integerProperty.Type);
+            Assert.AreEqual(5, integerProperty.Minimum);
+            Assert.AreEqual(10, integerProperty.Maximum);
+
+            Assert.AreEqual(JSchemaType.Float, decimalProperty.Type);
+            Assert.AreEqual(5.5, decimalProperty.Minimum);
+            Assert.AreEqual(10.5, decimalProperty.Maximum);
+
+            Assert.AreEqual(JSchemaType.Float, doubleProperty.Type);
+            Assert.AreEqual(0.5, doubleProperty.Minimum);
+            Assert.AreEqual(1.5, doubleProperty.Maximum);
+
+            Console.WriteLine(schema.ToString());
+        }
+
+        public class StringWithMinAndMaxLength
+        {
+            [MinLength(5)]
+            [MaxLength(10)]
+            public string String1 { get; set; }
+            public string String2 { get; set; }
+            [MinLength(5)]
+            [MaxLength(10)]
+            public string String3 { get; set; }
+        }
+
+        [Test]
+        public void StringWithLength()
+        {
+            JSchemaGenerator generator = new JSchemaGenerator();
+            JSchema schema = generator.Generate(typeof(StringWithMinAndMaxLength));
+
+            JSchema string1 = schema.Properties["String1"];
+            JSchema string2 = schema.Properties["String2"];
+            JSchema string3 = schema.Properties["String3"];
+
+            Assert.AreNotEqual(string1, string2);
+            Assert.AreNotEqual(string1, string3);
+
+            Assert.AreEqual(JSchemaType.String | JSchemaType.Null, string1.Type);
+            Assert.AreEqual(5, string1.MinimumLength);
+            Assert.AreEqual(10, string1.MaximumLength);
+
+            Assert.AreEqual(JSchemaType.String | JSchemaType.Null, string2.Type);
+            Assert.AreEqual(null, string2.MinimumLength);
+            Assert.AreEqual(null, string2.MaximumLength);
+
+            Console.WriteLine(schema.ToString());
+        }
+
+        public class EnumWithEnumDataType
+        {
+            [EnumDataType(typeof(StringComparison))]
+            public string String1 { get; set; }
+            public string String2 { get; set; }
+            [EnumDataType(typeof(StringComparison))]
+            public int Integer1 { get; set; }
+            public int Integer2 { get; set; }
+        }
+
+        [Test]
+        public void EnumWithEnumDataTypeTest()
+        {
+            JSchemaGenerator generator = new JSchemaGenerator();
+            JSchema schema = generator.Generate(typeof(EnumWithEnumDataType));
+
+            JSchema string1 = schema.Properties["String1"];
+            JSchema integer = schema.Properties["Integer1"];
+
+            Assert.AreEqual(JSchemaType.String | JSchemaType.Null, string1.Type);
+            Assert.AreEqual(6, string1.Enum.Count);
+            Assert.AreEqual("CurrentCulture", (string)string1.Enum[0]);
+
+            Assert.AreEqual(JSchemaType.Integer, integer.Type);
+            Assert.AreEqual(6, integer.Enum.Count);
+            Assert.AreEqual(0, (int)integer.Enum[0]);
+
+            Console.WriteLine(schema.ToString());
+        }
+
+        public class StringAttributeOptions
+        {
+            [RegularExpression("[A-Z]")]
+            [Required]
+            public string String1 { get; set; }
+            [DataType(DataType.Date)]
+            [Required]
+            public string String2 { get; set; }
+            [Url]
+            [Required]
+            public string String3 { get; set; }
+            [DataType(DataType.DateTime)]
+            [Required]
+            public string String4 { get; set; }
+            [DataType(DataType.Time)]
+            [Required]
+            public string String5 { get; set; }
+            [DataType(DataType.EmailAddress)]
+            [Required]
+            public string String6 { get; set; }
+            [DataType(DataType.Url)]
+            [Required]
+            public string String7 { get; set; }
+            [DataType(DataType.PhoneNumber)]
+            [Required]
+            public string String8 { get; set; }
+            [Phone]
+            [Required]
+            public string String9 { get; set; }
+            [EmailAddress]
+            [Required]
+            public string String10 { get; set; }
+            [StringLength(50)]
+            [Required]
+            public string String11 { get; set; }
+        }
+
+        [Test]
+        public void StringAttributeOptionsTest()
+        {
+            JSchemaGenerator generator = new JSchemaGenerator();
+            JSchema schema = generator.Generate(typeof(StringAttributeOptions));
+
+            JSchema string1 = schema.Properties["String1"];
+            JSchema string2 = schema.Properties["String2"];
+            JSchema string3 = schema.Properties["String3"];
+
+            Assert.AreEqual(JSchemaType.String, string1.Type);
+            Assert.AreEqual("[A-Z]", string1.Pattern);
+
+            Assert.AreEqual(JSchemaType.String, string2.Type);
+            Assert.AreEqual("date", string2.Format);
+
+            Assert.AreEqual(JSchemaType.String, string3.Type);
+            Assert.AreEqual("uri", string3.Format);
+
+            Assert.AreEqual("date-time", schema.Properties["String4"].Format);
+            Assert.AreEqual("time", schema.Properties["String5"].Format);
+            Assert.AreEqual("email", schema.Properties["String6"].Format);
+            Assert.AreEqual("uri", schema.Properties["String7"].Format);
+            Assert.AreEqual("phone", schema.Properties["String8"].Format);
+            Assert.AreEqual("phone", schema.Properties["String9"].Format);
+            Assert.AreEqual("email", schema.Properties["String10"].Format);
+            Assert.AreEqual(0, schema.Properties["String11"].MinimumLength);
+            Assert.AreEqual(50, schema.Properties["String11"].MaximumLength);
+
+            Console.WriteLine(schema.ToString());
+        }
+
         [Test]
         public void MixedRequired()
         {
