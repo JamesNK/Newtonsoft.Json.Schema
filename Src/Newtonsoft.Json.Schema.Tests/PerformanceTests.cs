@@ -104,7 +104,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             using (var tester = new PerformanceTester("Reader"))
             {
-                for (int i = 0; i < 5000; i++)
+                for (int i = 0; i < 1000; i++)
                 {
                     JsonTextReader reader = new JsonTextReader(new StringReader(json));
                     JSchemaValidatingReader validatingReader = new JSchemaValidatingReader(reader);

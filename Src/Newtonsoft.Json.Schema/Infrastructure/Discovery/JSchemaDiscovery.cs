@@ -4,7 +4,7 @@ using System.Globalization;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 
-namespace Newtonsoft.Json.Schema.Infrastructure
+namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
 {
     internal class JSchemaDiscovery
     {

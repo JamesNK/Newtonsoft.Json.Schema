@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Schema.Infrastructure.Licensing;
 using Newtonsoft.Json.Utilities;
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Validation
@@ -67,6 +68,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 if (Schema == null)
                     throw new JsonException("No schema has been set for the validator.");
 
+                LicenseHelpers.IncrementAndCheckOperationCount();
                 SchemaScope.CreateTokenScope(token, Schema, _context, null, depth);
             }
 

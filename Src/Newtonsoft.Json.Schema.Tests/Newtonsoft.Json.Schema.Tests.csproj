@@ -111,15 +111,18 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Infrastructure\CryptographyHelpersTests.cs" />
     <Compile Include="Infrastructure\EmailHelpersTests.cs" />
     <Compile Include="Infrastructure\JSchemaDiscoveryTests.cs" />
     <Compile Include="Infrastructure\JSchemaWriterTests.cs" />
+    <Compile Include="Infrastructure\LicenseHelpersTests.cs" />
     <Compile Include="JSchemaValidatingWriterTests.cs" />
     <Compile Include="JSchemaSpecTests.cs" />
     <Compile Include="JSchemaValidatingReaderTests.cs" />
     <Compile Include="ExtensionsTests.cs" />
     <Compile Include="Infrastructure\JSchemaReaderTests.cs" />
     <Compile Include="JSchemaGeneratorTests.cs" />
+    <Compile Include="LicenseTests.cs" />
     <Compile Include="PerformanceTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestFixtureBase.cs" />

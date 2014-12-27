@@ -1,6 +1,6 @@
 using System;
 
-namespace Newtonsoft.Json.Schema.Infrastructure
+namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
 {
     internal class KnownSchema
     {

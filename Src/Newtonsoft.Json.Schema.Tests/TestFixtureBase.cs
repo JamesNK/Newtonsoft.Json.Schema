@@ -9,6 +9,7 @@ using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using Newtonsoft.Json.Schema.Infrastructure.Licensing;
 #if NET20
 using Newtonsoft.Json.Serialization;
 #else
@@ -50,7 +51,7 @@ namespace Newtonsoft.Json.Schema.Tests
 //            Thread.CurrentThread.CurrentUICulture = turkey;
 //#endif
 
-            JsonConvert.DefaultSettings = null;
+            LicenseHelpers.ResetOperationCount(null);
         }
 
         protected void WriteEscapedJson(string json)

@@ -422,7 +422,7 @@ namespace Newtonsoft.Json.Schema
         /// <returns>The <see cref="JSchema"/> object representing the JSON Schema.</returns>
         public static JSchema Read(JsonReader reader)
         {
-            return Read(reader, DummyJSchemaResolver.Instance);
+            return Read(reader, JSchemaDummyResolver.Instance);
         }
 
         /// <summary>
@@ -447,7 +447,7 @@ namespace Newtonsoft.Json.Schema
         /// <returns>A <see cref="JSchema"/> populated from the string that contains JSON.</returns>
         public static JSchema Parse(string json)
         {
-            return Parse(json, DummyJSchemaResolver.Instance);
+            return Parse(json, JSchemaDummyResolver.Instance);
         }
 
         /// <summary>

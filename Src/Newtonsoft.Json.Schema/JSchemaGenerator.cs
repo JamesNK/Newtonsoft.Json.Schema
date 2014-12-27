@@ -74,7 +74,7 @@ namespace Newtonsoft.Json.Schema
         /// <returns>A <see cref="JSchema"/> generated from the specified type.</returns>
         public JSchema Generate(Type type)
         {
-            return Generate(type, DummyJSchemaResolver.Instance, false);
+            return Generate(type, JSchemaDummyResolver.Instance, false);
         }
 
         /// <summary>
@@ -96,7 +96,7 @@ namespace Newtonsoft.Json.Schema
         /// <returns>A <see cref="JSchema"/> generated from the specified type.</returns>
         public JSchema Generate(Type type, bool rootSchemaNullable)
         {
-            return Generate(type, DummyJSchemaResolver.Instance, rootSchemaNullable);
+            return Generate(type, JSchemaDummyResolver.Instance, rootSchemaNullable);
         }
 
         /// <summary>

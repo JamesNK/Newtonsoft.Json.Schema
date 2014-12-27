@@ -5,6 +5,7 @@
 
 using System.Reflection;
 using System.Runtime.InteropServices;
+using Newtonsoft.Json.Schema.Infrastructure.Licensing;
 
 [assembly: AssemblyTitle("Json.NET Schema Tests")]
 [assembly: AssemblyDescription("")]
@@ -20,3 +21,5 @@ using System.Runtime.InteropServices;
 
 [assembly: AssemblyVersion("6.0.0.0")]
 [assembly: AssemblyFileVersion("6.0.7.18021")]
+
+[assembly: ReleaseDate("2014-12-27")]

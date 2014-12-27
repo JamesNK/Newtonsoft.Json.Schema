@@ -17,7 +17,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         public static JSchema OpenSchemaResource(string name)
         {
-            return OpenSchemaResource(name, DummyJSchemaResolver.Instance);
+            return OpenSchemaResource(name, JSchemaDummyResolver.Instance);
         }
 
         public static JSchema OpenSchemaResource(string name, JSchemaResolver resolver)

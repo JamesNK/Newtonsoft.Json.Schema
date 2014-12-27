@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema.Infrastructure;
+using Newtonsoft.Json.Schema.Infrastructure.Discovery;
 using NUnit.Framework;
 
 namespace Newtonsoft.Json.Schema.Tests.Infrastructure
