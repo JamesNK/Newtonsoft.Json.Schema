@@ -1,4 +1,9 @@
-﻿using System.Collections.Generic;
+﻿#region License
+// Copyright (c) Newtonsoft. All Rights Reserved.
+// License: https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md
+#endregion
+
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Newtonsoft.Json.Utilities;

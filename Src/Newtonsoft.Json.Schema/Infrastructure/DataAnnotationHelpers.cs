@@ -1,4 +1,9 @@
-﻿using System;
+﻿#region License
+// Copyright (c) Newtonsoft. All Rights Reserved.
+// License: https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md
+#endregion
+
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -6,132 +11,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json.Utilities;
-
-//namespace System.ComponentModel.DataAnnotations
-//{
-//    using System;
-//    using System.ComponentModel.DataAnnotations.Resources;
-//    using System.Globalization;
-//    using System.Runtime;
-//    using System.Runtime.CompilerServices;
-
-//    [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Field | AttributeTargets.Property | AttributeTargets.Method, AllowMultiple = false), __DynamicallyInvokable]
-//    public class DataTypeAttribute : ValidationAttribute
-//    {
-//        private static string[] _dataTypeStrings = Enum.GetNames(typeof(System.ComponentModel.DataAnnotations.DataType));
-
-//        [__DynamicallyInvokable]
-//        public DataTypeAttribute(System.ComponentModel.DataAnnotations.DataType dataType)
-//        {
-//            this.DataType = dataType;
-//            switch (dataType)
-//            {
-//                case System.ComponentModel.DataAnnotations.DataType.Date:
-//                    this.DisplayFormat = new DisplayFormatAttribute();
-//                    this.DisplayFormat.DataFormatString = "{0:d}";
-//                    this.DisplayFormat.ApplyFormatInEditMode = true;
-//                    return;
-
-//                case System.ComponentModel.DataAnnotations.DataType.Time:
-//                    this.DisplayFormat = new DisplayFormatAttribute();
-//                    this.DisplayFormat.DataFormatString = "{0:t}";
-//                    this.DisplayFormat.ApplyFormatInEditMode = true;
-//                    return;
-
-//                case System.ComponentModel.DataAnnotations.DataType.Duration:
-//                case System.ComponentModel.DataAnnotations.DataType.PhoneNumber:
-//                    break;
-
-//                case System.ComponentModel.DataAnnotations.DataType.Currency:
-//                    this.DisplayFormat = new DisplayFormatAttribute();
-//                    this.DisplayFormat.DataFormatString = "{0:C}";
-//                    break;
-
-//                default:
-//                    return;
-//            }
-//        }
-
-//        [__DynamicallyInvokable]
-//        public DataTypeAttribute(string customDataType)
-//            : this(System.ComponentModel.DataAnnotations.DataType.Custom)
-//        {
-//            this.CustomDataType = customDataType;
-//        }
-
-//        private void EnsureValidDataType()
-//        {
-//            if ((this.DataType == System.ComponentModel.DataAnnotations.DataType.Custom) && string.IsNullOrEmpty(this.CustomDataType))
-//            {
-//                throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, DataAnnotationsResources.DataTypeAttribute_EmptyDataTypeString, new object[0]));
-//            }
-//        }
-
-//        [__DynamicallyInvokable]
-//        public virtual string GetDataTypeName()
-//        {
-//            this.EnsureValidDataType();
-//            if (this.DataType == System.ComponentModel.DataAnnotations.DataType.Custom)
-//            {
-//                return this.CustomDataType;
-//            }
-//            return _dataTypeStrings[(int)this.DataType];
-//        }
-
-//        public override bool IsValid(object value)
-//        {
-//            this.EnsureValidDataType();
-//            return true;
-//        }
-
-//        [__DynamicallyInvokable]
-//        public string CustomDataType
-//        {
-//            [CompilerGenerated, __DynamicallyInvokable, TargetedPatchingOptOut("Performance critical to inline this type of method across NGen image boundaries")]
-//            get
-//            {
-//                return this.<CustomDataType>k__BackingField;
-//            }
-//            [CompilerGenerated]
-//            private set
-//            {
-//                this.<CustomDataType>k__BackingField = value;
-//            }
-//        }
-
-//        [__DynamicallyInvokable]
-//        public System.ComponentModel.DataAnnotations.DataType DataType
-//        {
-//            [CompilerGenerated, __DynamicallyInvokable, TargetedPatchingOptOut("Performance critical to inline this type of method across NGen image boundaries")]
-//            get
-//            {
-//                return this.<DataType>k__BackingField;
-//            }
-//            [CompilerGenerated]
-//            private set
-//            {
-//                this.<DataType>k__BackingField = value;
-//            }
-//        }
-
-//        [__DynamicallyInvokable]
-//        public DisplayFormatAttribute DisplayFormat
-//        {
-//            [CompilerGenerated, __DynamicallyInvokable, TargetedPatchingOptOut("Performance critical to inline this type of method across NGen image boundaries")]
-//            get
-//            {
-//                return this.<DisplayFormat>k__BackingField;
-//            }
-//            [CompilerGenerated, __DynamicallyInvokable, TargetedPatchingOptOut("Performance critical to inline this type of method across NGen image boundaries")]
-//            protected set
-//            {
-//                this.<DisplayFormat>k__BackingField = value;
-//            }
-//        }
-//    }
-//}
-
-
 
 namespace Newtonsoft.Json.Schema.Infrastructure
 {
