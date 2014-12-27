@@ -1216,21 +1216,21 @@ namespace Newtonsoft.Json.Schema.Tests
 
 #if !ASPNETCORE50
         [Test]
-        [Ignore]
         public void GenerateSchemaWithStringEnum()
         {
             JSchemaGenerator generator = new JSchemaGenerator();
+            generator.GenerationProviders.Add(new StringEnumGenerationProvider
+            {
+                CamelCaseText = true
+            });
             JSchema schema = generator.Generate(typeof(Y));
 
             string json = schema.ToString();
 
-            // NOTE: This fails because the enum is serialized as an integer and not a string.
-            // NOTE: There should exist a way to serialize the enum as lowercase strings.
             Assert.AreEqual(@"{
   ""type"": ""object"",
   ""properties"": {
     ""y"": {
-      ""required"": true,
       ""type"": ""string"",
       ""enum"": [
         ""no"",
@@ -1238,7 +1238,10 @@ namespace Newtonsoft.Json.Schema.Tests
         ""desc""
       ]
     }
-  }
+  },
+  ""required"": [
+    ""y""
+  ]
 }", json);
         }
 #endif

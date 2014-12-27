@@ -6,7 +6,7 @@ namespace Newtonsoft.Json.Schema.Generation
 {
     public class StringEnumGenerationProvider : JSchemaGenerationProvider
     {
-        public bool? CamelCaseText { get; set; }
+        public bool CamelCaseText { get; set; }
 
         public override JSchema GetSchema(JSchemaTypeGenerationContext context)
         {
@@ -30,7 +30,7 @@ namespace Newtonsoft.Json.Schema.Generation
 
             foreach (string name in names)
             {
-                string finalName = EnumUtils.ToEnumName(t, name, CamelCaseText ?? false);
+                string finalName = EnumUtils.ToEnumName(t, name, CamelCaseText);
 
                 schema.Enum.Add(JValue.CreateString(finalName));
             }
