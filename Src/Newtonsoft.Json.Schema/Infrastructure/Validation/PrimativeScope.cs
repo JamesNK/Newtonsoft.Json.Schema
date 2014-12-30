@@ -6,6 +6,9 @@
 using System;
 using System.Globalization;
 using System.IO;
+#if !PORTABLE
+using System.Numerics;
+#endif
 using System.Text.RegularExpressions;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Utilities;
@@ -101,14 +104,16 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 #if !(NET20 || NET35 || PORTABLE40 || PORTABLE)
                 if (value is BigInteger)
                 {
-                    // not that this will lose any decimal point on DivisibleBy
-                    // so manually raise an error if DivisibleBy is not an integer and value is not zero
+                    double multipleOf = schema.MultipleOf.Value;
+
+                    // not that this will lose any decimal point on MultipleOf
+                    // so manually raise an error if MultipleOf is not an integer and value is not zero
                     BigInteger i = (BigInteger)value;
-                    bool divisibleNonInteger = !Math.Abs(schema.DivisibleBy.Value - Math.Truncate(schema.DivisibleBy.Value)).Equals(0);
+                    bool divisibleNonInteger = !Math.Abs(multipleOf - Math.Truncate(multipleOf)).Equals(0);
                     if (divisibleNonInteger)
                         notDivisible = i != 0;
                     else
-                        notDivisible = i % new BigInteger(schema.DivisibleBy.Value) != 0;
+                        notDivisible = i % new BigInteger(multipleOf) != 0;
                 }
                 else
 #endif

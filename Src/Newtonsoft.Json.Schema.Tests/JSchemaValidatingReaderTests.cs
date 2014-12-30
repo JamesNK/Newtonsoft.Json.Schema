@@ -496,9 +496,9 @@ namespace Newtonsoft.Json.Schema.Tests
 
             string json = "99999999999999999999999999999999999999999999999999999999999999999999";
 
-            Json.Schema.ValidationEventArgs validationEventArgs = null;
+            SchemaValidationEventArgs validationEventArgs = null;
 
-            JValidatingReader reader = new JsonValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
 
@@ -520,7 +520,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             JValue v = new JValue(new BigInteger(1));
 
-            Json.Schema.ValidationEventArgs validationEventArgs = null;
+            SchemaValidationEventArgs validationEventArgs = null;
 
             v.Validate(JSchema.Parse(schemaJson), (sender, args) => { validationEventArgs = args; });
 
@@ -752,9 +752,9 @@ namespace Newtonsoft.Json.Schema.Tests
 
             string json = "[999999999999999999999999999999999999999999999999999999998]";
 
-            Json.Schema.ValidationEventArgs validationEventArgs = null;
+            SchemaValidationEventArgs validationEventArgs = null;
 
-            JValidatingReader reader = new JValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
 
@@ -782,9 +782,9 @@ namespace Newtonsoft.Json.Schema.Tests
 
             string json = "[999999999999999999999999999999999999999999999999999999999]";
 
-            Json.Schema.ValidationEventArgs validationEventArgs = null;
+            SchemaValidationEventArgs validationEventArgs = null;
 
-            JValidatingReader reader = new JValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
 
@@ -793,7 +793,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.Integer, reader.TokenType);
-            Assert.AreEqual(@"Integer 999999999999999999999999999999999999999999999999999999999 is not evenly divisible by 2. Line 1, position 58.", validationEventArgs.Message);
+            Assert.AreEqual(@"Integer 999999999999999999999999999999999999999999999999999999999 is not a multiple of 2. Line 1, position 58.", validationEventArgs.Message);
             Assert.AreEqual("[0]", validationEventArgs.Path);
 
             Assert.IsTrue(reader.Read());
@@ -815,9 +815,9 @@ namespace Newtonsoft.Json.Schema.Tests
 
             string json = "[999999999999999999999999999999999999999999999999999999999]";
 
-            Json.Schema.ValidationEventArgs validationEventArgs = null;
+            SchemaValidationEventArgs validationEventArgs = null;
 
-            JValidatingReader reader = new JValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
 
@@ -827,7 +827,7 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.Integer, reader.TokenType);
             Assert.IsNotNull(validationEventArgs);
-            Assert.AreEqual(@"Integer 999999999999999999999999999999999999999999999999999999999 is not evenly divisible by 1.1. Line 1, position 58.", validationEventArgs.Message);
+            Assert.AreEqual(@"Integer 999999999999999999999999999999999999999999999999999999999 is not a multiple of 1.1. Line 1, position 58.", validationEventArgs.Message);
             Assert.AreEqual("[0]", validationEventArgs.Path);
 
             Assert.IsTrue(reader.Read());
@@ -847,7 +847,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             JArray a = new JArray(new JValue(new BigInteger(0)));
 
-            ValidationEventArgs validationEventArgs = null;
+            SchemaValidationEventArgs validationEventArgs = null;
 
             a.Validate(JSchema.Parse(schemaJson), (sender, args) => { validationEventArgs = args; });
 

@@ -8,8 +8,12 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using Newtonsoft.Json.Schema.Infrastructure.Licensing;
 
+#if PORTABLE
+[assembly: AssemblyTitle("Json.NET Schema Portable")]
+#else
 [assembly: AssemblyTitle("Json.NET Schema")]
-[assembly: AssemblyDescription("Json.NET Schema")]
+#endif
+[assembly: AssemblyDescription("Json.NET Schema is a powerful, complete and easy to use JSON Schema framework for .NET")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Newtonsoft")]
 [assembly: AssemblyProduct("Json.NET Schema")]

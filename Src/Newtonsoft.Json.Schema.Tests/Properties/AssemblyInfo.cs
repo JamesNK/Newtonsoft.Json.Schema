@@ -7,7 +7,11 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using Newtonsoft.Json.Schema.Infrastructure.Licensing;
 
+#if PORTABLE
+[assembly: AssemblyTitle("Json.NET Schema Portable Tests")]
+#else
 [assembly: AssemblyTitle("Json.NET Schema Tests")]
+#endif
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Newtonsoft")]

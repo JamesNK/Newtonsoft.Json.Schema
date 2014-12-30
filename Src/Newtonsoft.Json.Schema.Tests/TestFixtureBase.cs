@@ -10,11 +10,6 @@ using System.IO;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json.Schema.Infrastructure.Licensing;
-#if NET20
-using Newtonsoft.Json.Serialization;
-#else
-using System.Runtime.Serialization.Json;
-#endif
 using System.Text;
 using System.Threading;
 #if NETFX_CORE

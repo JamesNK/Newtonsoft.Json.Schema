@@ -974,22 +974,24 @@ namespace Newtonsoft.Json.Schema.Tests
   ""additionalProperties"": false,
   ""properties"": {
     ""_Major"": {
-      ""required"": true,
       ""type"": ""integer""
     },
     ""_Minor"": {
-      ""required"": true,
       ""type"": ""integer""
     },
     ""_Build"": {
-      ""required"": true,
       ""type"": ""integer""
     },
     ""_Revision"": {
-      ""required"": true,
       ""type"": ""integer""
     }
-  }
+  },
+  ""required"": [
+    ""_Major"",
+    ""_Minor"",
+    ""_Build"",
+    ""_Revision""
+  ]
 }", json);
 
             JTokenWriter jsonWriter = new JTokenWriter();
