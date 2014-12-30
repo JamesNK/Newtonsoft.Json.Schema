@@ -40,13 +40,12 @@
     <DocumentationSources>
       <DocumentationSource sourceFile="$(DocumentationSourcePath)\Newtonsoft.Json.Schema.dll" />
       <DocumentationSource sourceFile="$(DocumentationSourcePath)\Newtonsoft.Json.Schema.xml" />
-      <DocumentationSource sourceFile="$(DocumentationSourcePath)\Newtonsoft.Json.dll" />
-      <DocumentationSource sourceFile="$(DocumentationSourcePath)\Newtonsoft.Json.xml" />
     </DocumentationSources>
     <NamespaceSummaries>
       <NamespaceSummaryItem name="(global)" isDocumented="False" />
-<NamespaceSummaryItem name="Newtonsoft.Json.Schema" isDocumented="True">The &lt;b&gt;Newtonsoft.Json.Schema&lt;/b&gt; namespace provides classes that are used to implement JSON schema.</NamespaceSummaryItem>
-<NamespaceSummaryItem name="Newtonsoft.Json.Schema.Generation" isDocumented="True">The &lt;b&gt;Newtonsoft.Json.Schema.Generation&lt;/b&gt; namespace provides classes that are used to generate JSON schemas from .NET types.</NamespaceSummaryItem></NamespaceSummaries>
+      <NamespaceSummaryItem name="Newtonsoft.Json.Schema" isDocumented="True">The &lt;b&gt;Newtonsoft.Json.Schema&lt;/b&gt; namespace provides classes that are used to implement JSON schema.</NamespaceSummaryItem>
+      <NamespaceSummaryItem name="Newtonsoft.Json.Schema.Generation" isDocumented="True">The &lt;b&gt;Newtonsoft.Json.Schema.Generation&lt;/b&gt; namespace provides classes that are used to generate JSON schemas from .NET types.</NamespaceSummaryItem>
+    </NamespaceSummaries>
     <RootNamespaceContainer>True</RootNamespaceContainer>
     <RootNamespaceTitle>API Reference</RootNamespaceTitle>
     <ComponentConfigurations>
@@ -82,24 +81,14 @@
     <MaximumGroupParts>2</MaximumGroupParts>
     <NamespaceGrouping>False</NamespaceGrouping>
     <PlugInConfigurations>
+      <PlugInConfig id="Additional Reference Links" enabled="True">
+        <configuration>
+          <targets>
+            <target htmlSdkLinkType="None" help2SdkLinkType="Index" helpViewerSdkLinkType="Id" websiteSdkLinkType="None" helpFileProject="dependencies.shfbproj" />
+          </targets>
+        </configuration>
+      </PlugInConfig>
     </PlugInConfigurations>
-    <ApiFilter>
-      <Filter entryType="Namespace" fullName="Newtonsoft.Json" isExposed="False" xmlns="" />
-<Filter entryType="Namespace" fullName="Newtonsoft.Json.Bson" isExposed="False" xmlns="" />
-<Filter entryType="Namespace" fullName="Newtonsoft.Json.Converters" isExposed="False" xmlns="" />
-<Filter entryType="Namespace" fullName="Newtonsoft.Json.Linq" isExposed="False" xmlns="" />
-<Filter entryType="Namespace" fullName="Newtonsoft.Json.Schema" isExposed="True" xmlns="">
-  <Filter entryType="Class" fullName="Newtonsoft.Json.Schema.Extensions" filterName="Extensions" isExposed="False" />
-  <Filter entryType="Class" fullName="Newtonsoft.Json.Schema.JsonSchema" filterName="JsonSchema" isExposed="False" />
-  <Filter entryType="Class" fullName="Newtonsoft.Json.Schema.JsonSchemaException" filterName="JsonSchemaException" isExposed="False" />
-  <Filter entryType="Class" fullName="Newtonsoft.Json.Schema.JsonSchemaGenerator" filterName="JsonSchemaGenerator" isExposed="False" />
-  <Filter entryType="Class" fullName="Newtonsoft.Json.Schema.JsonSchemaResolver" filterName="JsonSchemaResolver" isExposed="False" />
-  <Filter entryType="Enumeration" fullName="Newtonsoft.Json.Schema.JsonSchemaType" filterName="JsonSchemaType" isExposed="False" />
-  <Filter entryType="Enumeration" fullName="Newtonsoft.Json.Schema.UndefinedSchemaIdHandling" filterName="UndefinedSchemaIdHandling" isExposed="False" />
-  <Filter entryType="Class" fullName="Newtonsoft.Json.Schema.ValidationEventArgs" filterName="ValidationEventArgs" isExposed="False" />
-  <Filter entryType="Delegate" fullName="Newtonsoft.Json.Schema.ValidationEventHandler" filterName="ValidationEventHandler" isExposed="False" />
-</Filter>
-<Filter entryType="Namespace" fullName="Newtonsoft.Json.Serialization" isExposed="False" xmlns="" /></ApiFilter>
   </PropertyGroup>
   <!-- There are no properties for these two groups but they need to appear in
        order for Visual Studio to perform the build. -->

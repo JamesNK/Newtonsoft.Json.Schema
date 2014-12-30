@@ -5,6 +5,9 @@
 
 using System;
 using System.Reflection;
+#if !PORTABLE
+using System.Security.Cryptography;
+#endif
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Licensing
 {
@@ -14,6 +17,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Licensing
 
         internal static bool ValidateData(byte[] data, byte[] signature)
         {
+            bool valid;
+
+#if PORTABLE
             // todo: support WinRT
             Type rsaCryptoServiceProviderType = Type.GetType("System.Security.Cryptography.RSACryptoServiceProvider");
             MethodInfo fromXmlStringMethod = rsaCryptoServiceProviderType.GetTypeInfo().BaseType.GetTypeInfo().GetDeclaredMethod("FromXmlString");
@@ -24,7 +30,13 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Licensing
 
             fromXmlStringMethod.Invoke(rsaCryptoServiceProvider, new object[] { PublicKey });
 
-            bool valid = (bool)verifyDataMethod.Invoke(rsaCryptoServiceProvider, new object[] { data, Activator.CreateInstance(sha1CryptoServiceProviderType), signature });
+            valid = (bool)verifyDataMethod.Invoke(rsaCryptoServiceProvider, new object[] { data, Activator.CreateInstance(sha1CryptoServiceProviderType), signature });
+#else
+            RSACryptoServiceProvider rsaCryptoServiceProvider = new RSACryptoServiceProvider();
+            rsaCryptoServiceProvider.FromXmlString(PublicKey);
+
+            valid = rsaCryptoServiceProvider.VerifyData(data, new SHA1CryptoServiceProvider(), signature);
+#endif
 
             return valid;
         }
