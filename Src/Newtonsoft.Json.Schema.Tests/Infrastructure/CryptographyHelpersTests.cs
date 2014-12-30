@@ -29,5 +29,17 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 
             Assert.IsTrue(valid);
         }
+
+        [Test]
+        public void ValidateData_Failure()
+        {
+            byte[] testData = Encoding.UTF8.GetBytes("Hello world TEH HACKZOR!");
+
+            byte[] signature = Convert.FromBase64String("sAx4uDJZFOKcbhj+a65RdCVUF0E/kvluG7FnwGYWRIWNay3r/A7xw5p46shtT0HJrYKApIel00pY7rCdI/OVBP2VvCNvMiTD9VtY6LzMwOXcNKgBDAiSp/cu/ZvqQO7dCALmlBffj+5uKMtThbAgLN+i74wpI7Zt+2kwvQKbbR4=");
+
+            bool valid = CryptographyHelpers.ValidateData(testData, signature);
+
+            Assert.IsFalse(valid);
+        }
     }
 }
