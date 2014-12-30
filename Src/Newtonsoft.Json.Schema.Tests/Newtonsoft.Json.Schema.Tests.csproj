@@ -111,6 +111,17 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Documentation\JSchemaTests.cs" />
+    <Compile Include="Documentation\Samples\Create\CreateJsonSchemaManually.cs" />
+    <Compile Include="Documentation\Samples\Create\SaveJsonSchemaToFile.cs" />
+    <Compile Include="Documentation\Samples\File.cs" />
+    <Compile Include="Documentation\Samples\Load\JsonSchemaParse.cs" />
+    <Compile Include="Documentation\Samples\Load\LoadJsonSchemaFromFile.cs" />
+    <Compile Include="Documentation\Samples\Load\RefJsonSchemaResolver.cs" />
+    <Compile Include="Documentation\Samples\Validate\JsonValidatingReaderAndSerializer.cs" />
+    <Compile Include="Documentation\Samples\Validate\JTokenIsValid.cs" />
+    <Compile Include="Documentation\Samples\Validate\JTokenIsValidWithMessages.cs" />
+    <Compile Include="Documentation\Samples\Validate\JTokenValidateWithEvent.cs" />
     <Compile Include="Infrastructure\CryptographyHelpersTests.cs" />
     <Compile Include="Infrastructure\EmailHelpersTests.cs" />
     <Compile Include="Infrastructure\JSchemaDiscoveryTests.cs" />
@@ -390,7 +401,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Documentation\Samples\Generation\" />
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

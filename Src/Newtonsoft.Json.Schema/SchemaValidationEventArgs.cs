@@ -9,7 +9,7 @@ using Newtonsoft.Json.Utilities;
 namespace Newtonsoft.Json.Schema
 {
     /// <summary>
-    /// Returns detailed information related to the <see cref="ValidationEventHandler"/>.
+    /// Returns detailed information related to the <see cref="SchemaValidationEventHandler"/>.
     /// </summary>
     public class SchemaValidationEventArgs : EventArgs
     {

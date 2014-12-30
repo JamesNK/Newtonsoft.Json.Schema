@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<topic id="Samples" revisionNumber="1">
+  <developerConceptualDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <introduction>
+      <para>Code samples covering Json.NET Schema's most commonly used functionality.</para>
+    </introduction>
+    <section>
+      <title>Samples</title>
+      <content>
+
+<list class="bullet">
+    <listItem>
+        <para><legacyBold>Create JSON Schemas</legacyBold> - Manually create and save JSON Schemas to disk</para>
+    </listItem>
+    <listItem>
+        <para><legacyBold>Generate JSON Schemas</legacyBold> - Automatically generate JSON Schemas from .NET types</para>
+    </listItem>
+    <listItem>
+        <para><legacyBold>Load JSON Schemas</legacyBold> - Load JSON Schemas from JSON text, from the disk, and by reference</para>
+    </listItem>
+    <listItem>
+        <para><legacyBold>Validate JSON</legacyBold> - Validate JSON when reading JSON, when writing JSON, when serializing JSON, and validate existing LINQ to JSON objects</para>
+    </listItem>
+</list>
+
+      </content>
+    </section>
+  </developerConceptualDocument>
+</topic>

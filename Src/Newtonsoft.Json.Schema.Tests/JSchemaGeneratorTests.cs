@@ -1227,7 +1227,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             string json = schema.ToString();
 
-            Assert.AreEqual(@"{
+            StringAssert.AreEqual(@"{
   ""type"": ""object"",
   ""properties"": {
     ""y"": {

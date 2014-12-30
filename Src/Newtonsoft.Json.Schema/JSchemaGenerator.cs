@@ -32,6 +32,9 @@ namespace Newtonsoft.Json.Schema
         /// </summary>
         public JSchemaUndefinedIdHandling UndefinedSchemaIdHandling { get; set; }
 
+        /// <summary>
+        /// Gets a collection of <see cref="JSchemaGenerationProvider"/> instances that are used to customize <see cref="JSchema"/> generation.
+        /// </summary>
         public IList<JSchemaGenerationProvider> GenerationProviders
         {
             get

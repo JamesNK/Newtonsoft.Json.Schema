@@ -14,7 +14,7 @@ using Newtonsoft.Json.Utilities;
 
 namespace Newtonsoft.Json.Schema.Infrastructure
 {
-    public static class DataAnnotationHelpers
+    internal static class DataAnnotationHelpers
     {
         private const string RequiredAttributeName = "System.ComponentModel.DataAnnotations.RequiredAttribute";
         private const string MinLengthAttributeName = "System.ComponentModel.DataAnnotations.MinLengthAttribute";

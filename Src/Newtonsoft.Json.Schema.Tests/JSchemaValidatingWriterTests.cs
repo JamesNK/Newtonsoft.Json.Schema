@@ -336,7 +336,7 @@ namespace Newtonsoft.Json.Schema.Tests
             string json = sw.ToString();
             Console.WriteLine(json);
 
-            Assert.AreEqual(@"[
+            StringAssert.AreEqual(@"[
   ""string"",
   null,
   ""e"",

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Newtonsoft.Json.Schema.Infrastructure
 {
-    public sealed class Timer : IDisposable
+    internal sealed class Timer : IDisposable
     {
         private readonly CancellationTokenSource _cancellationTokenSource;
 
@@ -25,7 +25,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 {
                     if (_cancellationTokenSource.IsCancellationRequested)
                         break;
+#pragma warning disable 4014
                     Task.Run(() => tuple.Item1(tuple.Item2));
+#pragma warning restore 4014
                     await Task.Delay(period);
                 }
 
