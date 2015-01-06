@@ -89,6 +89,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         {
             if (_deferedSchemas.Count > 0)
             {
+                List<DeferedSchema> resolvedDeferedSchemas = new List<DeferedSchema>();
+
                 // note that defered schemas could be added while resolving
                 while (_deferedSchemas.Count > 0)
                 {
@@ -96,7 +98,14 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
                     ResolveDeferedSchema(deferedSchema);
 
+                    resolvedDeferedSchemas.Add(deferedSchema);
                     _deferedSchemas.Remove(deferedSchema);
+                }
+
+                foreach (DeferedSchema resolvedDeferedSchema in resolvedDeferedSchemas)
+                {
+                    if (!resolvedDeferedSchema.Success)
+                        throw new JsonException("Could not resolve schema reference '{0}'.".FormatWith(CultureInfo.InvariantCulture, resolvedDeferedSchema.ResolvedReference));
                 }
             }
         }
@@ -111,13 +120,13 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 // kind of hacky
                 if (deferedSchema.ReferenceSchema._extensionData != null)
                 {
-                    foreach (KeyValuePair<string, JToken> keyValuePair in deferedSchema.ReferenceSchema._extensionData)
+                    foreach (KeyValuePair<string, JToken> keyValuePair in deferedSchema.ReferenceSchema._extensionData.ToList())
                     {
                         s.ExtensionData[keyValuePair.Key] = keyValuePair.Value;
                     }
                 }
 
-                deferedSchema.SetSchema(s);
+                deferedSchema.SetResolvedSchema(s);
             }, RootSchema, RootSchema.Id, reference, this);
 
             if (!found)

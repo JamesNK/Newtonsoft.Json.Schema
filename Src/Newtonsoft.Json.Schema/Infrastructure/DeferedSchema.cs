@@ -11,13 +11,28 @@ namespace Newtonsoft.Json.Schema.Infrastructure
     {
         public readonly Uri ResolvedReference;
         public readonly JSchema ReferenceSchema;
-        public readonly Action<JSchema> SetSchema;
+
+        private readonly Action<JSchema> _setSchema;
+        private bool _success;
+
+        public bool Success
+        {
+            get { return _success; }
+        }
 
         public DeferedSchema(Uri resolvedReference, JSchema referenceSchema, Action<JSchema> setSchema)
         {
             ResolvedReference = resolvedReference;
             ReferenceSchema = referenceSchema;
-            SetSchema = setSchema;
+            _setSchema = setSchema;
+        }
+
+        public void SetResolvedSchema(JSchema schema)
+        {
+            _setSchema(schema);
+
+            // successfully
+            _success = (schema.Reference == null);
         }
     }
 }

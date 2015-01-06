@@ -976,6 +976,101 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             }");
 
             Assert.AreEqual(JSchemaType.Integer, schema.Type);
+
+            Assert.AreEqual(@"{
+  ""definitions"": {
+    ""a"": {
+      ""$ref"": ""#""
+    },
+    ""b"": {
+      ""$ref"": ""#""
+    },
+    ""c"": {
+      ""$ref"": ""#""
+    }
+  },
+  ""type"": ""integer""
+}", schema.ToString());
+        }
+
+        [Test]
+        public void ChainedRef()
+        {
+            JSchema schema = JSchema.Parse(@"{
+                ""definitions"": {
+                    ""a"": {""type"": ""integer""},
+                    ""b"": {""$ref"": ""#/definitions/a""},
+                    ""c"": {""$ref"": ""#/definitions/b""}
+                },
+                ""properties"": {
+                    ""id"": {""$ref"": ""#/definitions/c""}
+                }
+            }");
+
+            Assert.AreEqual(JSchemaType.Integer, schema.Properties["id"].Type);
+
+            Console.WriteLine(schema.ToString());
+        }
+
+        [Test]
+        public void InvalidReference()
+        {
+            string json = @"{
+  ""$ref"": ""#/missing""
+}";
+
+            ExceptionAssert.Throws<JsonException>(() =>
+            {
+                JSchemaReader schemaReader = new JSchemaReader(JSchemaDummyResolver.Instance);
+                schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
+            }, "Could not resolve schema reference '#/missing'.");
+        }
+
+        [Test]
+        public void ReferenceSelf()
+        {
+            string json = @"{
+  ""$ref"": ""#""
+}";
+
+            ExceptionAssert.Throws<JsonException>(() =>
+            {
+                JSchemaReader schemaReader = new JSchemaReader(JSchemaDummyResolver.Instance);
+                schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
+            }, "Could not resolve schema reference '#'.");
+        }
+
+        [Test]
+        public void CircularRef()
+        {
+            ExceptionAssert.Throws<JsonException>(() =>
+            {
+                JSchema.Parse(@"{
+                    ""definitions"": {
+                        ""a"": {""$ref"": ""#/definitions/c""},
+                        ""b"": {""$ref"": ""#/definitions/a""},
+                        ""c"": {""$ref"": ""#/definitions/b""}
+                    },
+                    ""properties"": {
+                        ""id"": {""$ref"": ""#/definitions/c""}
+                    }
+                }");
+
+            }, "Could not resolve schema reference '#/definitions/c'.");
+        }
+
+        [Test]
+        public void NestedCircularRef()
+        {
+            ExceptionAssert.Throws<JsonException>(() =>
+            {
+                JSchema.Parse(@"{
+                  ""$ref"": ""#/a"",
+                  ""a"": { ""$ref"": ""#/b"" },
+                  ""b"": { ""$ref"": ""#/a"" }
+                }");
+
+            }, "Could not resolve schema reference '#/a'.");
         }
 
         [Test]
