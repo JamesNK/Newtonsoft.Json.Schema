@@ -583,7 +583,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 
             string json = schema.ToString();
 
-            Assert.AreEqual(@"{
+            StringAssert.AreEqual(@"{
   ""id"": ""root"",
   ""definitions"": {
     ""file"": {

@@ -977,7 +977,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 
             Assert.AreEqual(JSchemaType.Integer, schema.Type);
 
-            Assert.AreEqual(@"{
+            StringAssert.AreEqual(@"{
   ""definitions"": {
     ""a"": {
       ""$ref"": ""#""
