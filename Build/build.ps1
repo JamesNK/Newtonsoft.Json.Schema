@@ -8,6 +8,7 @@
   $buildDocumentation = $false
   $buildNuGet = $true
   $treatWarningsAsErrors = $false
+  $workingName = if ($workingName) {$workingName} else {"Working"}
   
   $baseDir  = resolve-path ..
   $buildDir = "$baseDir\Build"
@@ -15,7 +16,7 @@
   $toolsDir = "$baseDir\Tools"
   $docDir = "$baseDir\Doc"
   $releaseDir = "$baseDir\Release"
-  $workingDir = "$baseDir\Working"
+  $workingDir = "$baseDir\$workingName"
   $builds = @(
     @{Name = "Newtonsoft.Json.Schema"; TestsName = "Newtonsoft.Json.Schema.Tests"; TestsFunction = "NUnitTests"; Constants=$null; FinalDir="Net45"; NuGetDir = "net45"; Framework="net-4.0"; Sign=$true},
     @{Name = "Newtonsoft.Json.Schema.Net40"; TestsName = "Newtonsoft.Json.Schema.Net40.Tests"; TestsFunction = "NUnitTests"; Constants="NET40"; FinalDir="Net40"; NuGetDir = "net40"; Framework="net-4.0"; Sign=$true},
@@ -23,7 +24,7 @@
   )
 }
 
-$framework = '4.0x86'
+framework '4.0x86'
 
 task default -depends Test
 
