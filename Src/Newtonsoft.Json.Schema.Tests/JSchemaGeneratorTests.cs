@@ -193,6 +193,7 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual("OrdinalIgnoreCase", (string)propertySchema.Enum[5]);
         }
 
+#if !NET40
         public class DictionaryWithMinAndMaxLength
         {
             [MinLength(5)]
@@ -259,41 +260,6 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(null, list2.MaximumItems);
         }
 
-        public class NumberWithRange
-        {
-            [System.ComponentModel.DataAnnotations.RangeAttribute(5, 10)]
-            public int IntegerProperty { get; set; }
-            [System.ComponentModel.DataAnnotations.RangeAttribute(5.5, 10.5)]
-            public decimal DecimalProperty { get; set; }
-            [System.ComponentModel.DataAnnotations.RangeAttribute(0.5, 1.5)]
-            public double DoubleProperty { get; set; }
-        }
-
-        [Test]
-        public void NumberWithRangeTests()
-        {
-            JSchemaGenerator generator = new JSchemaGenerator();
-            JSchema schema = generator.Generate(typeof(NumberWithRange));
-
-            JSchema integerProperty = schema.Properties["IntegerProperty"];
-            JSchema decimalProperty = schema.Properties["DecimalProperty"];
-            JSchema doubleProperty = schema.Properties["DoubleProperty"];
-
-            Assert.AreEqual(JSchemaType.Integer, integerProperty.Type);
-            Assert.AreEqual(5, integerProperty.Minimum);
-            Assert.AreEqual(10, integerProperty.Maximum);
-
-            Assert.AreEqual(JSchemaType.Float, decimalProperty.Type);
-            Assert.AreEqual(5.5, decimalProperty.Minimum);
-            Assert.AreEqual(10.5, decimalProperty.Maximum);
-
-            Assert.AreEqual(JSchemaType.Float, doubleProperty.Type);
-            Assert.AreEqual(0.5, doubleProperty.Minimum);
-            Assert.AreEqual(1.5, doubleProperty.Maximum);
-
-            Console.WriteLine(schema.ToString());
-        }
-
         public class StringWithMinAndMaxLength
         {
             [MinLength(5)]
@@ -325,36 +291,6 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(JSchemaType.String | JSchemaType.Null, string2.Type);
             Assert.AreEqual(null, string2.MinimumLength);
             Assert.AreEqual(null, string2.MaximumLength);
-
-            Console.WriteLine(schema.ToString());
-        }
-
-        public class EnumWithEnumDataType
-        {
-            [EnumDataType(typeof(StringComparison))]
-            public string String1 { get; set; }
-            public string String2 { get; set; }
-            [EnumDataType(typeof(StringComparison))]
-            public int Integer1 { get; set; }
-            public int Integer2 { get; set; }
-        }
-
-        [Test]
-        public void EnumWithEnumDataTypeTest()
-        {
-            JSchemaGenerator generator = new JSchemaGenerator();
-            JSchema schema = generator.Generate(typeof(EnumWithEnumDataType));
-
-            JSchema string1 = schema.Properties["String1"];
-            JSchema integer = schema.Properties["Integer1"];
-
-            Assert.AreEqual(JSchemaType.String | JSchemaType.Null, string1.Type);
-            Assert.AreEqual(6, string1.Enum.Count);
-            Assert.AreEqual("CurrentCulture", (string)string1.Enum[0]);
-
-            Assert.AreEqual(JSchemaType.Integer, integer.Type);
-            Assert.AreEqual(6, integer.Enum.Count);
-            Assert.AreEqual(0, (int)integer.Enum[0]);
 
             Console.WriteLine(schema.ToString());
         }
@@ -424,6 +360,72 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual("email", schema.Properties["String10"].Format);
             Assert.AreEqual(0, schema.Properties["String11"].MinimumLength);
             Assert.AreEqual(50, schema.Properties["String11"].MaximumLength);
+
+            Console.WriteLine(schema.ToString());
+        }
+#endif
+
+        public class NumberWithRange
+        {
+            [System.ComponentModel.DataAnnotations.RangeAttribute(5, 10)]
+            public int IntegerProperty { get; set; }
+            [System.ComponentModel.DataAnnotations.RangeAttribute(5.5, 10.5)]
+            public decimal DecimalProperty { get; set; }
+            [System.ComponentModel.DataAnnotations.RangeAttribute(0.5, 1.5)]
+            public double DoubleProperty { get; set; }
+        }
+
+        [Test]
+        public void NumberWithRangeTests()
+        {
+            JSchemaGenerator generator = new JSchemaGenerator();
+            JSchema schema = generator.Generate(typeof(NumberWithRange));
+
+            JSchema integerProperty = schema.Properties["IntegerProperty"];
+            JSchema decimalProperty = schema.Properties["DecimalProperty"];
+            JSchema doubleProperty = schema.Properties["DoubleProperty"];
+
+            Assert.AreEqual(JSchemaType.Integer, integerProperty.Type);
+            Assert.AreEqual(5, integerProperty.Minimum);
+            Assert.AreEqual(10, integerProperty.Maximum);
+
+            Assert.AreEqual(JSchemaType.Float, decimalProperty.Type);
+            Assert.AreEqual(5.5, decimalProperty.Minimum);
+            Assert.AreEqual(10.5, decimalProperty.Maximum);
+
+            Assert.AreEqual(JSchemaType.Float, doubleProperty.Type);
+            Assert.AreEqual(0.5, doubleProperty.Minimum);
+            Assert.AreEqual(1.5, doubleProperty.Maximum);
+
+            Console.WriteLine(schema.ToString());
+        }
+
+        public class EnumWithEnumDataType
+        {
+            [EnumDataType(typeof(StringComparison))]
+            public string String1 { get; set; }
+            public string String2 { get; set; }
+            [EnumDataType(typeof(StringComparison))]
+            public int Integer1 { get; set; }
+            public int Integer2 { get; set; }
+        }
+
+        [Test]
+        public void EnumWithEnumDataTypeTest()
+        {
+            JSchemaGenerator generator = new JSchemaGenerator();
+            JSchema schema = generator.Generate(typeof(EnumWithEnumDataType));
+
+            JSchema string1 = schema.Properties["String1"];
+            JSchema integer = schema.Properties["Integer1"];
+
+            Assert.AreEqual(JSchemaType.String | JSchemaType.Null, string1.Type);
+            Assert.AreEqual(6, string1.Enum.Count);
+            Assert.AreEqual("CurrentCulture", (string)string1.Enum[0]);
+
+            Assert.AreEqual(JSchemaType.Integer, integer.Type);
+            Assert.AreEqual(6, integer.Enum.Count);
+            Assert.AreEqual(0, (int)integer.Enum[0]);
 
             Console.WriteLine(schema.ToString());
         }

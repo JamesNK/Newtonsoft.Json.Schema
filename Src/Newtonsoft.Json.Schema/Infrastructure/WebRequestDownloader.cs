@@ -22,7 +22,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             Task<WebResponse> result = Task.Factory.FromAsync(
                 request.BeginGetResponse,
                 new Func<IAsyncResult, WebResponse>(request.EndGetResponse), null);
+#if !NET40
             result.ConfigureAwait(false);
+#endif
 
             WebResponse response = result.Result;
 

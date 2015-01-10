@@ -9,6 +9,7 @@
     <language>en-US</language>
     <projectUrl>http://www.newtonsoft.com</projectUrl>
     <licenseUrl>https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md</licenseUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <tags>json</tags>
   </metadata>
 </package>

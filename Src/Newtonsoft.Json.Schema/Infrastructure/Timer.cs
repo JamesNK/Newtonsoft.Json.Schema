@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace Newtonsoft.Json.Schema.Infrastructure
 {
+#if PORTABLE
     internal sealed class Timer : IDisposable
     {
         private readonly CancellationTokenSource _cancellationTokenSource;
@@ -39,4 +40,5 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             _cancellationTokenSource.Cancel();
         }
     }
+#endif
 }
