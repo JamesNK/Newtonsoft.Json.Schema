@@ -10,6 +10,8 @@ using Newtonsoft.Json.Schema.Infrastructure.Licensing;
 
 #if PORTABLE
 [assembly: AssemblyTitle("Json.NET Schema Portable")]
+#elif NET40
+[assembly: AssemblyTitle("Json.NET Schema .NET 4.0")]
 #else
 [assembly: AssemblyTitle("Json.NET Schema")]
 #endif

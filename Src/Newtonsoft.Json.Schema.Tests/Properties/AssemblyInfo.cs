@@ -8,7 +8,9 @@ using System.Runtime.InteropServices;
 using Newtonsoft.Json.Schema.Infrastructure.Licensing;
 
 #if PORTABLE
-[assembly: AssemblyTitle("Json.NET Schema Portable Tests")]
+[assembly: AssemblyTitle("Json.NET Schema Tests Portable")]
+#elif NET40
+[assembly: AssemblyTitle("Json.NET Schema Tests .NET 4.0")]
 #else
 [assembly: AssemblyTitle("Json.NET Schema Tests")]
 #endif
