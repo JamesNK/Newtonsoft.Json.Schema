@@ -5,7 +5,7 @@
   $version = GetVersion $majorWithReleaseVersion
   $signAssemblies = $false
   $signKeyPath = "C:\Development\Releases\newtonsoft.snk"
-  $buildDocumentation = $true
+  $buildDocumentation = $false
   $buildNuGet = $true
   $treatWarningsAsErrors = $false
   
@@ -60,7 +60,29 @@ task Build -depends Clean {
 
       Write-Host
       Write-Host "Restoring"
-      exec { .\Tools\NuGet\NuGet.exe restore ".\Src\$name.sln" | Out-Default } "Error restoring $name"
+      try
+      {
+        $xmlPath = "$sourceDir\NuGet.Config"
+        $xml = [xml](Get-Content $xmlPath)
+        $xpath = "/configuration/packageSources/add[@key='Json.NET']/@value"
+
+        $jsonNetPackageSourceOld = $xml.SelectSingleNode($xpath).Value
+        $jsonNetPackageSource = if ($sign) { "https://www.myget.org/F/json-net/api/v2" } else { "https://www.myget.org/F/json-net-unsigned/api/v2" }
+
+        Write-Host "Updating Json.NET package source to " $jsonNetPackageSource
+
+        Edit-XmlNodes -doc $xml -xpath $xpath -value $jsonNetPackageSource
+        $xml.save($xmlPath)
+
+        exec { .\Tools\NuGet\NuGet.exe restore ".\Src\$name.sln" "-NoCache" | Out-Default } "Error restoring $name"
+      }
+      finally
+      {
+        Write-Host "Resetting Json.NET package source back to " $jsonNetPackageSourceOld
+
+        Edit-XmlNodes -doc $xml -xpath $xpath -value $jsonNetPackageSourceOld
+        $xml.save($xmlPath)
+      }
 
       Write-Host
       Write-Host "Building"
@@ -251,5 +273,25 @@ function Update-AssemblyInfoFiles ([string] $sourceDir, [string] $assemblyVersio
             % {$_ -replace $assemblyVersionPattern, $assemblyVersion } |
             % {$_ -replace $fileVersionPattern, $fileVersion }
         } | Set-Content $filename
+    }
+}
+
+function Edit-XmlNodes {
+param (
+    [xml] $doc,
+    [string] $xpath = $(throw "xpath is a required parameter"),
+    [string] $value = $(throw "value is a required parameter")
+)
+    $nodes = $doc.SelectNodes($xpath)
+    
+    foreach ($node in $nodes) {
+        if ($node -ne $null) {
+            if ($node.NodeType -eq "Element") {
+                $node.InnerXml = $value
+            }
+            else {
+                $node.Value = $value
+            }
+        }
     }
 }
