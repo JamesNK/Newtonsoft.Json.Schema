@@ -108,7 +108,6 @@ task Package -depends Build {
     Copy-Item -Path "$buildDir\Newtonsoft.Json.Schema.nuspec" -Destination $workingDir\NuGet\Newtonsoft.Json.Schema.nuspec -recurse
 
     New-Item -Path $workingDir\NuGet\tools -ItemType Directory
-    Copy-Item -Path "$buildDir\install.ps1" -Destination $workingDir\NuGet\tools\install.ps1 -recurse
     
     foreach ($build in $builds)
     {
