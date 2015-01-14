@@ -33,7 +33,7 @@
     </BuildLogFile>
     <HelpFileFormat>Website</HelpFileFormat>
     <FrameworkVersion>.NET Framework 4.5</FrameworkVersion>
-    <HelpTitle>Json.NET Documentation</HelpTitle>
+    <HelpTitle>Json.NET Schema Documentation</HelpTitle>
     <PresentationStyle>VS2013</PresentationStyle>
     <NamingMethod>MemberName</NamingMethod>
     <DocumentationSourcePath>..\Src\Newtonsoft.Json.Schema\bin\Release\Net45</DocumentationSourcePath>
