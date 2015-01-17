@@ -7,7 +7,7 @@
 
 <alert class="information">
   <para>
-    You do not need to specify the version of the JSON Schema you are loading. When loading an older schema (e.g. draft 3) renamed properties and features will automatically be mapped to their new names.
+    You do not need to specify the version of the JSON Schema you are loading. When loading an older schema (e.g. draft 3) renamed schema properties and features will automatically be mapped to their new names.
   </para>
 </alert>
 
@@ -18,7 +18,7 @@
 
 <code lang="cs" source="..\Src\Newtonsoft.Json.Schema.Tests\Documentation\LoadingSchemas.cs" region="ParseString" title="Parse JSON Schema string" />
 
-<para>Schemas can also be loaded from a JsonReader using <codeEntityReference>M:Newtonsoft.Json.Schema.JSchema.Read(Newtonsoft.Json.JsonReader)</codeEntityReference>. This is useful when loading a schema from a file using a FileStream.</para>
+<para>Schemas can also be loaded from a <codeEntityReference>T:Newtonsoft.Json.JsonReader</codeEntityReference> using <codeEntityReference>M:Newtonsoft.Json.Schema.JSchema.Read(Newtonsoft.Json.JsonReader)</codeEntityReference>. This is useful when loading a schema from a file using a <codeEntityReference>T:System.IO.FileStream</codeEntityReference>.</para>
 
 <code lang="cs" source="..\Src\Newtonsoft.Json.Schema.Tests\Documentation\LoadingSchemas.cs" region="ReadFile" title="Load JSON Schema file" />
 
@@ -28,13 +28,13 @@
 <section>
   <title>Resolving externally referenced schemas</title>
 <content>
-<para>JSON schemas can reference an external schema. This is typically done with a URL that points to where the external schema is publically hosted on the internet. Json.NET Schema supports resolving externally hosted schemas with <codeEntityReference>T:Newtonsoft.Json.Schema.JSchemaResolver</codeEntityReference>. The Parse and Load methods on JSchema each have overloads that take a schema resolver.</para>
+<para>A JSON schema can reference external schemas. References are typically a URL that points to where the external schema is publically hosted on the internet. Json.NET Schema supports resolving external schemas with <codeEntityReference>T:Newtonsoft.Json.Schema.JSchemaResolver</codeEntityReference>. The Parse and Load methods on JSchema each have overloads that take a schema resolver.</para>
 
 <code lang="cs" source="..\Src\Newtonsoft.Json.Schema.Tests\Documentation\LoadingSchemas.cs" region="JSchemaUrlResolver" title="Resolve an external schema with JSchemaUrlResolver" />
 
-<para>Json.NET Schema comes with two resolvers. <codeEntityReference>T:Newtonsoft.Json.Schema.JSchemaUrlResolver</codeEntityReference> resolves URL schema references by downloading the content at that URL and attempting to load it as a schema.</para>
+<para>Json.NET Schema comes with two resolvers. <codeEntityReference>T:Newtonsoft.Json.Schema.JSchemaUrlResolver</codeEntityReference> resolves URL schema references, downloading the URLs content and loading it as a schema.</para>
 
-<para>The second resolver, <codeEntityReference>T:Newtonsoft.Json.Schema.JSchemaPreloadedResolver</codeEntityReference>, allows you to manually load a schema then associate it with the resolver using an ID. The resolver will return your schema when that ID is referenced. This is useful if you don't want to rely on a third party website being available when resolving an external reference, and would prefer to copy the schema into your website and load it yourself.</para>
+<para>The second resolver, <codeEntityReference>T:Newtonsoft.Json.Schema.JSchemaPreloadedResolver</codeEntityReference>, allows you to manually load a schema then associate it with the resolver using an ID. The resolver will return the schema associated with a given ID during loading. Preloading is useful if you don't want to rely on a third party website being available when resolving an external schema reference, and would prefer to copy the schema file into your application and load it yourself.</para>
 
 <code lang="cs" source="..\Src\Newtonsoft.Json.Schema.Tests\Documentation\LoadingSchemas.cs" region="JSchemaPreloadedResolver" title="Resolve an external schema with JSchemaUrlResolver" />
 

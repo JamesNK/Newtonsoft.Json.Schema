@@ -41,11 +41,13 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
     [TestFixture]
     public class GeneratingSchemas : TestFixtureBase
     {
+        #region PersonClass
         public class Person
         {
             public string Name { get; set; }
             public int Age { get; set; }
         }
+        #endregion
 
         [Test]
         public void BasicGeneration()
@@ -123,6 +125,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
         }
 
 #if !NET40
+        #region BuildingClass
         public class Building
         {
             [Required]
@@ -142,6 +145,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
             Commercial,
             Industrial
         }
+        #endregion
 
         [Test]
         public void DataAnnotations()
@@ -208,12 +212,12 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
             //  "required": [ "Date", "Zone" ]
             //}
 
-            JSchemaGenerator generator2 = new JSchemaGenerator();
+            JSchemaGenerator stringEnumGenerator = new JSchemaGenerator();
 
             // change Zone enum to generate a string
-            generator2.GenerationProviders.Add(new StringEnumGenerationProvider());
+            stringEnumGenerator.GenerationProviders.Add(new StringEnumGenerationProvider());
 
-            JSchema stringEnumSchema = generator2.Generate(typeof(BuildingReport));
+            JSchema stringEnumSchema = stringEnumGenerator.Generate(typeof(BuildingReport));
             //{
             //  "type": "object",
             //  "properties": {

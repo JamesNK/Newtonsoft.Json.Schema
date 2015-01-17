@@ -17,13 +17,15 @@
 <content>
 <para>Schema generation is performed by the <codeEntityReference>T:Newtonsoft.Json.Schema.JSchemaGenerator</codeEntityReference> object. It will map .NET objects, collections, properties and their attributes to their JSON Schema equivilent. The generated schema will successfully validate JSON produced when serializing instances of that type.</para>
 
+<code lang="cs" source="..\Src\Newtonsoft.Json.Schema.Tests\Documentation\GeneratingSchemas.cs" region="PersonClass" title=".NET type" />
+
 <code lang="cs" source="..\Src\Newtonsoft.Json.Schema.Tests\Documentation\GeneratingSchemas.cs" region="BasicGeneration" title="Generate a JSON Schema from a .NET type" />
 
-<para><codeEntityReference>T:Newtonsoft.Json.Schema.JSchemaGenerator</codeEntityReference> has a number of options. A <codeEntityReference>T:Newtonsoft.Json.Serialization.IContractResolver</codeEntityReference> will customize the schema generated when reflecting over the type's properties and collections.</para>
+<para><codeEntityReference>T:Newtonsoft.Json.Schema.JSchemaGenerator</codeEntityReference> has a number of options to customize output. An <codeEntityReference>T:Newtonsoft.Json.Serialization.IContractResolver</codeEntityReference> will customize how the type's properties and collections will be reflected over.</para>
 
 <code lang="cs" source="..\Src\Newtonsoft.Json.Schema.Tests\Documentation\GeneratingSchemas.cs" region="IContractResolver" title="Generate a JSON Schema using a IContractResolver" />
 
-The <codeEntityReference>T:Newtonsoft.Json.Schema.JSchemaUndefinedIdHandling</codeEntityReference> option is used to control whether types with no ID defined have one infered from their type name.
+<codeEntityReference>T:Newtonsoft.Json.Schema.JSchemaUndefinedIdHandling</codeEntityReference> is used to control whether types with no ID defined have one infered from their type name.
 
 <code lang="cs" source="..\Src\Newtonsoft.Json.Schema.Tests\Documentation\GeneratingSchemas.cs" region="JSchemaUndefinedIdHandling" title="Generate a JSON Schema using JSchemaUndefinedIdHandling" />
 
@@ -36,60 +38,62 @@ The <codeEntityReference>T:Newtonsoft.Json.Schema.JSchemaUndefinedIdHandling</co
 <content>
 <para><codeEntityReference>T:Newtonsoft.Json.Schema.JSchemaGenerator</codeEntityReference> will look for .NET Data Annotation attributes when generating a schema.</para>
 
+<code lang="cs" source="..\Src\Newtonsoft.Json.Schema.Tests\Documentation\GeneratingSchemas.cs" region="BuildingClass" title=".NET type with Data Annotations" />
+
 <code lang="cs" source="..\Src\Newtonsoft.Json.Schema.Tests\Documentation\GeneratingSchemas.cs" region="DataAnnotations" title="Schema generation with Data Annotations" />
 
-<para>The Data Annotation attributes used when generating a schema:</para>
+<para>The Data Annotation attributes used when generating a schema and their effect:</para>
 
 <table>
   <tableHeader>
     <row>
-      <entry><para>Annotation</para></entry>
+      <entry><para>Data Annotation</para></entry>
       <entry><para>Effect</para></entry>
     </row>
   </tableHeader>
   <row>
     <entry><para><codeEntityReference>T:System.ComponentModel.DataAnnotations.RequiredAttribute</codeEntityReference></para></entry>
-    <entry><para>The property will be required.</para></entry>
+    <entry><para>Property will be required.</para></entry>
   </row>
   <row>
     <entry><para><codeEntityReference>T:System.ComponentModel.DataAnnotations.MinLengthAttribute</codeEntityReference></para></entry>
-    <entry><para>The minimum length of a string or the minimum number of items in an array.</para></entry>
+    <entry><para>minLength of a string or the minItems in an array.</para></entry>
   </row>
   <row>
     <entry><para><codeEntityReference>T:System.ComponentModel.DataAnnotations.MaxLengthAttribute</codeEntityReference></para></entry>
-    <entry><para>The maximum length of a string or the maximum number of items in an array.</para></entry>
+    <entry><para>maxLength of a string or the maxItems in an array.</para></entry>
   </row>
   <row>
     <entry><para><codeEntityReference>T:System.ComponentModel.DataAnnotations.RegularExpressionAttribute</codeEntityReference></para></entry>
-    <entry><para>The string pattern.</para></entry>
+    <entry><para>String pattern.</para></entry>
   </row>
   <row>
     <entry><para><codeEntityReference>T:System.ComponentModel.DataAnnotations.RangeAttribute</codeEntityReference></para></entry>
-    <entry><para>The number minimum and maximum values.</para></entry>
+    <entry><para>Number min and max values.</para></entry>
   </row>
   <row>
     <entry><para><codeEntityReference>T:System.ComponentModel.DataAnnotations.StringLengthAttribute</codeEntityReference></para></entry>
-    <entry><para>The string minimum length and maximum length.</para></entry>
+    <entry><para>String minLength and maxLength.</para></entry>
   </row>
   <row>
     <entry><para><codeEntityReference>T:System.ComponentModel.DataAnnotations.EnumDataTypeAttribute</codeEntityReference></para></entry>
-    <entry><para>The <codeEntityReference>T:System.Enum</codeEntityReference> to generate enum values from.</para></entry>
+    <entry><para><codeEntityReference>T:System.Enum</codeEntityReference> type used to generate enum values from.</para></entry>
   </row>
   <row>
     <entry><para><codeEntityReference>T:System.ComponentModel.DataAnnotations.DataTypeAttribute</codeEntityReference></para></entry>
-    <entry><para>The string format. Supports Url, Date, Time, DateTime, EmailAddress, PhoneNumber.</para></entry>
+    <entry><para>String format depending on the <codeEntityReference>T:System.ComponentModel.DataAnnotations.DataType</codeEntityReference> value. Supports Url, Date, Time, DateTime, EmailAddress, PhoneNumber.</para></entry>
   </row>
   <row>
     <entry><para><codeEntityReference>T:System.ComponentModel.DataAnnotations.UrlAttribute</codeEntityReference></para></entry>
-    <entry><para>The string <b>uri</b> format.</para></entry>
+    <entry><para>String uri format.</para></entry>
   </row>
   <row>
     <entry><para><codeEntityReference>T:System.ComponentModel.DataAnnotations.PhoneAttribute</codeEntityReference></para></entry>
-    <entry><para>The string <b>phone</b> format.</para></entry>
+    <entry><para>String phone format.</para></entry>
   </row>
   <row>
     <entry><para><codeEntityReference>T:System.ComponentModel.DataAnnotations.EmailAddressAttribute</codeEntityReference></para></entry>
-    <entry><para>The string <b>email</b> format.</para></entry>
+    <entry><para>String email format.</para></entry>
   </row>
 </table>
 
@@ -101,7 +105,9 @@ The <codeEntityReference>T:Newtonsoft.Json.Schema.JSchemaUndefinedIdHandling</co
   <title>Control Schema Generation with JSchemaGenerationProvider</title>
 <content>
 
-<para><codeEntityReference>T:Newtonsoft.Json.Schema.Generation.JSchemaGenerationProvider</codeEntityReference> lets you take over schema generation for a type. An example of where this is useful is changing the schema generation for <codeEntityReference>T:System.Enum</codeEntityReference> types to have string enum values instead of int enum values.</para>
+<para><codeEntityReference>T:Newtonsoft.Json.Schema.Generation.JSchemaGenerationProvider</codeEntityReference> lets you take over schema generation for a type. An example of where this is useful is changing the schema generation for <codeEntityReference>T:System.Enum</codeEntityReference> types from int enum values to string enum values.</para>
+
+<code lang="cs" source="..\Src\Newtonsoft.Json.Schema.Tests\Documentation\GeneratingSchemas.cs" region="BuildingClass" title=".NET type with Data Annotations" />
 
 <code lang="cs" source="..\Src\Newtonsoft.Json.Schema.Tests\Documentation\GeneratingSchemas.cs" region="JSchemaGenerationProvider" title="Schema generation with JSchemaGenerationProvider" />
 

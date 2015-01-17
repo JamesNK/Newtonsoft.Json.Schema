@@ -14,13 +14,13 @@
 <content>
 <list class="bullet">
    <listItem>
-        <para>100% support for JSON Schema Draft 3 and 4</para>
+        <para>Support 100% of JSON Schema Draft 3 and 4</para>
     </listItem>
    <listItem>
-        <para>Quickly validate LINQ to JSON objects with easy to use helper methods</para>
+        <para>Easy to use validation helper methods</para>
     </listItem>
    <listItem>
-        <para>Validate JSON as you read and write it with the validating JSON reader and writer</para>
+        <para>Efficently validate JSON as you read and write it</para>
     </listItem>
    <listItem>
         <para>Generate JSON Schemas from .NET types, with support for .NET's DataAnnotations attributes</para>
@@ -30,7 +30,7 @@
     </listItem>
 
 </list>
-<para>Json.NET Schema's validation helper methods are the easiest way to get started validating JSON schemas.</para>
+<para>Json.NET Schema's validation helper methods are the fastest way to get started validating JSON schemas.</para>
 <para>For more advanced scenarios where you want to validate JSON as you read or write it then the JSchemaValidatingReader and JSchemaValidatingWriter are a good choice.</para>
 </content>
 </section>
