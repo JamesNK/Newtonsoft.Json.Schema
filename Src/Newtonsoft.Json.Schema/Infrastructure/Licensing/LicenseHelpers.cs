@@ -17,41 +17,63 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Licensing
     {
         private static readonly object Lock;
 
-        private static long _operationCount;
+        private static long _validationCount;
+        private static long _generationCount;
         private static LicenseDetails _registeredLicense;
-        private static Timer _operationResetTimer;
+        private static Timer _resetTimer;
 
         static LicenseHelpers()
         {
             Lock = new object();
         }
 
-        internal static void ResetOperationCount(object state)
+        internal static void ResetCounts(object state)
         {
-            _operationCount = 0;
+            _validationCount = 0;
+            _generationCount = 0;
         }
 
-        public static void IncrementAndCheckOperationCount()
+        public static void IncrementAndCheckValidationCount()
         {
             if (_registeredLicense != null)
                 return;
 
-            if (_operationResetTimer == null)
+            EnsureResetTimer();
+
+            const int maxOperationCount = 1000;
+            Interlocked.Increment(ref _validationCount);
+
+            if (_validationCount > maxOperationCount)
+                throw new JsonException("The free-quota limit of {0} schema validations per hour has been reached. Please visit http://www.newtonsoft.com to upgrade to a commercial license.".FormatWith(CultureInfo.InvariantCulture, maxOperationCount));
+        }
+
+        public static void IncrementAndCheckGenerationCount()
+        {
+            if (_registeredLicense != null)
+                return;
+
+            EnsureResetTimer();
+
+            const int maxOperationCount = 10;
+            Interlocked.Increment(ref _generationCount);
+
+            if (_generationCount > maxOperationCount)
+                throw new JsonException("The free-quota limit of {0} schema generations per hour has been reached. Please visit http://www.newtonsoft.com to upgrade to a commercial license.".FormatWith(CultureInfo.InvariantCulture, maxOperationCount));
+        }
+
+        private static void EnsureResetTimer()
+        {
+            if (_resetTimer == null)
             {
                 lock (Lock)
                 {
-                    if (_operationResetTimer == null)
+                    if (_resetTimer == null)
                     {
-                        _operationResetTimer = new Timer(ResetOperationCount, null, 0, Convert.ToInt32(TimeSpan.FromHours(1).TotalMilliseconds));
+                        Thread.MemoryBarrier();
+                        _resetTimer = new Timer(ResetCounts, null, 0, Convert.ToInt32(TimeSpan.FromHours(1).TotalMilliseconds));
                     }
                 }
             }
-
-            const int maxOperationCount = 1000;
-            Interlocked.Increment(ref _operationCount);
-
-            if (_operationCount > maxOperationCount)
-                throw new JsonException("The free-quota limit of {0} schema validations per hour has been reached. Please visit http://www.newtonsoft.com to upgrade to a commercial license.".FormatWith(CultureInfo.InvariantCulture, maxOperationCount));
         }
 
         internal static T[] SubArray<T>(this T[] data, int index, int length)
@@ -128,10 +150,10 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Licensing
         private static void SetRegisteredLicense(LicenseDetails license)
         {
             _registeredLicense = license;
-            if (_operationResetTimer != null)
+            if (_resetTimer != null)
             {
-                _operationResetTimer.Dispose();
-                _operationResetTimer = null;
+                _resetTimer.Dispose();
+                _resetTimer = null;
             }
         }
     }

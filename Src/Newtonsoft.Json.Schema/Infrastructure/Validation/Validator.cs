@@ -73,7 +73,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 if (Schema == null)
                     throw new JsonException("No schema has been set for the validator.");
 
-                LicenseHelpers.IncrementAndCheckOperationCount();
+                LicenseHelpers.IncrementAndCheckValidationCount();
                 SchemaScope.CreateTokenScope(token, Schema, _context, null, depth);
             }
 

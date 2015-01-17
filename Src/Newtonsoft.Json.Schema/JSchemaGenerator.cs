@@ -12,6 +12,7 @@ using System.Reflection;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema.Generation;
 using Newtonsoft.Json.Schema.Infrastructure;
+using Newtonsoft.Json.Schema.Infrastructure.Licensing;
 using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json.Utilities;
 
@@ -116,6 +117,8 @@ namespace Newtonsoft.Json.Schema
             ValidationUtils.ArgumentNotNull(resolver, "resolver");
 
             _resolver = resolver;
+
+            LicenseHelpers.IncrementAndCheckGenerationCount();
 
             return GenerateInternal(type, (!rootSchemaNullable) ? Required.Always : Required.Default, null, null);
         }

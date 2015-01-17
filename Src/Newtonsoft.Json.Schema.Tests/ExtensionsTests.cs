@@ -6,6 +6,7 @@
 using System.Linq;
 using System;
 using System.Collections.Generic;
+using Newtonsoft.Json.Schema.Infrastructure.Licensing;
 using Newtonsoft.Json.Schema.Tests.TestObjects;
 #if NETFX_CORE
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
@@ -144,6 +145,8 @@ namespace Newtonsoft.Json.Schema.Tests
 
         private void GenerateSchemaAndSerializeFromType<T>(T value)
         {
+            LicenseHelpers.ResetCounts(null);
+
             JSchemaGenerator generator = new JSchemaGenerator();
             generator.UndefinedSchemaIdHandling = JSchemaUndefinedIdHandling.UseAssemblyQualifiedName;
             JSchema typeSchema = generator.Generate(typeof(T));

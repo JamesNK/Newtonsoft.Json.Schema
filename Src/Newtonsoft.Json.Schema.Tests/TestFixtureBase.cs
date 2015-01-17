@@ -46,7 +46,7 @@ namespace Newtonsoft.Json.Schema.Tests
 //            Thread.CurrentThread.CurrentUICulture = turkey;
 //#endif
 
-            LicenseHelpers.ResetOperationCount(null);
+            LicenseHelpers.ResetCounts(null);
         }
 
         protected void WriteEscapedJson(string json)
