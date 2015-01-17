@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<topic id="GeneratingSchemas" revisionNumber="1">
+  <developerConceptualDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <introduction>
+      <para>Json.NET Schema represents schemas using the strongly typed <codeEntityReference>T:Newtonsoft.Json.Schema.JSchema</codeEntityReference> object.</para>
+    </introduction>
+
+<alert class="information">
+  <para>
+    You do not need to specify the version of the JSON Schema you are loading. When loading an older schema (e.g. draft 3) renamed properties and features will automatically be mapped to their new names.
+  </para>
+</alert>
+
+
+<section>
+  <title>Generate JSON Schemas from .NET types</title>
+<content>
+<para>Schema generation is performed by the <codeEntityReference>T:Newtonsoft.Json.Schema.JSchemaGenerator</codeEntityReference> object. It will map .NET objects, collections, properties and their attributes to their JSON Schema equivilent. The generated schema will successfully validate JSON produced when serializing instances of that type.</para>
+
+<code lang="cs" source="..\Src\Newtonsoft.Json.Schema.Tests\Documentation\GeneratingSchemas.cs" region="BasicGeneration" title="Generate a JSON Schema from a .NET type" />
+
+<para><codeEntityReference>T:Newtonsoft.Json.Schema.JSchemaGenerator</codeEntityReference> has a number of options. A <codeEntityReference>T:Newtonsoft.Json.Serialization.IContractResolver</codeEntityReference> will customize the schema generated when reflecting over the type's properties and collections.</para>
+
+<code lang="cs" source="..\Src\Newtonsoft.Json.Schema.Tests\Documentation\GeneratingSchemas.cs" region="IContractResolver" title="Generate a JSON Schema using a IContractResolver" />
+
+The <codeEntityReference>T:Newtonsoft.Json.Schema.JSchemaUndefinedIdHandling</codeEntityReference> option is used to control whether types with no ID defined have one infered from their type name.
+
+<code lang="cs" source="..\Src\Newtonsoft.Json.Schema.Tests\Documentation\GeneratingSchemas.cs" region="JSchemaUndefinedIdHandling" title="Generate a JSON Schema using JSchemaUndefinedIdHandling" />
+
+</content>
+</section>
+
+
+<section>
+  <title>Using Data Annotation attributes</title>
+<content>
+<para><codeEntityReference>T:Newtonsoft.Json.Schema.JSchemaGenerator</codeEntityReference> will look for .NET Data Annotation attributes when generating a schema.</para>
+
+<code lang="cs" source="..\Src\Newtonsoft.Json.Schema.Tests\Documentation\GeneratingSchemas.cs" region="DataAnnotations" title="Schema generation with Data Annotations" />
+
+<para>The Data Annotation attributes used when generating a schema:</para>
+
+<table>
+  <tableHeader>
+    <row>
+      <entry><para>Annotation</para></entry>
+      <entry><para>Effect</para></entry>
+    </row>
+  </tableHeader>
+  <row>
+    <entry><para><codeEntityReference>T:System.ComponentModel.DataAnnotations.RequiredAttribute</codeEntityReference></para></entry>
+    <entry><para>The property will be required.</para></entry>
+  </row>
+  <row>
+    <entry><para><codeEntityReference>T:System.ComponentModel.DataAnnotations.MinLengthAttribute</codeEntityReference></para></entry>
+    <entry><para>The minimum length of a string or the minimum number of items in an array.</para></entry>
+  </row>
+  <row>
+    <entry><para><codeEntityReference>T:System.ComponentModel.DataAnnotations.MaxLengthAttribute</codeEntityReference></para></entry>
+    <entry><para>The maximum length of a string or the maximum number of items in an array.</para></entry>
+  </row>
+  <row>
+    <entry><para><codeEntityReference>T:System.ComponentModel.DataAnnotations.RegularExpressionAttribute</codeEntityReference></para></entry>
+    <entry><para>The string pattern.</para></entry>
+  </row>
+  <row>
+    <entry><para><codeEntityReference>T:System.ComponentModel.DataAnnotations.RangeAttribute</codeEntityReference></para></entry>
+    <entry><para>The number minimum and maximum values.</para></entry>
+  </row>
+  <row>
+    <entry><para><codeEntityReference>T:System.ComponentModel.DataAnnotations.StringLengthAttribute</codeEntityReference></para></entry>
+    <entry><para>The string minimum length and maximum length.</para></entry>
+  </row>
+  <row>
+    <entry><para><codeEntityReference>T:System.ComponentModel.DataAnnotations.EnumDataTypeAttribute</codeEntityReference></para></entry>
+    <entry><para>The <codeEntityReference>T:System.Enum</codeEntityReference> to generate enum values from.</para></entry>
+  </row>
+  <row>
+    <entry><para><codeEntityReference>T:System.ComponentModel.DataAnnotations.DataTypeAttribute</codeEntityReference></para></entry>
+    <entry><para>The string format. Supports Url, Date, Time, DateTime, EmailAddress, PhoneNumber.</para></entry>
+  </row>
+  <row>
+    <entry><para><codeEntityReference>T:System.ComponentModel.DataAnnotations.UrlAttribute</codeEntityReference></para></entry>
+    <entry><para>The string <b>uri</b> format.</para></entry>
+  </row>
+  <row>
+    <entry><para><codeEntityReference>T:System.ComponentModel.DataAnnotations.PhoneAttribute</codeEntityReference></para></entry>
+    <entry><para>The string <b>phone</b> format.</para></entry>
+  </row>
+  <row>
+    <entry><para><codeEntityReference>T:System.ComponentModel.DataAnnotations.EmailAddressAttribute</codeEntityReference></para></entry>
+    <entry><para>The string <b>email</b> format.</para></entry>
+  </row>
+</table>
+
+</content>
+</section>
+
+
+<section>
+  <title>Control Schema Generation with JSchemaGenerationProvider</title>
+<content>
+
+<para><codeEntityReference>T:Newtonsoft.Json.Schema.Generation.JSchemaGenerationProvider</codeEntityReference> lets you take over schema generation for a type. An example of where this is useful is changing the schema generation for <codeEntityReference>T:System.Enum</codeEntityReference> types to have string enum values instead of int enum values.</para>
+
+<code lang="cs" source="..\Src\Newtonsoft.Json.Schema.Tests\Documentation\GeneratingSchemas.cs" region="JSchemaGenerationProvider" title="Schema generation with JSchemaGenerationProvider" />
+
+<para>Json.NET Schema includes <codeEntityReference>T:Newtonsoft.Json.Schema.Generation.StringEnumGenerationProvider</codeEntityReference>. Additional schema providers can be created be inheriting from <codeEntityReference>T:Newtonsoft.Json.Schema.Generation.JSchemaGenerationProvider</codeEntityReference></para>.
+
+</content>
+</section>
+
+
+    <relatedTopics>
+      <codeEntityReference>T:Newtonsoft.Json.Schema.JSchemaGenerator</codeEntityReference>
+      <codeEntityReference>T:Newtonsoft.Json.Schema.JSchemaUndefinedIdHandling</codeEntityReference>
+      <codeEntityReference>T:Newtonsoft.Json.Schema.Generation.JSchemaGenerationProvider</codeEntityReference>
+    </relatedTopics>
+
+  </developerConceptualDocument>
+</topic>

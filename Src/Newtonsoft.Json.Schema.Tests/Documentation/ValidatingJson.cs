@@ -37,7 +37,7 @@ using File = Newtonsoft.Json.Schema.Tests.Documentation.Samples.File;
 namespace Newtonsoft.Json.Schema.Tests.Documentation
 {
     [TestFixture]
-    public class JSchemaTests : TestFixtureBase
+    public class ValidatingJson : TestFixtureBase
     {
         [Test]
         public void IsValidBasic()
@@ -48,10 +48,10 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
               'type': 'object',
               'properties':
               {
-                'name': {'type':'string'},
+                'name': {'type': 'string'},
                 'hobbies': {
                   'type': 'array',
-                  'items': {'type':'string'}
+                  'items': {'type': 'string'}
                 }
               }
             }";
@@ -78,10 +78,10 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
                'type': 'object',
                'properties':
                {
-                 'name': {'type':'string'},
+                 'name': {'type': 'string'},
                  'hobbies': {
                    'type': 'array',
-                   'items': {'type':'string'}
+                   'items': {'type': 'string'}
                  }
                }
              }";
@@ -105,11 +105,11 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
         }
 
         [Test]
-        public void JsonValidatingReader()
+        public void JSchemaValidatingReader()
         {
             string schemaJson = "{}";
 
-            #region JsonValidatingReader
+            #region JSchemaValidatingReader
             string json = @"{
               'name': 'James',
               'hobbies': ['.NET', 'Blogging', 'Reading', 'Xbox', 'LOLCATS']
@@ -130,53 +130,41 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
             Assert.AreEqual(0, messages.Count);
         }
 
-        [Test]
-        public void LoadJSchema()
+        public class Person
         {
-            #region LoadJSchema
-            // load from a string
-            JSchema schema1 = JSchema.Parse(@"{'type':'object'}");
-
-            // load from a file
-            using (TextReader reader = File.OpenText(@"c:\schema\Person.json"))
-            {
-                JSchema schema2 = JSchema.Read(new JsonTextReader(reader));
-
-                // do stuff
-            }
-            #endregion
+            public string Name { get; set; }
+            public List<string> Hobbies { get; set; }
         }
 
         [Test]
-        public void ManuallyCreateJSchema()
+        public void JSchemaValidatingWriter()
         {
-            #region ManuallyCreateJSchema
-            JSchema schema = new JSchema()
+            string schemaJson = "{}";
+
+            #region JSchemaValidatingWriter
+            Person person = new Person
             {
-                Type = JSchemaType.Object,
-                Properties =
+                Name = "James",
+                Hobbies = new List<string>
                 {
-                    { "name", new JSchema { Type = JSchemaType.String } },
-                    {
-                        "hobbies", new JSchema
-                        {
-                            Type = JSchemaType.Array,
-                            Items = { new JSchema { Type = JSchemaType.String } }
-                        }
-                    },
+                    ".NET", "Blogging", "Reading", "Xbox", "LOLCATS"
                 }
             };
 
-            JObject person = JObject.Parse(@"{
-              'name': 'James',
-              'hobbies': ['.NET', 'Blogging', 'Reading', 'Xbox', 'LOLCATS']
-            }");
+            StringWriter stringWriter = new StringWriter();
+            JsonTextWriter writer = new JsonTextWriter(stringWriter);
 
-            bool valid = person.IsValid(schema);
-            // true
+            JSchemaValidatingWriter validatingWriter = new JSchemaValidatingWriter(writer);
+            validatingWriter.Schema = JSchema.Parse(schemaJson);
+
+            IList<string> messages = new List<string>();
+            validatingWriter.ValidationEventHandler += (o, a) => messages.Add(a.Message);
+
+            JsonSerializer serializer = new JsonSerializer();
+            serializer.Serialize(validatingWriter, person);
             #endregion
 
-            Assert.IsTrue(valid);
+            Assert.AreEqual(0, messages.Count);
         }
     }
 }

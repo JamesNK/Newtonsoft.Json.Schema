@@ -111,7 +111,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Documentation\JSchemaTests.cs" />
+    <Compile Include="Documentation\GeneratingSchemas.cs" />
+    <Compile Include="Documentation\LoadingSchemas.cs" />
     <Compile Include="Documentation\Samples\Create\CreateJsonSchemaManually.cs" />
     <Compile Include="Documentation\Samples\Create\SaveJsonSchemaToFile.cs" />
     <Compile Include="Documentation\Samples\File.cs" />
@@ -122,6 +123,7 @@
     <Compile Include="Documentation\Samples\Validate\JTokenIsValid.cs" />
     <Compile Include="Documentation\Samples\Validate\JTokenIsValidWithMessages.cs" />
     <Compile Include="Documentation\Samples\Validate\JTokenValidateWithEvent.cs" />
+    <Compile Include="Documentation\ValidatingJson.cs" />
     <Compile Include="Infrastructure\CryptographyHelpersTests.cs" />
     <Compile Include="Infrastructure\EmailHelpersTests.cs" />
     <Compile Include="Infrastructure\JSchemaDiscoveryTests.cs" />

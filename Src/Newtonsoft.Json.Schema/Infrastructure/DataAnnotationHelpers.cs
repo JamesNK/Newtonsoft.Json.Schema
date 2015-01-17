@@ -150,11 +150,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 if (GetAttributeByName(property, EmailAddressAttributeName) != null)
                     return Constants.Formats.Email;
 
-                Attribute regexAttribute = GetAttributeByName(property, DataTypeAttributeName);
-                if (regexAttribute != null)
+                Attribute dataTypeAttribute = GetAttributeByName(property, DataTypeAttributeName);
+                if (dataTypeAttribute != null)
                 {
-                    ReflectionObject o = ReflectionObject.Create(regexAttribute.GetType(), "DataType");
-                    string s = o.GetValue(regexAttribute, "DataType").ToString();
+                    ReflectionObject o = ReflectionObject.Create(dataTypeAttribute.GetType(), "DataType");
+                    string s = o.GetValue(dataTypeAttribute, "DataType").ToString();
                     switch (s)
                     {
                         case "Url":

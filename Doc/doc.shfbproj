@@ -98,6 +98,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Content Include="icons\favicon.ico" />
+    <None Include="GeneratingSchemas.aml" />
+    <None Include="LoadingSchemas.aml" />
+    <None Include="ValidatingJson.aml" />
     <None Include="Samples\Generation\GenerateSchema.aml" />
     <None Include="Samples\Validate\JTokenValidateWithEvent.aml" />
     <None Include="Samples\Validate\JTokenIsValidWithMessages.aml" />
@@ -110,7 +113,6 @@
     <None Include="Samples\Create\CreateJsonSchemaManually.aml" />
     <None Include="Samples\Samples.aml" />
     <None Include="Performance.aml" />
-    <None Include="JsonSchema.aml" />
     <None Include="JsonSchema.aml" />
     <None Include="Introduction.aml" />
   </ItemGroup>

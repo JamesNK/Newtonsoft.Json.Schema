@@ -9,8 +9,44 @@
     <introduction>
       <para>Json.NET Schema is a powerful, complete and easy to use JSON Schema framework for .NET</para>
     </introduction>
-    <!-- Optional procedures followed by optional code example but must have
-         at least one procedure or code example -->
+<section>
+ <title>Benefits and Features</title>
+<content>
+<list class="bullet">
+   <listItem>
+        <para>100% support for JSON Schema Draft 3 and 4</para>
+    </listItem>
+   <listItem>
+        <para>Quickly validate LINQ to JSON objects with easy to use helper methods</para>
+    </listItem>
+   <listItem>
+        <para>Validate JSON as you read and write it with the validating JSON reader and writer</para>
+    </listItem>
+   <listItem>
+        <para>Generate JSON Schemas from .NET types, with support for .NET's DataAnnotations attributes</para>
+    </listItem>
+   <listItem>
+        <para>Supports .NET 4, .NET 4.5, Windows Phone, Windows Store, Mono and Xamarin</para>
+    </listItem>
+
+</list>
+<para>Json.NET Schema's validation helper methods are the easiest way to get started validating JSON schemas.</para>
+<para>For more advanced scenarios where you want to validate JSON as you read or write it then the JSchemaValidatingReader and JSchemaValidatingWriter are a good choice.</para>
+</content>
+</section>
+
+<section>
+ <title>Getting Started</title>
+ <content>
+
+<list class="bullet">
+  <listItem><para><link xlink:href="LoadingSchemas" /></para></listItem>
+  <listItem><para><link xlink:href="ValidatingJson" /></para></listItem>
+  <listItem><para><link xlink:href="Samples" /></para></listItem>
+</list>
+ 
+ </content>
+</section>
 
   </developerConceptualDocument>
 </topic>

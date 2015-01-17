@@ -46,7 +46,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Documentation\JSchemaTests.cs" />
+    <Compile Include="Documentation\GeneratingSchemas.cs" />
+    <Compile Include="Documentation\LoadingSchemas.cs" />
+    <Compile Include="Documentation\ValidatingJson.cs" />
     <Compile Include="Documentation\Samples\Create\CreateJsonSchemaManually.cs" />
     <Compile Include="Documentation\Samples\Create\SaveJsonSchemaToFile.cs" />
     <Compile Include="Documentation\Samples\File.cs" />
