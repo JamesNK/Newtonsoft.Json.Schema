@@ -23,7 +23,7 @@
         <para>Efficently validate JSON as you read and write it</para>
     </listItem>
    <listItem>
-        <para>Generate JSON Schemas from .NET types, with support for .NET's DataAnnotations attributes</para>
+        <para>Generate JSON Schemas from .NET types, with support for .NET's Data Annotations attributes</para>
     </listItem>
    <listItem>
         <para>Supports .NET 4, .NET 4.5, Windows Phone, Windows Store, Mono and Xamarin</para>
@@ -31,7 +31,7 @@
 
 </list>
 <para>Json.NET Schema's validation helper methods are the fastest way to get started validating JSON schemas.</para>
-<para>For more advanced scenarios where you want to validate JSON as you read or write it then the JSchemaValidatingReader and JSchemaValidatingWriter are a good choice.</para>
+<para>For more advanced scenarios JSchemaValidatingReader and JSchemaValidatingWriter allow you to validate JSON as you read or write it.</para>
 </content>
 </section>
 

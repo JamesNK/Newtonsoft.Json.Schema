@@ -180,42 +180,126 @@
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
-    <EmbeddedResource Include="Resources\Schemas\bower.json" />
-    <EmbeddedResource Include="Resources\Schemas\bowerrc.json" />
-    <EmbeddedResource Include="Resources\Schemas\chrome-manifest.json" />
-    <EmbeddedResource Include="Resources\Schemas\chutzpah.json" />
-    <EmbeddedResource Include="Resources\Schemas\coffeelint.json" />
-    <EmbeddedResource Include="Resources\Schemas\component.json" />
-    <EmbeddedResource Include="Resources\Schemas\composer.json" />
-    <EmbeddedResource Include="Resources\Schemas\config.json" />
-    <EmbeddedResource Include="Resources\Schemas\contribute.json" />
-    <EmbeddedResource Include="Resources\Schemas\epr-manifest.json" />
-    <EmbeddedResource Include="Resources\Schemas\global.json" />
-    <EmbeddedResource Include="Resources\Schemas\grunt-clean-task.json" />
-    <EmbeddedResource Include="Resources\Schemas\grunt-copy-task.json" />
-    <EmbeddedResource Include="Resources\Schemas\grunt-cssmin-task.json" />
-    <EmbeddedResource Include="Resources\Schemas\grunt-jshint-task.json" />
-    <EmbeddedResource Include="Resources\Schemas\grunt-task.json" />
-    <EmbeddedResource Include="Resources\Schemas\grunt-watch-task.json" />
-    <EmbeddedResource Include="Resources\Schemas\host-meta.json" />
-    <EmbeddedResource Include="Resources\Schemas\jscsrc.json" />
-    <EmbeddedResource Include="Resources\Schemas\jshintrc.json" />
-    <EmbeddedResource Include="Resources\Schemas\json-patch.json" />
-    <EmbeddedResource Include="Resources\Schemas\jsonld.json" />
-    <EmbeddedResource Include="Resources\Schemas\package.json" />
-    <EmbeddedResource Include="Resources\Schemas\package.manifest.json" />
-    <EmbeddedResource Include="Resources\Schemas\project.json" />
-    <EmbeddedResource Include="Resources\Schemas\resjson.json" />
-    <EmbeddedResource Include="Resources\Schemas\resume.json" />
-    <EmbeddedResource Include="Resources\Schemas\schema-catalog.json" />
-    <EmbeddedResource Include="Resources\Schemas\schema-draft-v4.json" />
-    <EmbeddedResource Include="Resources\Schemas\settings.job.json" />
-    <EmbeddedResource Include="Resources\Schemas\sourcemap-v3.json" />
-    <EmbeddedResource Include="Resources\Schemas\swagger-2.0.json" />
-    <EmbeddedResource Include="Resources\Schemas\tslint.json" />
-    <EmbeddedResource Include="Resources\Schemas\web-manifest.json" />
-    <EmbeddedResource Include="Resources\Schemas\webjob-publish-settings.json" />
-    <EmbeddedResource Include="Resources\Schemas\webjobs-list.json" />
+    <None Include="Resources\Schemas\bower.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Schemas\bowerrc.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Schemas\chrome-manifest.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Schemas\chutzpah.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Schemas\coffeelint.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Schemas\component.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Schemas\composer.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Schemas\config.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Schemas\contribute.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Schemas\epr-manifest.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Schemas\global.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Schemas\grunt-clean-task.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Schemas\grunt-copy-task.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Schemas\grunt-cssmin-task.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Schemas\grunt-jshint-task.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Schemas\grunt-task.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Schemas\grunt-watch-task.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Schemas\host-meta.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Schemas\jscsrc.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Schemas\jshintrc.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Schemas\json-patch.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Schemas\jsonld.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Schemas\package.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Schemas\package.manifest.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Schemas\project.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Schemas\resjson.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Schemas\resume.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Schemas\schema-catalog.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Schemas\schema-draft-v4.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Schemas\settings.job.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Schemas\sourcemap-v3.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Schemas\swagger-2.0.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Schemas\tslint.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Schemas\web-manifest.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Schemas\webjob-publish-settings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Schemas\webjobs-list.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Schemas\GeoJson\bbox.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Schemas\GeoJson\crs.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Schemas\GeoJson\geojson.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Schemas\GeoJson\geometry.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Specs\tests\Draft3\additionalItems.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

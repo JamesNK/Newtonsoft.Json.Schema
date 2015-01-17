@@ -25,6 +25,46 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
     [TestFixture]
     public class JSchemaReaderTests : TestFixtureBase
     {
+        public static JSchema OpenSchemaFile(string name, JSchemaResolver resolver)
+        {
+            string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+
+            string path = Path.Combine(baseDirectory, name);
+
+            using (JsonReader reader = new JsonTextReader(new StreamReader(path)))
+            {
+                JSchema schema = JSchema.Read(reader, resolver);
+                return schema;
+            }
+        }
+
+        [Test]
+        public void GeoJson()
+        {
+            JSchemaPreloadedResolver resolver = new JSchemaPreloadedResolver();
+
+            resolver.Add(OpenSchemaFile(@"resources\schemas\geojson\crs.json", resolver), new Uri("http://json-schema.org/geojson/crs.json#"));
+            resolver.Add(OpenSchemaFile(@"resources\schemas\geojson\bbox.json", resolver), new Uri("http://json-schema.org/geojson/bbox.json#"));
+            resolver.Add(OpenSchemaFile(@"resources\schemas\geojson\geometry.json", resolver), new Uri("http://json-schema.org/geojson/geometry.json#"));
+
+            JSchema schema = OpenSchemaFile(@"resources\schemas\geojson\geojson.json", resolver);
+
+            JObject o = JObject.Parse(@"{
+              ""type"": ""Feature"",
+              ""geometry"": {
+                ""type"": ""Point"",
+                ""coordinates"": [125.6, 10.1]
+              },
+              ""properties"": {
+                ""name"": ""Dinagat Islands""
+              }
+            }");
+
+            bool isValid = o.IsValid(schema);
+
+            Assert.IsTrue(isValid);
+        }
+
         [Test]
         public void Simple()
         {
@@ -666,14 +706,14 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         {
             ExceptionAssert.Throws<JsonException>(() =>
             {
-                TestHelpers.OpenSchemaResource("grunt-clean-task.json");
+                TestHelpers.OpenSchemaFile(@"resources\schemas\grunt-clean-task.json");
             }, "Could not resolve schema reference 'http://json.schemastore.org/grunt-task#/definitions/fileFormat'.");
         }
 
         [Test]
         public void Reference_InnerSchemaOfExternalSchema()
         {
-            JSchema baseSchema = TestHelpers.OpenSchemaResource("grunt-task.json");
+            JSchema baseSchema = TestHelpers.OpenSchemaFile(@"resources\schemas\grunt-task.json");
 
             JSchema fileFormatSchema = (JSchema)baseSchema.ExtensionData["definitions"]["fileFormat"];
 
@@ -682,7 +722,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             JSchemaPreloadedResolver resolver = new JSchemaPreloadedResolver();
             resolver.Add(baseSchema, new Uri("http://json.schemastore.org/grunt-task"));
 
-            JSchema cleanSchema = TestHelpers.OpenSchemaResource("grunt-clean-task.json", resolver);
+            JSchema cleanSchema = TestHelpers.OpenSchemaFile(@"resources\schemas\grunt-clean-task.json", resolver);
             Assert.AreEqual(fileFormatSchema, cleanSchema.AdditionalProperties.AnyOf[0]);
         }
 

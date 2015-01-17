@@ -35,5 +35,18 @@ namespace Newtonsoft.Json.Schema.Tests
                 return schemaReader.ReadRoot(reader);
             }
         }
+
+        public static JSchema OpenSchemaFile(string name, JSchemaResolver resolver = null)
+        {
+            string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+
+            string path = Path.Combine(baseDirectory, name);
+
+            using (JsonReader reader = new JsonTextReader(new StreamReader(path)))
+            {
+                JSchema schema = (resolver != null) ? JSchema.Read(reader, resolver) : JSchema.Read(reader);
+                return schema;
+            }
+        }
     }
 }

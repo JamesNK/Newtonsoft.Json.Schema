@@ -94,6 +94,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
         public void JSchemaUrlResolverTest()
         {
             #region JSchemaUrlResolver
+            // resolver will fetch 'http://schema.org/address.json' as the parent schema is loaded
             JSchemaUrlResolver resolver = new JSchemaUrlResolver();
 
             JSchema schema = JSchema.Parse(@"{
@@ -111,7 +112,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
               'name': 'James',
               'addresses': [
                 {
-                  'line1': '99 Smith Street',
+                  'line1': '99 Smithington Street',
                   'line2': 'Real Town',
                   'country': 'USA'
                 }
@@ -136,6 +137,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
               }
             }");
 
+            // preload schema with ID 'http://schema.org/address.json'
             JSchemaPreloadedResolver resolver = new JSchemaPreloadedResolver();
             resolver.Add(addressSchema, new Uri("http://schema.org/address.json"));
 
@@ -154,7 +156,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
               'name': 'James',
               'addresses': [
                 {
-                  'line1': '99 Smith Street',
+                  'line1': '99 Smithington Street',
                   'line2': 'Real Town',
                   'Country': 'USA'
                 }
