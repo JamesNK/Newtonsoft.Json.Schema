@@ -1,15 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<topic id="GenerateSchema" revisionNumber="1">
+<topic id="GenerateWithDataAnnotations" revisionNumber="1">
   <developerConceptualDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
     <introduction>
       <para>This sample generates a new <codeEntityReference>T:Newtonsoft.Json.Schema.JSchema</codeEntityReference>
-      from a .NET type.</para>
+      from a .NET type with Data Annotations attributes.</para>
     </introduction>
     <section>
       <title>Sample</title>
       <content>
-        <code lang="cs" source="..\Src\Newtonsoft.Json.Schema.Tests\Documentation\Samples\Generation\GenerateSchema.cs" region="Types" title="Types" />
-        <code lang="cs" source="..\Src\Newtonsoft.Json.Schema.Tests\Documentation\Samples\Generation\GenerateSchema.cs" region="Usage" title="Usage" />
+        <code lang="cs" source="..\Src\Newtonsoft.Json.Schema.Tests\Documentation\Samples\Generation\GenerateWithDataAnnotations.cs" region="Types" title="Types" />
+        <code lang="cs" source="..\Src\Newtonsoft.Json.Schema.Tests\Documentation\Samples\Generation\GenerateWithDataAnnotations.cs" region="Usage" title="Usage" />
       </content>
     </section>
   </developerConceptualDocument>

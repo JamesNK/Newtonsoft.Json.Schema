@@ -141,6 +141,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
             JSchemaPreloadedResolver resolver = new JSchemaPreloadedResolver();
             resolver.Add(addressSchema, new Uri("http://schema.org/address.json"));
 
+            // the external ref will use the preloaded schema
             JSchema schema = JSchema.Parse(@"{
               'type': 'object',
               'properties': {

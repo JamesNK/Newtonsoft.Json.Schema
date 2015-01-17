@@ -135,11 +135,11 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
             [Phone]
             public string PhoneNumber { get; set; }
             [Required]
-            [EnumDataType(typeof(Zone))]
+            [EnumDataType(typeof(BuildingZone))]
             public string Zone { get; set; }
         }
 
-        public enum Zone
+        public enum BuildingZone
         {
             Residential,
             Commercial,
@@ -188,7 +188,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
         public class BuildingReport
         {
             public DateTime Date { get; set; }
-            public Zone Zone { get; set; }
+            public BuildingZone Zone { get; set; }
         }
 
         [Test]

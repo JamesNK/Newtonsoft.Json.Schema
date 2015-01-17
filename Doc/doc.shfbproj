@@ -98,6 +98,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Content Include="icons\favicon.ico" />
+    <None Include="Samples\Generation\GenerateWithProvider.aml" />
+    <None Include="Samples\Generation\GenerateWithJSchemaUndefinedIdHandling.aml" />
+    <None Include="Samples\Generation\GenerateWithDataAnnotations.aml" />
+    <None Include="Samples\Generation\GenerateWithContractResolver.aml" />
+    <None Include="Samples\Validate\JsonValidatingWriterAndSerializer.aml" />
     <None Include="GeneratingSchemas.aml" />
     <None Include="LoadingSchemas.aml" />
     <None Include="ValidatingJson.aml" />

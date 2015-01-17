@@ -2,15 +2,8 @@
 <topic id="ValidatingJson" revisionNumber="1">
   <developerConceptualDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
     <introduction>
-      <para>Json.NET Schema represents schemas using the strongly typed <codeEntityReference>T:Newtonsoft.Json.Schema.JSchema</codeEntityReference> object.</para>
+      <para>With Json.NET Schema you can simply validate JSON in LINQ to JSON objects using the <codeEntityReference autoUpgrade="true">M:Newtonsoft.Json.Schema.SchemaExtensions.IsValid(Newtonsoft.Json.Linq.JToken,Newtonsoft.Json.Schema.JSchema)</codeEntityReference> method. In more advanced scenarios you can validate JSON as you read and write it using <codeEntityReference>T:Newtonsoft.Json.Schema.JSchemaValidatingReader</codeEntityReference> and <codeEntityReference>T:Newtonsoft.Json.Schema.JSchemaValidatingWriter</codeEntityReference></para>
     </introduction>
-
-<alert class="information">
-  <para>
-    You do not need to specify the version of the JSON Schema you are loading. When loading an older schema (e.g. draft 3) renamed properties and features will automatically be mapped to their new names.
-  </para>
-</alert>
-
 
 <section>
   <title>Validating with JSON Schema</title>
@@ -57,10 +50,9 @@ the JSON and then deserializing the JSON into a class, <codeEntityReference>T:Ne
 
 
     <relatedTopics>
-      <codeEntityReference>T:Newtonsoft.Json.Schema.JSchema</codeEntityReference>
-      <codeEntityReference>T:Newtonsoft.Json.Schema.JSchemaResolver</codeEntityReference>
-      <codeEntityReference>T:Newtonsoft.Json.Schema.JSchemaUrlResolver</codeEntityReference>
-      <codeEntityReference>T:Newtonsoft.Json.Schema.JSchemaPreloadedResolver</codeEntityReference>
+      <codeEntityReference autoUpgrade="true">M:Newtonsoft.Json.Schema.SchemaExtensions.IsValid(Newtonsoft.Json.Linq.JToken,Newtonsoft.Json.Schema.JSchema)</codeEntityReference>
+      <codeEntityReference>T:Newtonsoft.Json.Schema.JSchemaValidatingReader</codeEntityReference>
+      <codeEntityReference>T:Newtonsoft.Json.Schema.JSchemaValidatingWriter</codeEntityReference>
     </relatedTopics>
 
   </developerConceptualDocument>

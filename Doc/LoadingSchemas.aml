@@ -2,7 +2,7 @@
 <topic id="LoadingSchemas" revisionNumber="1">
   <developerConceptualDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
     <introduction>
-      <para>Json.NET Schema represents schemas using the strongly typed <codeEntityReference>T:Newtonsoft.Json.Schema.JSchema</codeEntityReference> object. JSchema is a central object in Json.NET Schema and is used whenever an application validates JSON.</para>
+      <para>Json.NET Schema represents schemas using the strongly typed <codeEntityReference>T:Newtonsoft.Json.Schema.JSchema</codeEntityReference> object. JSchema is used whenever an application validates JSON.</para>
     </introduction>
 
 <alert class="information">
@@ -18,7 +18,7 @@
 
 <code lang="cs" source="..\Src\Newtonsoft.Json.Schema.Tests\Documentation\LoadingSchemas.cs" region="ParseString" title="Parse JSON Schema string" />
 
-<para>Schemas can also be loaded from a <codeEntityReference>T:Newtonsoft.Json.JsonReader</codeEntityReference> using <codeEntityReference>M:Newtonsoft.Json.Schema.JSchema.Read(Newtonsoft.Json.JsonReader)</codeEntityReference>. This is useful when loading a schema from a file using a <codeEntityReference>T:System.IO.FileStream</codeEntityReference>.</para>
+<para>Schemas can also be loaded directly from a <codeEntityReference>T:Newtonsoft.Json.JsonReader</codeEntityReference> using <codeEntityReference>M:Newtonsoft.Json.Schema.JSchema.Read(Newtonsoft.Json.JsonReader)</codeEntityReference>. This is useful when loading a schema from a stream, e.g. load from a file using <codeEntityReference>T:System.IO.FileStream</codeEntityReference>.</para>
 
 <code lang="cs" source="..\Src\Newtonsoft.Json.Schema.Tests\Documentation\LoadingSchemas.cs" region="ReadFile" title="Load JSON Schema file" />
 
@@ -28,13 +28,14 @@
 <section>
   <title>Resolving externally referenced schemas</title>
 <content>
-<para>A JSON schema can reference external schemas. References are typically a URL that points to where the external schema is publically hosted on the internet. Json.NET Schema supports resolving external schemas with <codeEntityReference>T:Newtonsoft.Json.Schema.JSchemaResolver</codeEntityReference>. The Parse and Load methods on JSchema each have overloads that take a schema resolver.</para>
+<para>A JSON schema can reference external schemas. External references are typically a URL that points to where the external schema is publically hosted on the internet. Json.NET Schema supports resolving external schemas with <codeEntityReference>T:Newtonsoft.Json.Schema.JSchemaResolver</codeEntityReference>. The Parse and Load methods on JSchema each have overloads that take a schema resolver.</para>
 
 <code lang="cs" source="..\Src\Newtonsoft.Json.Schema.Tests\Documentation\LoadingSchemas.cs" region="JSchemaUrlResolver" title="Resolve an external schema with JSchemaUrlResolver" />
 
 <para>Json.NET Schema comes with two resolvers. <codeEntityReference>T:Newtonsoft.Json.Schema.JSchemaUrlResolver</codeEntityReference> resolves URL schema references, downloading the URLs content and loading it as a schema.</para>
 
-<para>The second resolver, <codeEntityReference>T:Newtonsoft.Json.Schema.JSchemaPreloadedResolver</codeEntityReference>, allows you to manually load a schema then associate it with the resolver using an ID. The resolver will return the schema associated with a given ID during loading. Preloading is useful if you don't want to rely on a third party website being available when resolving an external schema reference, and would prefer to copy the schema file into your application and load it yourself.</para>
+<para>The second resolver, <codeEntityReference>T:Newtonsoft.Json.Schema.JSchemaPreloadedResolver</codeEntityReference>, allows you to manually load a schema then associate it with the resolver using an ID. The resolver will then return the schema associated with a given ID during loading.</para>
+<para>Preloading is useful if you don't want to rely on a third party website being available when resolving an external schema reference. Copying the schema file into your application and loading it yourself will ensure you never get a network related when loading it.</para>
 
 <code lang="cs" source="..\Src\Newtonsoft.Json.Schema.Tests\Documentation\LoadingSchemas.cs" region="JSchemaPreloadedResolver" title="Resolve an external schema with JSchemaUrlResolver" />
 

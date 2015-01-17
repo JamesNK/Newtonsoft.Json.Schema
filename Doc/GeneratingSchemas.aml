@@ -2,26 +2,19 @@
 <topic id="GeneratingSchemas" revisionNumber="1">
   <developerConceptualDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
     <introduction>
-      <para>Json.NET Schema represents schemas using the strongly typed <codeEntityReference>T:Newtonsoft.Json.Schema.JSchema</codeEntityReference> object.</para>
+      <para>Json.NET Schema supports automatically generating JSON Schemas for .NET types using the <codeEntityReference>T:Newtonsoft.Json.Schema.JSchemaGenerator</codeEntityReference> object, and has a range of options to customize the schema output.</para>
     </introduction>
-
-<alert class="information">
-  <para>
-    You do not need to specify the version of the JSON Schema you are loading. When loading an older schema (e.g. draft 3) renamed properties and features will automatically be mapped to their new names.
-  </para>
-</alert>
-
 
 <section>
   <title>Generate JSON Schemas from .NET types</title>
 <content>
-<para>Schema generation is performed by the <codeEntityReference>T:Newtonsoft.Json.Schema.JSchemaGenerator</codeEntityReference> object. It will map .NET objects, collections, properties and their attributes to their JSON Schema equivilent. The generated schema will successfully validate JSON produced when serializing instances of that type.</para>
+<para>Schema generation is performed by the <codeEntityReference>T:Newtonsoft.Json.Schema.JSchemaGenerator</codeEntityReference> object. It maps .NET objects, collections, properties and their attributes to their JSON Schema equivilent. A generated schema will successfully validate the serialized JSON for that type.</para>
 
 <code lang="cs" source="..\Src\Newtonsoft.Json.Schema.Tests\Documentation\GeneratingSchemas.cs" region="PersonClass" title=".NET type" />
 
 <code lang="cs" source="..\Src\Newtonsoft.Json.Schema.Tests\Documentation\GeneratingSchemas.cs" region="BasicGeneration" title="Generate a JSON Schema from a .NET type" />
 
-<para><codeEntityReference>T:Newtonsoft.Json.Schema.JSchemaGenerator</codeEntityReference> has a number of options to customize output. An <codeEntityReference>T:Newtonsoft.Json.Serialization.IContractResolver</codeEntityReference> will customize how the type's properties and collections will be reflected over.</para>
+<para><codeEntityReference>T:Newtonsoft.Json.Schema.JSchemaGenerator</codeEntityReference> has a number of options to customize output. An <codeEntityReference>T:Newtonsoft.Json.Serialization.IContractResolver</codeEntityReference> will customize how the type's properties and collections are reflected.</para>
 
 <code lang="cs" source="..\Src\Newtonsoft.Json.Schema.Tests\Documentation\GeneratingSchemas.cs" region="IContractResolver" title="Generate a JSON Schema using a IContractResolver" />
 
@@ -36,7 +29,7 @@
 <section>
   <title>Using Data Annotation attributes</title>
 <content>
-<para><codeEntityReference>T:Newtonsoft.Json.Schema.JSchemaGenerator</codeEntityReference> will look for .NET Data Annotation attributes when generating a schema.</para>
+<para><codeEntityReference>T:Newtonsoft.Json.Schema.JSchemaGenerator</codeEntityReference> will look for .NET Data Annotation attributes.</para>
 
 <code lang="cs" source="..\Src\Newtonsoft.Json.Schema.Tests\Documentation\GeneratingSchemas.cs" region="BuildingClass" title=".NET type with Data Annotations" />
 
@@ -69,7 +62,7 @@
   </row>
   <row>
     <entry><para><codeEntityReference>T:System.ComponentModel.DataAnnotations.RangeAttribute</codeEntityReference></para></entry>
-    <entry><para>Number min and max values.</para></entry>
+    <entry><para>Number min and max.</para></entry>
   </row>
   <row>
     <entry><para><codeEntityReference>T:System.ComponentModel.DataAnnotations.StringLengthAttribute</codeEntityReference></para></entry>
@@ -77,7 +70,7 @@
   </row>
   <row>
     <entry><para><codeEntityReference>T:System.ComponentModel.DataAnnotations.EnumDataTypeAttribute</codeEntityReference></para></entry>
-    <entry><para><codeEntityReference>T:System.Enum</codeEntityReference> type used to generate enum values from.</para></entry>
+    <entry><para><codeEntityReference>T:System.Enum</codeEntityReference> type used to generate enum values.</para></entry>
   </row>
   <row>
     <entry><para><codeEntityReference>T:System.ComponentModel.DataAnnotations.DataTypeAttribute</codeEntityReference></para></entry>
@@ -105,7 +98,7 @@
   <title>Control Schema Generation with JSchemaGenerationProvider</title>
 <content>
 
-<para><codeEntityReference>T:Newtonsoft.Json.Schema.Generation.JSchemaGenerationProvider</codeEntityReference> lets you take over schema generation for a type. An example of where this is useful is changing the schema generation for <codeEntityReference>T:System.Enum</codeEntityReference> types from int enum values to string enum values.</para>
+<para><codeEntityReference>T:Newtonsoft.Json.Schema.Generation.JSchemaGenerationProvider</codeEntityReference> lets you completely take over schema generation for a type. An example of where this is useful is changing the schema generation for <codeEntityReference>T:System.Enum</codeEntityReference> types from int enum values to string enum values.</para>
 
 <code lang="cs" source="..\Src\Newtonsoft.Json.Schema.Tests\Documentation\GeneratingSchemas.cs" region="BuildingClass" title=".NET type with Data Annotations" />
 
