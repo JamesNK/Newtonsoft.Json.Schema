@@ -69,8 +69,12 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Licensing
                 {
                     if (_resetTimer == null)
                     {
+                        Timer timer = new Timer(ResetCounts, null, 0, Convert.ToInt32(TimeSpan.FromHours(1).TotalMilliseconds));
+
+#if !PORTABLE
                         Thread.MemoryBarrier();
-                        _resetTimer = new Timer(ResetCounts, null, 0, Convert.ToInt32(TimeSpan.FromHours(1).TotalMilliseconds));
+#endif
+                        _resetTimer = timer;
                     }
                 }
             }
