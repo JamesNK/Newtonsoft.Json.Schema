@@ -60,16 +60,16 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation.Samples.Validate
             serializer.Serialize(validatingWriter, p);
 
             Console.WriteLine(stringWriter);
-            //{
-            //  "Name": "James",
-            //  "Hobbies": [
-            //    ".NET",
-            //    "Blogging",
-            //    "Reading",
-            //    "Xbox",
-            //    "LOLCATS"
-            //  ]
-            //}
+            // {
+            //   "Name": "James",
+            //   "Hobbies": [
+            //     ".NET",
+            //     "Blogging",
+            //     "Reading",
+            //     "Xbox",
+            //     "LOLCATS"
+            //   ]
+            // }
 
             bool isValid = (messages.Count == 0);
 

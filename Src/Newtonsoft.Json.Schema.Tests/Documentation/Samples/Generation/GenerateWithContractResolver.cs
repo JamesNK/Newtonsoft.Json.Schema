@@ -29,16 +29,16 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation.Samples.Generation
             generator.ContractResolver = new CamelCasePropertyNamesContractResolver();
 
             JSchema schema = generator.Generate(typeof(Person));
-            //{
-            //  "type": "object",
-            //  "properties": {
-            //    "name": {
-            //      "type": [ "string", "null" ]
-            //    },
-            //    "age": { "type": "integer" }
-            //  },
-            //  "required": [ "name", "age" ]
-            //}
+            // {
+            //   "type": "object",
+            //   "properties": {
+            //     "name": {
+            //       "type": [ "string", "null" ]
+            //     },
+            //     "age": { "type": "integer" }
+            //   },
+            //   "required": [ "name", "age" ]
+            // }
             #endregion
 
             Assert.AreEqual(JSchemaType.Object, schema.Type);

@@ -41,32 +41,32 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation.Samples.Generation
             JSchemaGenerator generator = new JSchemaGenerator();
 
             JSchema schema = generator.Generate(typeof(Building));
-            //{
-            //  "type": "object",
-            //  "properties": {
-            //    "Name": {
-            //      "type": "string",
-            //      "maxLength": 100
-            //    },
-            //    "PhoneNumber": {
-            //      "type": "string",
-            //      "format": "phone"
-            //    },
-            //    "Zone": {
-            //      "type": "string",
-            //      "enum": [
-            //        "Residential",
-            //        "Commercial",
-            //        "Industrial"
-            //      ]
-            //    }
-            //  },
-            //  "required": [
-            //    "Name",
-            //    "PhoneNumber",
-            //    "Zone"
-            //  ]
-            //}
+            // {
+            //   "type": "object",
+            //   "properties": {
+            //     "Name": {
+            //       "type": "string",
+            //       "maxLength": 100
+            //     },
+            //     "PhoneNumber": {
+            //       "type": "string",
+            //       "format": "phone"
+            //     },
+            //     "Zone": {
+            //       "type": "string",
+            //       "enum": [
+            //         "Residential",
+            //         "Commercial",
+            //         "Industrial"
+            //       ]
+            //     }
+            //   },
+            //   "required": [
+            //     "Name",
+            //     "PhoneNumber",
+            //     "Zone"
+            //   ]
+            // }
             #endregion
 
             Assert.AreEqual(JSchemaType.Object, schema.Type);

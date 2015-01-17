@@ -35,19 +35,19 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation.Samples.Generation
             JSchemaGenerator generator = new JSchemaGenerator();
 
             JSchema schema = generator.Generate(typeof(BuildingReport));
-            //{
-            //  "type": "object",
-            //  "properties": {
-            //    "Date": {
-            //      "type": "string"
-            //    },
-            //    "Zone": {
-            //      "type": "integer",
-            //      "enum": [ 0, 1, 2 ]
-            //    }
-            //  },
-            //  "required": [ "Date", "Zone" ]
-            //}
+            // {
+            //   "type": "object",
+            //   "properties": {
+            //     "Date": {
+            //       "type": "string"
+            //     },
+            //     "Zone": {
+            //       "type": "integer",
+            //       "enum": [ 0, 1, 2 ]
+            //     }
+            //   },
+            //   "required": [ "Date", "Zone" ]
+            // }
 
             JSchemaGenerator stringEnumGenerator = new JSchemaGenerator();
 
@@ -55,19 +55,19 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation.Samples.Generation
             stringEnumGenerator.GenerationProviders.Add(new StringEnumGenerationProvider());
 
             JSchema stringEnumSchema = stringEnumGenerator.Generate(typeof(BuildingReport));
-            //{
-            //  "type": "object",
-            //  "properties": {
-            //    "Date": {
-            //      "type": "string"
-            //    },
-            //    "Zone": {
-            //      "type": "string",
-            //      "enum": [ "Residential", "Commercial", "Industrial" ]
-            //    }
-            //  },
-            //  "required": [ "Date", "Zone" ]
-            //}
+            // {
+            //   "type": "object",
+            //   "properties": {
+            //     "Date": {
+            //       "type": "string"
+            //     },
+            //     "Zone": {
+            //       "type": "string",
+            //       "enum": [ "Residential", "Commercial", "Industrial" ]
+            //     }
+            //   },
+            //   "required": [ "Date", "Zone" ]
+            // }
             #endregion
 
             Assert.AreEqual(JSchemaType.Integer, schema.Properties["Zone"].Type);

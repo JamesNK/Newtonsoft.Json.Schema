@@ -36,23 +36,23 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation.Samples.Generation
             JSchemaGenerator generator = new JSchemaGenerator();
 
             JSchema schema = generator.Generate(typeof(User));
-            //{
-            //  "type": "object",
-            //  "properties": {
-            //    "name": {
-            //      "type": "string"
-            //    },
-            //    "role": {
-            //      "type": [
-            //        "string",
-            //        "null"
-            //      ]
-            //    }
-            //  },
-            //  "required": [
-            //    "name"
-            //  ]
-            //}
+            // {
+            //   "type": "object",
+            //   "properties": {
+            //     "name": {
+            //       "type": "string"
+            //     },
+            //     "role": {
+            //       "type": [
+            //         "string",
+            //         "null"
+            //       ]
+            //     }
+            //   },
+            //   "required": [
+            //     "name"
+            //   ]
+            // }
             #endregion
 
             Assert.AreEqual(JSchemaType.Object, schema.Type);

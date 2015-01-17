@@ -25,16 +25,16 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation.Samples.Generation
             JSchemaGenerator generator = new JSchemaGenerator();
 
             JSchema schema = generator.Generate(typeof(Person));
-            //{
-            //  "type": "object",
-            //  "properties": {
-            //    "Name": {
-            //      "type": [ "string", "null" ]
-            //    },
-            //    "Age": { "type": "integer" }
-            //  },
-            //  "required": [ "Name", "Age" ]
-            //}
+            // {
+            //   "type": "object",
+            //   "properties": {
+            //     "Name": {
+            //       "type": [ "string", "null" ]
+            //     },
+            //     "Age": { "type": "integer" }
+            //   },
+            //   "required": [ "Name", "Age" ]
+            // }
             #endregion
 
             Assert.AreEqual(JSchemaType.Object, schema.Type);

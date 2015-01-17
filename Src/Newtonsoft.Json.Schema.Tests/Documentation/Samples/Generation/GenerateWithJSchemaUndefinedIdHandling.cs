@@ -29,17 +29,17 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation.Samples.Generation
             generator.UndefinedSchemaIdHandling = JSchemaUndefinedIdHandling.UseTypeName;
 
             JSchema schema = generator.Generate(typeof(Person));
-            //{
-            //  "id": "Person",
-            //  "type": "object",
-            //  "properties": {
-            //    "name": {
-            //      "type": [ "string", "null" ]
-            //    },
-            //    "age": { "type": "integer" }
-            //  },
-            //  "required": [ "name", "age" ]
-            //}
+            // {
+            //   "id": "Person",
+            //   "type": "object",
+            //   "properties": {
+            //     "name": {
+            //       "type": [ "string", "null" ]
+            //     },
+            //     "age": { "type": "integer" }
+            //   },
+            //   "required": [ "name", "age" ]
+            // }
             #endregion
 
             Assert.AreEqual(JSchemaType.Object, schema.Type);
