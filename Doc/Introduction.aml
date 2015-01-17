@@ -1,11 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <topic id="Introduction" revisionNumber="1">
   <developerConceptualDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <!--
-    <summary>
-      <para>Optional summary abstract</para>
-    </summary>
-    -->
     <introduction>
       <para>Json.NET Schema is a powerful, complete and easy to use JSON Schema framework for .NET</para>
     </introduction>
@@ -23,7 +18,7 @@
         <para>Efficently validate JSON as you read and write it</para>
     </listItem>
    <listItem>
-        <para>Generate JSON Schemas from .NET types, with support for .NET's Data Annotations attributes</para>
+        <para>Generate JSON Schemas from .NET types</para>
     </listItem>
    <listItem>
         <para>Supports .NET 4, .NET 4.5, Windows Phone, Windows Store, Mono and Xamarin</para>

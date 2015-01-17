@@ -48,6 +48,7 @@
   <ItemGroup>
     <Compile Include="Documentation\GeneratingSchemas.cs" />
     <Compile Include="Documentation\LoadingSchemas.cs" />
+    <Compile Include="Documentation\Samples\Generation\GenerateWithJsonNetAttributes.cs" />
     <Compile Include="Documentation\Samples\Generation\GenerateWithProvider.cs" />
     <Compile Include="Documentation\Samples\Generation\GenerateWithDataAnnotations.cs" />
     <Compile Include="Documentation\Samples\Generation\GenerateWithJSchemaUndefinedIdHandling.cs" />

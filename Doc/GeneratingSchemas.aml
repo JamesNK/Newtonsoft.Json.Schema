@@ -16,7 +16,7 @@
 
 <para><codeEntityReference>T:Newtonsoft.Json.Schema.JSchemaGenerator</codeEntityReference> has a number of options to customize output. An <codeEntityReference>T:Newtonsoft.Json.Serialization.IContractResolver</codeEntityReference> will customize how the type's properties and collections are reflected.</para>
 
-<code lang="cs" source="..\Src\Newtonsoft.Json.Schema.Tests\Documentation\GeneratingSchemas.cs" region="IContractResolver" title="Generate a JSON Schema using a IContractResolver" />
+<code lang="cs" source="..\Src\Newtonsoft.Json.Schema.Tests\Documentation\GeneratingSchemas.cs" region="IContractResolver" title="Generate a JSON Schema using an IContractResolver" />
 
 <codeEntityReference>T:Newtonsoft.Json.Schema.JSchemaUndefinedIdHandling</codeEntityReference> is used to control whether types with no ID defined have one infered from their type name.
 

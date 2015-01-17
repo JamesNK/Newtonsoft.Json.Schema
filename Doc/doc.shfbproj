@@ -98,6 +98,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Content Include="icons\favicon.ico" />
+    <None Include="Samples\Generation\GenerateWithJsonNetAttributes.aml" />
     <None Include="Samples\Generation\GenerateWithProvider.aml" />
     <None Include="Samples\Generation\GenerateWithJSchemaUndefinedIdHandling.aml" />
     <None Include="Samples\Generation\GenerateWithDataAnnotations.aml" />
