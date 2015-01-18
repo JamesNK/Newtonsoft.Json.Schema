@@ -36,6 +36,26 @@ namespace Newtonsoft.Json.Schema.Tests
     [TestFixture]
     public class JSchemaValidatingReaderTests : TestFixtureBase
     {
+        [Test]
+        public void Sample()
+        {
+            JSchema schema = JSchema.Parse(@"{
+  'type': 'array',
+  'items': {'type':'string'}
+}");
+
+            JsonTextReader reader = new JsonTextReader(new StringReader(@"[
+  'Developer',
+  'Administrator'
+]"));
+            JSchemaValidatingReader validatingReader = new JSchemaValidatingReader(reader);
+            validatingReader.Schema = schema;
+            validatingReader.ValidationEventHandler += (sender, args) => { throw new Exception(args.Message); };
+
+            JsonSerializer serializer = new JsonSerializer();
+            List<string> roles = serializer.Deserialize<List<string>>(validatingReader);
+        }
+
         private JSchemaValidatingReader CreateReader(string json, JSchema schema, out IList<SchemaValidationEventArgs> errors)
         {
             JsonReader reader = new JsonTextReader(new StringReader(json));

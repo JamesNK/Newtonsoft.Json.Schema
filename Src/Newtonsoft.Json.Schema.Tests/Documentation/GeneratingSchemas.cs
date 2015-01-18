@@ -212,9 +212,9 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
             //  "required": [ "Date", "Zone" ]
             //}
 
-            JSchemaGenerator stringEnumGenerator = new JSchemaGenerator();
 
-            // change Zone enum to generate a string
+            // change Zone enum to generate a string property
+            JSchemaGenerator stringEnumGenerator = new JSchemaGenerator();
             stringEnumGenerator.GenerationProviders.Add(new StringEnumGenerationProvider());
 
             JSchema stringEnumSchema = stringEnumGenerator.Generate(typeof(BuildingReport));

@@ -41,6 +41,29 @@ namespace Newtonsoft.Json.Schema.Tests
     [TestFixture]
     public class JSchemaGeneratorTests : TestFixtureBase
     {
+        public class Account
+        {
+            [EmailAddress]
+            [JsonProperty("email", Required = Required.Always)]
+            public string Email;
+        }
+
+        [Test]
+        public void Sample()
+        {
+            JSchemaGenerator generator = new JSchemaGenerator();
+            JSchema schema = generator.Generate(typeof(Account));
+            // {
+            //   "type": "object",
+            //   "properties": {
+            //     "Email": { "type": "string", "format": "email" }
+            //   },
+            //   "required": [ "Email" ]
+            // }
+
+            Console.WriteLine(schema.ToString());
+        }
+
         public class GeneratorTestClass
         {
             [Required]
