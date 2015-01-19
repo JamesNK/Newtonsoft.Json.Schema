@@ -41,6 +41,7 @@ namespace Newtonsoft.Json.Schema.Tests
     [TestFixture]
     public class JSchemaGeneratorTests : TestFixtureBase
     {
+#if !NET40
         public class Account
         {
             [EmailAddress]
@@ -63,6 +64,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             Console.WriteLine(schema.ToString());
         }
+#endif
 
         public class GeneratorTestClass
         {
