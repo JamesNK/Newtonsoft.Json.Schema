@@ -5,9 +5,9 @@
     <version>1.0.1</version>
     <title>Json.NET Schema</title>
     <description>Json.NET Schema is a complete and easy to use JSON Schema framework for .NET</description>
-    <authors>James Newton-King</authors>
+    <authors>Newtonsoft</authors>
     <language>en-US</language>
-    <projectUrl>http://www.newtonsoft.com</projectUrl>
+    <projectUrl>http://www.newtonsoft.com/jsonschema</projectUrl>
     <licenseUrl>https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md</licenseUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <tags>json schema</tags>
