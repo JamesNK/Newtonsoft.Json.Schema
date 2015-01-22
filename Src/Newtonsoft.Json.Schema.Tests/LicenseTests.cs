@@ -30,5 +30,22 @@ namespace Newtonsoft.Json.Schema.Tests
 
             ExceptionAssert.Throws<JsonException>(() => License.RegisterLicense(licenseText), "License ID does not match signature license ID.");
         }
+
+        [Test]
+        public void RegisterLicense_Sample()
+        {
+            try
+            {
+                string licenseKey = "your-license-key";
+
+                License.RegisterLicense(licenseKey);
+            }
+            catch (Exception)
+            {
+                return;
+            }
+
+            Assert.Fail();
+        }
     }
 }

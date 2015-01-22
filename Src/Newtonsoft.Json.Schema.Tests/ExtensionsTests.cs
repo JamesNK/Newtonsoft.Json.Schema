@@ -737,8 +737,10 @@ namespace Newtonsoft.Json.Schema.Tests
 
             JToken json = JToken.Parse(@"{""foo"":""quux""}");
 
-            IList<string> errorMessages;
-            Assert.IsTrue(json.IsValid(root, out errorMessages));
+            IList<ISchemaError> errors;
+            bool isValid = json.IsValid(root, out errors);
+
+            Assert.IsTrue(isValid);
         }
 
         [Test]

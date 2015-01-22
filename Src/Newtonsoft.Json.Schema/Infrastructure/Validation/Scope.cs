@@ -23,9 +23,17 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
         internal virtual void RaiseError(string message, ErrorType errorType, JSchema schema, IList<ISchemaError> childErrors)
         {
-            SchemaScope schemaParent = Parent as SchemaScope;
-            if (schemaParent != null)
-                schemaParent.IsValid = false;
+            // mark all parent SchemaScopes as invalid
+            Scope current = this;
+            SchemaScope parentSchemaScope;
+            while ((parentSchemaScope = current.Parent as SchemaScope) != null)
+            {
+                if (!parentSchemaScope.IsValid)
+                    break;
+
+                parentSchemaScope.IsValid = false;
+                current = parentSchemaScope;
+            }
 
             Context.RaiseError(message, errorType, schema, childErrors);
         }

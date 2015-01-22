@@ -17,8 +17,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
         private int _index = -1;
         private readonly List<JToken> _uniqueArrayItems;
 
-        public ArrayScope(ContextBase context, Scope scope, int initialDepth, JSchema schema)
-            : base(context, scope, initialDepth, schema)
+        public ArrayScope(ContextBase context, Scope parent, int initialDepth, JSchema schema)
+            : base(context, parent, initialDepth, schema)
         {
             if (schema.UniqueItems)
                 _uniqueArrayItems = new List<JToken>();

@@ -20,8 +20,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
         private readonly List<string> _readProperties;
         private readonly Dictionary<string, SchemaScope> _dependencyScopes;
 
-        public ObjectScope(ContextBase context, Scope scope, int initialDepth, JSchema schema)
-            : base(context, scope, initialDepth, schema)
+        public ObjectScope(ContextBase context, Scope parent, int initialDepth, JSchema schema)
+            : base(context, parent, initialDepth, schema)
         {
             if (schema._required != null)
                 _requiredProperties = schema._required.ToList();
@@ -180,7 +180,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     JSchema dependencySchema = dependency.Value as JSchema;
                     if (dependencySchema != null)
                     {
-                        SchemaScope scope = CreateTokenScope(token, dependencySchema, ConditionalContext.Create(Context), this, InitialDepth);
+                        SchemaScope scope = CreateTokenScope(token, dependencySchema, ConditionalContext.Create(Context), null, InitialDepth);
                         _dependencyScopes.Add(dependency.Key, scope);
                     }
                 }
