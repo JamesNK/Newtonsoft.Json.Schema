@@ -44,7 +44,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Licensing
             Interlocked.Increment(ref _validationCount);
 
             if (_validationCount > maxOperationCount)
-                throw new JsonException("The free-quota limit of {0} schema validations per hour has been reached. Please visit http://www.newtonsoft.com to upgrade to a commercial license.".FormatWith(CultureInfo.InvariantCulture, maxOperationCount));
+                throw new JsonException("The free-quota limit of {0} schema validations per hour has been reached. Please visit http://www.newtonsoft.com/jsonschema to upgrade to a commercial license.".FormatWith(CultureInfo.InvariantCulture, maxOperationCount));
         }
 
         public static void IncrementAndCheckGenerationCount()
@@ -58,7 +58,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Licensing
             Interlocked.Increment(ref _generationCount);
 
             if (_generationCount > maxOperationCount)
-                throw new JsonException("The free-quota limit of {0} schema generations per hour has been reached. Please visit http://www.newtonsoft.com to upgrade to a commercial license.".FormatWith(CultureInfo.InvariantCulture, maxOperationCount));
+                throw new JsonException("The free-quota limit of {0} schema generations per hour has been reached. Please visit http://www.newtonsoft.com/jsonschema to upgrade to a commercial license.".FormatWith(CultureInfo.InvariantCulture, maxOperationCount));
         }
 
         private static void EnsureResetTimer()

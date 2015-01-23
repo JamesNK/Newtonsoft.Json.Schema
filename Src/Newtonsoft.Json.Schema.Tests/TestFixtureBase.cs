@@ -40,11 +40,9 @@ namespace Newtonsoft.Json.Schema.Tests
         [SetUp]
         protected void TestSetup()
         {
-//#if !NETFX_CORE
-//            CultureInfo turkey = CultureInfo.CreateSpecificCulture("tr");
-//            Thread.CurrentThread.CurrentCulture = turkey;
-//            Thread.CurrentThread.CurrentUICulture = turkey;
-//#endif
+            //CultureInfo turkey = CultureInfo.CreateSpecificCulture("tr");
+            //Thread.CurrentThread.CurrentCulture = turkey;
+            //Thread.CurrentThread.CurrentUICulture = turkey;
 
             LicenseHelpers.ResetCounts(null);
         }

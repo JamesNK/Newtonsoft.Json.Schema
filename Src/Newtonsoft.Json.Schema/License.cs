@@ -13,12 +13,12 @@ using Newtonsoft.Json.Schema.Infrastructure.Licensing;
 namespace Newtonsoft.Json.Schema
 {
     /// <summary>
-    /// Manages the license used with Json.NET Schema. A license can be purchased at <see href="http://www.newtonsoft.com">http://www.newtonsoft.com</see>.
+    /// Manages the license used with Json.NET Schema. A license can be purchased at <see href="http://www.newtonsoft.com/jsonschema">http://www.newtonsoft.com/jsonschema</see>.
     /// </summary>
     public static class License
     {
         /// <summary>
-        /// Register the specified license with Json.NET Schema. A license can be purchased at <see href="http://www.newtonsoft.com">http://www.newtonsoft.com</see>.
+        /// Register the specified license with Json.NET Schema. A license can be purchased at <see href="http://www.newtonsoft.com/jsonschema">http://www.newtonsoft.com/jsonschema</see>.
         /// </summary>
         /// <param name="license">The license text to register.</param>
         public static void RegisterLicense(string license)
