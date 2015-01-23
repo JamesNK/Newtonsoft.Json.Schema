@@ -121,13 +121,13 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Licensing
             if (licenseData.Length <= 128)
                 throw new JsonException("Specified license text is invalid.");
 
-            MemoryStream ms = new MemoryStream(licenseData, 0, licenseData.Length - 128);
+            MemoryStream ms = new MemoryStream(licenseData, 128, licenseData.Length - 128);
             JsonSerializer serializer = new JsonSerializer();
             
             LicenseDetails deserializedLicense = serializer.Deserialize<LicenseDetails>(new JsonTextReader(new StreamReader(ms)));
 
             byte[] data = deserializedLicense.GetSignificateData();
-            byte[] signature = SubArray(licenseData, licenseData.Length - 128, 128);
+            byte[] signature = SubArray(licenseData, 0, 128);
 
             if (!CryptographyHelpers.ValidateData(data, signature))
                 throw new JsonException("License text does not match signature.");

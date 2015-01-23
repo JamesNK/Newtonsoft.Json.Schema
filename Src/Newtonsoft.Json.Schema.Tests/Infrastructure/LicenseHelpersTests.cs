@@ -27,13 +27,13 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
                 Type = LicenseType.Test
             };
 
-            string licenseText = "1001-eyJJZCI6MTAwMSwiRXhwaXJ5RGF0ZSI6IjIwMTYtMTItMjdUMDA6MDA6MDBaIiwiVHlwZSI6IlRlc3QifTe9KjOZYrE4JlyDUF64TO432y8TLNEZKvJxeVddMn+DjI0mUMiPyEfDs/YXyMhLOYUsyPHl/HRW9SnCrDMkk7kP8B1OhCl+ks7AR82zksR4Y0eV7gRVM5xjPrtRciu4RjsbMkWYAQ0tqwpXA//W35+0oIrUFOJ3dXxl550CtbOY";
+            string licenseText = "1001-N70qM5lisTgmXINQXrhM7jfbLxMs0Rkq8nF5V10yf4OMjSZQyI/IR8Oz9hfIyEs5hSzI8eX8dFb1KcKsMySTuQ/wHU6EKX6SzsBHzbOSxHhjR5XuBFUznGM+u1FyK7hGOxsyRZgBDS2rClcD/9bfn7SgitQU4nd1fGXnnQK1s5h7IklkIjoxMDAxLCJFeHBpcnlEYXRlIjoiMjAxNi0xMi0yN1QwMDowMDowMFoiLCJUeXBlIjoiVGVzdCJ9";
 
             ExceptionAssert.Throws<JsonException>(() => LicenseHelpers.RegisterLicense(licenseText, new DateTime(2016, 12, 26, 0, 0, 0, DateTimeKind.Utc)), "Specified license is for testing only.");
             ExceptionAssert.Throws<JsonException>(() => LicenseHelpers.RegisterLicense(licenseText, new DateTime(2016, 12, 27, 0, 0, 0, DateTimeKind.Utc)), "Specified license is for testing only.");
             ExceptionAssert.Throws<JsonException>(() => LicenseHelpers.RegisterLicense(licenseText, new DateTime(2016, 12, 28, 0, 0, 0, DateTimeKind.Utc)), "License is not valid for this version of Json.NET Schema. License expired on 2016-12-27. This version of Json.NET Schema was released on 2016-12-28.");
 
-            licenseText = "1001-eyJJZCI6MTAwMSwiRXhwaXJ5RGF0ZSI6IjIwMTYtMTItMjdUMDA6MDA6MDBaIiwiVHlwZSI6IlRlc3QifTe9KjOZYrE4JlyDUF64TO432y8TLNEZKvJxeVddMn+DjI0mUMiPyEfDs/YXyMhLOYUsyPHl/HRW9SnCrDMkk7kP8B1OhCl+ks7AR82zksR4Y0eV7gRVM5xjPrtRciu4RjsbMkWYAQ0tqwpXA//W35+0oIrUFOJ3dXxl550CtBOY";
+            licenseText = "1001-BADqM5lisTgmXINQXrhM7jfbLxMs0Rkq8nF5V10yf4OMjSZQyI/IR8Oz9hfIyEs5hSzI8eX8dFb1KcKsMySTuQ/wHU6EKX6SzsBHzbOSxHhjR5XuBFUznGM+u1FyK7hGOxsyRZgBDS2rClcD/9bfn7SgitQU4nd1fGXnnQK1s5h7IklkIjoxMDAxLCJFeHBpcnlEYXRlIjoiMjAxNi0xMi0yN1QwMDowMDowMFoiLCJUeXBlIjoiVGVzdCJ9";
             ExceptionAssert.Throws<JsonException>(() => LicenseHelpers.RegisterLicense(licenseText, new DateTime(2016, 12, 27, 0, 0, 0, DateTimeKind.Utc)), "License text does not match signature.");
         }
 
@@ -53,13 +53,13 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             licenseText = "1002";
             ExceptionAssert.Throws<JsonException>(() => LicenseHelpers.RegisterLicense(licenseText, new DateTime(2016, 12, 26, 0, 0, 0, DateTimeKind.Utc)), "Specified license text is invalid.");
 
-            licenseText = "1002-eyJJZCI6MTAwMSwiRXhwaXJ5RGF0ZSI6IjIwMTYtMTItMjdUMDA6MDA6MDBaIiwiVHlwZSI6IlRlc3QifTe9KjOZYrE4JlyDUF64TO432y8TLNEZKvJxeVddMn+DjI0mUMiPyEfDs/YXyMhLOYUsyPHl/HRW9SnCrDMkk7kP8B1OhCl+ks7AR82zksR4Y0eV7gRVM5xjPrtRciu4RjsbMkWYAQ0tqwpXA//W35+0oIrUFOJ3dXxl550CtbOY";
+            licenseText = "1003-N8/Xc2RXpYddnHEH881tBKyb4itL4Wiyh3VL3HMQP3phVElppL3GNeSqYDQQcxSz34lXOHfWTrKEdAw2oNcyohMkXTKjlr5T7kASfLHaHPV3mUrFJPFlWhwfEzJ/+Fie0HT0chcXJnxFu50hJT++IfVYtcYwc+gNHzvQc2E2mRt7IklkIjoxMDAyLCJFeHBpcnlEYXRlIjoiMjExNi0xMi0yN1QwMDowMDowMFoiLCJUeXBlIjoiVGVzdCJ9";
             ExceptionAssert.Throws<JsonException>(() => LicenseHelpers.RegisterLicense(licenseText, new DateTime(2016, 12, 26, 0, 0, 0, DateTimeKind.Utc)), "License ID does not match signature license ID.");
 
-            licenseText = "PIE-eyJJZCI6MTAwMSwiRXhwaXJ5RGF0ZSI6IjIwMTYtMTItMjdUMDA6MDA6MDBaIiwiVHlwZSI6IlRlc3QifTe9KjOZYrE4JlyDUF64TO432y8TLNEZKvJxeVddMn+DjI0mUMiPyEfDs/YXyMhLOYUsyPHl/HRW9SnCrDMkk7kP8B1OhCl+ks7AR82zksR4Y0eV7gRVM5xjPrtRciu4RjsbMkWYAQ0tqwpXA//W35+0oIrUFOJ3dXxl550CtbOY";
+            licenseText = "PIES-N8/Xc2RXpYddnHEH881tBKyb4itL4Wiyh3VL3HMQP3phVElppL3GNeSqYDQQcxSz34lXOHfWTrKEdAw2oNcyohMkXTKjlr5T7kASfLHaHPV3mUrFJPFlWhwfEzJ/+Fie0HT0chcXJnxFu50hJT++IfVYtcYwc+gNHzvQc2E2mRt7IklkIjoxMDAyLCJFeHBpcnlEYXRlIjoiMjExNi0xMi0yN1QwMDowMDowMFoiLCJUeXBlIjoiVGVzdCJ9";
             ExceptionAssert.Throws<JsonException>(() => LicenseHelpers.RegisterLicense(licenseText, new DateTime(2016, 12, 26, 0, 0, 0, DateTimeKind.Utc)), "Specified license text is invalid.");
 
-            licenseText = "1001-ZZeyJJZCI6MTAwMSwiRXhwaXJ5RGF0ZSI6IjIwMTYtMTItMjdUMDA6MDA6MDBaIiwiVHlwZSI6IlRlc3QifTe9KjOZYrE4JlyDUF64TO432y8TLNEZKvJxeVddMn+DjI0mUMiPyEfDs/YXyMhLOYUsyPHl/HRW9SnCrDMkk7kP8B1OhCl+ks7AR82zksR4Y0eV7gRVM5xjPrtRciu4RjsbMkWYAQ0tqwpXA//W35+0oIrUFOJ3dXxl550CtbOY";
+            licenseText = "1002-!!/Xc2RXpYddnHEH881tBKyb4itL4Wiyh3VL3HMQP3phVElppL3GNeSqYDQQcxSz34lXOHfWTrKEdAw2oNcyohMkXTKjlr5T7kASfLHaHPV3mUrFJPFlWhwfEzJ/+Fie0HT0chcXJnxFu50hJT++IfVYtcYwc+gNHzvQc2E2mRt7IklkIjoxMDAyLCJFeHBpcnlEYXRlIjoiMjExNi0xMi0yN1QwMDowMDowMFoiLCJUeXBlIjoiVGVzdCJ9";
             ExceptionAssert.Throws<JsonException>(() => LicenseHelpers.RegisterLicense(licenseText, new DateTime(2016, 12, 27, 0, 0, 0, DateTimeKind.Utc)), "Specified license text is invalid.");
 
             licenseText = "1001-" + Convert.ToBase64String(Encoding.UTF8.GetBytes("Hello world"));
