@@ -20,6 +20,24 @@ namespace Newtonsoft.Json.Schema.Tests
             return typeof(TestHelpers).Assembly.GetManifestResourceStream("Newtonsoft.Json.Schema.Tests.Resources." + name);
         }
 
+        public static Stream OpenFile(string name)
+        {
+            string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+
+            string path = Path.Combine(baseDirectory, name);
+
+            return File.OpenRead(path);
+        }
+
+        public static string OpenFileText(string name)
+        {
+            using (var file = OpenFile(name))
+            using (StreamReader sr = new StreamReader(file))
+            {
+                return sr.ReadToEnd();
+            }
+        }
+
         public static JSchema OpenSchemaResource(string name)
         {
             return OpenSchemaResource(name, JSchemaDummyResolver.Instance);
@@ -38,11 +56,8 @@ namespace Newtonsoft.Json.Schema.Tests
 
         public static JSchema OpenSchemaFile(string name, JSchemaResolver resolver = null)
         {
-            string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-
-            string path = Path.Combine(baseDirectory, name);
-
-            using (JsonReader reader = new JsonTextReader(new StreamReader(path)))
+            using (Stream file = OpenFile(name))
+            using (JsonReader reader = new JsonTextReader(new StreamReader(file)))
             {
                 JSchema schema = (resolver != null) ? JSchema.Read(reader, resolver) : JSchema.Read(reader);
                 return schema;

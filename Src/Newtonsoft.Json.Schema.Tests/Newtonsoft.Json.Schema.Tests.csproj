@@ -81,6 +81,7 @@
     <Compile Include="LicenseTests.cs" />
     <Compile Include="PerformanceTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RealWorldTests.cs" />
     <Compile Include="TestFixtureBase.cs" />
     <Compile Include="TestHelpers.cs" />
     <Compile Include="TestObjects\CircularReferenceClass.cs" />

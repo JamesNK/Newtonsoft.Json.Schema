@@ -24,7 +24,7 @@ using Newtonsoft.Json.Schema.Infrastructure.Licensing;
 [assembly: AssemblyCulture("")]
 
 [assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.1.18118")]
+[assembly: AssemblyFileVersion("1.0.1.18123")]
 
 [assembly: CLSCompliant(true)]
 

@@ -26,6 +26,6 @@ using Newtonsoft.Json.Schema.Infrastructure.Licensing;
 [assembly: Guid("a5bb3fb0-90f1-4f9c-a930-dcfed8b8de5d")]
 
 [assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.1.18118")]
+[assembly: AssemblyFileVersion("1.0.1.18123")]
 
 [assembly: ReleaseDate("2014-12-27")]

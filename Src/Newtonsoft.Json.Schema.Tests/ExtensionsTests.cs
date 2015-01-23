@@ -760,5 +760,93 @@ namespace Newtonsoft.Json.Schema.Tests
 
             Assert.IsFalse(t.IsValid(s));
         }
+
+        [Test]
+        public void TV4_Issue_86()
+        {
+            string schemaJson = @"{
+			""type"": ""object"",
+			""properties"": {
+				""shape"": {
+					""oneOf"": [
+						{ ""$ref"": ""#/definitions/squareSchema"" },
+						{ ""$ref"": ""#/definitions/circleSchema"" }
+					]
+				}
+			},
+			""definitions"": {
+				""squareSchema"": {
+					""type"": ""object"",
+					""properties"": {
+						""thetype"": {
+							""type"": ""string"",
+							""enum"": [""square""]
+						},
+						""colour"": {},
+						""shade"": {},
+						""boxname"": {
+							""type"": ""string""
+						}
+					},
+					""oneOf"": [
+						{ ""$ref"": ""#/definitions/colourSchema"" },
+						{ ""$ref"": ""#/definitions/shadeSchema"" }
+					],
+					""required"": [""thetype"", ""boxname""],
+					""additionalProperties"": false
+				},
+				""circleSchema"": {
+					""type"": ""object"",
+					""properties"": {
+						""thetype"": {
+							""type"": ""string"",
+							""enum"": [""circle""]
+						},
+						""colour"": {},
+						""shade"": {}
+					},
+					""oneOf"": [
+						{ ""$ref"": ""#/definitions/colourSchema"" },
+						{ ""$ref"": ""#/definitions/shadeSchema"" }
+					],
+					""additionalProperties"": false
+				},
+				""colourSchema"": {
+					""type"": ""object"",
+					""properties"": {
+						""colour"": {
+							""type"": ""string""
+						},
+						""shade"": {
+							""type"": ""null""
+						}
+					}
+				},
+				""shadeSchema"": {
+					""type"": ""object"",
+					""properties"": {
+						""shade"": {
+							""type"": ""string""
+						},
+						""colour"": {
+							""type"": ""null""
+						}
+					}
+				}
+			}
+		}";
+
+            JObject o = JObject.Parse(@"{
+			""shape"": {
+				""thetype"": ""circle"",
+				""shade"": ""red""
+			}
+		}");
+
+            JSchema schema = JSchema.Parse(schemaJson);
+
+            bool isValid = o.IsValid(schema);
+            Assert.IsTrue(isValid);
+        }
     }
 }
