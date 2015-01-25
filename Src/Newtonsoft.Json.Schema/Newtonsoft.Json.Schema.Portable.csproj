@@ -67,7 +67,6 @@
     <Compile Include="Infrastructure\Licensing\ReleaseDateAttribute.cs" />
     <Compile Include="Infrastructure\Timer.cs" />
     <Compile Include="Infrastructure\MathHelpers.cs" />
-    <Compile Include="ISchemaError.cs" />
     <Compile Include="JSchema.cs" />
     <Compile Include="Generation\JSchemaGenerationProviderAttribute.cs" />
     <Compile Include="JSchemaGenerator.cs" />
@@ -115,6 +114,7 @@
     <Compile Include="Infrastructure\Validation\Validator.cs" />
     <Compile Include="Generation\StringEnumGenerationProvider.cs" />
     <Compile Include="TypeSchema.cs" />
+    <Compile Include="ValidationError.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
