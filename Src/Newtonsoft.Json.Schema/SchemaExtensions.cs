@@ -57,11 +57,11 @@ namespace Newtonsoft.Json.Schema
         /// <returns>
         /// 	<c>true</c> if the specified <see cref="JToken"/> is valid; otherwise, <c>false</c>.
         /// </returns>
-        public static bool IsValid(this JToken source, JSchema schema, out IList<ISchemaError> errors)
+        public static bool IsValid(this JToken source, JSchema schema, out IList<ValidationError> errors)
         {
-            IList<ISchemaError> schemaErrors = new List<ISchemaError>();
+            IList<ValidationError> schemaErrors = new List<ValidationError>();
 
-            source.Validate(schema, (sender, args) => schemaErrors.Add(args.Exception));
+            source.Validate(schema, (sender, args) => schemaErrors.Add(args.ValidationError));
 
             errors = schemaErrors;
             return (errors.Count == 0);

@@ -34,7 +34,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     }
 
                     string message = "JSON does not match all schemas from 'allOf'. Invalid schema indexes: {0}.".FormatWith(CultureInfo.InvariantCulture, string.Join(", ", invalidIndexes));
-                    RaiseError(message, ErrorType.AllOf, ParentSchemaScope.Schema, ConditionalContext.Errors);
+                    RaiseError(message, ErrorType.AllOf, ParentSchemaScope.Schema, null, ConditionalContext.Errors);
                 }
 
                 return true;

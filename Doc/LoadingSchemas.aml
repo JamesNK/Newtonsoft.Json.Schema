@@ -18,9 +18,9 @@
 
 <code lang="cs" source="..\Src\Newtonsoft.Json.Schema.Tests\Documentation\LoadingSchemas.cs" region="ParseString" title="Parse JSON Schema string" />
 
-<para>Schemas can also be loaded directly from a <codeEntityReference>T:Newtonsoft.Json.JsonReader</codeEntityReference> using <codeEntityReference>M:Newtonsoft.Json.Schema.JSchema.Read(Newtonsoft.Json.JsonReader)</codeEntityReference>. This is useful when loading a schema from a stream, e.g. load from a file using <codeEntityReference>T:System.IO.FileStream</codeEntityReference>.</para>
+<para>Schemas can also be loaded directly from a <codeEntityReference>T:Newtonsoft.Json.JsonReader</codeEntityReference> using <codeEntityReference>M:Newtonsoft.Json.Schema.JSchema.Load(Newtonsoft.Json.JsonReader)</codeEntityReference>. This is useful when loading a schema from a stream, e.g. load from a file using <codeEntityReference>T:System.IO.FileStream</codeEntityReference>.</para>
 
-<code lang="cs" source="..\Src\Newtonsoft.Json.Schema.Tests\Documentation\LoadingSchemas.cs" region="ReadFile" title="Load JSON Schema file" />
+<code lang="cs" source="..\Src\Newtonsoft.Json.Schema.Tests\Documentation\LoadingSchemas.cs" region="LoadFile" title="Load JSON Schema file" />
 
 </content>
 </section>

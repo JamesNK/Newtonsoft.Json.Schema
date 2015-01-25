@@ -27,9 +27,9 @@ namespace Newtonsoft.Json.Schema
                 _writer = writer;
             }
 
-            public override ISchemaError CreateError(string message, ErrorType errorType, JSchema schema, IList<ISchemaError> childErrors)
+            public override ValidationError CreateError(string message, ErrorType errorType, JSchema schema, object value, IList<ValidationError> childErrors)
             {
-                return CreateError(message, errorType, schema, childErrors, null, _writer.Path);
+                return CreateError(message, errorType, schema, value, childErrors, null, _writer.Path);
             }
         }
 

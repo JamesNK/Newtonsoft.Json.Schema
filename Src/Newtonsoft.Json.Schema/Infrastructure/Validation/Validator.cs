@@ -4,6 +4,7 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema.Infrastructure.Licensing;
@@ -23,10 +24,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
         public List<Scope> Scopes
         {
+            [DebuggerStepThrough]
             get { return _scopes; }
         }
 
-        public abstract ISchemaError CreateError(string message, ErrorType errorType, JSchema schema, IList<ISchemaError> childErrors);
+        public abstract ValidationError CreateError(string message, ErrorType errorType, JSchema schema, object value, IList<ValidationError> childErrors);
 
         protected Validator(object publicValidator)
         {
@@ -35,35 +37,33 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             _context = new ValidatorContext(this);
         }
 
-        public void RaiseError(string message, ErrorType errorType, JSchema schema, IList<ISchemaError> childErrors)
+        public void RaiseError(string message, ErrorType errorType, JSchema schema, object value, IList<ValidationError> childErrors)
         {
-            JSchemaException ex = (JSchemaException)CreateError(message, errorType, schema, childErrors);
+            ValidationError error = CreateError(message, errorType, schema, value, childErrors);
 
             SchemaValidationEventHandler handler = ValidationEventHandler;
             if (handler != null)
-                handler(_publicValidator, new SchemaValidationEventArgs(ex));
+                handler(_publicValidator, new SchemaValidationEventArgs(error));
             else
-                throw ex;
+                throw JSchemaException.Create(message, error);
         }
 
-        protected ISchemaError CreateError(string message, ErrorType errorType, JSchema schema, IList<ISchemaError> childErrors, IJsonLineInfo lineInfo, string path)
+        protected ValidationError CreateError(string message, ErrorType errorType, JSchema schema, object value, IList<ValidationError> childErrors, IJsonLineInfo lineInfo, string path)
         {
-            string exceptionMessage = (lineInfo != null && lineInfo.HasLineInfo())
-                ? message + " Line {0}, position {1}.".FormatWith(CultureInfo.InvariantCulture, lineInfo.LineNumber, lineInfo.LinePosition)
-                : message;
-
-            JSchemaException exception = new JSchemaException(exceptionMessage, null);
-            exception.ErrorType = errorType;
-            exception.Path = path;
+            ValidationError error = new ValidationError();
+            error.Message = message;
+            error.ErrorType = errorType;
+            error.Path = path;
             if (lineInfo != null)
             {
-                exception.LineNumber = lineInfo.LineNumber;
-                exception.LinePosition = lineInfo.LinePosition;
+                error.LineNumber = lineInfo.LineNumber;
+                error.LinePosition = lineInfo.LinePosition;
             }
-            exception.Schema = schema;
-            exception.ChildErrors = childErrors ?? new List<ISchemaError>();
+            error.Schema = schema;
+            error.Value = value;
+            error.ChildErrors = childErrors;
 
-            return exception;
+            return error;
         }
 
         public void ValidateCurrentToken(JsonToken token, object value, int depth)

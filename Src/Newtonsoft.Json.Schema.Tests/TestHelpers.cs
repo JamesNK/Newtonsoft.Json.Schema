@@ -59,7 +59,7 @@ namespace Newtonsoft.Json.Schema.Tests
             using (Stream file = OpenFile(name))
             using (JsonReader reader = new JsonTextReader(new StreamReader(file)))
             {
-                JSchema schema = (resolver != null) ? JSchema.Read(reader, resolver) : JSchema.Read(reader);
+                JSchema schema = (resolver != null) ? JSchema.Load(reader, resolver) : JSchema.Load(reader);
                 return schema;
             }
         }

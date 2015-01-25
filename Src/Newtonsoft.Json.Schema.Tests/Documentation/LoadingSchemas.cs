@@ -65,13 +65,13 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
         }
 
         [Test]
-        public void ReadFile()
+        public void LoadFile()
         {
-            #region ReadFile
+            #region LoadFile
             using (StreamReader file = File.OpenText(@"c:\person.json"))
             using (JsonTextReader reader = new JsonTextReader(file))
             {
-                JSchema schema = JSchema.Read(reader);
+                JSchema schema = JSchema.Load(reader);
 
                 // validate JSON
             }

@@ -101,17 +101,17 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                         StringWriter sw = new StringWriter(CultureInfo.InvariantCulture);
                         Context.TokenWriter.CurrentToken.WriteTo(new JsonTextWriter(sw));
 
-                        RaiseError("Value {0} is not defined in enum.".FormatWith(CultureInfo.InvariantCulture, sw.ToString()), ErrorType.Enum, Schema, null);
+                        RaiseError("Value {0} is not defined in enum.".FormatWith(CultureInfo.InvariantCulture, sw.ToString()), ErrorType.Enum, Schema, value, null);
                     }
                 }
             }
         }
 
-        protected bool TestType(JSchema currentSchema, JSchemaType currentType)
+        protected bool TestType(JSchema currentSchema, JSchemaType currentType, object value)
         {
             if (!JSchemaTypeHelpers.HasFlag(currentSchema.Type, currentType))
             {
-                RaiseError("Invalid type. Expected {0} but got {1}.".FormatWith(CultureInfo.InvariantCulture, currentSchema.Type, currentType), ErrorType.Type, currentSchema, null);
+                RaiseError("Invalid type. Expected {0} but got {1}.".FormatWith(CultureInfo.InvariantCulture, currentSchema.Type, currentType), ErrorType.Type, currentSchema, value, null);
                 return false;
             }
 
@@ -134,11 +134,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             }
         }
 
-        internal override void RaiseError(string message, ErrorType errorType, JSchema schema, IList<ISchemaError> childErrors)
+        internal override void RaiseError(string message, ErrorType errorType, JSchema schema, object value, IList<ValidationError> childErrors)
         {
             IsValid = false;
 
-            base.RaiseError(message, errorType, schema, childErrors);
+            base.RaiseError(message, errorType, schema, value, childErrors);
         }
     }
 }

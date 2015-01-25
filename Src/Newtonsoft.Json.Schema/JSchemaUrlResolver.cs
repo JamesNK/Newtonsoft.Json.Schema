@@ -47,7 +47,7 @@ namespace Newtonsoft.Json.Schema
             using (StreamReader sr = new StreamReader(s))
             using (JsonTextReader jsonReader = new JsonTextReader(sr))
             {
-                return JSchema.Read(jsonReader);
+                return JSchema.Load(jsonReader);
             }
         }
 

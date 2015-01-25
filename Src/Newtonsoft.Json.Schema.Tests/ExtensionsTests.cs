@@ -617,15 +617,15 @@ namespace Newtonsoft.Json.Schema.Tests
 
             JToken json = JToken.Parse(@"""foo foo""");
 
-            IList<ISchemaError> errors;
+            IList<ValidationError> errors;
             Assert.IsFalse(json.IsValid(schema, out errors));
             Assert.AreEqual(1, errors.Count);
 
-            ISchemaError error = errors.Single();
-            StringAssert.AreEqual("JSON is valid against more than one schema from 'oneOf'. No valid schemas. Line 1, position 9.", error.Message);
+            ValidationError error = errors.Single();
+            StringAssert.AreEqual("JSON is valid against more than one schema from 'oneOf'. No valid schemas. Line 1, position 9.", error.BuildExtendedMessage());
             Assert.AreEqual(2, error.ChildErrors.Count);
-            StringAssert.AreEqual(@"String 'foo foo' exceeds maximum length of 4. Line 1, position 9.", error.ChildErrors[0].Message);
-            StringAssert.AreEqual(@"Invalid type. Expected Object but got String. Line 1, position 9.", error.ChildErrors[1].Message);
+            StringAssert.AreEqual(@"String 'foo foo' exceeds maximum length of 4. Line 1, position 9.", error.ChildErrors[0].BuildExtendedMessage());
+            StringAssert.AreEqual(@"Invalid type. Expected Object but got String. Line 1, position 9.", error.ChildErrors[1].BuildExtendedMessage());
         }
 
         [Test]
@@ -710,12 +710,12 @@ namespace Newtonsoft.Json.Schema.Tests
 
             JToken json = JToken.Parse(@"{""foo"": ""quux"", ""bar"": 2}");
 
-            IList<ISchemaError> errorMessages;
+            IList<ValidationError> errorMessages;
             Assert.IsFalse(json.IsValid(schema, out errorMessages));
             Assert.AreEqual(1, errorMessages.Count);
-            StringAssert.AreEqual(@"Dependencies for property 'bar' failed. Line 1, position 1.", errorMessages[0].Message);
+            StringAssert.AreEqual(@"Dependencies for property 'bar' failed. Line 1, position 1.", errorMessages[0].BuildExtendedMessage());
             Assert.AreEqual(1, errorMessages[0].ChildErrors.Count);
-            StringAssert.AreEqual(@"Invalid type. Expected Integer but got String. Line 1, position 14.", errorMessages[0].ChildErrors[0].Message);
+            StringAssert.AreEqual(@"Invalid type. Expected Integer but got String. Line 1, position 14.", errorMessages[0].ChildErrors[0].BuildExtendedMessage());
         }
 
         [Test]
@@ -737,7 +737,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             JToken json = JToken.Parse(@"{""foo"":""quux""}");
 
-            IList<ISchemaError> errors;
+            IList<ValidationError> errors;
             bool isValid = json.IsValid(root, out errors);
 
             Assert.IsTrue(isValid);

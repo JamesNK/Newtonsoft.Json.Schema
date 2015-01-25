@@ -33,7 +33,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 
             using (JsonReader reader = new JsonTextReader(new StreamReader(path)))
             {
-                JSchema schema = JSchema.Read(reader, resolver);
+                JSchema schema = JSchema.Load(reader, resolver);
                 return schema;
             }
         }

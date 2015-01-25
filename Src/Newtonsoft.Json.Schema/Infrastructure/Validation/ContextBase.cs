@@ -4,6 +4,7 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Diagnostics;
 using Newtonsoft.Json.Linq;
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Validation
@@ -14,6 +15,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
         public List<Scope> Scopes
         {
+            [DebuggerStepThrough]
             get { return Validator.Scopes; }
         }
 
@@ -28,7 +30,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             Validator = validator;
         }
         
-        public abstract void RaiseError(string message, ErrorType errorType, JSchema schema, IList<ISchemaError> childErrors);
+        public abstract void RaiseError(string message, ErrorType errorType, JSchema schema, object value, IList<ValidationError> childErrors);
         public abstract bool HasErrors { get; }
     }
 }

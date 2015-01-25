@@ -46,17 +46,17 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 switch (token)
                 {
                     case JsonToken.StartObject:
-                        TestType(Schema, JSchemaType.Object);
+                        TestType(Schema, JSchemaType.Object, null);
                         return false;
                     case JsonToken.EndObject:
                         if (_requiredProperties != null && _requiredProperties.Count > 0)
-                            RaiseError("Required properties are missing from object: {0}.".FormatWith(CultureInfo.InvariantCulture, string.Join(", ", _requiredProperties)), ErrorType.Required, Schema, null);
+                            RaiseError("Required properties are missing from object: {0}.".FormatWith(CultureInfo.InvariantCulture, string.Join(", ", _requiredProperties)), ErrorType.Required, Schema, _requiredProperties, null);
 
                         if (Schema.MaximumProperties != null && _propertyCount > Schema.MaximumProperties)
-                            RaiseError("Object property count {0} exceeds maximum count of {1}.".FormatWith(CultureInfo.InvariantCulture, _propertyCount, Schema.MaximumProperties), ErrorType.MaximumProperties, Schema, null);
+                            RaiseError("Object property count {0} exceeds maximum count of {1}.".FormatWith(CultureInfo.InvariantCulture, _propertyCount, Schema.MaximumProperties), ErrorType.MaximumProperties, Schema, _propertyCount, null);
 
                         if (Schema.MinimumProperties != null && _propertyCount < Schema.MinimumProperties)
-                            RaiseError("Object property count {0} is less than minimum count of {1}.".FormatWith(CultureInfo.InvariantCulture, _propertyCount, Schema.MinimumProperties), ErrorType.MinimumProperties, Schema, null);
+                            RaiseError("Object property count {0} is less than minimum count of {1}.".FormatWith(CultureInfo.InvariantCulture, _propertyCount, Schema.MinimumProperties), ErrorType.MinimumProperties, Schema, _propertyCount, null);
 
                         if (_readProperties != null)
                         {
@@ -73,7 +73,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                                             List<string> missingRequiredProperties = requiredProperties.Where(r => !_readProperties.Contains(r)).ToList();
                                             string message = "Dependencies for property '{0}' failed. Missing required keys: {1}.".FormatWith(CultureInfo.InvariantCulture, readProperty, string.Join(", ", missingRequiredProperties));
 
-                                            RaiseError(message, ErrorType.Dependencies, Schema, null);
+                                            RaiseError(message, ErrorType.Dependencies, Schema, readProperty, null);
                                         }
                                     }
                                     else
@@ -82,7 +82,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                                         if (dependencyScope.Context.HasErrors)
                                         {
                                             string message = "Dependencies for property '{0}' failed.".FormatWith(CultureInfo.InvariantCulture, readProperty);
-                                            RaiseError(message, ErrorType.Dependencies, Schema, ((ConditionalContext)dependencyScope.Context).Errors);
+                                            RaiseError(message, ErrorType.Dependencies, Schema, readProperty, ((ConditionalContext)dependencyScope.Context).Errors);
                                         }
                                     }
                                 }
@@ -111,7 +111,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                         if (!IsPropertyDefinied(Schema, _currentPropertyName))
                         {
                             string message = "Property '{0}' has not been defined and the schema does not allow additional properties.".FormatWith(CultureInfo.InvariantCulture, _currentPropertyName);
-                            RaiseError(message, ErrorType.AdditionalProperties, Schema, null);
+                            RaiseError(message, ErrorType.AdditionalProperties, Schema, _currentPropertyName, null);
                         }
                     }
                 }

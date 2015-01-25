@@ -416,22 +416,22 @@ namespace Newtonsoft.Json.Schema
         public string Format { get; set; }
 
         /// <summary>
-        /// Reads a <see cref="JSchema"/> from the specified <see cref="JsonReader"/>.
+        /// Loads a <see cref="JSchema"/> from the specified <see cref="JsonReader"/>.
         /// </summary>
-        /// <param name="reader">The <see cref="JsonReader"/> containing the JSON Schema to read.</param>
+        /// <param name="reader">The <see cref="JsonReader"/> containing the JSON Schema to load.</param>
         /// <returns>The <see cref="JSchema"/> object representing the JSON Schema.</returns>
-        public static JSchema Read(JsonReader reader)
+        public static JSchema Load(JsonReader reader)
         {
-            return Read(reader, JSchemaDummyResolver.Instance);
+            return Load(reader, JSchemaDummyResolver.Instance);
         }
 
         /// <summary>
-        /// Reads a <see cref="JSchema"/> from the specified <see cref="JsonReader"/>.
+        /// Loads a <see cref="JSchema"/> from the specified <see cref="JsonReader"/>.
         /// </summary>
-        /// <param name="reader">The <see cref="JsonReader"/> containing the JSON Schema to read.</param>
+        /// <param name="reader">The <see cref="JsonReader"/> containing the JSON Schema to load.</param>
         /// <param name="resolver">The <see cref="JSchemaResolver"/> to use when resolving schema references.</param>
         /// <returns>The <see cref="JSchema"/> object representing the JSON Schema.</returns>
-        public static JSchema Read(JsonReader reader, JSchemaResolver resolver)
+        public static JSchema Load(JsonReader reader, JSchemaResolver resolver)
         {
             ValidationUtils.ArgumentNotNull(reader, "reader");
             ValidationUtils.ArgumentNotNull(resolver, "resolver");
@@ -462,7 +462,7 @@ namespace Newtonsoft.Json.Schema
 
             using (JsonReader reader = new JsonTextReader(new StringReader(json)))
             {
-                return Read(reader, resolver);
+                return Load(reader, resolver);
             }
         }
     }

@@ -18,11 +18,11 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation.Samples.Load
             // read file into a string and parse JSchema from the string
             JSchema schema1 = JSchema.Parse(File.ReadAllText(@"c:\schema.json"));
 
-            // read JSchema directly from a file
+            // load JSchema directly from a file
             using (StreamReader file = File.OpenText(@"c:\schema.json"))
             using (JsonTextReader reader = new JsonTextReader(file))
             {
-                JSchema schema2 = JSchema.Read(reader);
+                JSchema schema2 = JSchema.Load(reader);
             }
             #endregion
         }

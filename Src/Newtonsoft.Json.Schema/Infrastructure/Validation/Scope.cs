@@ -21,7 +21,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             InitialDepth = initialDepth;
         }
 
-        internal virtual void RaiseError(string message, ErrorType errorType, JSchema schema, IList<ISchemaError> childErrors)
+        internal virtual void RaiseError(string message, ErrorType errorType, JSchema schema, object value, IList<ValidationError> childErrors)
         {
             // mark all parent SchemaScopes as invalid
             Scope current = this;
@@ -35,7 +35,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 current = parentSchemaScope;
             }
 
-            Context.RaiseError(message, errorType, schema, childErrors);
+            Context.RaiseError(message, errorType, schema, value, childErrors);
         }
 
         public void EvaluateToken(JsonToken token, object value, int depth)

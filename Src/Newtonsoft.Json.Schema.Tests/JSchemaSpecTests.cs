@@ -76,7 +76,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             JSchemaPreloadedResolver resolver = GetResolver();
 
-            JSchema s = JSchema.Read(schemaSpecTest.Schema.CreateReader(), resolver);
+            JSchema s = JSchema.Load(schemaSpecTest.Schema.CreateReader(), resolver);
 
             JsonReader jsonReader = schemaSpecTest.Data.CreateReader();
 
@@ -104,7 +104,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             JSchemaPreloadedResolver resolver = GetResolver();
 
-            JSchema s = JSchema.Read(schemaSpecTest.Schema.CreateReader(), resolver);
+            JSchema s = JSchema.Load(schemaSpecTest.Schema.CreateReader(), resolver);
 
             JsonReader jsonReader = schemaSpecTest.Data.CreateReader();
 

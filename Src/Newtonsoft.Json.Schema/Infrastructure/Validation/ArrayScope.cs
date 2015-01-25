@@ -35,20 +35,20 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 switch (token)
                 {
                     case JsonToken.StartArray:
-                        TestType(Schema, JSchemaType.Array);
+                        TestType(Schema, JSchemaType.Array, null);
                         return false;
                     case JsonToken.StartConstructor:
-                        RaiseError("Invalid type. Expected {0} but got {1}.".FormatWith(CultureInfo.InvariantCulture, Schema.Type, "Constructor"), ErrorType.Type, Schema, null);
+                        RaiseError("Invalid type. Expected {0} but got {1}.".FormatWith(CultureInfo.InvariantCulture, Schema.Type, "Constructor"), ErrorType.Type, Schema, value, null);
                         return false;
                     case JsonToken.EndArray:
                     case JsonToken.EndConstructor:
                         int itemCount = _index + 1;
 
                         if (Schema.MaximumItems != null && itemCount > Schema.MaximumItems)
-                            RaiseError("Array item count {0} exceeds maximum count of {1}.".FormatWith(CultureInfo.InvariantCulture, itemCount, Schema.MaximumItems), ErrorType.MaximumItems, Schema, null);
+                            RaiseError("Array item count {0} exceeds maximum count of {1}.".FormatWith(CultureInfo.InvariantCulture, itemCount, Schema.MaximumItems), ErrorType.MaximumItems, Schema, itemCount, null);
 
                         if (Schema.MinimumItems != null && itemCount < Schema.MinimumItems)
-                            RaiseError("Array item count {0} is less than minimum count of {1}.".FormatWith(CultureInfo.InvariantCulture, itemCount, Schema.MinimumItems), ErrorType.MinimumItems, Schema, null);
+                            RaiseError("Array item count {0} is less than minimum count of {1}.".FormatWith(CultureInfo.InvariantCulture, itemCount, Schema.MinimumItems), ErrorType.MinimumItems, Schema, itemCount, null);
 
                         return true;
                     default:
@@ -84,7 +84,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                         else
                         {
                             if (!Schema.AllowAdditionalItems)
-                                RaiseError("Index {0} has not been defined and the schema does not allow additional items.".FormatWith(CultureInfo.InvariantCulture, _index + 1), ErrorType.AdditionalItems, Schema, null);
+                                RaiseError("Index {0} has not been defined and the schema does not allow additional items.".FormatWith(CultureInfo.InvariantCulture, _index + 1), ErrorType.AdditionalItems, Schema, value, null);
                             else if (Schema.AdditionalItems != null)
                                 CreateScopesAndEvaluateToken(token, value, depth, Schema.AdditionalItems);
                         }
@@ -100,10 +100,17 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 {
                     if (Schema.UniqueItems)
                     {
-                        if (_uniqueArrayItems.Contains(Context.TokenWriter.CurrentToken, JToken.EqualityComparer))
-                            RaiseError("Non-unique array item at index {0}.".FormatWith(CultureInfo.InvariantCulture, _index), ErrorType.UniqueItems, Schema, null);
+                        var currentToken = Context.TokenWriter.CurrentToken;
+                        if (_uniqueArrayItems.Contains(currentToken, JToken.EqualityComparer))
+                        {
+                            object v = (currentToken is JValue) ? ((JValue)currentToken).Value : currentToken;
+
+                            RaiseError("Non-unique array item at index {0}.".FormatWith(CultureInfo.InvariantCulture, _index), ErrorType.UniqueItems, Schema, v, null);
+                        }
                         else
+                        {
                             _uniqueArrayItems.Add(Context.TokenWriter.CurrentToken);
+                        }
                     }
                 }
             }

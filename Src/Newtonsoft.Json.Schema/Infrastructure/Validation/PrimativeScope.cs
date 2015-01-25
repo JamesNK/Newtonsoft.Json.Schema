@@ -27,26 +27,40 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             switch (token)
             {
                 case JsonToken.Integer:
+                {
                     if (!ValidateInteger(Schema, value))
                         return true;
                     break;
+                }
                 case JsonToken.Float:
+                {
                     if (!ValidateFloat(Schema, Convert.ToDouble(value, CultureInfo.InvariantCulture)))
                         return true;
                     break;
+                }
                 case JsonToken.String:
-                    if (!ValidateString(Schema, value.ToString()))
+                {
+                    Uri uri = value as Uri;
+                    string s = (uri != null) ? uri.OriginalString : value.ToString();
+
+                    if (!ValidateString(Schema, s))
                         return true;
                     break;
+                }
                 case JsonToken.Boolean:
-                    if (!ValidateBoolean(Schema))
+                {
+                    if (!ValidateBoolean(Schema, value))
                         return true;
                     break;
+                }
                 case JsonToken.Null:
-                    if (!ValidateNull(Schema))
+                {
+                    if (!ValidateNull(Schema, value))
                         return true;
                     break;
+                }
                 case JsonToken.Bytes:
+                {
                     byte[] data = value as byte[];
                     if (data == null)
                         data = ((Guid)value).ToByteArray();
@@ -55,11 +69,16 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     if (!ValidateString(Schema, s))
                         return true;
                     break;
+                }
                 case JsonToken.Undefined:
-                    RaiseError("Invalid type. Expected {0} but got {1}.".FormatWith(CultureInfo.InvariantCulture, Schema.Type, token), ErrorType.Type, Schema, null);
+                {
+                    RaiseError("Invalid type. Expected {0} but got {1}.".FormatWith(CultureInfo.InvariantCulture, Schema.Type, token), ErrorType.Type, Schema, value, null);
                     break;
+                }
                 default:
+                {
                     throw new ArgumentOutOfRangeException("Unexpected token: " + token);
+                }
             }
 
             EnsureEnum(token, value);
@@ -67,35 +86,35 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             return true;
         }
 
-        private bool ValidateNull(JSchema schema)
+        private bool ValidateNull(JSchema schema, object value)
         {
-            return TestType(schema, JSchemaType.Null);
+            return TestType(schema, JSchemaType.Null, value);
         }
 
-        private bool ValidateBoolean(JSchema schema)
+        private bool ValidateBoolean(JSchema schema, object value)
         {
-            return TestType(schema, JSchemaType.Boolean);
+            return TestType(schema, JSchemaType.Boolean, value);
         }
 
         private bool ValidateInteger(JSchema schema, object value)
         {
-            if (!TestType(schema, JSchemaType.Integer))
+            if (!TestType(schema, JSchemaType.Integer, value))
                 return false;
 
             if (schema.Maximum != null)
             {
                 if (JValue.Compare(JTokenType.Integer, value, schema.Maximum) > 0)
-                    RaiseError("Integer {0} exceeds maximum value of {1}.".FormatWith(CultureInfo.InvariantCulture, value, schema.Maximum), ErrorType.Maximum, schema, null);
+                    RaiseError("Integer {0} exceeds maximum value of {1}.".FormatWith(CultureInfo.InvariantCulture, value, schema.Maximum), ErrorType.Maximum, schema, value, null);
                 if (schema.ExclusiveMaximum && JValue.Compare(JTokenType.Integer, value, schema.Maximum) == 0)
-                    RaiseError("Integer {0} equals maximum value of {1} and exclusive maximum is true.".FormatWith(CultureInfo.InvariantCulture, value, schema.Maximum), ErrorType.Maximum, schema, null);
+                    RaiseError("Integer {0} equals maximum value of {1} and exclusive maximum is true.".FormatWith(CultureInfo.InvariantCulture, value, schema.Maximum), ErrorType.Maximum, schema, value, null);
             }
 
             if (schema.Minimum != null)
             {
                 if (JValue.Compare(JTokenType.Integer, value, schema.Minimum) < 0)
-                    RaiseError("Integer {0} is less than minimum value of {1}.".FormatWith(CultureInfo.InvariantCulture, value, schema.Minimum), ErrorType.Minimum, schema, null);
+                    RaiseError("Integer {0} is less than minimum value of {1}.".FormatWith(CultureInfo.InvariantCulture, value, schema.Minimum), ErrorType.Minimum, schema, value, null);
                 if (schema.ExclusiveMinimum && JValue.Compare(JTokenType.Integer, value, schema.Minimum) == 0)
-                    RaiseError("Integer {0} equals minimum value of {1} and exclusive minimum is true.".FormatWith(CultureInfo.InvariantCulture, value, schema.Minimum), ErrorType.Minimum, schema, null);
+                    RaiseError("Integer {0} equals minimum value of {1} and exclusive minimum is true.".FormatWith(CultureInfo.InvariantCulture, value, schema.Minimum), ErrorType.Minimum, schema, value, null);
             }
 
             if (schema.MultipleOf != null)
@@ -120,7 +139,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 notDivisible = !MathHelpers.IsZero(Convert.ToInt64(value, CultureInfo.InvariantCulture) % schema.MultipleOf.Value);
 
                 if (notDivisible)
-                    RaiseError("Integer {0} is not a multiple of {1}.".FormatWith(CultureInfo.InvariantCulture, JsonConvert.ToString(value), schema.MultipleOf), ErrorType.MultipleOf, schema, null);
+                    RaiseError("Integer {0} is not a multiple of {1}.".FormatWith(CultureInfo.InvariantCulture, JsonConvert.ToString(value), schema.MultipleOf), ErrorType.MultipleOf, schema, value, null);
             }
 
             return true;
@@ -128,7 +147,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
         private bool ValidateString(JSchema schema, string value)
         {
-            if (!TestType(schema, JSchemaType.String))
+            if (!TestType(schema, JSchemaType.String, value))
                 return false;
 
             if (schema.MaximumLength != null || schema.MinimumLength != null)
@@ -138,16 +157,16 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 int textLength = stringInfo.LengthInTextElements;
 
                 if (schema.MaximumLength != null && textLength > schema.MaximumLength)
-                    RaiseError("String '{0}' exceeds maximum length of {1}.".FormatWith(CultureInfo.InvariantCulture, value, schema.MaximumLength), ErrorType.MaximumLength, schema, null);
+                    RaiseError("String '{0}' exceeds maximum length of {1}.".FormatWith(CultureInfo.InvariantCulture, value, schema.MaximumLength), ErrorType.MaximumLength, schema, value, null);
 
                 if (schema.MinimumLength != null && textLength < schema.MinimumLength)
-                    RaiseError("String '{0}' is less than minimum length of {1}.".FormatWith(CultureInfo.InvariantCulture, value, schema.MinimumLength), ErrorType.MinimumLength, schema, null);
+                    RaiseError("String '{0}' is less than minimum length of {1}.".FormatWith(CultureInfo.InvariantCulture, value, schema.MinimumLength), ErrorType.MinimumLength, schema, value, null);
             }
 
             if (schema.Pattern != null)
             {
                 if (!Regex.IsMatch(value, schema.Pattern))
-                    RaiseError("String '{0}' does not match regex pattern '{1}'.".FormatWith(CultureInfo.InvariantCulture, value, schema.Pattern), ErrorType.Pattern, schema, null);
+                    RaiseError("String '{0}' does not match regex pattern '{1}'.".FormatWith(CultureInfo.InvariantCulture, value, schema.Pattern), ErrorType.Pattern, schema, value, null);
             }
 
             if (schema.Format != null)
@@ -155,7 +174,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 bool valid = ValidateFormat(schema.Format, value);
 
                 if (!valid)
-                    RaiseError("String '{0}' does not validate against format '{1}'.".FormatWith(CultureInfo.InvariantCulture, value, schema.Format), ErrorType.Format, schema, null);
+                    RaiseError("String '{0}' does not validate against format '{1}'.".FormatWith(CultureInfo.InvariantCulture, value, schema.Format), ErrorType.Format, schema, value, null);
             }
 
             return true;
@@ -246,23 +265,23 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
         private bool ValidateFloat(JSchema schema, double value)
         {
-            if (!TestType(schema, JSchemaType.Float))
+            if (!TestType(schema, JSchemaType.Float, value))
                 return false;
 
             if (schema.Maximum != null)
             {
                 if (value > schema.Maximum)
-                    RaiseError("Float {0} exceeds maximum value of {1}.".FormatWith(CultureInfo.InvariantCulture, JsonConvert.ToString(value), schema.Maximum), ErrorType.Maximum, schema, null);
+                    RaiseError("Float {0} exceeds maximum value of {1}.".FormatWith(CultureInfo.InvariantCulture, JsonConvert.ToString(value), schema.Maximum), ErrorType.Maximum, schema, value, null);
                 if (schema.ExclusiveMaximum && value == schema.Maximum)
-                    RaiseError("Float {0} equals maximum value of {1} and exclusive maximum is true.".FormatWith(CultureInfo.InvariantCulture, JsonConvert.ToString(value), schema.Maximum), ErrorType.Maximum, schema, null);
+                    RaiseError("Float {0} equals maximum value of {1} and exclusive maximum is true.".FormatWith(CultureInfo.InvariantCulture, JsonConvert.ToString(value), schema.Maximum), ErrorType.Maximum, schema, value, null);
             }
 
             if (schema.Minimum != null)
             {
                 if (value < schema.Minimum)
-                    RaiseError("Float {0} is less than minimum value of {1}.".FormatWith(CultureInfo.InvariantCulture, JsonConvert.ToString(value), schema.Minimum), ErrorType.Minimum, schema, null);
+                    RaiseError("Float {0} is less than minimum value of {1}.".FormatWith(CultureInfo.InvariantCulture, JsonConvert.ToString(value), schema.Minimum), ErrorType.Minimum, schema, value, null);
                 if (schema.ExclusiveMinimum && value == schema.Minimum)
-                    RaiseError("Float {0} equals minimum value of {1} and exclusive minimum is true.".FormatWith(CultureInfo.InvariantCulture, JsonConvert.ToString(value), schema.Minimum), ErrorType.Minimum, schema, null);
+                    RaiseError("Float {0} equals minimum value of {1} and exclusive minimum is true.".FormatWith(CultureInfo.InvariantCulture, JsonConvert.ToString(value), schema.Minimum), ErrorType.Minimum, schema, value, null);
             }
 
             if (schema.MultipleOf != null)
@@ -270,7 +289,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 double remainder = MathHelpers.FloatingPointRemainder(value, schema.MultipleOf.Value);
 
                 if (!MathHelpers.IsZero(remainder))
-                    RaiseError("Float {0} is not a multiple of {1}.".FormatWith(CultureInfo.InvariantCulture, JsonConvert.ToString(value), schema.MultipleOf), ErrorType.MultipleOf, schema, null);
+                    RaiseError("Float {0} is not a multiple of {1}.".FormatWith(CultureInfo.InvariantCulture, JsonConvert.ToString(value), schema.MultipleOf), ErrorType.MultipleOf, schema, value, null);
             }
 
             return true;
