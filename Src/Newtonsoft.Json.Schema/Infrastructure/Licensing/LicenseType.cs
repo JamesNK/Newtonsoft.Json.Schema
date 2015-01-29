@@ -10,6 +10,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Licensing
     [JsonConverter(typeof(StringEnumConverter))]
     internal enum LicenseType
     {
-        Test
+        Test,
+        JsonSchemaIndie,
+        JsonSchemaBusiness
     }
 }
