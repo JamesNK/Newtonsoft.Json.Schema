@@ -7,6 +7,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Dynamic;
 using System.Globalization;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Schema.Generation;
@@ -65,6 +66,31 @@ namespace Newtonsoft.Json.Schema.Tests
             Console.WriteLine(schema.ToString());
         }
 #endif
+
+        [Test]
+        public void DynamicTest()
+        {
+            JSchemaGenerator generator = new JSchemaGenerator();
+
+            dynamic person = new
+            {
+                Id = 1,
+                FirstName = "John",
+                LastName = "Doe"
+            };
+
+            JSchema schema = generator.Generate(person.GetType());
+
+            Assert.AreEqual(JSchemaType.Integer, schema.Properties["Id"].Type);
+            Assert.AreEqual(JSchemaType.String | JSchemaType.Null, schema.Properties["FirstName"].Type);
+            Assert.AreEqual(JSchemaType.String | JSchemaType.Null, schema.Properties["LastName"].Type);
+
+            Assert.AreEqual(false, schema.AllowAdditionalProperties);
+
+            Assert.AreEqual(true, schema.Required.Contains("Id"));
+            Assert.AreEqual(true, schema.Required.Contains("FirstName"));
+            Assert.AreEqual(true, schema.Required.Contains("LastName"));
+        }
 
         public class GeneratorTestClass
         {

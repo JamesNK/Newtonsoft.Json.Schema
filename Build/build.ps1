@@ -17,6 +17,7 @@
   $docDir = "$baseDir\Doc"
   $releaseDir = "$baseDir\Release"
   $workingDir = "$baseDir\$workingName"
+  $workingSourceDir = "$workingDir\Src"
   $builds = @(
     @{Name = "Newtonsoft.Json.Schema"; TestsName = "Newtonsoft.Json.Schema.Tests"; TestsFunction = "NUnitTests"; Constants=$null; FinalDir="Net45"; NuGetDir = "net45"; Framework="net-4.0"; Sign=$true},
     @{Name = "Newtonsoft.Json.Schema.Net40"; TestsName = "Newtonsoft.Json.Schema.Net40.Tests"; TestsFunction = "NUnitTests"; Constants="NET40"; FinalDir="Net40"; NuGetDir = "net40"; Framework="net-4.0"; Sign=$true},
@@ -43,10 +44,32 @@ task Clean {
 }
 
 # Build each solution, optionally signed
-task Build -depends Clean { 
+task Build -depends Clean {
+
+  Write-Host "Copying source to working source directory $workingSourceDir"
+  robocopy $sourceDir $workingSourceDir /MIR /NP /XD bin obj TestResults AppPackages $packageDirs /XF *.suo *.user | Out-Default
+
   Write-Host -ForegroundColor Green "Updating assembly version"
   Write-Host
-  Update-AssemblyInfoFiles $sourceDir ($majorVersion + '.0.0') $version
+  Update-AssemblyInfoFiles $workingSourceDir ($majorVersion + '.0.0') $version
+
+  Write-Host -ForegroundColor Green "Signed $signAssemblies"
+  if ($signAssemblies)
+  {
+    $files = Get-ChildItem -Path $workingSourceDir -Include @("*.csproj","*.config") -Recurse
+    $count = $files.Count
+
+    Write-Host "Found $count files to update"
+    foreach ($build in $files)
+    {
+      $fullName = $build.FullName
+      Write-Host "Updating $fullName to use signed assembly"
+
+      $content = gc $fullName
+      $content = $content -replace 'Newtonsoft.Json.Unsigned','Newtonsoft.Json'
+      sc $fullName $content
+    }
+  }
 
   foreach ($build in $builds)
   {
@@ -57,49 +80,28 @@ task Build -depends Clean {
       $sign = ($build.Sign -and $signAssemblies)
 
       Write-Host -ForegroundColor Green "Building " $name
-      Write-Host -ForegroundColor Green "Signed " $sign
 
       Write-Host
       Write-Host "Restoring"
-      try
-      {
-        $xmlPath = "$sourceDir\NuGet.Config"
-        $xml = [xml](Get-Content $xmlPath)
-        $xpath = "/configuration/packageSources/add[@key='Json.NET']/@value"
-
-        $jsonNetPackageSourceOld = $xml.SelectSingleNode($xpath).Value
-        $jsonNetPackageSource = if ($sign) { "https://www.myget.org/F/json-net/api/v2" } else { "https://www.myget.org/F/json-net-unsigned/api/v2" }
-
-        Write-Host "Updating Json.NET package source to " $jsonNetPackageSource
-
-        Edit-XmlNodes -doc $xml -xpath $xpath -value $jsonNetPackageSource
-        $xml.save($xmlPath)
-
-        exec { .\Tools\NuGet\NuGet.exe restore ".\Src\$name.sln" "-NoCache" | Out-Default } "Error restoring $name"
-      }
-      finally
-      {
-        Write-Host "Resetting Json.NET package source back to " $jsonNetPackageSourceOld
-
-        Edit-XmlNodes -doc $xml -xpath $xpath -value $jsonNetPackageSourceOld
-        $xml.save($xmlPath)
-      }
+      exec { .\Tools\NuGet\NuGet.exe restore "$workingSourceDir\$name.sln" "-NoCache" | Out-Default } "Error restoring $name"
 
       Write-Host
       Write-Host "Building"
-      exec { msbuild "/t:Clean;Rebuild" /p:Configuration=Release "/p:Platform=Any CPU" /p:OutputPath=bin\Release\$finalDir\ /p:AssemblyOriginatorKeyFile=$signKeyPath "/p:SignAssembly=$sign" "/p:TreatWarningsAsErrors=$treatWarningsAsErrors" "/p:VisualStudioVersion=12.0" (GetConstants $build.Constants $sign) ".\Src\$name.sln" | Out-Default } "Error building $name"
+      exec { msbuild "/t:Clean;Rebuild" /p:Configuration=Release "/p:Platform=Any CPU" /p:OutputPath=bin\Release\$finalDir\ /p:AssemblyOriginatorKeyFile=$signKeyPath "/p:SignAssembly=$sign" "/p:TreatWarningsAsErrors=$treatWarningsAsErrors" "/p:VisualStudioVersion=12.0" (GetConstants $build.Constants $sign) "$workingSourceDir\$name.sln" | Out-Default } "Error building $name"
     }
   }
 }
 
 # Optional build documentation, add files to final zip
 task Package -depends Build {
+  New-Item -Path $workingDir\Package -ItemType Directory
+
   foreach ($build in $builds)
   {
     $name = $build.TestsName
     $finalDir = $build.FinalDir
     
-    robocopy "$sourceDir\Newtonsoft.Json.Schema\bin\Release\$finalDir" $workingDir\Package\Bin\$finalDir Newtonsoft.Json.Schema.dll Newtonsoft.Json.Schema.pdb Newtonsoft.Json.Schema.xml /NP /XO /XF *.CodeAnalysisLog.xml | Out-Default
+    robocopy "$workingSourceDir\Newtonsoft.Json.Schema\bin\Release\$finalDir" $workingDir\Package\Bin\$finalDir Newtonsoft.Json.Schema.dll Newtonsoft.Json.Schema.pdb Newtonsoft.Json.Schema.xml /NP /XO /XF *.CodeAnalysisLog.xml | Out-Default
   }
   
   if ($buildNuGet)
@@ -119,12 +121,12 @@ task Package -depends Build {
         
         foreach ($frameworkDir in $frameworkDirs)
         {
-          robocopy "$sourceDir\Newtonsoft.Json.Schema\bin\Release\$finalDir" $workingDir\NuGet\lib\$frameworkDir Newtonsoft.Json.Schema.dll Newtonsoft.Json.Schema.pdb Newtonsoft.Json.Schema.xml /NP /XO /XF *.CodeAnalysisLog.xml | Out-Default
+          robocopy "$workingSourceDir\Newtonsoft.Json.Schema\bin\Release\$finalDir" $workingDir\NuGet\lib\$frameworkDir Newtonsoft.Json.Schema.dll Newtonsoft.Json.Schema.pdb Newtonsoft.Json.Schema.xml /NP /XO /XF *.CodeAnalysisLog.xml | Out-Default
         }
       }
     }
   
-    robocopy $sourceDir $workingDir\NuGet\src *.cs /S /NP /XD Newtonsoft.Json.Schema.Tests Newtonsoft.Json.Schema.TestConsole obj | Out-Default
+    robocopy $workingSourceDir $workingDir\NuGet\src *.cs /S /NP /XD Newtonsoft.Json.Schema.Tests Newtonsoft.Json.Schema.TestConsole obj | Out-Default
 
     exec { .\Tools\NuGet\NuGet.exe pack $workingDir\NuGet\Newtonsoft.Json.Schema.nuspec -Symbols }
     move -Path .\*.nupkg -Destination $workingDir\NuGet
@@ -134,7 +136,7 @@ task Package -depends Build {
   {
     $mainBuild = $builds | where { $_.Name -eq "Newtonsoft.Json.Schema" } | select -first 1
     $mainBuildFinalDir = $mainBuild.FinalDir
-    $documentationSourcePath = "$sourceDir\Newtonsoft.Json.Schema.Tests\bin\Release\$mainBuildFinalDir"
+    $documentationSourcePath = "$workingSourceDir\Newtonsoft.Json.Schema.Tests\bin\Release\$mainBuildFinalDir"
     $docOutputPath = "$workingDir\Documentation\"
     Write-Host -ForegroundColor Green "Building documentation from $documentationSourcePath"
     Write-Host "Documentation output to $docOutputPath"
@@ -144,14 +146,14 @@ task Package -depends Build {
     
     move -Path $workingDir\Documentation\LastBuild.log -Destination $workingDir\Documentation.log
   }
-  
+
   Copy-Item -Path $docDir\readme.txt -Destination $workingDir\Package\
   Copy-Item -Path $docDir\license.txt -Destination $workingDir\Package\
 
   # exclude package directories but keep packages\repositories.config
-  $packageDirs = gci $sourceDir\packages | where {$_.PsIsContainer} | Select -ExpandProperty Name
+  $packageDirs = gci $workingSourceDir\packages | where {$_.PsIsContainer} | Select -ExpandProperty Name
 
-  robocopy $sourceDir $workingDir\Package\Source\Src /MIR /NP /XD bin obj TestResults AppPackages $packageDirs /XF *.suo *.user | Out-Default
+  robocopy $workingSourceDir $workingDir\Package\Source\Src /MIR /NP /XD bin obj TestResults AppPackages $packageDirs /XF *.suo *.user | Out-Default
   robocopy $buildDir $workingDir\Package\Source\Build /MIR /NP /XF runbuild.txt | Out-Default
   robocopy $docDir $workingDir\Package\Source\Doc /MIR /NP | Out-Default
   robocopy $toolsDir $workingDir\Package\Source\Tools /MIR /NP | Out-Default
@@ -185,13 +187,13 @@ function CoreClrTests($build)
 
   Write-Host -ForegroundColor Green "Restoring packages for $name"
   Write-Host
-  exec { kpm restore "$sourceDir\Newtonsoft.Json.Schema.Tests\project.json" | Out-Default }
+  exec { kpm restore "$workingSourceDir\Newtonsoft.Json.Schema.Tests\project.json" | Out-Default }
 
   Write-Host -ForegroundColor Green "Ensuring test project builds for $name"
   Write-Host
   try
   {
-    Set-Location "$sourceDir\Newtonsoft.Json.Schema.Tests"
+    Set-Location "$workingSourceDir\Newtonsoft.Json.Schema.Tests"
     k --configuration Release test -parallel none | Tee-Object -file "$workingDir\$name.txt"
   }
   finally
@@ -210,7 +212,7 @@ function WinRTTests($build)
 
   Write-Host -ForegroundColor Green "Packaging test assembly $name to deployed directory"
   Write-Host
-  exec { msbuild "$sourceDir\Newtonsoft.Json.Schema.Tests\$name.csproj" /p:OutDir=$outDir | Out-Default }
+  exec { msbuild "$workingSourceDir\Newtonsoft.Json.Schema.Tests\$name.csproj" /p:OutDir=$outDir | Out-Default }
 
   Write-Host -ForegroundColor Green "Running MSTest tests " $name
   Write-Host
@@ -225,9 +227,9 @@ function NUnitTests($build)
 
   Write-Host -ForegroundColor Green "Copying test assembly $name to deployed directory"
   Write-Host
-  robocopy ".\Src\Newtonsoft.Json.Schema.Tests\bin\Release\$finalDir" $workingDir\Deployed\Bin\$finalDir /MIR /NP /XO | Out-Default
+  robocopy "$workingSourceDir\Newtonsoft.Json.Schema.Tests\bin\Release\$finalDir" $workingDir\Deployed\Bin\$finalDir /MIR /NP /XO | Out-Default
 
-  Copy-Item -Path ".\Src\Newtonsoft.Json.Schema.Tests\bin\Release\$finalDir\Newtonsoft.Json.Schema.Tests.dll" -Destination $workingDir\Deployed\Bin\$finalDir\
+  Copy-Item -Path "$workingSourceDir\Newtonsoft.Json.Schema.Tests\bin\Release\$finalDir\Newtonsoft.Json.Schema.Tests.dll" -Destination $workingDir\Deployed\Bin\$finalDir\
 
   Write-Host -ForegroundColor Green "Running NUnit tests " $name
   Write-Host
@@ -258,14 +260,14 @@ function GetVersion($majorVersion)
     return $majorVersion + "." + $minor
 }
 
-function Update-AssemblyInfoFiles ([string] $sourceDir, [string] $assemblyVersionNumber, [string] $fileVersionNumber)
+function Update-AssemblyInfoFiles ([string] $targetDir, [string] $assemblyVersionNumber, [string] $fileVersionNumber)
 {
     $assemblyVersionPattern = 'AssemblyVersion\("[0-9]+(\.([0-9]+|\*)){1,3}"\)'
     $fileVersionPattern = 'AssemblyFileVersion\("[0-9]+(\.([0-9]+|\*)){1,3}"\)'
     $assemblyVersion = 'AssemblyVersion("' + $assemblyVersionNumber + '")';
     $fileVersion = 'AssemblyFileVersion("' + $fileVersionNumber + '")';
     
-    Get-ChildItem -Path $sourceDir -r -filter AssemblyInfo.cs | ForEach-Object {
+    Get-ChildItem -Path $targetDir -r -filter AssemblyInfo.cs | ForEach-Object {
         
         $filename = $_.Directory.ToString() + '\' + $_.Name
         Write-Host $filename
@@ -279,11 +281,12 @@ function Update-AssemblyInfoFiles ([string] $sourceDir, [string] $assemblyVersio
 }
 
 function Edit-XmlNodes {
-param (
-    [xml] $doc,
-    [string] $xpath = $(throw "xpath is a required parameter"),
-    [string] $value = $(throw "value is a required parameter")
-)
+    param (
+        [xml] $doc,
+        [string] $xpath = $(throw "xpath is a required parameter"),
+        [string] $value = $(throw "value is a required parameter")
+    )
+
     $nodes = $doc.SelectNodes($xpath)
     
     foreach ($node in $nodes) {
