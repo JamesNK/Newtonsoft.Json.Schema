@@ -90,6 +90,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             DiscoverSchema(Constants.PropertyNames.AdditionalItems, schema.AdditionalItems);
             DiscoverDictionarySchemas(Constants.PropertyNames.Properties, schema._properties);
             DiscoverDictionarySchemas(Constants.PropertyNames.PatternProperties, schema._patternProperties);
+            DiscoverDictionarySchemas(Constants.PropertyNames.Dependencies, schema._dependencies);
             DiscoverArraySchemas(Constants.PropertyNames.Items, schema._items);
             DiscoverArraySchemas(Constants.PropertyNames.AllOf, schema._allOf);
             DiscoverArraySchemas(Constants.PropertyNames.AnyOf, schema._anyOf);
@@ -125,6 +126,20 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                 for (int i = 0; i < l.Count; i++)
                 {
                     DiscoverTokenSchemas(name + "/" + i.ToString(CultureInfo.InvariantCulture), l[i]);
+                }
+            }
+        }
+
+        private void DiscoverDictionarySchemas(string name, IDictionary<string, object> schemas)
+        {
+            if (schemas != null)
+            {
+                foreach (KeyValuePair<string, object> valuePair in schemas)
+                {
+                    JSchema schema = valuePair.Value as JSchema;
+
+                    if (schema != null)
+                        DiscoverInternal(schema, name + "/" + valuePair.Key);
                 }
             }
         }

@@ -32,7 +32,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json">
-      <HintPath>..\packages\Newtonsoft.Json.6.0.8\lib\net40\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\packages\Newtonsoft.Json.Unsigned.6.0.8\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework">
       <HintPath>..\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
@@ -64,6 +64,7 @@
     <Compile Include="Infrastructure\JSchemaDiscoveryTests.cs" />
     <Compile Include="Infrastructure\JSchemaWriterTests.cs" />
     <Compile Include="Infrastructure\LicenseHelpersTests.cs" />
+    <Compile Include="Infrastructure\SerializationTests.cs" />
     <Compile Include="Issues\Issue3Tests.cs" />
     <Compile Include="JSchemaValidatingWriterTests.cs" />
     <Compile Include="JSchemaSpecTests.cs" />

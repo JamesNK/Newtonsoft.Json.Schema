@@ -68,9 +68,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Newtonsoft.Json.6.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.Unsigned.6.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework">
       <HintPath>..\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
@@ -129,6 +128,7 @@
     <Compile Include="Infrastructure\JSchemaDiscoveryTests.cs" />
     <Compile Include="Infrastructure\JSchemaWriterTests.cs" />
     <Compile Include="Infrastructure\LicenseHelpersTests.cs" />
+    <Compile Include="Infrastructure\SerializationTests.cs" />
     <Compile Include="Issues\Issue3Tests.cs" />
     <Compile Include="JSchemaValidatingWriterTests.cs" />
     <Compile Include="JSchemaSpecTests.cs" />

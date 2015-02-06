@@ -599,6 +599,8 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(JsonToken.Integer, reader.TokenType);
             Assert.AreEqual("Integer 1 is less than minimum value of 5. Line 1, position 1.", validationEventArgs.Message);
             Assert.AreEqual(1, validationEventArgs.ValidationError.Value);
+            Assert.AreEqual("#", validationEventArgs.ValidationError.SchemaId.ToString());
+            Assert.AreEqual(ErrorType.Minimum, validationEventArgs.ValidationError.ErrorType);
 
             Assert.IsNotNull(validationEventArgs);
         }
@@ -1642,6 +1644,7 @@ namespace Newtonsoft.Json.Schema.Tests
             
             StringAssert.AreEqual("Required properties are missing from object: secondproperty. Line 1, position 2.", errors[1].BuildExtendedMessage());
             Assert.AreEqual(new List<string> { "secondproperty" }, errors[1].Value);
+            Assert.AreEqual("second", errors[1].SchemaId.ToString());
         }
 
         [Test]
@@ -1735,6 +1738,7 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(JsonToken.Integer, reader.TokenType);
             Assert.AreEqual("Invalid type. Expected String but got Integer. Line 4, position 10.", validationEventArgs.Message);
             Assert.AreEqual(1, validationEventArgs.ValidationError.Value);
+            Assert.AreEqual("#/patternProperties/ho", validationEventArgs.ValidationError.SchemaId.ToString());
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.PropertyName, reader.TokenType);

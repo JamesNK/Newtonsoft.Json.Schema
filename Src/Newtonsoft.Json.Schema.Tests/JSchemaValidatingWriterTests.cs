@@ -241,6 +241,7 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsNotNull(a);
             StringAssert.AreEqual("Invalid type. Expected Integer but got String.", a.Message);
             Assert.AreEqual("string", a.ValidationError.Value);
+            Assert.AreEqual("#/items/0", a.ValidationError.SchemaId.ToString());
             a = null;
 
             validatingWriter.WriteValue((string)null);

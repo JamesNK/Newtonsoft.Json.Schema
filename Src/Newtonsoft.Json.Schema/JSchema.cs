@@ -16,6 +16,7 @@ namespace Newtonsoft.Json.Schema
     /// <summary>
     /// An in-memory representation of a JSON Schema.
     /// </summary>
+    [JsonConverter(typeof(JSchemaConverter))]
     public class JSchema
     {
         internal Uri Reference { get; set; }
@@ -33,12 +34,12 @@ namespace Newtonsoft.Json.Schema
         internal List<string> _required;
 
         /// <summary>
-        /// Gets or sets the ID.
+        /// Gets or sets the schema ID.
         /// </summary>
         public Uri Id { get; set; }
 
         /// <summary>
-        /// Gets or sets the types of values allowed by the object.
+        /// Gets or sets the types of values allowed by the schema.
         /// </summary>
         /// <value>The type.</value>
         public JSchemaType? Type { get; set; }

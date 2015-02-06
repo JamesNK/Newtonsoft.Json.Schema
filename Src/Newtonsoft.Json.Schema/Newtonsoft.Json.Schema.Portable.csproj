@@ -43,8 +43,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json">
-      <HintPath>..\packages\Newtonsoft.Json.6.0.8\lib\portable-net45+wp80+win8+wpa81+aspnetcore50\Newtonsoft.Json.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>..\packages\Newtonsoft.Json.Unsigned.6.0.8\lib\portable-net45+wp80+win8+wpa81+aspnetcore50\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -56,6 +55,7 @@
     <Compile Include="ExternalSchema.cs" />
     <Compile Include="Generation\JSchemaTypeGenerationContext.cs" />
     <Compile Include="Infrastructure\ColorHelpers.cs" />
+    <Compile Include="Infrastructure\JSchemaConverter.cs" />
     <Compile Include="Infrastructure\Licensing\CryptographyHelpers.cs" />
     <Compile Include="Infrastructure\DataAnnotationHelpers.cs" />
     <Compile Include="Infrastructure\EmailHelpers.cs" />

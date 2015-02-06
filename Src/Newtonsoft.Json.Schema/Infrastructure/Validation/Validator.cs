@@ -6,7 +6,9 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.Linq;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Schema.Infrastructure.Discovery;
 using Newtonsoft.Json.Schema.Infrastructure.Licensing;
 using Newtonsoft.Json.Utilities;
 
@@ -17,6 +19,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
         private readonly List<Scope> _scopes;
         private readonly object _publicValidator;
         private readonly ValidatorContext _context;
+        private JSchemaDiscovery _schemaDiscovery;
         
         public JTokenWriter TokenWriter;
         public JSchema Schema;
@@ -50,6 +53,12 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
         protected ValidationError CreateError(string message, ErrorType errorType, JSchema schema, object value, IList<ValidationError> childErrors, IJsonLineInfo lineInfo, string path)
         {
+            if (_schemaDiscovery == null)
+            {
+                _schemaDiscovery = new JSchemaDiscovery();
+                _schemaDiscovery.Discover(Schema, null);
+            }
+
             ValidationError error = new ValidationError();
             error.Message = message;
             error.ErrorType = errorType;
@@ -60,6 +69,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 error.LinePosition = lineInfo.LinePosition;
             }
             error.Schema = schema;
+            error.SchemaId = _schemaDiscovery.KnownSchemas.Single(s => s.Schema == schema).Id;
             error.Value = value;
             error.ChildErrors = childErrors;
 

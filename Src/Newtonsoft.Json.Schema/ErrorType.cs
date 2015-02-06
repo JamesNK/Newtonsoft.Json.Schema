@@ -3,6 +3,8 @@
 // License: https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md
 #endregion
 
+using System.Runtime.Serialization;
+
 namespace Newtonsoft.Json.Schema
 {
     /// <summary>
@@ -11,96 +13,124 @@ namespace Newtonsoft.Json.Schema
     public enum ErrorType
     {
         /// <summary>
+        /// Default ErrorType value.
+        /// </summary>
+        [EnumMember(Value = "none")]
+        None = 0,
+        /// <summary>
         /// A 'multipleOf' error.
         /// </summary>
-        MultipleOf,
+        [EnumMember(Value = "multipleOf")]
+        MultipleOf = 1,
         /// <summary>
         /// A 'maximum' error.
         /// </summary>
-        Maximum,
+        [EnumMember(Value = "maximum")]
+        Maximum = 2,
         /// <summary>
         /// A 'minimum' error.
         /// </summary>
-        Minimum,
+        [EnumMember(Value = "minimum")]
+        Minimum = 3,
         /// <summary>
         /// A 'maxLength' error.
         /// </summary>
-        MaximumLength,
+        [EnumMember(Value = "maxLength")]
+        MaximumLength = 4,
         /// <summary>
         /// A 'minLength' error.
         /// </summary>
-        MinimumLength,
+        [EnumMember(Value = "minLength")]
+        MinimumLength = 5,
         /// <summary>
         /// A 'pattern' error.
         /// </summary>
-        Pattern,
+        [EnumMember(Value = "pattern")]
+        Pattern = 6,
         /// <summary>
         /// An 'additionalItems' error.
         /// </summary>
-        AdditionalItems,
+        [EnumMember(Value = "additionalItems")]
+        AdditionalItems = 7,
         /// <summary>
         /// A 'items' error.
         /// </summary>
-        Items,
+        [EnumMember(Value = "items")]
+        Items = 8,
         /// <summary>
         /// A 'maxItems' error.
         /// </summary>
-        MaximumItems,
+        [EnumMember(Value = "maxItems")]
+        MaximumItems = 9,
         /// <summary>
         /// A 'minItems' error.
         /// </summary>
-        MinimumItems,
+        [EnumMember(Value = "minItems")]
+        MinimumItems = 10,
         /// <summary>
         /// A 'uniqueItems' error.
         /// </summary>
-        UniqueItems,
+        [EnumMember(Value = "uniqueItems")]
+        UniqueItems = 11,
         /// <summary>
         /// A 'maxProperties' error.
         /// </summary>
-        MaximumProperties,
+        [EnumMember(Value = "maxProperties")]
+        MaximumProperties = 12,
         /// <summary>
         /// A 'minProperties' error.
         /// </summary>
-        MinimumProperties,
+        [EnumMember(Value = "minProperties")]
+        MinimumProperties = 13,
         /// <summary>
         /// A 'required' error.
         /// </summary>
-        Required,
+        [EnumMember(Value = "required")]
+        Required = 14,
         /// <summary>
         /// An 'additionalProperties' error.
         /// </summary>
-        AdditionalProperties,
+        [EnumMember(Value = "additionalProperties")]
+        AdditionalProperties = 15,
         /// <summary>
         /// A 'dependencies' error.
         /// </summary>
-        Dependencies,
+        [EnumMember(Value = "dependencies")]
+        Dependencies = 16,
         /// <summary>
         /// A 'enum' error.
         /// </summary>
-        Enum,
+        [EnumMember(Value = "enum")]
+        Enum = 17,
         /// <summary>
         /// A 'type' error.
         /// </summary>
-        Type,
+        [EnumMember(Value = "type")]
+        Type = 18,
         /// <summary>
         /// An 'allOf' error.
         /// </summary>
-        AllOf,
+        [EnumMember(Value = "allOf")]
+        AllOf = 19,
         /// <summary>
         /// An 'anyOf' error.
         /// </summary>
-        AnyOf,
+        [EnumMember(Value = "anyOf")]
+        AnyOf = 20,
         /// <summary>
         /// A 'oneOf' error.
         /// </summary>
-        OneOf,
+        [EnumMember(Value = "oneOf")]
+        OneOf = 21,
         /// <summary>
         /// A 'not' error.
         /// </summary>
-        Not,
+        [EnumMember(Value = "not")]
+        Not = 22,
         /// <summary>
         /// A 'format' error.
         /// </summary>
-        Format
+        [EnumMember(Value = "format")]
+        Format = 23
     }
 }

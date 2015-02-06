@@ -3,8 +3,10 @@
 // License: https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Globalization;
+using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Utilities;
 
 namespace Newtonsoft.Json.Schema
@@ -50,12 +52,20 @@ namespace Newtonsoft.Json.Schema
         /// Gets the <see cref="JSchema"/> that generated the error.
         /// </summary>
         /// <value>The <see cref="JSchema"/> that generated the error.</value>
+        [JsonIgnore]
         public JSchema Schema { get; internal set; }
+
+        /// <summary>
+        /// Gets the ID of the <see cref="JSchema"/> that generated the error, relative to the root schema.
+        /// </summary>
+        /// <value>The path of the <see cref="JSchema"/> that generated the error, relative to the root schema.</value>
+        public Uri SchemaId { get; set; }
 
         /// <summary>
         /// Gets the <see cref="ErrorType"/> that generated the error.
         /// </summary>
         /// <value>The <see cref="ErrorType"/> that generated the error.</value>
+        [JsonConverter(typeof(StringEnumConverter))]
         public ErrorType ErrorType { get; internal set; }
 
         /// <summary>
