@@ -32,6 +32,25 @@ namespace Newtonsoft.Json.Schema.Tests
     public class ExtensionsTests : TestFixtureBase
     {
         [Test]
+        public void ValidationErrorPath()
+        {
+            string schemaJson = TestHelpers.OpenFileText(@"resources\schemas\schema-draft-v4.json");
+            JSchema s = JSchema.Parse(schemaJson);
+
+            JObject o = JObject.Parse(@"{ ""additionalItems"": 5 }");
+
+            IList<ValidationError> validationErrors;
+            o.IsValid(s, out validationErrors);
+
+            Assert.AreEqual(1, validationErrors.Count);
+            Assert.AreEqual("#/properties/additionalItems", validationErrors[0].SchemaId.ToString());
+            Assert.AreEqual(2, validationErrors[0].ChildErrors.Count);
+            
+            Assert.AreEqual("#", validationErrors[0].ChildErrors[0].SchemaId.ToString());
+            Assert.AreEqual("#/properties/additionalItems/anyOf/0", validationErrors[0].ChildErrors[1].SchemaId.ToString());
+        }
+
+        [Test]
         public void IsValid()
         {
             JSchema schema = JSchema.Parse("{'type':'integer'}");

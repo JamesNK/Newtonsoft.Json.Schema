@@ -57,7 +57,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             if (schema.Id == null)
             {
                 Uri currentScopeId = _pathStack.First().Id;
-                currentPath = string.Join("/", _pathStack.Where(p => p.Id == currentScopeId && !string.IsNullOrEmpty(p.Path)).Select(p => p.Path));
+                currentPath = string.Join("/", _pathStack.Where(p => p.Id == currentScopeId && !string.IsNullOrEmpty(p.Path)).Reverse().Select(p => p.Path));
 
                 if (!string.IsNullOrEmpty(currentPath))
                     currentPath += "/";

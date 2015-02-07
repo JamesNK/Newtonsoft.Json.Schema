@@ -4,9 +4,11 @@
 #endregion
 
 using System;
+using System.Diagnostics;
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
 {
+    [DebuggerDisplay("Id = {Id}, Path = {Path}")]
     internal class SchemaPath
     {
         public readonly Uri Id;
