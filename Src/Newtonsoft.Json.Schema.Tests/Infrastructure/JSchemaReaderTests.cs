@@ -66,6 +66,17 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         }
 
         [Test]
+        public void ChromeManifest()
+        {
+            string schemaJson = TestHelpers.OpenFileText(@"resources\schemas\chrome-manifest.json");
+            JSchema chromeManifestSchema = JSchema.Parse(schemaJson);
+
+            Assert.AreEqual("JSON schema for Google Chrome extension manifest files", chromeManifestSchema.Title);
+
+            Console.WriteLine(chromeManifestSchema.ToString());
+        }
+
+        [Test]
         public void Simple()
         {
             string json = @"

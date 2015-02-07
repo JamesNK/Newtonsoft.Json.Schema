@@ -63,6 +63,14 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             return inlineToken.Annotation<JSchemaAnnotation>().Schema;
         }
 
+        internal void AddDeferedSchema(Action<JSchema> setSchema, JSchema referenceSchema)
+        {
+            Uri resolvedReference = ResolveSchemaReference(referenceSchema);
+
+            DeferedSchema deferedSchema = new DeferedSchema(resolvedReference, referenceSchema, setSchema);
+            _deferedSchemas.Add(deferedSchema);
+        }
+
         private JSchema ReadSchema(JsonReader reader, JSchema schema)
         {
             while (reader.Read())
@@ -91,6 +99,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             {
                 List<DeferedSchema> resolvedDeferedSchemas = new List<DeferedSchema>();
 
+                int initialCount = _deferedSchemas.Count;
+
+                int i = 0;
                 // note that defered schemas could be added while resolving
                 while (_deferedSchemas.Count > 0)
                 {
@@ -100,6 +111,19 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
                     resolvedDeferedSchemas.Add(deferedSchema);
                     _deferedSchemas.Remove(deferedSchema);
+
+                    if (!deferedSchema.Success && i >= initialCount)
+                    {
+                        // if schema resolved to another reference and that reference has already not be resolved then fail
+                        // probably a circular reference
+                        for (int j = initialCount; j < resolvedDeferedSchemas.Count; j++)
+                        {
+                            DeferedSchema resolvedSchema = resolvedDeferedSchemas[j];
+                            if (deferedSchema != resolvedSchema && deferedSchema.ResolvedReference.ToString() == resolvedSchema.ResolvedReference.ToString())
+                                throw new JsonException("Could not resolve schema reference '{0}'.".FormatWith(CultureInfo.InvariantCulture, deferedSchema.ResolvedReference));
+                        }
+                    }
+                    i++;
                 }
 
                 foreach (DeferedSchema resolvedDeferedSchema in resolvedDeferedSchemas)
@@ -527,21 +551,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
             if (schema.Reference != null)
             {
-                Uri resolvedReference = null;
-                foreach (JSchema s in _schemaStack.Reverse())
-                {
-                    Uri part = s.Id;
-
-                    if (part != null)
-                    {
-                        if (resolvedReference == null)
-                            resolvedReference = part;
-                        else
-                            resolvedReference = SchemaDiscovery.ResolveSchemaId(resolvedReference, part);
-                    }
-                }
-
-                resolvedReference = SchemaDiscovery.ResolveSchemaId(resolvedReference, schema.Reference);
+                Uri resolvedReference = ResolveSchemaReference(schema);
 
                 JSchema resolvedSchema = _resolver.GetSchema(resolvedReference);
                 if (resolvedSchema != null)
@@ -558,6 +568,26 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             setSchema(schema);
 
             _schemaStack.Pop();
+        }
+
+        private Uri ResolveSchemaReference(JSchema schema)
+        {
+            Uri resolvedReference = null;
+            foreach (JSchema s in _schemaStack.Reverse())
+            {
+                Uri part = s.Id;
+
+                if (part != null)
+                {
+                    if (resolvedReference == null)
+                        resolvedReference = part;
+                    else
+                        resolvedReference = SchemaDiscovery.ResolveSchemaId(resolvedReference, part);
+                }
+            }
+
+            resolvedReference = SchemaDiscovery.ResolveSchemaId(resolvedReference, schema.Reference);
+            return resolvedReference;
         }
 
         private void ProcessSchemaName(JsonReader reader, JSchema schema, string name)

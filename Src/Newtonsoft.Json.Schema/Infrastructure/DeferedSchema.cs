@@ -4,9 +4,11 @@
 #endregion
 
 using System;
+using System.Diagnostics;
 
 namespace Newtonsoft.Json.Schema.Infrastructure
 {
+    [DebuggerDisplay("Reference = {ResolvedReference}, Success = {Success}")]
     internal class DeferedSchema
     {
         public readonly Uri ResolvedReference;

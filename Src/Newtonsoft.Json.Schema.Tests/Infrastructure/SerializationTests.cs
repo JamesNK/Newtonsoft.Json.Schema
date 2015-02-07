@@ -51,7 +51,27 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 
             string json = JsonConvert.SerializeObject(error, Formatting.Indented);
 
-            Console.WriteLine(json);
+            Assert.AreEqual(@"{
+  ""Message"": ""A message!"",
+  ""LineNumber"": 11,
+  ""LinePosition"": 5,
+  ""Path"": ""sdf.sdf"",
+  ""Value"": ""A value!"",
+  ""SchemaId"": ""test.xml"",
+  ""ErrorType"": ""minLength"",
+  ""ChildErrors"": [
+    {
+      ""Message"": ""Child message!"",
+      ""LineNumber"": 0,
+      ""LinePosition"": 0,
+      ""Path"": null,
+      ""Value"": null,
+      ""SchemaId"": null,
+      ""ErrorType"": ""none"",
+      ""ChildErrors"": []
+    }
+  ]
+}", json);
         }
     }
 }
