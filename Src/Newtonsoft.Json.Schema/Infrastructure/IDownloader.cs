@@ -11,6 +11,6 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 {
     internal interface IDownloader
     {
-        Stream GetStream(Uri uri, ICredentials credentials);
+        Stream GetStream(Uri uri, ICredentials credentials, int? timeout, int? byteLimit);
     }
 }

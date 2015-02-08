@@ -220,7 +220,12 @@ namespace Newtonsoft.Json.Schema
 
             if (resolvedId != null)
             {
-                JSchema resolvedSchema = _resolver.GetSchema(resolvedId);
+                JSchema resolvedSchema = _resolver.GetSchema(new ResolveSchemaContext
+                {
+                    SchemaId = resolvedId,
+                    ResolvedSchemaId = resolvedId
+                });
+
                 if (resolvedSchema != null)
                 {
                     // resolved schema is not null but referencing member allows nulls

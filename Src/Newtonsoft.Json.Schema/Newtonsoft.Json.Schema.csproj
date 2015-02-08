@@ -64,6 +64,7 @@
     <Compile Include="Infrastructure\Licensing\ReleaseDateAttribute.cs" />
     <Compile Include="Infrastructure\Timer.cs" />
     <Compile Include="Infrastructure\MathHelpers.cs" />
+    <Compile Include="ResolveSchemaContext.cs" />
     <Compile Include="ValidationError.cs" />
     <Compile Include="JSchema.cs" />
     <Compile Include="Generation\JSchemaGenerationProviderAttribute.cs" />

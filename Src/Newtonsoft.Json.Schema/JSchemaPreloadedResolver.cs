@@ -40,45 +40,38 @@ namespace Newtonsoft.Json.Schema
         }
 
         /// <summary>
-        /// Gets the schema for a given URI.
+        /// Gets the schema for a given schema ID context.
         /// </summary>
-        /// <param name="uri">The schema URI to resolve.</param>
+        /// <param name="context">The schema ID context to resolve.</param>
         /// <returns>The resolved schema.</returns>
-        public override JSchema GetSchema(Uri uri)
+        public override JSchema GetSchema(ResolveSchemaContext context)
         {
+            Uri uri = context.ResolvedSchemaId;
+
             foreach (KnownSchema knownSchema in _knownSchemas)
             {
                 string uriText = uri.ToString();
                 string knownText = (knownSchema.Id != null) ? knownSchema.Id.ToString() : string.Empty;
 
-                if (uriText == knownText)
-                    return knownSchema.Schema;
-
                 if (uriText.StartsWith(knownText, StringComparison.Ordinal))
                 {
+                    // exact id match
+                    if (uriText == knownText)
+                        return knownSchema.Schema;
+
+                    // look inside schema with additional path
                     string relative = uriText.Substring(knownText.Length);
                     Uri relativeUri = new Uri(relative, UriKind.RelativeOrAbsolute);
 
-                    JSchemaReader resolverSchemaReader = new JSchemaReader(this)
-                    {
-                        RootSchema = knownSchema.Schema
-                    };
+                    JSchema relativeSchema = ResolveChildSchema(knownSchema.Schema, knownSchema.Id, relativeUri);
 
-                    JSchema subSchema = null;
-                    
-                    SchemaDiscovery.FindSchema(s => subSchema = s, knownSchema.Schema, knownSchema.Id, relativeUri, resolverSchemaReader);
-
-                    if (subSchema != null)
-                    {
-                        resolverSchemaReader.ResolveDeferedSchemas();
-
-                        return subSchema;
-                    }
+                    if (relativeSchema != null)
+                        return relativeSchema;
                 }
             }
 
             if (_resolver != null)
-                return _resolver.GetSchema(uri);
+                return _resolver.GetSchema(context);
 
             return null;
         }

@@ -15,7 +15,10 @@ using Assert = Newtonsoft.Json.Tests.XUnitAssert;
 #endif
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
+using System.Linq;
+using Newtonsoft.Json.Utilities;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema.Infrastructure;
 using NUnit.Framework;
@@ -74,6 +77,100 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             Assert.AreEqual("JSON schema for Google Chrome extension manifest files", chromeManifestSchema.Title);
 
             Console.WriteLine(chromeManifestSchema.ToString());
+        }
+
+        public class ResourceJSchemaResolver : JSchemaResolver
+        {
+            public override JSchema GetSchema(ResolveSchemaContext context)
+            {
+                if (!context.SchemaId.IsAbsoluteUri)
+                    return null;
+
+                Uri uri = context.SchemaId;
+
+                string content = null;
+
+                switch (uri.Host)
+                {
+                    case "json.schemastore.org":
+                        string fileName = uri.ToString().Replace("http://json.schemastore.org/", string.Empty);
+                        if (fileName.Contains("#"))
+                            fileName = fileName.Split(new[] { '#' }).First();
+                        fileName += ".json";
+
+                        string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"resources\schemas\");
+                        path += fileName;
+
+                        if (!File.Exists(path))
+                            throw new Exception(string.Format("Could not find file '{0}'.", path));
+
+                        content = File.ReadAllText(path);
+                        break;
+                    case "":
+                        break;
+                    default:
+                        throw new Exception(string.Format("Could not resolve schema reference '{0}'.", uri));
+                }
+
+                JSchema schema = JSchema.Parse(content, this);
+
+                return schema;
+            }
+        }
+
+        [Test]
+        public void ReadAllResourceSchemas()
+        {
+            string schemaDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"resources\schemas");
+
+            string[] schemaFilePaths = Directory.GetFiles(schemaDir, "*.json");
+
+            foreach (string schemaFilePath in schemaFilePaths)
+            {
+                try
+                {
+                    using (StreamReader sr = File.OpenText(schemaFilePath))
+                    using (JsonTextReader reader = new JsonTextReader(sr))
+                    {
+                        JSchema schema = JSchema.Load(reader, new JSchemaUrlResolver());
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception(string.Format("Error reading schema from '{0}'.", schemaFilePath), ex);
+                }
+            }
+        }
+
+        [Test]
+        public void DuplicateProperties()
+        {
+            string json = @"
+{
+  ""description"": ""A person"",
+  ""type"": ""object"",
+  ""properties"":
+  {
+    ""name"": {""type"":""string""},
+    ""hobbies"": {
+      ""type"": ""array"",
+      ""items"": {""type"":""string""}
+    },
+    ""name"": {""type"":[""string"",""null""]}
+  }
+}";
+
+            JSchemaReader schemaReader = new JSchemaReader(JSchemaDummyResolver.Instance);
+            JSchema schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
+
+            Assert.AreEqual("A person", schema.Description);
+            Assert.AreEqual(JSchemaType.Object, schema.Type);
+
+            Assert.AreEqual(2, schema.Properties.Count);
+
+            Assert.AreEqual(JSchemaType.String | JSchemaType.Null, schema.Properties["name"].Type);
+            Assert.AreEqual(JSchemaType.Array, schema.Properties["hobbies"].Type);
+            Assert.AreEqual(JSchemaType.String, schema.Properties["hobbies"].Items[0].Type);
         }
 
         [Test]

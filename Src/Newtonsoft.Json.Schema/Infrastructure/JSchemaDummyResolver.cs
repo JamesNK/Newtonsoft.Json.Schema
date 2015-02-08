@@ -11,7 +11,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
     {
         public static readonly JSchemaDummyResolver Instance = new JSchemaDummyResolver();
 
-        public override JSchema GetSchema(Uri uri)
+        public override JSchema GetSchema(ResolveSchemaContext context)
         {
             return null;
         }

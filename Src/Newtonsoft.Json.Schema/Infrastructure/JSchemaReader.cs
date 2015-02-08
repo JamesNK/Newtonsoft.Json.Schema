@@ -235,11 +235,10 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                     case JsonToken.PropertyName:
                         string name = (string)reader.Value;
 
-                        if (properties.ContainsKey(name))
-                            throw new JsonException("Property {0} has already been defined in schema.".FormatWith(CultureInfo.InvariantCulture, name));
-
                         EnsureToken(reader, name, JsonToken.StartObject);
 
+                        // use last schema for duplicates
+                        // will this cause issues with a previously deferred schemas?
                         LoadAndSetSchema(reader, s => properties[name] = s);
                         break;
                     case JsonToken.Comment:
@@ -553,7 +552,12 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             {
                 Uri resolvedReference = ResolveSchemaReference(schema);
 
-                JSchema resolvedSchema = _resolver.GetSchema(resolvedReference);
+                JSchema resolvedSchema = _resolver.GetSchema(new ResolveSchemaContext
+                {
+                    SchemaId = schema.Reference,
+                    ResolvedSchemaId = resolvedReference
+                });
+
                 if (resolvedSchema != null)
                 {
                     schema = resolvedSchema;
