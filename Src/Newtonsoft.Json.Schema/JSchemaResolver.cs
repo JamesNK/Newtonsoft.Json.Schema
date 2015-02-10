@@ -19,7 +19,7 @@ namespace Newtonsoft.Json.Schema
         /// Gets the schema for a given schema ID context.
         /// </summary>
         /// <param name="context">The schema ID context to resolve.</param>
-        /// <returns>The resolved schema.</returns>
+        /// <returns>The resolved schema or <c>null</c> if the ID should be resolved using the default schema ID resolution logic.</returns>
         public abstract JSchema GetSchema(ResolveSchemaContext context);
 
         /// <summary>

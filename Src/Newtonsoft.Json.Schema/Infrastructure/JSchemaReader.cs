@@ -33,11 +33,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             if (reader.TokenType == JsonToken.None || reader.TokenType == JsonToken.Comment)
             {
                 if (!reader.Read())
-                    throw JsonReaderException.Create(reader, "Error reading schema from JsonReader.");
+                    throw JSchemaReaderException.Create(reader, "Error reading schema from JsonReader.");
             }
 
             if (reader.TokenType != JsonToken.StartObject)
-                throw JsonReaderException.Create(reader, "Unexpected token encountered when reading schema. Expected StartObject, got {0}.".FormatWith(CultureInfo.InvariantCulture, reader.TokenType));
+                throw JSchemaReaderException.Create(reader, "Unexpected token encountered when reading schema. Expected StartObject, got {0}.".FormatWith(CultureInfo.InvariantCulture, reader.TokenType));
 
             RootSchema = new JSchema();
 
@@ -58,7 +58,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 setSchema(s);
                 inlineToken.RemoveAnnotations<JSchemaAnnotation>();
                 inlineToken.AddAnnotation(new JSchemaAnnotation(s));
-            }, true);
+            });
 
             return inlineToken.Annotation<JSchemaAnnotation>().Schema;
         }
@@ -90,7 +90,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 }
             }
 
-            throw JsonReaderException.Create(reader, "Unexpected end when reading schema.");
+            throw JSchemaReaderException.Create(reader, "Unexpected end when reading schema.");
         }
 
         public void ResolveDeferedSchemas()
@@ -120,7 +120,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                         {
                             DeferedSchema resolvedSchema = resolvedDeferedSchemas[j];
                             if (deferedSchema != resolvedSchema && deferedSchema.ResolvedReference.ToString() == resolvedSchema.ResolvedReference.ToString())
-                                throw new JsonException("Could not resolve schema reference '{0}'.".FormatWith(CultureInfo.InvariantCulture, deferedSchema.ResolvedReference));
+                                throw JSchemaReaderException.Create(resolvedSchema.ReferenceSchema, "Could not resolve schema reference '{0}'.".FormatWith(CultureInfo.InvariantCulture, deferedSchema.ResolvedReference));
                         }
                     }
                     i++;
@@ -129,7 +129,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 foreach (DeferedSchema resolvedDeferedSchema in resolvedDeferedSchemas)
                 {
                     if (!resolvedDeferedSchema.Success)
-                        throw new JsonException("Could not resolve schema reference '{0}'.".FormatWith(CultureInfo.InvariantCulture, resolvedDeferedSchema.ResolvedReference));
+                        throw JSchemaReaderException.Create(resolvedDeferedSchema.ReferenceSchema, "Could not resolve schema reference '{0}'.".FormatWith(CultureInfo.InvariantCulture, resolvedDeferedSchema.ResolvedReference));
                 }
             }
         }
@@ -154,7 +154,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             }, RootSchema, RootSchema.Id, reference, this);
 
             if (!found)
-                throw new JsonException("Could not resolve schema reference '{0}'.".FormatWith(CultureInfo.InvariantCulture, deferedSchema.ResolvedReference));
+                throw JSchemaReaderException.Create(deferedSchema.ReferenceSchema, "Could not resolve schema reference '{0}'.".FormatWith(CultureInfo.InvariantCulture, deferedSchema.ResolvedReference));
         }
 
         private void ReadSchema(JsonReader reader, string name, Action<JSchema> setSchema)
@@ -173,7 +173,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                     return;
             }
 
-            throw new JsonException("Unexpected end when reading value for '{0}'.".FormatWith(CultureInfo.InvariantCulture, name));
+            throw JSchemaReaderException.Create(reader, "Unexpected end when reading value for '{0}'.".FormatWith(CultureInfo.InvariantCulture, name));
         }
 
         private void EnsureToken(JsonReader reader, string name, JsonToken tokenType)
@@ -181,7 +181,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             EnsureRead(reader, name);
 
             if (reader.TokenType != tokenType)
-                throw new JsonException("Unexpected token encountered when reading value for '{0}'. Expected {1}, got {2}.".FormatWith(CultureInfo.InvariantCulture, name, tokenType, reader.TokenType));
+                throw JSchemaReaderException.Create(reader, "Unexpected token encountered when reading value for '{0}'. Expected {1}, got {2}.".FormatWith(CultureInfo.InvariantCulture, name, tokenType, reader.TokenType));
         }
 
         private void EnsureToken(JsonReader reader, string name, List<JsonToken> tokenTypes)
@@ -189,7 +189,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             EnsureRead(reader, name);
 
             if (!tokenTypes.Contains(reader.TokenType))
-                throw JsonException.Create(reader as IJsonLineInfo, reader.Path, "Unexpected token encountered when reading value for '{0}'. Expected {1}, got {2}.".FormatWith(CultureInfo.InvariantCulture, name, string.Join(", ", tokenTypes), reader.TokenType));
+                throw JSchemaReaderException.Create(reader, "Unexpected token encountered when reading value for '{0}'. Expected {1}, got {2}.".FormatWith(CultureInfo.InvariantCulture, name, string.Join(", ", tokenTypes), reader.TokenType));
         }
 
         private Uri ReadUri(JsonReader reader, string name)
@@ -251,7 +251,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 }
             }
 
-            throw JsonReaderException.Create(reader, "Unexpected end when reading schema properties.");
+            throw JSchemaReaderException.Create(reader, "Unexpected end when reading schema properties.");
         }
 
         private static void SetAtIndex<T>(List<T> list, int index, T value)
@@ -286,7 +286,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                     schema.ItemsPositionValidation = true;
                     break;
                 default:
-                    throw JsonException.Create(reader as IJsonLineInfo, reader.Path, "Expected array or JSON schema object for '{0}', got {1}.".FormatWith(CultureInfo.InvariantCulture, Constants.PropertyNames.Items, reader.TokenType));
+                    throw JSchemaReaderException.Create(reader, "Expected array or JSON schema object for '{0}', got {1}.".FormatWith(CultureInfo.InvariantCulture, Constants.PropertyNames.Items, reader.TokenType));
             }
         }
 
@@ -372,7 +372,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 }
             }
 
-            throw JsonReaderException.Create(reader, "Unexpected end when reading '{0}'.".FormatWith(CultureInfo.InvariantCulture, name));
+            throw JSchemaReaderException.Create(reader, "Unexpected end when reading '{0}'.".FormatWith(CultureInfo.InvariantCulture, name));
         }
 
         private void ReadStringArray(JsonReader reader, string name, out List<string> values)
@@ -396,7 +396,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 }
             }
 
-            throw JsonReaderException.Create(reader, "Unexpected end when reading '{0}'.".FormatWith(CultureInfo.InvariantCulture, name));
+            throw JSchemaReaderException.Create(reader, "Unexpected end when reading '{0}'.".FormatWith(CultureInfo.InvariantCulture, name));
         }
 
         private void ReadDependencies(JsonReader reader, JSchema schema)
@@ -412,11 +412,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                     case JsonToken.PropertyName:
                         string name = (string)reader.Value;
 
-                        if (dependencies.ContainsKey(name))
-                            throw new JsonException("Dependency {0} has already been defined in schema.".FormatWith(CultureInfo.InvariantCulture, name));
-
                         EnsureToken(reader, name, Constants.DependencyTokens);
 
+                        // use last dependency when duplicates are defined
                         if (reader.TokenType == JsonToken.StartObject)
                         {
                             LoadAndSetSchema(reader, s => dependencies[name] = s);
@@ -446,7 +444,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 }
             }
 
-            throw JsonReaderException.Create(reader, "Unexpected end when reading dependencies.");
+            throw JSchemaReaderException.Create(reader, "Unexpected end when reading dependencies.");
         }
 
         private void PopulateSchemaArray(JsonReader reader, string name, List<JSchema> schemas)
@@ -469,7 +467,18 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 }
             }
 
-            throw JsonReaderException.Create(reader, "Unexpected end when reading schemas for '{0}'.".FormatWith(CultureInfo.InvariantCulture, name));
+            throw JSchemaReaderException.Create(reader, "Unexpected end when reading schemas for '{0}'.".FormatWith(CultureInfo.InvariantCulture, name));
+        }
+
+        internal static JSchemaType MapType(JsonReader reader)
+        {
+            string typeName = (string)reader.Value;
+
+            JSchemaType mappedType;
+            if (!Constants.JSchemaTypeMapping.TryGetValue(typeName, out mappedType))
+                throw JSchemaReaderException.Create(reader, "Invalid JSON schema type: {0}".FormatWith(CultureInfo.InvariantCulture, typeName));
+
+            return mappedType;
         }
 
         private object ReadType(JsonReader reader, string name)
@@ -482,14 +491,14 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             switch (reader.TokenType)
             {
                 case JsonToken.String:
-                    return JSchemaTypeHelpers.MapType((string)reader.Value);
+                    return MapType(reader);
                 case JsonToken.StartArray:
                     while (reader.Read())
                     {
                         switch (reader.TokenType)
                         {
                             case JsonToken.String:
-                                JSchemaType t = JSchemaTypeHelpers.MapType((string)reader.Value);
+                                JSchemaType t = MapType(reader);
                                 if (typeSchemas != null)
                                     typeSchemas.Add(new JSchema { Type = t });
                                 else
@@ -527,36 +536,47 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
                                 return finalType;
                             default:
-                                throw JsonException.Create(reader as IJsonLineInfo, reader.Path, "Expected string token for type, got {0}.".FormatWith(CultureInfo.InvariantCulture, reader.TokenType));
+                                throw JSchemaReaderException.Create(reader, "Expected string token for type, got {0}.".FormatWith(CultureInfo.InvariantCulture, reader.TokenType));
                         }
                     }
                     break;
                 default:
-                    throw JsonException.Create(null, reader.Path, "Expected array or string for '{0}', got {1}.".FormatWith(CultureInfo.InvariantCulture, Constants.PropertyNames.Type, reader.TokenType));
+                    throw JSchemaReaderException.Create(reader, "Expected array or string for '{0}', got {1}.".FormatWith(CultureInfo.InvariantCulture, Constants.PropertyNames.Type, reader.TokenType));
             }
 
-            throw JsonReaderException.Create(reader, "Unexpected end when reading schema type.");
+            throw JSchemaReaderException.Create(reader, "Unexpected end when reading schema type.");
         }
 
-        private void LoadAndSetSchema(JsonReader reader, Action<JSchema> setSchema, bool resolveDeferedImmediately = false)
+        private void LoadAndSetSchema(JsonReader reader, Action<JSchema> setSchema)
         {
             JSchema schema = new JSchema();
+
+            IJsonLineInfo lineInfo = reader as IJsonLineInfo;
+            if (lineInfo != null)
+                schema.SetLineInfo(lineInfo);
 
             _schemaStack.Push(schema);
 
             ReadSchema(reader, schema);
-            
-            //schema.Reference;
 
             if (schema.Reference != null)
             {
                 Uri resolvedReference = ResolveSchemaReference(schema);
 
-                JSchema resolvedSchema = _resolver.GetSchema(new ResolveSchemaContext
+                JSchema resolvedSchema;
+                try
                 {
-                    SchemaId = schema.Reference,
-                    ResolvedSchemaId = resolvedReference
-                });
+                    resolvedSchema = _resolver.GetSchema(new ResolveSchemaContext
+                    {
+                        SchemaId = schema.Reference,
+                        ResolvedSchemaId = resolvedReference
+                    });
+                }
+                catch (Exception ex)
+                {
+                    throw JSchemaReaderException.Create(reader, "Error when resolving schema reference '{0}'.".FormatWith(CultureInfo.InvariantCulture, schema.Reference), ex);
+                }
+
 
                 if (resolvedSchema != null)
                 {
@@ -722,7 +742,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 case Constants.PropertyNames.Enum:
                     ReadTokenArray(reader, name, ref schema._enum);
                     if (schema._enum.Count == 0)
-                        throw new JsonException("Enum array must have at least one value.");
+                        throw JSchemaReaderException.Create(reader, "Enum array must have at least one value.");
                     break;
                 case Constants.PropertyNames.Extends:
                     ReadExtends(reader, schema);
@@ -736,7 +756,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                     break;
                 default:
                     if (!reader.Read())
-                        throw JsonReaderException.Create(reader, "Unexpected end when reading schema.");
+                        throw JSchemaReaderException.Create(reader, "Unexpected end when reading schema.");
 
                     JToken t;
                     if (reader is JTokenReader)

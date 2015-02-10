@@ -262,7 +262,7 @@ namespace Newtonsoft.Json.Schema
                 schema = provider.GetSchema(context);
 
                 if (schema == null)
-                    throw new JsonException("Could not get schema for type '{0}' from provider '{1}'.".FormatWith(CultureInfo.InvariantCulture, type.FullName, provider.GetType().FullName));
+                    throw new JSchemaException("Could not get schema for type '{0}' from provider '{1}'.".FormatWith(CultureInfo.InvariantCulture, type.FullName, provider.GetType().FullName));
             }
             
             if (_generationProviders != null)
@@ -446,7 +446,7 @@ namespace Newtonsoft.Json.Schema
                         schema.Type = JSchemaType.Any;
                         break;
                     default:
-                        throw new JsonException("Unexpected contract type: {0}".FormatWith(CultureInfo.InvariantCulture, contract));
+                        throw new JSchemaException("Unexpected contract type: {0}".FormatWith(CultureInfo.InvariantCulture, contract));
                 }
             }
 
@@ -564,7 +564,7 @@ namespace Newtonsoft.Json.Schema
                 case PrimitiveTypeCode.Bytes:
                     return schemaType | JSchemaType.String;
                 default:
-                    throw new JsonException("Unexpected type code '{0}' for type '{1}'.".FormatWith(CultureInfo.InvariantCulture, typeCode, type));
+                    throw new JSchemaException("Unexpected type code '{0}' for type '{1}'.".FormatWith(CultureInfo.InvariantCulture, typeCode, type));
             }
         }
     }

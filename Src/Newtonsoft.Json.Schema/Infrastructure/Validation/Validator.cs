@@ -48,7 +48,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             if (handler != null)
                 handler(_publicValidator, new SchemaValidationEventArgs(error));
             else
-                throw JSchemaException.Create(message, error);
+                throw JSchemaValidationException.Create(message, error);
         }
 
         protected ValidationError CreateError(string message, ErrorType errorType, JSchema schema, object value, IList<ValidationError> childErrors, IJsonLineInfo lineInfo, string path)
@@ -81,7 +81,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             if (_scopes.Count == 0)
             {
                 if (Schema == null)
-                    throw new JsonException("No schema has been set for the validator.");
+                    throw new JSchemaException("No schema has been set for the validator.");
 
                 LicenseHelpers.IncrementAndCheckValidationCount();
                 SchemaScope.CreateTokenScope(token, Schema, _context, null, depth);

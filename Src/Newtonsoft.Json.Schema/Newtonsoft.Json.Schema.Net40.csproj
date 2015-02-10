@@ -69,10 +69,12 @@
     <Compile Include="Generation\JSchemaGenerationProviderAttribute.cs" />
     <Compile Include="JSchemaGenerator.cs" />
     <Compile Include="Generation\JSchemaGenerationProvider.cs" />
+    <Compile Include="JSchemaReaderException.cs" />
     <Compile Include="JSchemaResolver.cs" />
     <Compile Include="JSchemaUrlResolver.cs" />
     <Compile Include="JSchemaValidatingReader.cs" />
     <Compile Include="JSchemaValidatingWriter.cs" />
+    <Compile Include="JSchemaValidationException.cs" />
     <Compile Include="JSchemaWriterSettings.cs" />
     <Compile Include="JSchemaPreloadedResolver.cs" />
     <Compile Include="License.cs" />

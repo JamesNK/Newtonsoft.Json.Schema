@@ -44,7 +44,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Licensing
             Interlocked.Increment(ref _validationCount);
 
             if (_validationCount > maxOperationCount)
-                throw new JsonException("The free-quota limit of {0} schema validations per hour has been reached. Please visit http://www.newtonsoft.com/jsonschema to upgrade to a commercial license.".FormatWith(CultureInfo.InvariantCulture, maxOperationCount));
+                throw new JSchemaException("The free-quota limit of {0} schema validations per hour has been reached. Please visit http://www.newtonsoft.com/jsonschema to upgrade to a commercial license.".FormatWith(CultureInfo.InvariantCulture, maxOperationCount));
         }
 
         public static void IncrementAndCheckGenerationCount()
@@ -58,7 +58,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Licensing
             Interlocked.Increment(ref _generationCount);
 
             if (_generationCount > maxOperationCount)
-                throw new JsonException("The free-quota limit of {0} schema generations per hour has been reached. Please visit http://www.newtonsoft.com/jsonschema to upgrade to a commercial license.".FormatWith(CultureInfo.InvariantCulture, maxOperationCount));
+                throw new JSchemaException("The free-quota limit of {0} schema generations per hour has been reached. Please visit http://www.newtonsoft.com/jsonschema to upgrade to a commercial license.".FormatWith(CultureInfo.InvariantCulture, maxOperationCount));
         }
 
         private static void EnsureResetTimer()
@@ -97,15 +97,15 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Licensing
         internal static void RegisterLicense(string license, DateTime releaseDate)
         {
             if (string.IsNullOrWhiteSpace(license))
-                throw new JsonException("License text is empty.");
+                throw new JSchemaException("License text is empty.");
 
             string[] licenseParts = license.Trim().Split('-');
             if (licenseParts.Length != 2)
-                throw new JsonException("Specified license text is invalid.");
+                throw new JSchemaException("Specified license text is invalid.");
 
             int licenseId;
             if (!int.TryParse(licenseParts[0], NumberStyles.Integer, CultureInfo.InvariantCulture, out licenseId))
-                throw new JsonException("Specified license text is invalid.");
+                throw new JSchemaException("Specified license text is invalid.");
 
             byte[] licenseData;
 
@@ -115,11 +115,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Licensing
             }
             catch
             {
-                throw new JsonException("Specified license text is invalid.");
+                throw new JSchemaException("Specified license text is invalid.");
             }
 
             if (licenseData.Length <= 128)
-                throw new JsonException("Specified license text is invalid.");
+                throw new JSchemaException("Specified license text is invalid.");
 
             MemoryStream ms = new MemoryStream(licenseData, 128, licenseData.Length - 128);
             JsonSerializer serializer = new JsonSerializer();
@@ -130,10 +130,10 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Licensing
             byte[] signature = SubArray(licenseData, 0, 128);
 
             if (!CryptographyHelpers.ValidateData(data, signature))
-                throw new JsonException("License text does not match signature.");
+                throw new JSchemaException("License text does not match signature.");
 
             if (deserializedLicense.Id != licenseId)
-                throw new JsonException("License ID does not match signature license ID.");
+                throw new JSchemaException("License ID does not match signature license ID.");
 
             if (deserializedLicense.ExpiryDate < releaseDate)
             {
@@ -142,11 +142,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Licensing
                     deserializedLicense.ExpiryDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
                     releaseDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
 
-                throw new JsonException(message);
+                throw new JSchemaException(message);
             }
 
             if (deserializedLicense.Type == LicenseType.Test)
-                throw new JsonException("Specified license is for testing only.");
+                throw new JSchemaException("Specified license is for testing only.");
 
             SetRegisteredLicense(deserializedLicense);
         }

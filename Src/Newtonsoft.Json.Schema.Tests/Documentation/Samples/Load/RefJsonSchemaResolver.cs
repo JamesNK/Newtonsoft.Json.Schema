@@ -20,8 +20,8 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation.Samples.Load
               'id': 'person',
               'type': 'object',
               'properties': {
-                'name': {'type':'string'},
-                'age': {'type':'integer'}
+                'name': { 'type': 'string' },
+                'age': { 'type': 'integer' }
               }
             }";
 
@@ -30,13 +30,19 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation.Samples.Load
             JSchemaPreloadedResolver resolver = new JSchemaPreloadedResolver();
             resolver.Add(personSchema);
 
+            // the external 'person' schema will be found using the resolver
+            // the internal 'salary' schema will be found using the default resolution logic
             schemaJson = @"{
-              'id': 'employee',
               'type': 'object',
-              'extends': {'$ref':'person'},
+              'allOf': [
+                { '$ref': 'person' }
+              ],
               'properties': {
-                'salary': {'type':'number'},
-                'jobTitle': {'type':'string'}
+                'salary': { '$ref': '#/definitions/salary' },
+                'jobTitle': { 'type': 'string' }
+              },
+              'definitions': {
+                'salary': { 'type': 'number' }
               }
             }";
 

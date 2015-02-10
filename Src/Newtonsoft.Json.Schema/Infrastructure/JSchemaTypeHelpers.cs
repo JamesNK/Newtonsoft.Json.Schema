@@ -31,15 +31,6 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             return false;
         }
 
-        internal static JSchemaType MapType(string type)
-        {
-            JSchemaType mappedType;
-            if (!Constants.JSchemaTypeMapping.TryGetValue(type, out mappedType))
-                throw new JsonException("Invalid JSON schema type: {0}".FormatWith(CultureInfo.InvariantCulture, type));
-
-            return mappedType;
-        }
-
         internal static string MapType(JSchemaType type)
         {
             return Constants.JSchemaTypeMapping.Single(kv => kv.Value == type).Key;

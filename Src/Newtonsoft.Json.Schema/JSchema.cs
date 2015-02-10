@@ -17,7 +17,7 @@ namespace Newtonsoft.Json.Schema
     /// An in-memory representation of a JSON Schema.
     /// </summary>
     [JsonConverter(typeof(JSchemaConverter))]
-    public class JSchema
+    public class JSchema : IJsonLineInfo
     {
         internal Uri Reference { get; set; }
         internal bool DeprecatedRequired { get; set; }
@@ -32,6 +32,9 @@ namespace Newtonsoft.Json.Schema
         internal Dictionary<string, JSchema> _properties;
         internal Dictionary<string, JSchema> _patternProperties;
         internal List<string> _required;
+
+        private int _lineNumber;
+        private int _linePosition;
 
         /// <summary>
         /// Gets or sets the schema ID.
@@ -283,7 +286,7 @@ namespace Newtonsoft.Json.Schema
             if (annotation != null)
                 return annotation.Schema;
 
-            throw new JsonException("Cannot convert JToken to JSchema. No schema is associated with this token.");
+            throw new JSchemaException("Cannot convert JToken to JSchema. No schema is associated with this token.");
         }
 
         /// <summary>
@@ -465,6 +468,27 @@ namespace Newtonsoft.Json.Schema
             {
                 return Load(reader, resolver);
             }
+        }
+
+        bool IJsonLineInfo.HasLineInfo()
+        {
+            return _lineNumber != 0;
+        }
+
+        int IJsonLineInfo.LineNumber
+        {
+            get { return _lineNumber; }
+        }
+
+        int IJsonLineInfo.LinePosition
+        {
+            get { return _linePosition; }
+        }
+
+        internal void SetLineInfo(IJsonLineInfo lineInfo)
+        {
+            _lineNumber = lineInfo.LineNumber;
+            _linePosition = lineInfo.LinePosition;
         }
     }
 }

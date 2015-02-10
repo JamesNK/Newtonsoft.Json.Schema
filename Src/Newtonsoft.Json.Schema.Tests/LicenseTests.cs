@@ -20,7 +20,7 @@ namespace Newtonsoft.Json.Schema.Tests
         {
             string licenseText = "1002-N8/Xc2RXpYddnHEH881tBKyb4itL4Wiyh3VL3HMQP3phVElppL3GNeSqYDQQcxSz34lXOHfWTrKEdAw2oNcyohMkXTKjlr5T7kASfLHaHPV3mUrFJPFlWhwfEzJ/+Fie0HT0chcXJnxFu50hJT++IfVYtcYwc+gNHzvQc2E2mRt7IklkIjoxMDAyLCJFeHBpcnlEYXRlIjoiMjExNi0xMi0yN1QwMDowMDowMFoiLCJUeXBlIjoiVGVzdCJ9";
 
-            ExceptionAssert.Throws<JsonException>(() => License.RegisterLicense(licenseText), "Specified license is for testing only.");
+            ExceptionAssert.Throws<JSchemaException>(() => License.RegisterLicense(licenseText), "Specified license is for testing only.");
         }
 
         [Test]
@@ -28,7 +28,7 @@ namespace Newtonsoft.Json.Schema.Tests
         {
             string licenseText = "1003-N8/Xc2RXpYddnHEH881tBKyb4itL4Wiyh3VL3HMQP3phVElppL3GNeSqYDQQcxSz34lXOHfWTrKEdAw2oNcyohMkXTKjlr5T7kASfLHaHPV3mUrFJPFlWhwfEzJ/+Fie0HT0chcXJnxFu50hJT++IfVYtcYwc+gNHzvQc2E2mRt7IklkIjoxMDAyLCJFeHBpcnlEYXRlIjoiMjExNi0xMi0yN1QwMDowMDowMFoiLCJUeXBlIjoiVGVzdCJ9";
 
-            ExceptionAssert.Throws<JsonException>(() => License.RegisterLicense(licenseText), "License ID does not match signature license ID.");
+            ExceptionAssert.Throws<JSchemaException>(() => License.RegisterLicense(licenseText), "License ID does not match signature license ID.");
         }
 
         [Test]
@@ -40,7 +40,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
                 License.RegisterLicense(licenseKey);
             }
-            catch (Exception)
+            catch (JSchemaException)
             {
                 return;
             }

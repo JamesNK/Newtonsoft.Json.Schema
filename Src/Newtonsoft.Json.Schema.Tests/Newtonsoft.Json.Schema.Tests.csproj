@@ -48,6 +48,7 @@
   <ItemGroup>
     <Compile Include="Documentation\GeneratingSchemas.cs" />
     <Compile Include="Documentation\LoadingSchemas.cs" />
+    <Compile Include="Documentation\Samples\Generation\CreateCustomProvider.cs" />
     <Compile Include="Documentation\Samples\Generation\GenerateWithJsonNetAttributes.cs" />
     <Compile Include="Documentation\Samples\Generation\GenerateWithProvider.cs" />
     <Compile Include="Documentation\Samples\Generation\GenerateWithDataAnnotations.cs" />
@@ -69,6 +70,7 @@
     <Compile Include="Infrastructure\CryptographyHelpersTests.cs" />
     <Compile Include="Infrastructure\EmailHelpersTests.cs" />
     <Compile Include="Infrastructure\JSchemaDiscoveryTests.cs" />
+    <Compile Include="Infrastructure\JSchemaUrlResolverTests.cs" />
     <Compile Include="Infrastructure\JSchemaWriterTests.cs" />
     <Compile Include="Infrastructure\LicenseHelpersTests.cs" />
     <Compile Include="Infrastructure\SerializationTests.cs" />

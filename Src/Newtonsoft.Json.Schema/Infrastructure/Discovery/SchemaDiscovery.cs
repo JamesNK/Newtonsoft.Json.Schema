@@ -74,6 +74,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                             case Constants.PropertyNames.PatternProperties:
                                 current = s._patternProperties;
                                 break;
+                            case Constants.PropertyNames.Dependencies:
+                                current = s._dependencies;
+                                break;
                             default:
                                 JToken t;
                                 s.ExtensionData.TryGetValue(unescapedPart, out t);
