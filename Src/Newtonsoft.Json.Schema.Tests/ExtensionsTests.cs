@@ -65,7 +65,7 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(false, stringToken.IsValid(schema));
             Assert.AreEqual(false, stringToken.IsValid(schema, out errorMessages));
             Assert.AreEqual(1, errorMessages.Count);
-            Assert.AreEqual("Invalid type. Expected Integer but got String.", errorMessages[0]);
+            Assert.AreEqual("Invalid type. Expected Integer but got String. Path ''.", errorMessages[0]);
         }
 
         [Test]
@@ -83,7 +83,7 @@ namespace Newtonsoft.Json.Schema.Tests
             stringToken.Validate(schema, (sender, args) => errors.Add(args.Message));
             Assert.AreEqual(1, errors.Count);
 
-            Assert.AreEqual("String 'pie' does not match regex pattern 'lol'.", errors[0]);
+            Assert.AreEqual("String 'pie' does not match regex pattern 'lol'. Path ''.", errors[0]);
         }
 
         [Test]
@@ -94,7 +94,7 @@ namespace Newtonsoft.Json.Schema.Tests
                 JSchema schema = JSchema.Parse("{'pattern':'lol'}");
                 JToken stringToken = JToken.FromObject("pie");
                 stringToken.Validate(schema);
-            }, @"String 'pie' does not match regex pattern 'lol'.");
+            }, @"String 'pie' does not match regex pattern 'lol'. Path ''.");
         }
 
         [Test]
@@ -115,7 +115,7 @@ namespace Newtonsoft.Json.Schema.Tests
             List<string> errors = new List<string>();
             o.Validate(schema, (sender, args) => errors.Add(args.Message));
 
-            Assert.AreEqual("Required properties are missing from object: lol. Line 1, position 1.", errors[0]);
+            Assert.AreEqual("Required properties are missing from object: lol. Path '', line 1, position 1.", errors[0]);
             Assert.AreEqual(1, errors.Count);
         }
 
@@ -128,7 +128,7 @@ namespace Newtonsoft.Json.Schema.Tests
             List<string> errors = new List<string>();
             o.Validate(schema, (sender, args) => errors.Add(args.Path + " - " + args.Message));
 
-            Assert.AreEqual("lol - Invalid type. Expected String but got Integer. Line 1, position 8.", errors[0]);
+            Assert.AreEqual("lol - Invalid type. Expected String but got Integer. Path 'lol', line 1, position 8.", errors[0]);
             Assert.AreEqual("1", o.SelectToken("lol").ToString());
             Assert.AreEqual(1, errors.Count);
         }
@@ -229,7 +229,7 @@ namespace Newtonsoft.Json.Schema.Tests
             o.Validate(schema, (sender, args) => errors.Add(args.Message));
 
             Assert.AreEqual(1, errors.Count);
-            Assert.AreEqual("Property 'g' has not been defined and the schema does not allow additional properties. Line 1, position 5.", errors[0]);
+            Assert.AreEqual("Property 'g' has not been defined and the schema does not allow additional properties. Path 'g', line 1, position 5.", errors[0]);
         }
 
         [Test]
@@ -243,7 +243,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
                 JValue v = new JValue(10);
                 v.Validate(schema);
-            }, "Integer 10 equals maximum value of 10 and exclusive maximum is true.");
+            }, "Integer 10 equals maximum value of 10 and exclusive maximum is true. Path ''.");
         }
 
         [Test]
@@ -257,7 +257,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
                 JValue v = new JValue(10.1);
                 v.Validate(schema);
-            }, "Float 10.1 equals maximum value of 10.1 and exclusive maximum is true.");
+            }, "Float 10.1 equals maximum value of 10.1 and exclusive maximum is true. Path ''.");
         }
 
         [Test]
@@ -271,7 +271,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
                 JValue v = new JValue(10);
                 v.Validate(schema);
-            }, "Integer 10 equals minimum value of 10 and exclusive minimum is true.");
+            }, "Integer 10 equals minimum value of 10 and exclusive minimum is true. Path ''.");
         }
 
         [Test]
@@ -285,7 +285,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
                 JValue v = new JValue(10.1);
                 v.Validate(schema);
-            }, "Float 10.1 equals minimum value of 10.1 and exclusive minimum is true.");
+            }, "Float 10.1 equals minimum value of 10.1 and exclusive minimum is true. Path ''.");
         }
 
         [Test]
@@ -298,7 +298,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
                 JValue v = new JValue(10);
                 v.Validate(schema);
-            }, "Integer 10 is not a multiple of 3.");
+            }, "Integer 10 is not a multiple of 3. Path ''.");
         }
 
         [Test]
@@ -331,8 +331,8 @@ namespace Newtonsoft.Json.Schema.Tests
             IList<string> errorMessages;
             Assert.IsFalse(a.IsValid(schema, out errorMessages));
             Assert.AreEqual(2, errorMessages.Count);
-            Assert.AreEqual("Non-unique array item at index 3.", errorMessages[0]);
-            Assert.AreEqual("Non-unique array item at index 4.", errorMessages[1]);
+            Assert.AreEqual("Non-unique array item at index 3. Path '[3]'.", errorMessages[0]);
+            Assert.AreEqual("Non-unique array item at index 4. Path '[4]'.", errorMessages[1]);
         }
 
         [Test]
@@ -345,9 +345,9 @@ namespace Newtonsoft.Json.Schema.Tests
             IList<string> errorMessages;
             Assert.IsFalse(a.IsValid(schema, out errorMessages));
             Assert.AreEqual(3, errorMessages.Count);
-            Assert.AreEqual("Non-unique array item at index 4.", errorMessages[0]);
-            Assert.AreEqual("Non-unique array item at index 6.", errorMessages[1]);
-            Assert.AreEqual("Non-unique array item at index 7.", errorMessages[2]);
+            Assert.AreEqual("Non-unique array item at index 4. Path '[4]'.", errorMessages[0]);
+            Assert.AreEqual("Non-unique array item at index 6. Path '[6]'.", errorMessages[1]);
+            Assert.AreEqual("Non-unique array item at index 7. Path '[7]'.", errorMessages[2]);
         }
 
         [Test]
@@ -376,10 +376,10 @@ namespace Newtonsoft.Json.Schema.Tests
             IList<string> errorMessages;
             Assert.IsFalse(a.IsValid(schema, out errorMessages));
             Assert.AreEqual(4, errorMessages.Count);
-            Assert.AreEqual("Non-unique array item at index 1.", errorMessages[0]);
-            Assert.AreEqual("Non-unique array item at index 3.", errorMessages[1]);
-            Assert.AreEqual("Non-unique array item at index 1.", errorMessages[2]);
-            Assert.AreEqual("Non-unique array item at index 4.", errorMessages[3]);
+            Assert.AreEqual("Non-unique array item at index 1. Path '[1][1]'.", errorMessages[0]);
+            Assert.AreEqual("Non-unique array item at index 3. Path '[3]'.", errorMessages[1]);
+            Assert.AreEqual("Non-unique array item at index 1. Path '[4][1]'.", errorMessages[2]);
+            Assert.AreEqual("Non-unique array item at index 4. Path '[4]'.", errorMessages[3]);
         }
 
         [Test]
@@ -496,7 +496,7 @@ namespace Newtonsoft.Json.Schema.Tests
             IList<string> errorMessages;
             Assert.IsFalse(json.IsValid(schema, out errorMessages));
             Assert.AreEqual(1, errorMessages.Count);
-            StringAssert.AreEqual(@"Value {""foo"":false} is not defined in enum. Line 1, position 1.", errorMessages[0]);
+            StringAssert.AreEqual(@"Value {""foo"":false} is not defined in enum. Path '', line 1, position 1.", errorMessages[0]);
         }
 
         [Test]
@@ -512,7 +512,7 @@ namespace Newtonsoft.Json.Schema.Tests
             IList<string> errorMessages;
             Assert.IsFalse(json.IsValid(schema, out errorMessages));
             Assert.AreEqual(1, errorMessages.Count);
-            StringAssert.AreEqual(@"Invalid type. Expected Integer but got String. Line 1, position 16.", errorMessages[0]);
+            StringAssert.AreEqual(@"Invalid type. Expected Integer but got String. Path '[3]', line 1, position 16.", errorMessages[0]);
         }
 
         [Test]
@@ -528,7 +528,7 @@ namespace Newtonsoft.Json.Schema.Tests
             IList<string> errorMessages;
             Assert.IsFalse(json.IsValid(schema, out errorMessages));
             Assert.AreEqual(1, errorMessages.Count);
-            StringAssert.AreEqual(@"Invalid type. Expected Boolean but got Integer. Line 1, position 34.", errorMessages[0]);
+            StringAssert.AreEqual(@"Invalid type. Expected Boolean but got Integer. Path 'quux', line 1, position 34.", errorMessages[0]);
         }
 
         [Test]
@@ -592,7 +592,7 @@ namespace Newtonsoft.Json.Schema.Tests
             IList<string> errorMessages;
             Assert.IsFalse(json.IsValid(schema, out errorMessages));
             Assert.AreEqual(1, errorMessages.Count);
-            StringAssert.AreEqual("JSON is valid against schema from 'not'. Line 1, position 1.", errorMessages[0]);
+            StringAssert.AreEqual("JSON is valid against schema from 'not'. Path '', line 1, position 1.", errorMessages[0]);
         }
 
         [Test]
@@ -616,7 +616,7 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsFalse(json.IsValid(schema, out errorMessages));
             Assert.AreEqual(1, errorMessages.Count);
 
-            StringAssert.AreEqual("JSON is valid against more than one schema from 'oneOf'. Valid schema indexes: 0, 1. Line 1, position 5.", errorMessages[0]);
+            StringAssert.AreEqual("JSON is valid against more than one schema from 'oneOf'. Valid schema indexes: 0, 1. Path '', line 1, position 5.", errorMessages[0]);
         }
 
         [Test]
@@ -641,10 +641,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(1, errors.Count);
 
             ValidationError error = errors.Single();
-            StringAssert.AreEqual("JSON is valid against more than one schema from 'oneOf'. No valid schemas. Line 1, position 9.", error.BuildExtendedMessage());
+            StringAssert.AreEqual("JSON is valid against more than one schema from 'oneOf'. No valid schemas. Path '', line 1, position 9.", error.BuildExtendedMessage());
             Assert.AreEqual(2, error.ChildErrors.Count);
-            StringAssert.AreEqual(@"String 'foo foo' exceeds maximum length of 4. Line 1, position 9.", error.ChildErrors[0].BuildExtendedMessage());
-            StringAssert.AreEqual(@"Invalid type. Expected Object but got String. Line 1, position 9.", error.ChildErrors[1].BuildExtendedMessage());
+            StringAssert.AreEqual(@"String 'foo foo' exceeds maximum length of 4. Path '', line 1, position 9.", error.ChildErrors[0].BuildExtendedMessage());
+            StringAssert.AreEqual(@"Invalid type. Expected Object but got String. Path '', line 1, position 9.", error.ChildErrors[1].BuildExtendedMessage());
         }
 
         [Test]
@@ -695,7 +695,7 @@ namespace Newtonsoft.Json.Schema.Tests
             IList<string> errorMessages;
             Assert.IsFalse(json.IsValid(schema, out errorMessages));
             Assert.AreEqual(1, errorMessages.Count);
-            StringAssert.AreEqual(@"Dependencies for property 'bar' failed. Missing required keys: foo. Line 1, position 1.", errorMessages[0]);
+            StringAssert.AreEqual(@"Dependencies for property 'bar' failed. Missing required keys: foo. Path '', line 1, position 1.", errorMessages[0]);
         }
 
         [Test]
@@ -710,7 +710,7 @@ namespace Newtonsoft.Json.Schema.Tests
             IList<string> errorMessages;
             Assert.IsFalse(json.IsValid(schema, out errorMessages));
             Assert.AreEqual(1, errorMessages.Count);
-            StringAssert.AreEqual(@"Dependencies for property 'quux' failed. Missing required keys: bar. Line 1, position 1.", errorMessages[0]);
+            StringAssert.AreEqual(@"Dependencies for property 'quux' failed. Missing required keys: bar. Path '', line 1, position 1.", errorMessages[0]);
         }
 
         [Test]
@@ -732,9 +732,9 @@ namespace Newtonsoft.Json.Schema.Tests
             IList<ValidationError> errorMessages;
             Assert.IsFalse(json.IsValid(schema, out errorMessages));
             Assert.AreEqual(1, errorMessages.Count);
-            StringAssert.AreEqual(@"Dependencies for property 'bar' failed. Line 1, position 1.", errorMessages[0].BuildExtendedMessage());
+            StringAssert.AreEqual(@"Dependencies for property 'bar' failed. Path '', line 1, position 1.", errorMessages[0].BuildExtendedMessage());
             Assert.AreEqual(1, errorMessages[0].ChildErrors.Count);
-            StringAssert.AreEqual(@"Invalid type. Expected Integer but got String. Line 1, position 14.", errorMessages[0].ChildErrors[0].BuildExtendedMessage());
+            StringAssert.AreEqual(@"Invalid type. Expected Integer but got String. Path 'foo', line 1, position 14.", errorMessages[0].ChildErrors[0].BuildExtendedMessage());
         }
 
         [Test]

@@ -91,11 +91,7 @@ namespace Newtonsoft.Json.Schema
 
         internal string BuildExtendedMessage()
         {
-            string extendedMessage = ((IJsonLineInfo)this).HasLineInfo()
-                ? Message + " Line {0}, position {1}.".FormatWith(CultureInfo.InvariantCulture, LineNumber, LinePosition)
-                : Message;
-
-            return extendedMessage;
+            return JsonPosition.FormatMessage(this, Path, Message);
         }
     }
 }

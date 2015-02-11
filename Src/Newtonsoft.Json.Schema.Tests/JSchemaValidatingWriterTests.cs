@@ -70,13 +70,13 @@ namespace Newtonsoft.Json.Schema.Tests
 
             validatingWriter.WriteValue("string");
             Assert.IsNotNull(a);
-            StringAssert.AreEqual("Invalid type. Expected Integer but got String.", a.Message);
+            StringAssert.AreEqual("Invalid type. Expected Integer but got String. Path '[0]'.", a.Message);
             Assert.AreEqual("string", a.ValidationError.Value);
             a = null;
 
             validatingWriter.WriteValue(true);
             Assert.IsNotNull(a);
-            StringAssert.AreEqual("Invalid type. Expected Integer but got Boolean.", a.Message);
+            StringAssert.AreEqual("Invalid type. Expected Integer but got Boolean. Path '[1]'.", a.Message);
             Assert.AreEqual(true, a.ValidationError.Value);
             a = null;
 
@@ -149,14 +149,14 @@ namespace Newtonsoft.Json.Schema.Tests
             validatingWriter.WritePropertyName("prop1");
             validatingWriter.WriteValue(true);
             Assert.IsNotNull(a);
-            StringAssert.AreEqual("Invalid type. Expected Integer but got Boolean.", a.Message);
+            StringAssert.AreEqual("Invalid type. Expected Integer but got Boolean. Path 'prop1'.", a.Message);
             Assert.AreEqual(true, a.ValidationError.Value);
             a = null;
 
             validatingWriter.WritePropertyName("prop2");
             validatingWriter.WriteValue(45);
             Assert.IsNotNull(a);
-            StringAssert.AreEqual("Invalid type. Expected Boolean but got Integer.", a.Message);
+            StringAssert.AreEqual("Invalid type. Expected Boolean but got Integer. Path 'prop2'.", a.Message);
             Assert.AreEqual(45, a.ValidationError.Value);
             a = null;
 
@@ -194,7 +194,7 @@ namespace Newtonsoft.Json.Schema.Tests
             validatingWriter.WriteStartArray();
 
             Assert.IsNotNull(a);
-            StringAssert.AreEqual("Invalid type. Expected Integer but got Array.", a.Message);
+            StringAssert.AreEqual("Invalid type. Expected Integer but got Array. Path 'foo'.", a.Message);
             Assert.AreEqual(null, a.ValidationError.Value);
             a = null;
 
@@ -203,7 +203,7 @@ namespace Newtonsoft.Json.Schema.Tests
             validatingWriter.WriteStartObject();
 
             Assert.IsNotNull(a);
-            StringAssert.AreEqual("Invalid type. Expected String but got Object.", a.Message);
+            StringAssert.AreEqual("Invalid type. Expected String but got Object. Path 'bar'.", a.Message);
             Assert.AreEqual(null, a.ValidationError.Value);
             a = null;
 
@@ -239,44 +239,44 @@ namespace Newtonsoft.Json.Schema.Tests
 
             validatingWriter.WriteValue("string");
             Assert.IsNotNull(a);
-            StringAssert.AreEqual("Invalid type. Expected Integer but got String.", a.Message);
+            StringAssert.AreEqual("Invalid type. Expected Integer but got String. Path '[0]'.", a.Message);
             Assert.AreEqual("string", a.ValidationError.Value);
             Assert.AreEqual("#/items/0", a.ValidationError.SchemaId.ToString());
             a = null;
 
             validatingWriter.WriteValue((string)null);
             Assert.IsNotNull(a);
-            StringAssert.AreEqual("Invalid type. Expected Integer but got Null.", a.Message);
+            StringAssert.AreEqual("Invalid type. Expected Integer but got Null. Path '[1]'.", a.Message);
             Assert.AreEqual(null, a.ValidationError.Value);
             a = null;
 
             validatingWriter.WriteValue('e');
             Assert.IsNotNull(a);
-            StringAssert.AreEqual("Invalid type. Expected Integer but got String.", a.Message);
+            StringAssert.AreEqual("Invalid type. Expected Integer but got String. Path '[2]'.", a.Message);
             Assert.AreEqual("e", a.ValidationError.Value);
             a = null;
 
             validatingWriter.WriteValue(true);
             Assert.IsNotNull(a);
-            StringAssert.AreEqual("Invalid type. Expected Integer but got Boolean.", a.Message);
+            StringAssert.AreEqual("Invalid type. Expected Integer but got Boolean. Path '[3]'.", a.Message);
             Assert.AreEqual(true, a.ValidationError.Value);
             a = null;
 
             validatingWriter.WriteValue((int?)null);
             Assert.IsNotNull(a);
-            StringAssert.AreEqual("Invalid type. Expected Integer but got Null.", a.Message);
+            StringAssert.AreEqual("Invalid type. Expected Integer but got Null. Path '[4]'.", a.Message);
             Assert.AreEqual(null, a.ValidationError.Value);
             a = null;
 
             validatingWriter.WriteNull();
             Assert.IsNotNull(a);
-            StringAssert.AreEqual("Invalid type. Expected Integer but got Null.", a.Message);
+            StringAssert.AreEqual("Invalid type. Expected Integer but got Null. Path '[5]'.", a.Message);
             Assert.AreEqual(null, a.ValidationError.Value);
             a = null;
 
             validatingWriter.WriteUndefined();
             Assert.IsNotNull(a);
-            StringAssert.AreEqual("Invalid type. Expected Integer but got Undefined.", a.Message);
+            StringAssert.AreEqual("Invalid type. Expected Integer but got Undefined. Path '[6]'.", a.Message);
             Assert.AreEqual(null, a.ValidationError.Value);
             a = null;
 
@@ -299,55 +299,55 @@ namespace Newtonsoft.Json.Schema.Tests
 
             validatingWriter.WriteValue(1.1m);
             Assert.IsNotNull(a);
-            StringAssert.AreEqual("Invalid type. Expected Integer but got Float.", a.Message);
+            StringAssert.AreEqual("Invalid type. Expected Integer but got Float. Path '[15]'.", a.Message);
             Assert.AreEqual(1.1d, a.ValidationError.Value);
             a = null;
 
             validatingWriter.WriteValue(1.1d);
             Assert.IsNotNull(a);
-            StringAssert.AreEqual("Invalid type. Expected Integer but got Float.", a.Message);
+            StringAssert.AreEqual("Invalid type. Expected Integer but got Float. Path '[16]'.", a.Message);
             Assert.AreEqual(1.1d, a.ValidationError.Value);
             a = null;
 
             validatingWriter.WriteValue(1.1f);
             Assert.IsNotNull(a);
-            StringAssert.AreEqual("Invalid type. Expected Integer but got Float.", a.Message);
+            StringAssert.AreEqual("Invalid type. Expected Integer but got Float. Path '[17]'.", a.Message);
             Assert.AreEqual(1.1f, a.ValidationError.Value);
             a = null;
 
             validatingWriter.WriteValue(new Uri("http://test.test"));
             Assert.IsNotNull(a);
-            StringAssert.AreEqual("Invalid type. Expected Integer but got String.", a.Message);
+            StringAssert.AreEqual("Invalid type. Expected Integer but got String. Path '[18]'.", a.Message);
             Assert.AreEqual("http://test.test", a.ValidationError.Value);
             a = null;
 
             validatingWriter.WriteValue(TimeSpan.FromMinutes(1.0));
             Assert.IsNotNull(a);
-            StringAssert.AreEqual("Invalid type. Expected Integer but got String.", a.Message);
+            StringAssert.AreEqual("Invalid type. Expected Integer but got String. Path '[19]'.", a.Message);
             Assert.AreEqual("00:01:00", a.ValidationError.Value);
             a = null;
 
             validatingWriter.WriteValue(new Guid("3D1A74E8-0B2D-43F2-9D55-2E9DD4A1598E"));
             Assert.IsNotNull(a);
-            StringAssert.AreEqual("Invalid type. Expected Integer but got String.", a.Message);
+            StringAssert.AreEqual("Invalid type. Expected Integer but got String. Path '[20]'.", a.Message);
             Assert.AreEqual("3d1a74e8-0b2d-43f2-9d55-2e9dd4a1598e", a.ValidationError.Value);
             a = null;
 
             validatingWriter.WriteValue(Encoding.UTF8.GetBytes("Hello world."));
             Assert.IsNotNull(a);
-            StringAssert.AreEqual("Invalid type. Expected Integer but got String.", a.Message);
+            StringAssert.AreEqual("Invalid type. Expected Integer but got String. Path '[21]'.", a.Message);
             Assert.AreEqual("SGVsbG8gd29ybGQu", a.ValidationError.Value);
             a = null;
 
             validatingWriter.WriteValue(new DateTimeOffset(2000, 12, 2, 5, 6, 2, TimeSpan.Zero));
             Assert.IsNotNull(a);
-            StringAssert.AreEqual("Invalid type. Expected Integer but got String.", a.Message);
+            StringAssert.AreEqual("Invalid type. Expected Integer but got String. Path '[22]'.", a.Message);
             Assert.AreEqual("2000-12-02T05:06:02+00:00", a.ValidationError.Value);
             a = null;
 
             validatingWriter.WriteValue(new DateTime(2000, 12, 2, 5, 6, 2, DateTimeKind.Utc));
             Assert.IsNotNull(a);
-            StringAssert.AreEqual("Invalid type. Expected Integer but got String.", a.Message);
+            StringAssert.AreEqual("Invalid type. Expected Integer but got String. Path '[23]'.", a.Message);
             Assert.AreEqual("2000-12-02T05:06:02Z", a.ValidationError.Value);
             a = null;
 
@@ -411,7 +411,7 @@ namespace Newtonsoft.Json.Schema.Tests
             validatingWriter.WriteStartConstructor("Test");
 
             Assert.IsNotNull(a);
-            StringAssert.AreEqual(@"Invalid type. Expected Array but got Constructor.", a.Message);
+            StringAssert.AreEqual(@"Invalid type. Expected Array but got Constructor. Path ''.", a.Message);
             Assert.AreEqual(null, a.ValidationError.Value);
             a = null;
 
@@ -420,7 +420,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             validatingWriter.WriteValue('e');
             Assert.IsNotNull(a);
-            StringAssert.AreEqual("Invalid type. Expected Integer but got String.", a.Message);
+            StringAssert.AreEqual("Invalid type. Expected Integer but got String. Path '[1]'.", a.Message);
             Assert.AreEqual("e", a.ValidationError.Value);
             a = null;
 
