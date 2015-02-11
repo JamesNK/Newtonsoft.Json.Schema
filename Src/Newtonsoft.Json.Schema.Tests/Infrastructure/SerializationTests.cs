@@ -51,7 +51,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 
             string json = JsonConvert.SerializeObject(error, Formatting.Indented);
 
-            Assert.AreEqual(@"{
+            StringAssert.AreEqual(@"{
   ""Message"": ""A message!"",
   ""LineNumber"": 11,
   ""LinePosition"": 5,
