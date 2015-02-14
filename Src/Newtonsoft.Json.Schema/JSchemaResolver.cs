@@ -20,9 +20,9 @@ namespace Newtonsoft.Json.Schema
         /// Gets the schema for a given schema reference.
         /// </summary>
         /// <param name="context">The schema ID context.</param>
-        /// <param name="schemaReference">The schema reference.</param>
+        /// <param name="reference">The schema reference.</param>
         /// <returns>The schema data or <c>null</c> if the ID should be resolved using the default schema ID resolution logic.</returns>
-        public abstract Stream GetRootSchema(ResolveSchemaContext context, SchemaReference schemaReference);
+        public abstract Stream GetRootSchema(ResolveSchemaContext context, SchemaReference reference);
 
         /// <summary>
         /// Resolves the schema reference from the specified schema ID context.

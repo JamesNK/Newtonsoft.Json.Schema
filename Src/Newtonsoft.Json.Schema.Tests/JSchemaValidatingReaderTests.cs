@@ -419,6 +419,7 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(JsonToken.String, reader.TokenType);
             Assert.AreEqual("String 'The quick brown fox jumps over the lazy dog.' exceeds maximum length of 10. Path '', line 1, position 46.", validationEventArgs.Message);
             Assert.AreEqual("The quick brown fox jumps over the lazy dog.", validationEventArgs.ValidationError.Value);
+            Assert.AreEqual(null, validationEventArgs.ValidationError.SchemaBaseUri);
 
             Assert.IsNotNull(validationEventArgs);
         }

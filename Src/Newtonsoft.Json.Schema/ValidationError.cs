@@ -62,6 +62,12 @@ namespace Newtonsoft.Json.Schema
         public Uri SchemaId { get; set; }
 
         /// <summary>
+        /// Gets the base URI of the <see cref="JSchema"/> that generated the error.
+        /// </summary>
+        /// <value>The base URI of the <see cref="JSchema"/> that generated the error.</value>
+        public Uri SchemaBaseUri { get; set; }
+
+        /// <summary>
         /// Gets the <see cref="ErrorType"/> that generated the error.
         /// </summary>
         /// <value>The <see cref="ErrorType"/> that generated the error.</value>

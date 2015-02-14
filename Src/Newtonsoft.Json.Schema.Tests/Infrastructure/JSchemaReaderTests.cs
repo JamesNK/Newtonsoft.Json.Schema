@@ -27,7 +27,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
     [TestFixture]
     public class JSchemaReaderTests : TestFixtureBase
     {
-        public static JSchema OpenSchemaFile(string name, JSchemaResolver resolver)
+        public static JSchema OpenSchemaFile(string name, JSchemaResolver resolver, Uri baseUri = null)
         {
             string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
 
@@ -37,7 +37,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             {
                 JSchema schema = JSchema.Load(reader, new JSchemaReaderSettings
                 {
-                    BaseUri = new Uri(path, UriKind.RelativeOrAbsolute),
+                    BaseUri = baseUri ?? new Uri(path, UriKind.RelativeOrAbsolute),
                     Resolver = resolver
                 });
 
@@ -70,7 +70,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             resolver.Add(new Uri("http://json-schema.org/geojson/bbox.json"), TestHelpers.OpenFile(@"resources\schemas\geojson\bbox.json"));
             resolver.Add(new Uri("http://json-schema.org/geojson/geometry.json"), TestHelpers.OpenFile(@"resources\schemas\geojson\geometry.json"));
 
-            JSchema schema = OpenSchemaFile(@"resources\schemas\geojson\geojson.json", resolver);
+            JSchema schema = OpenSchemaFile(@"resources\schemas\geojson\geojson.json", resolver, new Uri("http://json-schema.org/geojson/geojson.json"));
 
             JObject o = JObject.Parse(@"{
               ""type"": ""Feature"",
@@ -83,9 +83,41 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
               }
             }");
 
-            bool isValid = o.IsValid(schema);
+            bool isValid1 = o.IsValid(schema);
+            Assert.IsTrue(isValid1);
 
-            Assert.IsTrue(isValid);
+            JObject o2 = JObject.Parse(@"{
+              ""type"": ""Feature"",
+              ""geometry"": {
+                ""type"": ""Point"",
+                ""coordinates"": [true, 10.1]
+              },
+              ""bbox"": [1, 2.1, ""string?!""],
+              ""properties"": {
+                ""name"": ""Dinagat Islands""
+              }
+            }");
+
+            IList<ValidationError> errors;
+            bool isValid2 = o2.IsValid(schema, out errors);
+            Assert.IsFalse(isValid2);
+
+            Assert.AreEqual(new Uri("http://json-schema.org/geojson/bbox.json"), errors[0].SchemaBaseUri);
+            Assert.AreEqual(new Uri("http://json-schema.org/geojson/geojson.json"), errors[1].SchemaBaseUri);
+
+            PrintErrorsRecursive(errors, 0);
+        }
+
+        private void PrintErrorsRecursive(IList<ValidationError> errors, int depth)
+        {
+            foreach (ValidationError validationError in errors)
+            {
+                string prefix = new string(' ', depth);
+
+                Console.WriteLine(prefix + validationError.BuildExtendedMessage() + " - " + validationError.SchemaId + " - " + validationError.SchemaBaseUri);
+
+                PrintErrorsRecursive(validationError.ChildErrors, depth + 2);
+            }
         }
 
         [Test]
@@ -1433,6 +1465,97 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 }");
 
             Assert.AreEqual(new Uri("http://json-schema.org/draft-04/schema#"), schema.Id);
+        }
+
+        [Test]
+        public void ErrorPathWhenFailureReadingDeferedReference()
+        {
+            string schemaJson = @"{
+  ""type"":""object"",
+  ""properties"":
+  {
+    ""name"":{""$ref"":""#/definitions/def1""}
+  },
+  ""definitions"":
+  {
+    ""def1"":{""type"":""invalid""}
+  }
+}";
+
+            ExceptionAssert.Throws<JSchemaReaderException>(
+                () =>
+                {
+                    JSchemaReader schemaReader = new JSchemaReader(JSchemaDummyResolver.Instance);
+                    schemaReader.ReadRoot(new JsonTextReader(new StringReader(schemaJson)));
+                },
+                "Invalid JSON schema type: invalid. Path 'definitions.def1.type', line 9, position 29.");
+        }
+
+        [Test]
+        public void ErrorPathWhenFailureReadingDeferedReference_Array()
+        {
+            string schemaJson = @"{
+  ""type"":""object"",
+  ""properties"":
+  {
+    ""name"":{""$ref"":""#/definitions/0/def1/0""}
+  },
+  ""definitions"":
+  [
+    {
+      ""def1"":[{""type"":""invalid""}]
+    }
+  ]
+}";
+
+            ExceptionAssert.Throws<JSchemaReaderException>(
+                () =>
+                {
+                    JSchemaReader schemaReader = new JSchemaReader(JSchemaDummyResolver.Instance);
+                    schemaReader.ReadRoot(new JsonTextReader(new StringReader(schemaJson)));
+                },
+                // path here is wrong, will be fixed in future json.net release
+                "Invalid JSON schema type: invalid. Path 'definitions[0].def1[0]type', line 10, position 32.");
+
+            JObject o = JObject.Parse(schemaJson);
+
+            JToken token = o["definitions"][0]["def1"][0]["type"];
+
+            Console.WriteLine(token.Path);
+
+            JToken selectedToken = o.SelectToken("definitions[0].def1[0].type");
+
+            Assert.AreEqual(token, selectedToken);
+        }
+
+        [Test]
+        public void ErrorPathWhenFailureReadingDeferedReference_Nested()
+        {
+            string schemaJson = @"{
+  ""type"":""object"",
+  ""properties"": {
+    ""name"":{""$ref"":""#/definitions/def1""}
+  },
+  ""definitions"": {
+    ""def1"": {
+      ""type"":""array"",
+      ""properties"": {
+        ""name"":{""$ref"":""#/definitions/def1/def2""}
+      },
+      ""def2"": {
+        ""type"":""invalid""
+      }
+    }
+  }
+}";
+
+            ExceptionAssert.Throws<JSchemaReaderException>(
+                () =>
+                {
+                    JSchemaReader schemaReader = new JSchemaReader(JSchemaDummyResolver.Instance);
+                    schemaReader.ReadRoot(new JsonTextReader(new StringReader(schemaJson)));
+                },
+                "Invalid JSON schema type: invalid. Path 'definitions.def1.def2.type', line 13, position 25.");
         }
     }
 }

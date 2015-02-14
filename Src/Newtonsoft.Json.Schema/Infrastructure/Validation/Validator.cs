@@ -70,6 +70,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             }
             error.Schema = schema;
             error.SchemaId = _schemaDiscovery.KnownSchemas.Single(s => s.Schema == schema).Id;
+            error.SchemaBaseUri = schema.BaseUri;
             error.Value = value;
             error.ChildErrors = childErrors;
 

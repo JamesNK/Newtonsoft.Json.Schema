@@ -61,7 +61,23 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         internal JSchema ReadInlineSchema(Action<JSchema> setSchema, JToken inlineToken)
         {
-            JsonReader reader = inlineToken.CreateReader();
+            JTokenPathAnnotation pathAnnotation = inlineToken.Root.Annotation<JTokenPathAnnotation>();
+            string path;
+            if (pathAnnotation != null && !string.IsNullOrEmpty(pathAnnotation.BasePath))
+            {
+                path = pathAnnotation.BasePath;
+
+                if (!inlineToken.Path.StartsWith("[", StringComparison.Ordinal))
+                    path += ".";
+
+                path += inlineToken.Path;
+            }
+            else
+            {
+                path = inlineToken.Path;
+            }
+
+            JTokenReader reader = new JTokenReader(inlineToken, path);
             reader.Read();
 
             LoadAndSetSchema(reader, s =>

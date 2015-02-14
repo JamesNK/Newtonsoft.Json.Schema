@@ -39,6 +39,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
                 Path = "sdf.sdf",
                 ErrorType = ErrorType.MinimumLength,
                 SchemaId = new Uri("test.xml", UriKind.RelativeOrAbsolute),
+                SchemaBaseUri = new Uri("test.xml", UriKind.RelativeOrAbsolute),
                 Schema = new JSchema { Type = JSchemaType.Float },
                 ChildErrors =
                 {
@@ -58,6 +59,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
   ""Path"": ""sdf.sdf"",
   ""Value"": ""A value!"",
   ""SchemaId"": ""test.xml"",
+  ""SchemaBaseUri"": ""test.xml"",
   ""ErrorType"": ""minLength"",
   ""ChildErrors"": [
     {
@@ -67,6 +69,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
       ""Path"": null,
       ""Value"": null,
       ""SchemaId"": null,
+      ""SchemaBaseUri"": null,
       ""ErrorType"": ""none"",
       ""ChildErrors"": []
     }

@@ -60,11 +60,11 @@ namespace Newtonsoft.Json.Schema
         /// Gets the schema for a given schema reference.
         /// </summary>
         /// <param name="context">The schema ID context.</param>
-        /// <param name="schemaReference">The schema reference.</param>
+        /// <param name="reference">The schema reference.</param>
         /// <returns>The schema data or <c>null</c> if the ID should be resolved using the default schema ID resolution logic.</returns>
-        public override Stream GetRootSchema(ResolveSchemaContext context, SchemaReference schemaReference)
+        public override Stream GetRootSchema(ResolveSchemaContext context, SchemaReference reference)
         {
-            if (!schemaReference.BaseUri.IsAbsoluteUri)
+            if (!reference.BaseUri.IsAbsoluteUri)
                 return null;
 
 #if !PORTABLE
@@ -73,7 +73,7 @@ namespace Newtonsoft.Json.Schema
             int? timeout = null;
 #endif
 
-            return _downloader.GetStream(schemaReference.BaseUri, _credentials, timeout, ByteLimit);
+            return _downloader.GetStream(reference.BaseUri, _credentials, timeout, ByteLimit);
         }
     }
 }
