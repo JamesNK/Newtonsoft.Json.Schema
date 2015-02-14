@@ -91,7 +91,7 @@ namespace Newtonsoft.Json.Schema
 
         internal string BuildExtendedMessage()
         {
-            return JsonPosition.FormatMessage(this, Path, Message);
+            return JSchemaException.FormatMessage(this, Path, Message);
         }
     }
 }

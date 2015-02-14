@@ -49,22 +49,23 @@ namespace Newtonsoft.Json.Schema
         }
 
         /// <summary>
-        /// Gets the schema for a given schema ID context.
+        /// Sets the credentials used to authenticate web requests.
         /// </summary>
-        /// <param name="context">The schema ID context to resolve.</param>
-        /// <returns>The resolved schema.</returns>
-        public override JSchema GetSchema(ResolveSchemaContext context)
+        public override ICredentials Credentials
         {
-            if (!context.SchemaId.IsAbsoluteUri)
+            set { _credentials = value; }
+        }
+
+        /// <summary>
+        /// Gets the schema for a given schema reference.
+        /// </summary>
+        /// <param name="context">The schema ID context.</param>
+        /// <param name="schemaReference">The schema reference.</param>
+        /// <returns>The schema data or <c>null</c> if the ID should be resolved using the default schema ID resolution logic.</returns>
+        public override Stream GetRootSchema(ResolveSchemaContext context, SchemaReference schemaReference)
+        {
+            if (!schemaReference.BaseUri.IsAbsoluteUri)
                 return null;
-
-            Uri uri = context.SchemaId;
-            string fragment = uri.Fragment;
-
-            UriBuilder b = new UriBuilder(uri);
-            b.Fragment = string.Empty;
-
-            Uri requestUri = b.Uri;
 
 #if !PORTABLE
             int? timeout = Timeout;
@@ -72,29 +73,7 @@ namespace Newtonsoft.Json.Schema
             int? timeout = null;
 #endif
 
-            using (Stream s = _downloader.GetStream(requestUri, _credentials, timeout, ByteLimit))
-            using (StreamReader sr = new StreamReader(s))
-            using (JsonTextReader jsonReader = new JsonTextReader(sr))
-            {
-                JSchema schema = JSchema.Load(jsonReader, this);
-
-                // no fragment, returned schema is final result
-                if (string.IsNullOrEmpty(fragment))
-                    return schema;
-
-                // look inside schema with fragment
-                JSchema relativeSchema = ResolveChildSchema(schema, requestUri, new Uri(fragment, UriKind.Relative));
-
-                return relativeSchema;
-            }
-        }
-
-        /// <summary>
-        /// Sets the credentials used to authenticate web requests.
-        /// </summary>
-        public override ICredentials Credentials
-        {
-            set { _credentials = value; }
+            return _downloader.GetStream(schemaReference.BaseUri, _credentials, timeout, ByteLimit);
         }
     }
 }

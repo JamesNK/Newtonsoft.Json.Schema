@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
-using System.Reflection;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema.Generation;
 using Newtonsoft.Json.Schema.Infrastructure;
@@ -25,7 +24,6 @@ namespace Newtonsoft.Json.Schema
     {
         private readonly List<TypeSchema> _typeSchemas;
 
-        private JSchemaResolver _resolver;
         private IContractResolver _contractResolver;
         private IList<JSchemaGenerationProvider> _generationProviders;
 
@@ -79,18 +77,7 @@ namespace Newtonsoft.Json.Schema
         /// <returns>A <see cref="JSchema"/> generated from the specified type.</returns>
         public JSchema Generate(Type type)
         {
-            return Generate(type, JSchemaDummyResolver.Instance, false);
-        }
-
-        /// <summary>
-        /// Generate a <see cref="JSchema"/> from the specified type.
-        /// </summary>
-        /// <param name="type">The type to generate a <see cref="JSchema"/> from.</param>
-        /// <param name="resolver">The <see cref="JSchemaResolver"/> used to resolve schema references.</param>
-        /// <returns>A <see cref="JSchema"/> generated from the specified type.</returns>
-        public JSchema Generate(Type type, JSchemaResolver resolver)
-        {
-            return Generate(type, resolver, false);
+            return Generate(type, false);
         }
 
         /// <summary>
@@ -101,22 +88,7 @@ namespace Newtonsoft.Json.Schema
         /// <returns>A <see cref="JSchema"/> generated from the specified type.</returns>
         public JSchema Generate(Type type, bool rootSchemaNullable)
         {
-            return Generate(type, JSchemaDummyResolver.Instance, rootSchemaNullable);
-        }
-
-        /// <summary>
-        /// Generate a <see cref="JSchema"/> from the specified type.
-        /// </summary>
-        /// <param name="type">The type to generate a <see cref="JSchema"/> from.</param>
-        /// <param name="resolver">The <see cref="JSchemaResolver"/> used to resolve schema references.</param>
-        /// <param name="rootSchemaNullable">Specify whether the generated root <see cref="JSchema"/> will be nullable.</param>
-        /// <returns>A <see cref="JSchema"/> generated from the specified type.</returns>
-        public JSchema Generate(Type type, JSchemaResolver resolver, bool rootSchemaNullable)
-        {
             ValidationUtils.ArgumentNotNull(type, "type");
-            ValidationUtils.ArgumentNotNull(resolver, "resolver");
-
-            _resolver = resolver;
 
             LicenseHelpers.IncrementAndCheckGenerationCount();
 
@@ -161,7 +133,6 @@ namespace Newtonsoft.Json.Schema
             }
             else
             {
-
                 if (explicitOnly)
                     return null;
 
@@ -215,27 +186,7 @@ namespace Newtonsoft.Json.Schema
 
             Type nonNullableType = ReflectionUtils.IsNullableType(type) ? Nullable.GetUnderlyingType(type) : type;
 
-            Uri resolvedId = GetTypeId(nonNullableType, false);
             Uri explicitId = GetTypeId(nonNullableType, true);
-
-            if (resolvedId != null)
-            {
-                JSchema resolvedSchema = _resolver.GetSchema(new ResolveSchemaContext
-                {
-                    SchemaId = resolvedId,
-                    ResolvedSchemaId = resolvedId
-                });
-
-                if (resolvedSchema != null)
-                {
-                    // resolved schema is not null but referencing member allows nulls
-                    // change resolved schema to allow nulls. hacky but what are ya gonna do?
-                    if (valueRequired != Required.Always && !HasFlag(resolvedSchema.Type, JSchemaType.Null))
-                        resolvedSchema.Type |= JSchemaType.Null;
-
-                    return resolvedSchema;
-                }
-            }
 
             JsonContract contract = ContractResolver.ResolveContract(type);
 

@@ -64,7 +64,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             JSchema schema = JSchema.Parse(json);
 
-            resolver.Add(schema, new Uri(id));
+            resolver.Add(new Uri(id), schema.ToString());
         }
 
         [TestCaseSourceAttribute("GetSpecTestDetails")]

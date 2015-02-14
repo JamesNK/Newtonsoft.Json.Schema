@@ -16,8 +16,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation.Samples.Load
         public void Example()
         {
             #region Usage
-            string schemaJson = @"{
-              'id': 'person',
+            string personSchemaJson = @"{
               'type': 'object',
               'properties': {
                 'name': { 'type': 'string' },
@@ -25,17 +24,15 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation.Samples.Load
               }
             }";
 
-            JSchema personSchema = JSchema.Parse(schemaJson);
-
             JSchemaPreloadedResolver resolver = new JSchemaPreloadedResolver();
-            resolver.Add(personSchema);
+            resolver.Add(new Uri("person.json", UriKind.RelativeOrAbsolute), personSchemaJson);
 
             // the external 'person' schema will be found using the resolver
             // the internal 'salary' schema will be found using the default resolution logic
-            schemaJson = @"{
+            JSchema employeeSchema = JSchema.Parse(@"{
               'type': 'object',
               'allOf': [
-                { '$ref': 'person' }
+                { '$ref': 'person.json' }
               ],
               'properties': {
                 'salary': { '$ref': '#/definitions/salary' },
@@ -44,9 +41,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation.Samples.Load
               'definitions': {
                 'salary': { 'type': 'number' }
               }
-            }";
-
-            JSchema employeeSchema = JSchema.Parse(schemaJson, resolver);
+            }", resolver);
 
             string json = @"{
               'name': 'James',

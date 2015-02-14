@@ -4,6 +4,7 @@
 #endregion
 
 using System;
+using System.IO;
 
 namespace Newtonsoft.Json.Schema.Infrastructure
 {
@@ -11,7 +12,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
     {
         public static readonly JSchemaDummyResolver Instance = new JSchemaDummyResolver();
 
-        public override JSchema GetSchema(ResolveSchemaContext context)
+        public override Stream GetRootSchema(ResolveSchemaContext context, SchemaReference schemaReference)
         {
             return null;
         }

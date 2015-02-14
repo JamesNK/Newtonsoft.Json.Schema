@@ -105,7 +105,7 @@ namespace Newtonsoft.Json.Schema
 
         internal static JSchemaReaderException Create(IJsonLineInfo lineInfo, string path, string message, Exception ex)
         {
-            message = JsonPosition.FormatMessage(lineInfo, path, message);
+            message = FormatMessage(lineInfo, path, message);
 
             int lineNumber;
             int linePosition;

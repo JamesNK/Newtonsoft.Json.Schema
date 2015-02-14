@@ -35,6 +35,7 @@ namespace Newtonsoft.Json.Schema
 
         private int _lineNumber;
         private int _linePosition;
+        internal Uri BaseUri;
 
         /// <summary>
         /// Gets or sets the schema ID.
@@ -426,11 +427,13 @@ namespace Newtonsoft.Json.Schema
         /// <returns>The <see cref="JSchema"/> object representing the JSON Schema.</returns>
         public static JSchema Load(JsonReader reader)
         {
-            return Load(reader, JSchemaDummyResolver.Instance);
+            ValidationUtils.ArgumentNotNull(reader, "reader");
+
+            return Load(reader, new JSchemaReaderSettings());
         }
 
         /// <summary>
-        /// Loads a <see cref="JSchema"/> from the specified <see cref="JsonReader"/>.
+        /// Loads a <see cref="JSchema"/> from a <see cref="JsonReader"/> using the given <see cref="JSchemaResolver"/>.
         /// </summary>
         /// <param name="reader">The <see cref="JsonReader"/> containing the JSON Schema to load.</param>
         /// <param name="resolver">The <see cref="JSchemaResolver"/> to use when resolving schema references.</param>
@@ -440,7 +443,24 @@ namespace Newtonsoft.Json.Schema
             ValidationUtils.ArgumentNotNull(reader, "reader");
             ValidationUtils.ArgumentNotNull(resolver, "resolver");
 
-            JSchemaReader schemaReader = new JSchemaReader(resolver);
+            return Load(reader, new JSchemaReaderSettings
+            {
+                Resolver = resolver
+            });
+        }
+
+        /// <summary>
+        /// Loads a <see cref="JSchema"/> from a <see cref="JsonReader"/> using the given <see cref="JSchemaResolver"/>.
+        /// </summary>
+        /// <param name="reader">The <see cref="JsonReader"/> containing the JSON Schema to load.</param>
+        /// <param name="settings">The <see cref="JSchemaReaderSettings"/> used to load the schema.</param>
+        /// <returns>The <see cref="JSchema"/> object representing the JSON Schema.</returns>
+        public static JSchema Load(JsonReader reader, JSchemaReaderSettings settings)
+        {
+            ValidationUtils.ArgumentNotNull(reader, "reader");
+            ValidationUtils.ArgumentNotNull(settings, "settings");
+
+            JSchemaReader schemaReader = new JSchemaReader(settings);
             return schemaReader.ReadRoot(reader);
         }
 
@@ -451,22 +471,42 @@ namespace Newtonsoft.Json.Schema
         /// <returns>A <see cref="JSchema"/> populated from the string that contains JSON.</returns>
         public static JSchema Parse(string json)
         {
-            return Parse(json, JSchemaDummyResolver.Instance);
+            ValidationUtils.ArgumentNotNull(json, "json");
+
+            return Parse(json, new JSchemaReaderSettings());
         }
 
         /// <summary>
-        /// Parses the specified json.
+        /// Load a <see cref="JSchema"/> from a string that contains schema JSON using the given <see cref="JSchemaResolver"/>.
         /// </summary>
-        /// <param name="json">The json.</param>
-        /// <param name="resolver">The resolver.</param>
+        /// <param name="json">The JSON.</param>
+        /// <param name="resolver">The <see cref="JSchemaResolver"/> to use when resolving schema references.</param>
         /// <returns>A <see cref="JSchema"/> populated from the string that contains JSON.</returns>
         public static JSchema Parse(string json, JSchemaResolver resolver)
         {
             ValidationUtils.ArgumentNotNull(json, "json");
+            ValidationUtils.ArgumentNotNull(resolver, "resolver");
+
+            return Parse(json, new JSchemaReaderSettings
+            {
+                Resolver = resolver
+            });
+        }
+
+        /// <summary>
+        /// Load a <see cref="JSchema"/> from a string that contains schema JSON using the given <see cref="JSchemaReaderSettings"/>.
+        /// </summary>
+        /// <param name="json">The JSON.</param>
+        /// <param name="settings">The <see cref="JSchemaReaderSettings"/> used to load the schema.</param>
+        /// <returns>A <see cref="JSchema"/> populated from the string that contains JSON.</returns>
+        public static JSchema Parse(string json, JSchemaReaderSettings settings)
+        {
+            ValidationUtils.ArgumentNotNull(json, "json");
+            ValidationUtils.ArgumentNotNull(settings, "settings");
 
             using (JsonReader reader = new JsonTextReader(new StringReader(json)))
             {
-                return Load(reader, resolver);
+                return Load(reader, settings);
             }
         }
 

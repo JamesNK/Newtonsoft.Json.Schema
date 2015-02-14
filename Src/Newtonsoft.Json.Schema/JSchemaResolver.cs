@@ -4,6 +4,7 @@
 #endregion
 
 using System;
+using System.IO;
 using System.Net;
 using Newtonsoft.Json.Schema.Infrastructure;
 using Newtonsoft.Json.Schema.Infrastructure.Discovery;
@@ -16,37 +17,106 @@ namespace Newtonsoft.Json.Schema
     public abstract class JSchemaResolver
     {
         /// <summary>
-        /// Gets the schema for a given schema ID context.
+        /// Gets the schema for a given schema reference.
         /// </summary>
-        /// <param name="context">The schema ID context to resolve.</param>
-        /// <returns>The resolved schema or <c>null</c> if the ID should be resolved using the default schema ID resolution logic.</returns>
-        public abstract JSchema GetSchema(ResolveSchemaContext context);
+        /// <param name="context">The schema ID context.</param>
+        /// <param name="schemaReference">The schema reference.</param>
+        /// <returns>The schema data or <c>null</c> if the ID should be resolved using the default schema ID resolution logic.</returns>
+        public abstract Stream GetRootSchema(ResolveSchemaContext context, SchemaReference schemaReference);
 
         /// <summary>
-        /// Sets the credentials used to authenticate web requests.
+        /// Resolves the schema reference from the specified schema ID context.
         /// </summary>
-        public virtual ICredentials Credentials
+        /// <param name="context">The schema ID context to resolve.</param>
+        /// <returns>The resolved schema reference.</returns>
+        public virtual SchemaReference ResolveSchemaReference(ResolveSchemaContext context)
         {
-            set { }
+            string fragment;
+            Uri baseUri = ResolveBaseUri(context, out fragment);
+
+            SchemaReference schemaReference = new SchemaReference();
+            schemaReference.BaseUri = baseUri;
+            if (fragment != null)
+                schemaReference.SubschemaId = new Uri(fragment, UriKind.RelativeOrAbsolute);
+
+            return schemaReference;
+        }
+
+        private Uri ResolveBaseUri(ResolveSchemaContext context, out string fragment)
+        {
+            Uri baseUri = context.ResolverBaseUri;
+
+            Uri uri = context.ResolvedSchemaId;
+            if (!uri.IsAbsoluteUri && uri.OriginalString.StartsWith("#", StringComparison.OrdinalIgnoreCase))
+            {
+                fragment = uri.OriginalString;
+                return baseUri;
+            }
+
+            if (baseUri == null || (!baseUri.IsAbsoluteUri && baseUri.OriginalString.Length == 0))
+            {
+                return RemoveFragment(uri, out fragment);
+            }
+
+            if (!baseUri.IsAbsoluteUri)
+                throw new NotSupportedException("Relative URIs are not supported.");
+
+            uri = RemoveFragment(uri, out fragment);
+
+            uri = new Uri(baseUri, uri);
+            return uri;
+        }
+
+        private Uri RemoveFragment(Uri uri, out string fragment)
+        {
+            if (uri.IsAbsoluteUri && string.IsNullOrEmpty(uri.Fragment))
+            {
+                fragment = null;
+                return uri;
+            }
+
+            string uriText;
+
+            int index = uri.OriginalString.IndexOf('#');
+            if (index != -1)
+            {
+                uriText = uri.OriginalString.Substring(0, index);
+                fragment = uri.OriginalString.Substring(index);
+            }
+            else
+            {
+                uriText = uri.OriginalString;
+                fragment = null;
+            }
+
+            Uri resolvedUri = new Uri(uriText, UriKind.RelativeOrAbsolute);
+            return resolvedUri;
         }
 
         /// <summary>
-        /// Finds a child schema using the given ID.
+        /// Finds a subschema using the given schema reference.
         /// </summary>
-        /// <param name="parentSchema">The parent schema to resolve the child schema from.</param>
-        /// <param name="parentSchemaId">The parent schema ID.</param>
-        /// <param name="childSchemaId">The child schema ID.</param>
-        /// <returns>The child schema.</returns>
-        protected JSchema ResolveChildSchema(JSchema parentSchema, Uri parentSchemaId, Uri childSchemaId)
+        /// <param name="reference">The schema reference used to get the subschema.</param>
+        /// <param name="rootSchema">The root schema to resolve the subschema from.</param>
+        /// <returns>The matching subschema.</returns>
+        public virtual JSchema GetSubschema(SchemaReference reference, JSchema rootSchema)
         {
-            JSchemaReader resolverSchemaReader = new JSchemaReader(this)
+            if (reference.SubschemaId == null)
+                return rootSchema;
+
+            Uri rootSchemaId = reference.BaseUri;
+            Uri subschemaId = reference.SubschemaId;
+
+            JSchemaReader resolverSchemaReader = new JSchemaReader(new JSchemaReaderSettings
             {
-                RootSchema = parentSchema
-            };
+                Resolver = this,
+                BaseUri = rootSchema.BaseUri
+            });
+            resolverSchemaReader.RootSchema = rootSchema;
 
             JSchema subSchema = null;
 
-            SchemaDiscovery.FindSchema(s => subSchema = s, parentSchema, parentSchemaId, childSchemaId, resolverSchemaReader);
+            SchemaDiscovery.FindSchema(s => subSchema = s, rootSchema, rootSchemaId, subschemaId, resolverSchemaReader);
 
             if (subSchema != null)
             {
@@ -56,6 +126,14 @@ namespace Newtonsoft.Json.Schema
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Sets the credentials used to authenticate web requests.
+        /// </summary>
+        public virtual ICredentials Credentials
+        {
+            set { }
         }
     }
 }

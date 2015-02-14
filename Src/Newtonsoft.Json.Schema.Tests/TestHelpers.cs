@@ -22,11 +22,17 @@ namespace Newtonsoft.Json.Schema.Tests
 
         public static Stream OpenFile(string name)
         {
+            string path = ResolveFilePath(name);
+
+            return File.OpenRead(path);
+        }
+
+        private static string ResolveFilePath(string name)
+        {
             string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
 
             string path = Path.Combine(baseDirectory, name);
-
-            return File.OpenRead(path);
+            return path;
         }
 
         public static string OpenFileText(string name)
@@ -38,28 +44,18 @@ namespace Newtonsoft.Json.Schema.Tests
             }
         }
 
-        public static JSchema OpenSchemaResource(string name)
-        {
-            return OpenSchemaResource(name, JSchemaDummyResolver.Instance);
-        }
-
-        public static JSchema OpenSchemaResource(string name, JSchemaResolver resolver)
-        {
-            Stream s = OpenResource("Schemas." + name);
-
-            using (JsonReader reader = new JsonTextReader(new StreamReader(s)))
-            {
-                JSchemaReader schemaReader = new JSchemaReader(resolver);
-                return schemaReader.ReadRoot(reader);
-            }
-        }
-
         public static JSchema OpenSchemaFile(string name, JSchemaResolver resolver = null)
         {
-            using (Stream file = OpenFile(name))
+            string path = ResolveFilePath(name);
+
+            using (Stream file = File.OpenRead(path))
             using (JsonReader reader = new JsonTextReader(new StreamReader(file)))
             {
-                JSchema schema = (resolver != null) ? JSchema.Load(reader, resolver) : JSchema.Load(reader);
+                JSchema schema = JSchema.Load(reader, new JSchemaReaderSettings
+                {
+                    Resolver = resolver,
+                    BaseUri = new Uri(path, UriKind.RelativeOrAbsolute)
+                });
                 return schema;
             }
         }

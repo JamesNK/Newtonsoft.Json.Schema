@@ -13,7 +13,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Licensing
     {
         public int Id { get; set; }
         public DateTime ExpiryDate { get; set; }
-        public LicenseType Type { get; set; }
+        public string Type { get; set; }
 
         internal byte[] GetSignificateData()
         {
@@ -21,7 +21,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Licensing
             {
                 Id.ToString(CultureInfo.InvariantCulture),
                 ExpiryDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
-                Type.ToString()
+                Type
             });
 
             return Encoding.UTF8.GetBytes(s);

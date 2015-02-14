@@ -126,8 +126,10 @@
     <Compile Include="Infrastructure\CryptographyHelpersTests.cs" />
     <Compile Include="Infrastructure\EmailHelpersTests.cs" />
     <Compile Include="Infrastructure\JSchemaDiscoveryTests.cs" />
+    <Compile Include="Infrastructure\JSchemaUrlResolverTests.cs" />
     <Compile Include="Infrastructure\JSchemaWriterTests.cs" />
     <Compile Include="Infrastructure\LicenseHelpersTests.cs" />
+    <Compile Include="Infrastructure\NestedPreloadedResolver.cs" />
     <Compile Include="Infrastructure\SerializationTests.cs" />
     <Compile Include="Issues\Issue3Tests.cs" />
     <Compile Include="JSchemaValidatingWriterTests.cs" />
@@ -206,6 +208,21 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Resources\Schemas\contribute.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Schemas\Custom\root.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Schemas\Custom\root_invalidnestedref.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Schemas\Custom\sub1.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Schemas\Custom\sub3.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Schemas\Custom\Sub\sub2.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Resources\Schemas\epr-manifest.json">

@@ -6,7 +6,9 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.Text;
 using Newtonsoft.Json.Schema.Infrastructure;
 using Newtonsoft.Json.Schema.Infrastructure.Discovery;
 using Newtonsoft.Json.Utilities;
@@ -18,8 +20,16 @@ namespace Newtonsoft.Json.Schema
     /// </summary>
     public class JSchemaPreloadedResolver : JSchemaResolver
     {
-        private readonly List<KnownSchema> _knownSchemas;
+        private readonly Dictionary<Uri, byte[]> _preloadedData;
         private readonly JSchemaResolver _resolver;
+
+        /// <summary>
+        /// Gets a collection of preloaded URIs.
+        /// </summary>
+        public IEnumerable<Uri> PreloadedUris
+        {
+            get { return _preloadedData.Keys; }
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="JSchemaPreloadedResolver"/> class with the specified fallback resolver.
@@ -36,71 +46,66 @@ namespace Newtonsoft.Json.Schema
         /// </summary>
         public JSchemaPreloadedResolver()
         {
-            _knownSchemas = new List<KnownSchema>();
+            _preloadedData = new Dictionary<Uri, byte[]>(UriComparer.Instance);
         }
 
         /// <summary>
-        /// Gets the schema for a given schema ID context.
+        /// Gets the schema for a given schema reference.
         /// </summary>
-        /// <param name="context">The schema ID context to resolve.</param>
-        /// <returns>The resolved schema.</returns>
-        public override JSchema GetSchema(ResolveSchemaContext context)
+        /// <param name="context">The schema ID context.</param>
+        /// <param name="schemaReference">The schema reference.</param>
+        /// <returns>The schema data or <c>null</c> if the ID should be resolved using the default schema ID resolution logic.</returns>
+        public override Stream GetRootSchema(ResolveSchemaContext context, SchemaReference schemaReference)
         {
-            Uri uri = context.ResolvedSchemaId;
-
-            foreach (KnownSchema knownSchema in _knownSchemas)
-            {
-                string uriText = uri.ToString();
-                string knownText = (knownSchema.Id != null) ? knownSchema.Id.ToString() : string.Empty;
-
-                if (uriText.StartsWith(knownText, StringComparison.Ordinal))
-                {
-                    // exact id match
-                    if (uriText == knownText)
-                        return knownSchema.Schema;
-
-                    // look inside schema with additional path
-                    string relative = uriText.Substring(knownText.Length);
-                    Uri relativeUri = new Uri(relative, UriKind.RelativeOrAbsolute);
-
-                    JSchema relativeSchema = ResolveChildSchema(knownSchema.Schema, knownSchema.Id, relativeUri);
-
-                    if (relativeSchema != null)
-                        return relativeSchema;
-                }
-            }
+            byte[] data;
+            if (_preloadedData.TryGetValue(schemaReference.BaseUri, out data))
+                return new MemoryStream(data);
 
             if (_resolver != null)
-                return _resolver.GetSchema(context);
+                return _resolver.GetRootSchema(context, schemaReference);
 
             return null;
         }
 
         /// <summary>
-        /// Adds a <see cref="JSchema"/> to the <see cref="JSchemaPreloadedResolver"/> store and maps it to a URI.
-        /// If the store already contains a mapping for the same URI, the existing mapping is overridden.
+        /// Adds a byte array for a schema to the <see cref="JSchemaPreloadedResolver"/> store and maps it to a URI.
         /// </summary>
-        /// <param name="schema">The schema that is being added to the <see cref="JSchemaPreloadedResolver"/> store.</param>
         /// <param name="uri">The URI of the schema that is being added to the <see cref="JSchemaPreloadedResolver"/> store.</param>
-        public void Add(JSchema schema, Uri uri)
+        /// <param name="value">The byte array for a schema that corresponds to the provided URI.</param>
+        public void Add(Uri uri, byte[] value)
         {
-            var existing = _knownSchemas.SingleOrDefault(s => Uri.Compare(s.Id, uri, UriComponents.AbsoluteUri, UriFormat.UriEscaped, StringComparison.Ordinal) == 0);
-            if (existing != null)
-                _knownSchemas.Remove(existing);
+            if (uri == null)
+                throw new ArgumentNullException("uri");
 
-            _knownSchemas.Add(new KnownSchema(uri, schema, KnownSchemaState.External));
+            if (value == null)
+                throw new ArgumentNullException("value");
+
+            _preloadedData[uri] = value;
         }
 
         /// <summary>
-        /// Adds a <see cref="JSchema"/> to the <see cref="JSchemaPreloadedResolver"/> store and maps it to a URI taken from the root schema's ID.
-        /// If the store already contains a mapping for the same URI, the existing mapping is overridden.
+        /// Adds a <see cref="Stream"/> for a schema to the <see cref="JSchemaPreloadedResolver"/> store and maps it to a URI.
         /// </summary>
-        /// <param name="schema">The schema that is being added to the <see cref="JSchemaPreloadedResolver"/> store.</param>
-        public void Add(JSchema schema)
+        /// <param name="uri">The URI of the schema that is being added to the <see cref="JSchemaPreloadedResolver"/> store.</param>
+        /// <param name="value">The <see cref="Stream"/> for a schema that corresponds to the provided URI.</param>
+        public void Add(Uri uri, Stream value)
         {
-            Uri resolvedId = schema.Id ?? new Uri(string.Empty, UriKind.RelativeOrAbsolute);
+            MemoryStream ms = new MemoryStream();
+            value.CopyTo(ms);
 
-            Add(schema, resolvedId);
+            Add(uri, ms.ToArray());
+        }
+
+        /// <summary>
+        /// Adds a <see cref="String"/> for a schema to the <see cref="JSchemaPreloadedResolver"/> store and maps it to a URI.
+        /// </summary>
+        /// <param name="uri">The URI of the schema that is being added to the <see cref="JSchemaPreloadedResolver"/> store.</param>
+        /// <param name="value">The <see cref="String"/> for a schema that corresponds to the provided URI.</param>
+        public void Add(Uri uri, string value)
+        {
+            byte[] data = Encoding.UTF8.GetBytes(value);
+
+            Add(uri, data);
         }
     }
 }

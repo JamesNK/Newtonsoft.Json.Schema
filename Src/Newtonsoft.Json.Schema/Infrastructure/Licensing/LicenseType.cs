@@ -3,15 +3,13 @@
 // License: https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md
 #endregion
 
-using Newtonsoft.Json.Converters;
-
 namespace Newtonsoft.Json.Schema.Infrastructure.Licensing
 {
-    [JsonConverter(typeof(StringEnumConverter))]
-    internal enum LicenseType
+    internal static class LicenseType
     {
-        Test,
-        JsonSchemaIndie,
-        JsonSchemaBusiness
+        public const string Test = "Test";
+        public const string JsonSchemaIndie = "JsonSchemaIndie";
+        public const string JsonSchemaBusiness = "JsonSchemaBusiness";
+        public const string JsonSchemaSite = "JsonSchemaSite";
     }
 }

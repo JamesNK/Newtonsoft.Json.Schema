@@ -1,0 +1,14 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Sub2",
+    "type": "object",
+    "properties": {
+        "property1": { "$ref": "../sub3.json" }
+    },
+    "definitions": {
+        "def1": { 
+            "title": "Def1"
+        }
+    }
+}
+

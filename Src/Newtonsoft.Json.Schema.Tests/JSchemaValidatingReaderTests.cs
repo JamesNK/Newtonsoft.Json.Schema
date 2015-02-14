@@ -1526,7 +1526,6 @@ namespace Newtonsoft.Json.Schema.Tests
         private JSchema GetExtendedSchema()
         {
             string first = @"{
-  ""id"":""first"",
   ""type"":""object"",
   ""properties"":
   {
@@ -1549,7 +1548,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaPreloadedResolver resolver = new JSchemaPreloadedResolver();
             JSchema firstSchema = JSchema.Parse(first);
 
-            resolver.Add(firstSchema);
+            resolver.Add(new Uri("first", UriKind.RelativeOrAbsolute), firstSchema.ToString());
 
             JSchema secondSchema = JSchema.Parse(second, resolver);
 
@@ -1803,7 +1802,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             JSchemaPreloadedResolver resolver = new JSchemaPreloadedResolver();
             JSchema firstSchema = JSchema.Parse(first);
-            resolver.Add(firstSchema);
+            resolver.Add(firstSchema.Id, firstSchema.ToString());
 
             JSchema secondSchema = JSchema.Parse(second, resolver);
 

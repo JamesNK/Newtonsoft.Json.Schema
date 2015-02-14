@@ -42,7 +42,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
         [Test]
         public void ParseString()
         {
-            #region ParseString
+#region ParseString
             string schemaJson = @"{
               'description': 'A person',
               'type': 'object',
@@ -67,7 +67,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
         [Test]
         public void LoadFile()
         {
-            #region LoadFile
+#region LoadFile
             using (StreamReader file = File.OpenText(@"c:\person.json"))
             using (JsonTextReader reader = new JsonTextReader(file))
             {
@@ -86,14 +86,14 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
                     ""type"": ""integer""
                 }");
 
-                Add(subSchema, new Uri("http://schema.org/address.json"));
+                Add(new Uri("http://schema.org/address.json"), subSchema.ToString());
             }
         }
 
         [Test]
         public void JSchemaUrlResolverTest()
         {
-            #region JSchemaUrlResolver
+#region JSchemaUrlResolver
             // resolver will fetch 'http://schema.org/address.json' as the parent schema is loaded
             JSchemaUrlResolver resolver = new JSchemaUrlResolver();
 
@@ -127,19 +127,19 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
         [Test]
         public void JSchemaPreloadedResolver()
         {
-            #region JSchemaPreloadedResolver
-            JSchema addressSchema = JSchema.Parse(@"{
+#region JSchemaPreloadedResolver
+            string addressSchemaJson = @"{
               'type': 'object',
               'properties': {
                 'line1': {'type': 'string'},
                 'line2': {'type': 'string'},
                 'country': {'type': 'string'}
               }
-            }");
+            }";
 
             // preload schema with ID 'http://schema.org/address.json'
             JSchemaPreloadedResolver resolver = new JSchemaPreloadedResolver();
-            resolver.Add(addressSchema, new Uri("http://schema.org/address.json"));
+            resolver.Add(new Uri("http://schema.org/address.json"), addressSchemaJson);
 
             // the external ref will use the preloaded schema
             JSchema schema = JSchema.Parse(@"{

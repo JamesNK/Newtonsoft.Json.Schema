@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema.Infrastructure.Discovery;
@@ -18,14 +19,24 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         internal readonly Stack<JSchema> _schemaStack;
         private readonly IList<DeferedSchema> _deferedSchemas;
         private readonly JSchemaResolver _resolver;
+        private readonly Uri _baseUri;
 
         public JSchema RootSchema { get; set; }
+        public Dictionary<Uri, JSchema> Cache { get; set; }
 
         public JSchemaReader(JSchemaResolver resolver)
+            : this(new JSchemaReaderSettings { Resolver = resolver })
         {
-            _resolver = resolver;
+        }
+
+        public JSchemaReader(JSchemaReaderSettings settings)
+        {
+            Cache = new Dictionary<Uri, JSchema>(UriComparer.Instance);
             _deferedSchemas = new List<DeferedSchema>();
             _schemaStack = new Stack<JSchema>();
+
+            _resolver = settings.Resolver ?? JSchemaDummyResolver.Instance;
+            _baseUri = settings.BaseUri;
         }
 
         internal JSchema ReadRoot(JsonReader reader)
@@ -550,6 +561,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         private void LoadAndSetSchema(JsonReader reader, Action<JSchema> setSchema)
         {
             JSchema schema = new JSchema();
+            schema.BaseUri = _baseUri;
 
             IJsonLineInfo lineInfo = reader as IJsonLineInfo;
             if (lineInfo != null)
@@ -566,17 +578,63 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 JSchema resolvedSchema;
                 try
                 {
-                    resolvedSchema = _resolver.GetSchema(new ResolveSchemaContext
+                    ResolveSchemaContext context = new ResolveSchemaContext
                     {
+                        ResolverBaseUri = _baseUri,
                         SchemaId = schema.Reference,
                         ResolvedSchemaId = resolvedReference
-                    });
+                    };
+
+                    SchemaReference schemaReference = _resolver.ResolveSchemaReference(context);
+
+                    if (schemaReference.BaseUri == _baseUri)
+                    {
+                        // reference is to inside the current schema
+                        // use normal schema resolution
+                        resolvedSchema = null;
+                    }
+                    else if (Cache.ContainsKey(schemaReference.BaseUri))
+                    {
+                        // base URI has already been resolved
+                        // use previously retrieved schema
+                        JSchema rootSchema = Cache[schemaReference.BaseUri];
+                        resolvedSchema = _resolver.GetSubschema(schemaReference, rootSchema);
+                    }
+                    else
+                    {
+                        Stream schemaData = _resolver.GetRootSchema(context, schemaReference);
+
+                        if (schemaData != null)
+                        {
+                            JSchema rootSchema;
+                            using (StreamReader streamReader = new StreamReader(schemaData))
+                            using (JsonTextReader jsonReader = new JsonTextReader(streamReader))
+                            {
+                                JSchemaReaderSettings settings = new JSchemaReaderSettings
+                                {
+                                    BaseUri = schemaReference.BaseUri,
+                                    Resolver = _resolver
+                                };
+
+                                JSchemaReader schemaReader = new JSchemaReader(settings);
+                                schemaReader.Cache = Cache;
+
+                                rootSchema = schemaReader.ReadRoot(jsonReader);
+                            }
+
+                            Cache[schemaReference.BaseUri] = rootSchema;
+                            resolvedSchema = _resolver.GetSubschema(schemaReference, rootSchema);
+                        }
+                        else
+                        {
+                            resolvedSchema = null;
+                        }
+                    }
                 }
                 catch (Exception ex)
                 {
                     throw JSchemaReaderException.Create(reader, "Error when resolving schema reference '{0}'.".FormatWith(CultureInfo.InvariantCulture, schema.Reference), ex);
                 }
-
 
                 if (resolvedSchema != null)
                 {
@@ -766,7 +824,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                     }
                     else
                     {
+                        string basePath = reader.Path;
                         t = JToken.ReadFrom(reader);
+                        t.AddAnnotation(new JTokenPathAnnotation(basePath));
                     }
 
                     schema.ExtensionData[name] = t;

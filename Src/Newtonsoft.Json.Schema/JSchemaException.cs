@@ -61,5 +61,36 @@ namespace Newtonsoft.Json.Schema
         {
         }
 #endif
+
+        internal static string FormatMessage(IJsonLineInfo lineInfo, string path, string message)
+        {
+            if (!message.EndsWith(Environment.NewLine, StringComparison.Ordinal))
+            {
+                message = message.Trim();
+
+                if (!message.EndsWith('.'))
+                    message += ".";
+            }
+
+            if (path == null && !lineInfo.HasLineInfo())
+                return message;
+
+            message += " ";
+
+            if (path != null)
+            {
+                message += "Path '{0}'".FormatWith(CultureInfo.InvariantCulture, path);
+
+                if (lineInfo != null && lineInfo.HasLineInfo())
+                    message += ", line {0}, position {1}".FormatWith(CultureInfo.InvariantCulture, lineInfo.LineNumber, lineInfo.LinePosition);
+            }
+            else
+            {
+                message += "Line {0}, position {1}".FormatWith(CultureInfo.InvariantCulture, lineInfo.LineNumber, lineInfo.LinePosition);
+            }
+
+            message += ".";
+            return message;
+        }
     }
 }

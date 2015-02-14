@@ -56,6 +56,7 @@
     <Compile Include="Generation\JSchemaTypeGenerationContext.cs" />
     <Compile Include="Infrastructure\ColorHelpers.cs" />
     <Compile Include="Infrastructure\JSchemaConverter.cs" />
+    <Compile Include="Infrastructure\JTokenPathAnnotation.cs" />
     <Compile Include="Infrastructure\Licensing\CryptographyHelpers.cs" />
     <Compile Include="Infrastructure\DataAnnotationHelpers.cs" />
     <Compile Include="Infrastructure\EmailHelpers.cs" />
@@ -67,11 +68,13 @@
     <Compile Include="Infrastructure\Licensing\ReleaseDateAttribute.cs" />
     <Compile Include="Infrastructure\Timer.cs" />
     <Compile Include="Infrastructure\MathHelpers.cs" />
+    <Compile Include="Infrastructure\UriComparer.cs" />
     <Compile Include="JSchema.cs" />
     <Compile Include="Generation\JSchemaGenerationProviderAttribute.cs" />
     <Compile Include="JSchemaGenerator.cs" />
     <Compile Include="Generation\JSchemaGenerationProvider.cs" />
     <Compile Include="JSchemaReaderException.cs" />
+    <Compile Include="JSchemaReaderSettings.cs" />
     <Compile Include="JSchemaResolver.cs" />
     <Compile Include="JSchemaUrlResolver.cs" />
     <Compile Include="JSchemaValidatingReader.cs" />
@@ -87,6 +90,7 @@
     <Compile Include="JSchemaException.cs" />
     <Compile Include="JSchemaType.cs" />
     <Compile Include="JSchemaUndefinedIdHandling.cs" />
+    <Compile Include="SchemaReference.cs" />
     <Compile Include="SchemaValidationEventArgs.cs" />
     <Compile Include="SchemaValidationEventHandler.cs" />
     <Compile Include="Infrastructure\DeferedSchema.cs" />
