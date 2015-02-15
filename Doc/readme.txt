@@ -6,7 +6,7 @@ https://github.com/JamesNK/Newtonsoft.Json.Schema
 
 Description:
 
-Json.NET Schema is a complete and easy to use JSON Schema framework for .NET
+Json.NET Schema is a complete and easy-to-use JSON Schema framework for .NET
 
 -Complete support for Draft 3 and 4 of JSON Schema
 -Validate JSON with helper methods or validate it as you read and write it

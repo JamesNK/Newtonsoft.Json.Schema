@@ -30,7 +30,7 @@ overloads.</para>
 
 <para>Internally IsValid uses <codeEntityReference>T:Newtonsoft.Json.Schema.JSchemaValidatingReader</codeEntityReference>
 to perform the JSON Schema validation. To skip the overhead of loading JSON into a JObject/JArray, validating
-the JSON and then deserializing the JSON into a class, <codeEntityReference>T:Newtonsoft.Json.Schema.JSchemaValidatingReader</codeEntityReference> can be used with JsonSerializer to validate JSON while the object is being deserialized.</para>
+the JSON, and then deserializing the JSON into a class, <codeEntityReference>T:Newtonsoft.Json.Schema.JSchemaValidatingReader</codeEntityReference> can be used with JsonSerializer to validate JSON while the object is being deserialized.</para>
 
 <code lang="cs" source="..\Src\Newtonsoft.Json.Schema.Tests\Documentation\ValidatingJson.cs" region="JSchemaValidatingReader" title="Validate JSON with JSchemaValidatingReader" />
 

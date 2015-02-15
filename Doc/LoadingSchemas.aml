@@ -39,7 +39,7 @@
 <code lang="cs" source="..\Src\Newtonsoft.Json.Schema.Tests\Documentation\LoadingSchemas.cs" region="JSchemaUrlResolver_Relative" title="Resolve relative external schema references" />
 
 <para>The second resolver, <codeEntityReference>T:Newtonsoft.Json.Schema.JSchemaPreloadedResolver</codeEntityReference>, allows you to add schema JSON to the resolver and associate it with an ID. The resolver will then load the schema JSON associated with a given ID when it is referenced.</para>
-<para>Preloading is useful if you don't want to rely on a third party website being available when resolving an external schema reference. Copying the schema file into your application and loading it yourself will ensure you never get a network related when loading it.</para>
+<para>Preloading is useful if you don't want to rely on a third-party website being available when resolving an external schema reference. Copying the schema file into your application and loading it yourself will ensure you never get a network related when loading it.</para>
 
 <code lang="cs" source="..\Src\Newtonsoft.Json.Schema.Tests\Documentation\LoadingSchemas.cs" region="JSchemaPreloadedResolver" title="Resolve an external schema with JSchemaPreloadedResolver" />
 

@@ -15,7 +15,7 @@ using Newtonsoft.Json.Schema.Infrastructure.Licensing;
 #else
 [assembly: AssemblyTitle("Json.NET Schema")]
 #endif
-[assembly: AssemblyDescription("Json.NET Schema is a complete and easy to use JSON Schema framework for .NET")]
+[assembly: AssemblyDescription("Json.NET Schema is a complete and easy-to-use JSON Schema framework for .NET")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Newtonsoft")]
 [assembly: AssemblyProduct("Json.NET Schema")]
