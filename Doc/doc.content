@@ -16,13 +16,14 @@
       <Topic id="GenerateWithJsonNetAttributes" visible="True" title="Using Json.NET attributes" />
       <Topic id="GenerateWithDataAnnotations" visible="True" title="Using Data Annotation attributes" />
       <Topic id="GenerateWithJSchemaUndefinedIdHandling" visible="True" title="Auto schema ID generation" />
+      <Topic id="CreateCustomProvider" visible="True" isSelected="true" title="Create a custom JSchemaGenerationProvider" />
     </Topic>
     <Topic id="231aab62-1033-489c-826f-66d6b4e25ecd" visible="True" noFile="true" isExpanded="true" title="Load JSON Schemas">
       <Topic id="JsonSchemaParse" visible="True" title="Parse JSON Schema from JSON" />
       <Topic id="LoadJsonSchemaFromFile" visible="True" title="Load JSON Schema from a file" />
       <Topic id="JsonUrlSchemaResolverHttp" visible="True" title="Using JSchemaUrlResolver" />
       <Topic id="RefJsonSchemaResolver" visible="True" title="Using JSchemaPreloadedResolver" />
-      <Topic id="JsonUrlSchemaResolverRelative" visible="True" isSelected="true" title="Resolve relative external references" />
+      <Topic id="JsonUrlSchemaResolverRelative" visible="True" title="Resolve relative external references" />
     </Topic>
     <Topic id="49714afe-8b0f-4ef2-b622-e37a5fb85bea" visible="True" noFile="true" isExpanded="true" title="Validate JSON">
       <Topic id="JTokenIsValid" visible="True" title="Validate JSON with JToken.IsValid" />

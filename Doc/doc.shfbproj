@@ -101,6 +101,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Content Include="icons\favicon.ico" />
+    <None Include="Samples\Generation\CreateCustomProvider.aml" />
     <None Include="Samples\Load\JsonUrlSchemaResolverRelative.aml" />
     <None Include="Samples\Load\JsonUrlSchemaResolverHttp.aml" />
     <None Include="Samples\Generation\GenerateWithJsonNetAttributes.aml" />
