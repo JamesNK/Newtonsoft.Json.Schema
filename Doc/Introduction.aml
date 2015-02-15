@@ -2,7 +2,7 @@
 <topic id="Introduction" revisionNumber="1">
   <developerConceptualDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
     <introduction>
-      <para>Json.NET Schema is a powerful, complete and easy to use JSON Schema framework for .NET</para>
+      <para>Json.NET Schema is a powerful, complete, and easy-to-use JSON Schema framework for .NET.</para>
     </introduction>
 <section>
  <title>Benefits and Features</title>
@@ -12,21 +12,21 @@
         <para>Supports 100% of JSON Schema Drafts 3 and 4</para>
     </listItem>
    <listItem>
-        <para>Easy to use validation helper methods</para>
+        <para>Easy-to-use validation helper methods</para>
     </listItem>
    <listItem>
-        <para>Efficently validate JSON as you read and write it</para>
+        <para>Efficiently validate JSON as you read and write it</para>
     </listItem>
    <listItem>
         <para>Generate JSON Schemas from .NET types</para>
     </listItem>
    <listItem>
-        <para>Supports .NET 4, .NET 4.5, Windows Phone, Windows Store, Mono and Xamarin</para>
+        <para>Supports .NET 4, .NET 4.5, Windows Phone, Windows Store, Mono, and Xamarin</para>
     </listItem>
 
 </list>
 <para>Json.NET Schema's validation helper methods are the fastest way to get started validating JSON schemas.</para>
-<para>For more advanced scenarios JSchemaValidatingReader and JSchemaValidatingWriter allow you to validate JSON as you read or write it.</para>
+<para>For more advanced scenarios, JSchemaValidatingReader and JSchemaValidatingWriter allow you to validate JSON as you read or write it.</para>
 </content>
 </section>
 

@@ -125,6 +125,42 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
         }
 
         [Test]
+        public void JSchemaUrlResolverRelativeTest()
+        {
+            #region JSchemaUrlResolver_Relative
+            // person.json, has a relative external schema reference 'address.json'
+            // --------
+            // {
+            //   'type': 'object',
+            //   'properties': {
+            //     'name': {'type':'string'},
+            //     'addresses': {
+            //       'type': 'array',
+            //       'items': {'$ref': 'address.json'}
+            //     }
+            //   }
+            // }
+            // --------
+
+            using (StreamReader file = File.OpenText(@"c:\person.json"))
+            using (JsonTextReader reader = new JsonTextReader(file))
+            {
+                JSchemaUrlResolver resolver = new JSchemaUrlResolver();
+
+                JSchema schema = JSchema.Load(reader, new JSchemaReaderSettings
+                {
+                    Resolver = resolver,
+                    // where the schema is being loaded from
+                    // referenced 'address.json' schema will be loaded from disk at 'c:\address.json'
+                    BaseUri = new Uri(@"c:\person.json")
+                });
+
+                // validate JSON
+            }
+            #endregion
+        }
+
+        [Test]
         public void JSchemaPreloadedResolver()
         {
 #region JSchemaPreloadedResolver

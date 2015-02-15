@@ -8,7 +8,7 @@
 <section>
   <title>Generate JSON Schemas from .NET types</title>
 <content>
-<para>Schema generation is performed by the <codeEntityReference>T:Newtonsoft.Json.Schema.JSchemaGenerator</codeEntityReference> object. It maps .NET objects, collections, properties and their attributes to their JSON Schema equivilent. A generated schema will successfully validate serialized JSON for that type.</para>
+<para>Schema generation is performed by the <codeEntityReference>T:Newtonsoft.Json.Schema.JSchemaGenerator</codeEntityReference> object. It maps .NET objects, collections, properties, and their attributes to their JSON Schema equivalent. A generated schema will successfully validate serialized JSON for that type.</para>
 
 <code lang="cs" source="..\Src\Newtonsoft.Json.Schema.Tests\Documentation\GeneratingSchemas.cs" region="PersonClass" title=".NET type" />
 
@@ -35,7 +35,7 @@
 
 <code lang="cs" source="..\Src\Newtonsoft.Json.Schema.Tests\Documentation\GeneratingSchemas.cs" region="DataAnnotations" title="Schema generation with Data Annotations" />
 
-<para>The Data Annotation attributes used when generating a schema and their effect:</para>
+<para>The following are the Data Annotation attributes used when generating a schema and their effects:</para>
 
 <table>
   <tableHeader>
@@ -46,47 +46,47 @@
   </tableHeader>
   <row>
     <entry><para><codeEntityReference>T:System.ComponentModel.DataAnnotations.RequiredAttribute</codeEntityReference></para></entry>
-    <entry><para>Property will be <legacyBold>required.</legacyBold></para></entry>
+    <entry><para>Property will be <codeInline>required.</codeInline></para></entry>
   </row>
   <row>
     <entry><para><codeEntityReference>T:System.ComponentModel.DataAnnotations.MinLengthAttribute</codeEntityReference></para></entry>
-    <entry><para><legacyBold>minLength</legacyBold> of a string or the <legacyBold>minItems</legacyBold> in an array.</para></entry>
+    <entry><para><codeInline>minLength</codeInline> of a string or the <codeInline>minItems</codeInline> in an array.</para></entry>
   </row>
   <row>
     <entry><para><codeEntityReference>T:System.ComponentModel.DataAnnotations.MaxLengthAttribute</codeEntityReference></para></entry>
-    <entry><para><legacyBold>maxLength</legacyBold> of a string or the <legacyBold>maxItems</legacyBold> in an array.</para></entry>
+    <entry><para><codeInline>maxLength</codeInline> of a string or the <codeInline>maxItems</codeInline> in an array.</para></entry>
   </row>
   <row>
     <entry><para><codeEntityReference>T:System.ComponentModel.DataAnnotations.RegularExpressionAttribute</codeEntityReference></para></entry>
-    <entry><para>String <legacyBold>pattern</legacyBold>.</para></entry>
+    <entry><para>String <codeInline>pattern</codeInline>.</para></entry>
   </row>
   <row>
     <entry><para><codeEntityReference>T:System.ComponentModel.DataAnnotations.RangeAttribute</codeEntityReference></para></entry>
-    <entry><para>Number <legacyBold>minimum</legacyBold> and <legacyBold>maximum</legacyBold>.</para></entry>
+    <entry><para>Number <codeInline>minimum</codeInline> and <codeInline>maximum</codeInline>.</para></entry>
   </row>
   <row>
     <entry><para><codeEntityReference>T:System.ComponentModel.DataAnnotations.StringLengthAttribute</codeEntityReference></para></entry>
-    <entry><para>String <legacyBold>minLength</legacyBold> and <legacyBold>maxLength</legacyBold>.</para></entry>
+    <entry><para>String <codeInline>minLength</codeInline> and <codeInline>maxLength</codeInline>.</para></entry>
   </row>
   <row>
     <entry><para><codeEntityReference>T:System.ComponentModel.DataAnnotations.EnumDataTypeAttribute</codeEntityReference></para></entry>
-    <entry><para><codeEntityReference>T:System.Enum</codeEntityReference> type used to generate <legacyBold>enum</legacyBold> values.</para></entry>
+    <entry><para><codeEntityReference>T:System.Enum</codeEntityReference> type used to generate <codeInline>enum</codeInline> values.</para></entry>
   </row>
   <row>
     <entry><para><codeEntityReference>T:System.ComponentModel.DataAnnotations.DataTypeAttribute</codeEntityReference></para></entry>
-    <entry><para>String <legacyBold>format</legacyBold> depending on the <codeEntityReference>T:System.ComponentModel.DataAnnotations.DataType</codeEntityReference> value. Supports Url, Date, Time, DateTime, EmailAddress, PhoneNumber.</para></entry>
+    <entry><para>String <codeInline>format</codeInline> depending on the <codeEntityReference>T:System.ComponentModel.DataAnnotations.DataType</codeEntityReference> value. Supports Url, Date, Time, DateTime, EmailAddress, PhoneNumber.</para></entry>
   </row>
   <row>
     <entry><para><codeEntityReference>T:System.ComponentModel.DataAnnotations.UrlAttribute</codeEntityReference></para></entry>
-    <entry><para>String uri <legacyBold>format</legacyBold>.</para></entry>
+    <entry><para>String uri <codeInline>format</codeInline>.</para></entry>
   </row>
   <row>
     <entry><para><codeEntityReference>T:System.ComponentModel.DataAnnotations.PhoneAttribute</codeEntityReference></para></entry>
-    <entry><para>String phone <legacyBold>format</legacyBold>.</para></entry>
+    <entry><para>String phone <codeInline>format</codeInline>.</para></entry>
   </row>
   <row>
     <entry><para><codeEntityReference>T:System.ComponentModel.DataAnnotations.EmailAddressAttribute</codeEntityReference></para></entry>
-    <entry><para>String email <legacyBold>format</legacyBold>.</para></entry>
+    <entry><para>String email <codeInline>format</codeInline>.</para></entry>
   </row>
 </table>
 

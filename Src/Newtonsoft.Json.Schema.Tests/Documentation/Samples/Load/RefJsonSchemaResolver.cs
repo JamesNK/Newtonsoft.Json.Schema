@@ -27,7 +27,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation.Samples.Load
             JSchemaPreloadedResolver resolver = new JSchemaPreloadedResolver();
             resolver.Add(new Uri("person.json", UriKind.RelativeOrAbsolute), personSchemaJson);
 
-            // the external 'person' schema will be found using the resolver
+            // the external 'person.json' schema will be found using the resolver
             // the internal 'salary' schema will be found using the default resolution logic
             JSchema employeeSchema = JSchema.Parse(@"{
               'type': 'object',
