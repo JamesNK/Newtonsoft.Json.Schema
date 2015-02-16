@@ -218,9 +218,24 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                         knownSchema = discovery.KnownSchemas.SingleOrDefault(s => s.Id.OriginalString.TrimEnd('#') == path.OriginalString);
 
                         if (knownSchema != null)
-                            resolvedSchema = FindSchema(setSchema, knownSchema.Schema, path, fragment, schemaReader);
+                        {
+                            // don't attempt to find a schema in the same schema again
+                            // avoids stackoverflow
+                            if (knownSchema.Schema != schema
+                                || !UriComparer.Instance.Equals(rootSchemaId, path)
+                                || !UriComparer.Instance.Equals(reference, fragment))
+                            {
+                                resolvedSchema = FindSchema(setSchema, knownSchema.Schema, path, fragment, schemaReader);
+                            }
+                            else
+                            {
+                                resolvedSchema = false;
+                            }
+                        }
                         else
+                        {
                             resolvedSchema = false;
+                        }
                     }
                     else
                     {
