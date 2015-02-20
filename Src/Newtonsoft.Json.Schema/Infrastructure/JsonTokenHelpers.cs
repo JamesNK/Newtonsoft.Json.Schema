@@ -3,11 +3,6 @@
 // License: https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md
 #endregion
 
-using System;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace Newtonsoft.Json.Schema.Infrastructure
 {
     internal static class JsonTokenHelpers

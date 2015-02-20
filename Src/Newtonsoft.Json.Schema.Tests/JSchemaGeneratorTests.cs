@@ -7,7 +7,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+#if !NET35
 using System.Dynamic;
+#endif
 using System.Globalization;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Schema.Generation;
@@ -42,7 +44,7 @@ namespace Newtonsoft.Json.Schema.Tests
     [TestFixture]
     public class JSchemaGeneratorTests : TestFixtureBase
     {
-#if !NET40
+#if !(NET40 || NET35)
         public class Account
         {
             [EmailAddress]
@@ -67,6 +69,7 @@ namespace Newtonsoft.Json.Schema.Tests
         }
 #endif
 
+#if !NET35
         [Test]
         public void DynamicTest()
         {
@@ -91,6 +94,7 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(true, schema.Required.Contains("FirstName"));
             Assert.AreEqual(true, schema.Required.Contains("LastName"));
         }
+#endif
 
         public class GeneratorTestClass
         {
@@ -244,7 +248,7 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual("OrdinalIgnoreCase", (string)propertySchema.Enum[5]);
         }
 
-#if !NET40
+#if !(NET40 || NET35)
         public class DictionaryWithMinAndMaxLength
         {
             [MinLength(5)]
@@ -451,6 +455,7 @@ namespace Newtonsoft.Json.Schema.Tests
             Console.WriteLine(schema.ToString());
         }
 
+#if !NET35
         public class EnumWithEnumDataType
         {
             [EnumDataType(typeof(StringComparison))]
@@ -480,6 +485,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             Console.WriteLine(schema.ToString());
         }
+#endif
 
         [Test]
         public void MixedRequired()

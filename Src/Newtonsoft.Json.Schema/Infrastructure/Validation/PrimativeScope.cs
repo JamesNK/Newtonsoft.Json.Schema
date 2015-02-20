@@ -6,7 +6,7 @@
 using System;
 using System.Globalization;
 using System.IO;
-#if !PORTABLE
+#if !(NET35 || PORTABLE)
 using System.Numerics;
 #endif
 using System.Text.RegularExpressions;

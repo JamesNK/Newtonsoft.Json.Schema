@@ -3,6 +3,7 @@
 // License: https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md
 #endregion
 
+using Newtonsoft.Json.Schema.Infrastructure;
 #if !(ASPNETCORE50 || NETFX_CORE)
 using System;
 using System.Collections.Generic;
@@ -58,7 +59,7 @@ namespace Newtonsoft.Json.Schema.Tests
         private static void AddSchema(JSchemaPreloadedResolver resolver, string schemaFileName, string id)
         {
             string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-            string baseRemotePath = Path.Combine(baseDirectory, "Specs", "remotes");
+            string baseRemotePath = Path.Combine(baseDirectory, Path.Combine("Specs", "remotes"));
 
             string json = File.ReadAllText(Path.Combine(baseRemotePath, schemaFileName));
 
@@ -92,7 +93,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             bool isValid = (errorMessages.Count == 0);
 
-            Assert.AreEqual(schemaSpecTest.IsValid, isValid, schemaSpecTest.TestCaseDescription + " - " + schemaSpecTest.TestDescription + " - errors: " + string.Join(", ", errorMessages));
+            Assert.AreEqual(schemaSpecTest.IsValid, isValid, schemaSpecTest.TestCaseDescription + " - " + schemaSpecTest.TestDescription + " - errors: " + StringHelpers.Join(", ", errorMessages));
         }
 
         [TestCaseSourceAttribute("GetSpecTestDetails")]
@@ -123,7 +124,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             bool isValid = (errorMessages.Count == 0);
 
-            Assert.AreEqual(schemaSpecTest.IsValid, isValid, schemaSpecTest.TestCaseDescription + " - " + schemaSpecTest.TestDescription + " - errors: " + string.Join(", ", errorMessages));
+            Assert.AreEqual(schemaSpecTest.IsValid, isValid, schemaSpecTest.TestCaseDescription + " - " + schemaSpecTest.TestDescription + " - errors: " + StringHelpers.Join(", ", errorMessages));
         }
 
         private IList<SchemaSpecTest> _specTests;
@@ -137,7 +138,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             // get test files location relative to the test project dll
             string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-            string baseTestPath = Path.Combine(baseDirectory, "Specs", "tests") + @"\";
+            string baseTestPath = Path.Combine(baseDirectory, Path.Combine("Specs", "tests")) + @"\";
 
             string[] testFiles = Directory.GetFiles(baseTestPath, "*.json", SearchOption.AllDirectories);
 

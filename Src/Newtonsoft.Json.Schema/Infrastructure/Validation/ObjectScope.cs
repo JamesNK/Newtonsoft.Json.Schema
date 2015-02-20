@@ -50,7 +50,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                         return false;
                     case JsonToken.EndObject:
                         if (_requiredProperties != null && _requiredProperties.Count > 0)
-                            RaiseError("Required properties are missing from object: {0}.".FormatWith(CultureInfo.InvariantCulture, string.Join(", ", _requiredProperties)), ErrorType.Required, Schema, _requiredProperties, null);
+                            RaiseError("Required properties are missing from object: {0}.".FormatWith(CultureInfo.InvariantCulture, StringHelpers.Join(", ", _requiredProperties)), ErrorType.Required, Schema, _requiredProperties, null);
 
                         if (Schema.MaximumProperties != null && _propertyCount > Schema.MaximumProperties)
                             RaiseError("Object property count {0} exceeds maximum count of {1}.".FormatWith(CultureInfo.InvariantCulture, _propertyCount, Schema.MaximumProperties), ErrorType.MaximumProperties, Schema, _propertyCount, null);
@@ -71,7 +71,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                                         if (!requiredProperties.All(r => _readProperties.Contains(r)))
                                         {
                                             List<string> missingRequiredProperties = requiredProperties.Where(r => !_readProperties.Contains(r)).ToList();
-                                            string message = "Dependencies for property '{0}' failed. Missing required keys: {1}.".FormatWith(CultureInfo.InvariantCulture, readProperty, string.Join(", ", missingRequiredProperties));
+                                            string message = "Dependencies for property '{0}' failed. Missing required keys: {1}.".FormatWith(CultureInfo.InvariantCulture, readProperty, StringHelpers.Join(", ", missingRequiredProperties));
 
                                             RaiseError(message, ErrorType.Dependencies, Schema, readProperty, null);
                                         }

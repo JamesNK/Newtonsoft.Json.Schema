@@ -63,6 +63,8 @@
     <Compile Include="Infrastructure\Licensing\LicenseType.cs" />
     <Compile Include="Infrastructure\Licensing\ReleaseDateAttribute.cs" />
     <Compile Include="Infrastructure\JTokenPathAnnotation.cs" />
+    <Compile Include="Infrastructure\StreamHelpers.cs" />
+    <Compile Include="Infrastructure\StringHelpers.cs" />
     <Compile Include="Infrastructure\Timer.cs" />
     <Compile Include="Infrastructure\MathHelpers.cs" />
     <Compile Include="JSchemaReaderException.cs" />

@@ -6,7 +6,9 @@
 using System;
 using System.IO;
 using System.Net;
+#if PORTABLE
 using System.Threading.Tasks;
+#endif
 
 namespace Newtonsoft.Json.Schema.Infrastructure
 {
@@ -23,14 +25,18 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             if (credentials != null)
                 request.Credentials = credentials;
 
+            WebResponse response;
+
+#if PORTABLE
             Task<WebResponse> result = Task.Factory.FromAsync(
                 request.BeginGetResponse,
                 new Func<IAsyncResult, WebResponse>(request.EndGetResponse), null);
-#if !NET40
             result.ConfigureAwait(false);
-#endif
 
-            WebResponse response = result.Result;
+            response = result.Result;
+#else
+            response = request.GetResponse();
+#endif
 
             Stream responseStream = response.GetResponseStream();
             if (timeout != null)

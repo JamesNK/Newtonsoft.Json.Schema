@@ -38,7 +38,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
                     string message = "JSON is valid against more than one schema from 'oneOf'. ";
                     if (validIndexes.Count > 0)
-                        message += "Valid schema indexes: {0}.".FormatWith(CultureInfo.InvariantCulture, string.Join(", ", validIndexes));
+                        message += "Valid schema indexes: {0}.".FormatWith(CultureInfo.InvariantCulture, StringHelpers.Join(", ", validIndexes));
                     else
                         message += "No valid schemas.";
 

@@ -31,5 +31,8 @@ Json.NET Schema has different libraries for the various .NET Framework versions.
 -Net40:
   .NET 4.0
 
+-Net35:
+  .NET 3.5
+
 -Portable:
   .NET 4.5, Windows Phone 8, Windows 8 Store, ASP.NET CoreCLR, Xamarin

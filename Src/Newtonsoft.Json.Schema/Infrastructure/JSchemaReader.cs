@@ -216,7 +216,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             EnsureRead(reader, name);
 
             if (!tokenTypes.Contains(reader.TokenType))
-                throw JSchemaReaderException.Create(reader, "Unexpected token encountered when reading value for '{0}'. Expected {1}, got {2}.".FormatWith(CultureInfo.InvariantCulture, name, string.Join(", ", tokenTypes), reader.TokenType));
+                throw JSchemaReaderException.Create(reader, "Unexpected token encountered when reading value for '{0}'. Expected {1}, got {2}.".FormatWith(CultureInfo.InvariantCulture, name, StringHelpers.Join(", ", tokenTypes), reader.TokenType));
         }
 
         private Uri ReadUri(JsonReader reader, string name)

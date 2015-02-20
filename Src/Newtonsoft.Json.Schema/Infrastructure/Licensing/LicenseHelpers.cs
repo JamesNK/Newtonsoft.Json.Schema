@@ -96,7 +96,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Licensing
 
         internal static void RegisterLicense(string license, DateTime releaseDate)
         {
-            if (string.IsNullOrWhiteSpace(license))
+            if (string.IsNullOrEmpty(license))
                 throw new JSchemaException("License text is empty.");
 
             string[] licenseParts = license.Trim().Split('-');

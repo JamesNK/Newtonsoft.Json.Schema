@@ -3,13 +3,13 @@
 // License: https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md
 #endregion
 
+#if PORTABLE
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Newtonsoft.Json.Schema.Infrastructure
 {
-#if PORTABLE
     internal sealed class Timer : IDisposable
     {
         private readonly CancellationTokenSource _cancellationTokenSource;
@@ -40,5 +40,5 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             _cancellationTokenSource.Cancel();
         }
     }
-#endif
 }
+#endif
