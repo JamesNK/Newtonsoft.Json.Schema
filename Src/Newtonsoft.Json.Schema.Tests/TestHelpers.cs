@@ -26,7 +26,7 @@ namespace Newtonsoft.Json.Schema.Tests
             return File.OpenRead(path);
         }
 
-        private static string ResolveFilePath(string name)
+        public static string ResolveFilePath(string name)
         {
             string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
 

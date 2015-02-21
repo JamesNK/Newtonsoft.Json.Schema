@@ -298,19 +298,19 @@ namespace Newtonsoft.Json.Schema.Tests
 
             validatingWriter.WriteValue(1.1m);
             Assert.IsNotNull(a);
-            StringAssert.AreEqual("Invalid type. Expected Integer but got Float. Path '[15]'.", a.Message);
+            StringAssert.AreEqual("Invalid type. Expected Integer but got Number. Path '[15]'.", a.Message);
             Assert.AreEqual(1.1d, a.ValidationError.Value);
             a = null;
 
             validatingWriter.WriteValue(1.1d);
             Assert.IsNotNull(a);
-            StringAssert.AreEqual("Invalid type. Expected Integer but got Float. Path '[16]'.", a.Message);
+            StringAssert.AreEqual("Invalid type. Expected Integer but got Number. Path '[16]'.", a.Message);
             Assert.AreEqual(1.1d, a.ValidationError.Value);
             a = null;
 
             validatingWriter.WriteValue(1.1f);
             Assert.IsNotNull(a);
-            StringAssert.AreEqual("Invalid type. Expected Integer but got Float. Path '[17]'.", a.Message);
+            StringAssert.AreEqual("Invalid type. Expected Integer but got Number. Path '[17]'.", a.Message);
             Assert.AreEqual(1.1f, a.ValidationError.Value);
             a = null;
 

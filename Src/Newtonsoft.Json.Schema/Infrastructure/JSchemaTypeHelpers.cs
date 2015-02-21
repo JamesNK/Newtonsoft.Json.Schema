@@ -24,8 +24,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             if (match)
                 return true;
 
-            // integer is a subset of float
-            if (flag == JSchemaType.Integer && (value & JSchemaType.Float) == JSchemaType.Float)
+            // integer is a subset of number
+            if (flag == JSchemaType.Integer && (value & JSchemaType.Number) == JSchemaType.Number)
                 return true;
 
             return false;

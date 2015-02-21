@@ -173,7 +173,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                 }
                 else
                 {
-                    var s = current as JSchema;
+                    JSchema s = current as JSchema;
                     if (s != null)
                     {
                         setSchema(s);

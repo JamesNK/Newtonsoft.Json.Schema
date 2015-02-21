@@ -4,6 +4,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace Newtonsoft.Json.Schema.Infrastructure
@@ -13,8 +14,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure
     {
         public readonly Uri ResolvedReference;
         public readonly JSchema ReferenceSchema;
+        public readonly List<Action<JSchema>> SetSchemas;
 
-        private readonly Action<JSchema> _setSchema;
         private bool _success;
 
         public bool Success
@@ -22,18 +23,26 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             get { return _success; }
         }
 
-        public DeferedSchema(Uri resolvedReference, JSchema referenceSchema, Action<JSchema> setSchema)
+        public DeferedSchema(Uri resolvedReference, JSchema referenceSchema)
         {
+            SetSchemas = new List<Action<JSchema>>();
             ResolvedReference = resolvedReference;
             ReferenceSchema = referenceSchema;
-            _setSchema = setSchema;
+        }
+
+        public void AddSchemaSet(Action<JSchema> setSchema)
+        {
+            SetSchemas.Add(setSchema);
         }
 
         public void SetResolvedSchema(JSchema schema)
         {
-            _setSchema(schema);
+            foreach (Action<JSchema> setSchema in SetSchemas)
+            {
+                setSchema(schema);
+            }
 
-            // successfully
+            // successful
             _success = (schema.Reference == null);
         }
     }

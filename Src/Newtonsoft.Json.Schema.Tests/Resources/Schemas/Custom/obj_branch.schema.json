@@ -1,0 +1,11 @@
+﻿{
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "id": "obj_branch.schema.json",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+        "see_also": {
+            "extends": { "$ref": "prop_see_also.schema.json" }
+        }
+    }
+}

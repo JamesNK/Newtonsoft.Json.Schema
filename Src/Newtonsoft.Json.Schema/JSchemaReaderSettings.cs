@@ -21,5 +21,10 @@ namespace Newtonsoft.Json.Schema
         /// The <see cref="JSchemaResolver"/> to use when resolving schema references.
         /// </summary>
         public JSchemaResolver Resolver { get; set; }
+
+        /// <summary>
+        /// Gets or sets a flag to indicate whether the schema JSON should be validated using the JSON Schema version identifer defined by '$schema'.
+        /// </summary>
+        public bool ValidateVersion { get; set; }
     }
 }

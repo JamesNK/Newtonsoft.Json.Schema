@@ -132,6 +132,23 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         }
 
         [Test]
+        public void Swagger()
+        {
+            string schemaJson = TestHelpers.OpenFileText(@"resources\schemas\swagger-2.0.json");
+            JSchema swaggerSchema = JSchema.Parse(schemaJson, new JSchemaUrlResolver());
+
+            string json = TestHelpers.OpenFileText(@"resources\json\swagger-petstore.json");
+            JObject o = JObject.Parse(json);
+
+            IList<string> messages;
+            bool valid = o.IsValid(swaggerSchema, out messages);
+
+            Assert.IsFalse(valid);
+            Assert.AreEqual(1, messages.Count);
+            Assert.AreEqual(@"String 'http://petstore.swagger.io' does not match regex pattern '^[^{}/ :\\]+(?::\d+)?$'. Path 'host', line 16, position 41.", messages[0]);
+        }
+
+        [Test]
         public void ReadAllResourceSchemas()
         {
             string schemaDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"resources\schemas");
@@ -464,7 +481,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             JSchema schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
 
             Assert.AreEqual("DisallowMultipleTypes", schema.Description);
-            Assert.AreEqual(JSchemaType.String | JSchemaType.Float, schema.Not.Type);
+            Assert.AreEqual(JSchemaType.String | JSchemaType.Number, schema.Not.Type);
         }
 
         [Test]
@@ -909,11 +926,29 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             Assert.IsTrue(sub3.BaseUri.OriginalString.EndsWith("sub3.json"));
 
             Assert.AreEqual(nestedSub3, sub3);
+        }
 
-            //JSchema fileFormatSchema = cleanSchema.AdditionalProperties.AnyOf[0];
+        [Test]
+        public void ResolveCircularExternalReferences()
+        {
+            string path = TestHelpers.ResolveFilePath(@"resources\schemas\custom\obj_branch.schema.json");
 
-            //Assert.NotNull(fileFormatSchema.BaseUri);
-            //Assert.AreEqual(true, fileFormatSchema.Properties.ContainsKey("files"));
+            string schemaJson = File.ReadAllText(path);
+            JSchema schema = JSchema.Parse(schemaJson, new JSchemaReaderSettings
+            {
+                BaseUri = new Uri(path),
+                Resolver = new JSchemaUrlResolver()
+            });
+
+            Assert.IsTrue(schema.BaseUri.OriginalString.EndsWith("obj_branch.schema.json"));
+
+            JSchema propSeeAlsoSchema = schema.Properties["see_also"].AllOf[0];
+
+            Assert.IsTrue(propSeeAlsoSchema.BaseUri.OriginalString.EndsWith("prop_see_also.schema.json"));
+
+            JSchema objBranch = propSeeAlsoSchema.Items[0].AllOf[0];
+
+            Assert.AreEqual(schema, objBranch);
         }
 
         [Test]
@@ -1051,16 +1086,18 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         public void SchemaInDisallow()
         {
             JSchema schema = JSchema.Parse(@"{
-                ""disallow"":
-                    [""string"",
-                     {
-                        ""type"": ""object"",
-                        ""properties"": {
-                            ""foo"": {
-                                ""type"": ""string""
-                            }
-                        }
-                     }]
+	          ""$schema"": ""http://json-schema.org/draft-03/schema#"",
+              ""disallow"": [
+                ""string"",
+                {
+                  ""type"": ""object"",
+                  ""properties"": {
+                    ""foo"": {
+                      ""type"": ""string""
+                    }
+                  }
+                }
+              ]
             }");
 
             Assert.IsNotNull(schema.Not);
@@ -1068,6 +1105,154 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             Assert.AreEqual(JSchemaType.String, schema.Not.AnyOf[0].Type);
             Assert.AreEqual(JSchemaType.Object, schema.Not.AnyOf[1].Type);
             Assert.AreEqual(1, schema.Not.AnyOf[1].Properties.Count);
+        }
+
+        [Test]
+        public void Any_Draft4_ValidateVersion()
+        {
+            ExceptionAssert.Throws<JSchemaReaderException>(() =>
+            {
+                JSchemaReaderSettings settings = new JSchemaReaderSettings
+                {
+                    ValidateVersion = true
+                };
+                JSchema.Parse(@"{
+	              ""$schema"": ""http://json-schema.org/draft-04/schema#"",
+                  ""type"": ""any""
+                }", settings);
+            }, "Validation error raised by version schema 'http://json-schema.org/draft-04/schema#': JSON does not match any schemas from 'anyOf'. Path 'type', line 3, position 32.");
+        }
+
+        [Test]
+        public void Any_Draft4_ValidateVersion_Nested()
+        {
+            ExceptionAssert.Throws<JSchemaReaderException>(() =>
+            {
+                JSchemaReaderSettings settings = new JSchemaReaderSettings
+                {
+                    ValidateVersion = true
+                };
+
+                JSchema.Parse(@"{
+  ""$schema"": ""http://json-schema.org/draft-04/schema#"",
+  ""properties"": {
+    ""test"": {
+      ""$ref"": ""#/definitions/hasAny""
+    }
+  },
+  ""definitions"": {
+    ""hasAny"": {
+      ""type"": ""any""
+    }
+  }
+}", settings);
+
+            }, "Validation error raised by version schema 'http://json-schema.org/draft-04/schema#': JSON does not match any schemas from 'anyOf'. Path 'definitions.hasAny.type', line 10, position 20.");
+        }
+
+        [Test]
+        public void Any_Draft4()
+        {
+            ExceptionAssert.Throws<JSchemaReaderException>(
+                () =>
+                {
+                    JSchema.Parse(@"{
+  ""$schema"": ""http://json-schema.org/draft-04/schema#"",
+  ""type"": ""any""
+}");
+                }, "Invalid JSON schema type: any. Path 'type', line 3, position 16.");
+        }
+
+        [Test]
+        public void Required_Draft4()
+        {
+            ExceptionAssert.Throws<JSchemaReaderException>(
+                () =>
+                {
+                    JSchema.Parse(@"{
+  ""$schema"": ""http://json-schema.org/draft-04/schema#"",
+  ""required"": true
+}");
+                },
+                "Unexpected token encountered when reading value for 'required'. Expected StartArray, got Boolean. Path 'required', line 3, position 19.");
+        }
+
+        [Test]
+        public void Required_Draft3()
+        {
+            ExceptionAssert.Throws<JSchemaReaderException>(
+                () =>
+                {
+                    JSchema.Parse(@"{
+  ""$schema"": ""http://json-schema.org/draft-03/schema#"",
+  ""required"": []
+}");
+                },
+                "Unexpected token encountered when reading value for 'required'. Expected Boolean, got StartArray. Path 'required', line 3, position 16.");
+        }
+
+        [Test]
+        public void Keywords_Draft4()
+        {
+            JSchema schema = JSchema.Parse(@"{
+  ""$schema"": ""http://json-schema.org/draft-04/schema#"",
+  ""disallow"": {},
+  ""divisibleBy"": 9
+}");
+
+            Assert.IsTrue(JToken.DeepEquals(new JObject(), schema.ExtensionData["disallow"]));
+            Assert.IsTrue(JToken.DeepEquals(9, schema.ExtensionData["divisibleBy"]));
+        }
+
+        [Test]
+        public void Keywords_Draft3()
+        {
+            JSchema schema = JSchema.Parse(@"{
+  ""$schema"": ""http://json-schema.org/draft-03/schema#"",
+  ""not"": {},
+  ""allOf"": [],
+  ""anyOf"": [],
+  ""oneOf"": [],
+  ""multipleOf"": 9
+}");
+
+            Assert.IsTrue(JToken.DeepEquals(new JObject(), schema.ExtensionData["not"]));
+            Assert.IsTrue(JToken.DeepEquals(new JArray(), schema.ExtensionData["allOf"]));
+            Assert.IsTrue(JToken.DeepEquals(new JArray(), schema.ExtensionData["anyOf"]));
+            Assert.IsTrue(JToken.DeepEquals(new JArray(), schema.ExtensionData["oneOf"]));
+            Assert.IsTrue(JToken.DeepEquals(9, schema.ExtensionData["multipleOf"]));
+        }
+
+        [Test]
+        public void ReadAny()
+        {
+            JSchema schema = JSchema.Parse(@"{
+                ""type"": ""any""
+            }");
+
+            Assert.IsNull(schema.Type);
+            Assert.AreEqual(0, schema.AnyOf.Count);
+
+            schema = JSchema.Parse(@"{
+                ""type"": [""any"", ""string""]
+            }");
+
+            Assert.IsNull(schema.Type);
+            Assert.AreEqual(0, schema.AnyOf.Count);
+
+            schema = JSchema.Parse(@"{
+                ""type"": [""integer"", ""any"", ""string""]
+            }");
+
+            Assert.IsNull(schema.Type);
+            Assert.AreEqual(0, schema.AnyOf.Count);
+
+            schema = JSchema.Parse(@"{
+                ""type"": [""integer"", ""any"", {}]
+            }");
+
+            Assert.IsNull(schema.Type);
+            Assert.AreEqual(0, schema.AnyOf.Count);
         }
 
         [Test]
@@ -1293,7 +1478,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
                     }
                 }");
 
-            }, "Could not resolve schema reference '#/definitions/c'. Line 3, position 31.");
+            }, "Could not resolve schema reference '#/definitions/c'. Line 8, position 32.");
         }
 
         [Test]

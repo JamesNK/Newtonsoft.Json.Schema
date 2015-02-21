@@ -267,7 +267,7 @@ namespace Newtonsoft.Json.Schema
             if (converter != null)
             {
                 // todo: Add GetSchema to JsonConverter and use here?
-                schema.Type = JSchemaType.Any;
+                schema.Type = null;
             }
             else
             {
@@ -318,7 +318,7 @@ namespace Newtonsoft.Json.Schema
                             schema.Pattern = DataAnnotationHelpers.GetPattern(memberProperty);
                             schema.Format = DataAnnotationHelpers.GetFormat(memberProperty);
                         }
-                        if (JSchemaTypeHelpers.HasFlag(schema.Type, JSchemaType.Float) || JSchemaTypeHelpers.HasFlag(schema.Type, JSchemaType.Integer))
+                        if (JSchemaTypeHelpers.HasFlag(schema.Type, JSchemaType.Number) || JSchemaTypeHelpers.HasFlag(schema.Type, JSchemaType.Integer))
                         {
                             double minimum;
                             double maximum;
@@ -394,7 +394,7 @@ namespace Newtonsoft.Json.Schema
                         break;
                     case JsonContractType.Dynamic:
                     case JsonContractType.Linq:
-                        schema.Type = JSchemaType.Any;
+                        schema.Type = null;
                         break;
                     default:
                         throw new JSchemaException("Unexpected contract type: {0}".FormatWith(CultureInfo.InvariantCulture, contract));
@@ -459,7 +459,7 @@ namespace Newtonsoft.Json.Schema
                 return true;
 
             // integer is a subset of float
-            if (flag == JSchemaType.Integer && (value & JSchemaType.Float) == JSchemaType.Float)
+            if (flag == JSchemaType.Integer && (value & JSchemaType.Number) == JSchemaType.Number)
                 return true;
 
             return false;
@@ -503,8 +503,7 @@ namespace Newtonsoft.Json.Schema
                 case PrimitiveTypeCode.Single:
                 case PrimitiveTypeCode.Double:
                 case PrimitiveTypeCode.Decimal:
-                    return schemaType | JSchemaType.Float;
-                    // convert to string?
+                    return schemaType | JSchemaType.Number;
                 case PrimitiveTypeCode.DateTime:
                 case PrimitiveTypeCode.DateTimeOffset:
                     return schemaType | JSchemaType.String;

@@ -24,9 +24,9 @@ namespace Newtonsoft.Json.Schema
         String = 1,
 
         /// <summary>
-        /// Float type.
+        /// Number type.
         /// </summary>
-        Float = 2,
+        Number = 2,
 
         /// <summary>
         /// Integer type.
@@ -51,11 +51,6 @@ namespace Newtonsoft.Json.Schema
         /// <summary>
         /// Null type.
         /// </summary>
-        Null = 64,
-
-        /// <summary>
-        /// Any type.
-        /// </summary>
-        Any = String | Float | Integer | Boolean | Object | Array | Null
+        Null = 64
     }
 }

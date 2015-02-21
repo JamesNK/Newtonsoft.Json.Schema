@@ -34,7 +34,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 }
                 case JsonToken.Float:
                 {
-                    if (!ValidateFloat(Schema, Convert.ToDouble(value, CultureInfo.InvariantCulture)))
+                    if (!ValidateNumber(Schema, Convert.ToDouble(value, CultureInfo.InvariantCulture)))
                         return true;
                     break;
                 }
@@ -263,9 +263,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             }
         }
 
-        private bool ValidateFloat(JSchema schema, double value)
+        private bool ValidateNumber(JSchema schema, double value)
         {
-            if (!TestType(schema, JSchemaType.Float, value))
+            if (!TestType(schema, JSchemaType.Number, value))
                 return false;
 
             if (schema.Maximum != null)

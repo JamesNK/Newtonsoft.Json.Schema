@@ -3,6 +3,7 @@
 // License: https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -58,6 +59,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             public const string Not = "not";
 
             public const string Ref = "$ref";
+            public const string Schema = "$schema";
         }
 
         public static class Formats
@@ -79,16 +81,34 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             public const string Email = "email";
         }
 
+        public static class Types
+        {
+            public const string String = "string";
+            public const string Object = "object";
+            public const string Integer = "integer";
+            public const string Number = "number";
+            public const string Null = "null";
+            public const string Boolean = "boolean";
+            public const string Array = "array";
+
+            public const string Any = "any";
+        }
+
         public static readonly IDictionary<string, JSchemaType> JSchemaTypeMapping = new Dictionary<string, JSchemaType>
         {
-            { "string", JSchemaType.String },
-            { "object", JSchemaType.Object },
-            { "integer", JSchemaType.Integer },
-            { "number", JSchemaType.Float },
-            { "null", JSchemaType.Null },
-            { "boolean", JSchemaType.Boolean },
-            { "array", JSchemaType.Array },
-            { "any", JSchemaType.Any }
+            { Types.String, JSchemaType.String },
+            { Types.Object, JSchemaType.Object },
+            { Types.Integer, JSchemaType.Integer },
+            { Types.Number, JSchemaType.Number },
+            { Types.Null, JSchemaType.Null },
+            { Types.Boolean, JSchemaType.Boolean },
+            { Types.Array, JSchemaType.Array }
         };
+
+        public static class SchemaVersions
+        {
+            public static readonly Uri Draft3 = new Uri("http://json-schema.org/draft-03/schema#");
+            public static readonly Uri Draft4 = new Uri("http://json-schema.org/draft-04/schema#");
+        }
     }
 }

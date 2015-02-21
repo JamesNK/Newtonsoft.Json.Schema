@@ -39,7 +39,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
                 ErrorType = ErrorType.MinimumLength,
                 SchemaId = new Uri("test.xml", UriKind.RelativeOrAbsolute),
                 SchemaBaseUri = new Uri("test.xml", UriKind.RelativeOrAbsolute),
-                Schema = new JSchema { Type = JSchemaType.Float },
+                Schema = new JSchema { Type = JSchemaType.Number },
                 ChildErrors =
                 {
                     new ValidationError

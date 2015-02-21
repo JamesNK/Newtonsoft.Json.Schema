@@ -47,7 +47,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation.Samples.Validate
                 Console.WriteLine(message);
             }
             // Invalid type. Expected String but got Null. Line 2, position 21.
-            // Invalid type. Expected String but got Float. Line 3, position 51.
+            // Invalid type. Expected String but got Number. Line 3, position 51.
             #endregion
 
             Assert.AreEqual(2, messages.Count);

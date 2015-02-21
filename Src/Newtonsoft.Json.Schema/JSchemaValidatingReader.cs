@@ -36,6 +36,11 @@ namespace Newtonsoft.Json.Schema
         private readonly JsonReader _reader;
         private readonly ReaderValidator _validator;
 
+        internal ReaderValidator Validator
+        {
+            get { return _validator; }
+        }
+
         /// <summary>
         /// Sets an event handler for receiving schema validation errors.
         /// </summary>
@@ -107,9 +112,6 @@ namespace Newtonsoft.Json.Schema
             get { return _validator.Schema; }
             set
             {
-                if (TokenType != JsonToken.None)
-                    throw new InvalidOperationException("Cannot change schema while validating JSON.");
-
                 _validator.Schema = value;
             }
         }

@@ -17,6 +17,36 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
     public class JSchemaWriterTests : TestFixtureBase
     {
         [Test]
+        public void WriteTo_ReferenceWithPattern()
+        {
+            JSchema nested = new JSchema
+            {
+                Type = JSchemaType.Object
+            };
+
+            JSchema s = new JSchema();
+            s.Id = new Uri("http://www.jnk.com/");
+            s.PatternProperties["/test//"] = nested;
+            s.Properties["test"] = nested;
+
+            string json = s.ToString();
+
+            Assert.AreEqual(@"{
+  ""id"": ""http://www.jnk.com/"",
+  ""properties"": {
+    ""test"": {
+      ""type"": ""object""
+    }
+  },
+  ""patternProperties"": {
+    ""/test//"": {
+      ""$ref"": ""http://www.jnk.com/#/properties/test""
+    }
+  }
+}", json);
+        }
+
+        [Test]
         public void WriteTo_AdditionalProperties()
         {
             StringWriter writer = new StringWriter();
@@ -97,7 +127,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
   ""description"":""Type"",
   ""type"":[""string"",""array""],
   ""items"":{},
-  ""enum"":[""string"",""object"",""array"",""boolean"",""number"",""integer"",""null"",""any""]
+  ""enum"":[""string"",""object"",""array"",""boolean"",""number"",""integer"",""null""]
 }");
 
             StringWriter writer = new StringWriter();
@@ -122,8 +152,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
     ""boolean"",
     ""number"",
     ""integer"",
-    ""null"",
-    ""any""
+    ""null""
   ]
 }", json);
         }
@@ -218,9 +247,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
     ""array""
   ],
   ""items"": {},
-  ""not"": {
-    ""type"": ""any""
-  }
+  ""not"": {}
 }", json);
         }
 

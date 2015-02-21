@@ -98,7 +98,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
             bool valid = person.IsValid(schema, out messages);
             // false
             // Invalid type. Expected String but got Null. Line 2, position 21.
-            // Invalid type. Expected String but got Float. Line 3, position 51.
+            // Invalid type. Expected String but got Number. Line 3, position 51.
             #endregion
 
             Assert.IsFalse(valid);

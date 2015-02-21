@@ -48,7 +48,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             if (handler != null)
                 handler(_publicValidator, new SchemaValidationEventArgs(error));
             else
-                throw JSchemaValidationException.Create(message, error);
+                throw JSchemaValidationException.Create(error);
         }
 
         protected ValidationError CreateError(string message, ErrorType errorType, JSchema schema, object value, IList<ValidationError> childErrors, IJsonLineInfo lineInfo, string path)

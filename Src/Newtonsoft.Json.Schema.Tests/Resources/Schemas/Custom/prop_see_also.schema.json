@@ -1,0 +1,8 @@
+﻿{
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "id": "prop_see_also.schema.json",
+    "type": "array",
+    "items": {
+        "extends": { "$ref": "obj_branch.schema.json" }
+    }
+}

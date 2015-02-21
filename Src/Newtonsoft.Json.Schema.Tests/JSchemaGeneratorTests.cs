@@ -444,11 +444,11 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(5, integerProperty.Minimum);
             Assert.AreEqual(10, integerProperty.Maximum);
 
-            Assert.AreEqual(JSchemaType.Float, decimalProperty.Type);
+            Assert.AreEqual(JSchemaType.Number, decimalProperty.Type);
             Assert.AreEqual(5.5, decimalProperty.Minimum);
             Assert.AreEqual(10.5, decimalProperty.Maximum);
 
-            Assert.AreEqual(JSchemaType.Float, doubleProperty.Type);
+            Assert.AreEqual(JSchemaType.Number, doubleProperty.Type);
             Assert.AreEqual(0.5, doubleProperty.Minimum);
             Assert.AreEqual(1.5, doubleProperty.Maximum);
 
