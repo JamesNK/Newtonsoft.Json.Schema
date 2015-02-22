@@ -36,6 +36,7 @@ namespace Newtonsoft.Json.Schema
         private int _lineNumber;
         private int _linePosition;
         internal Uri BaseUri;
+        internal string Path;
 
         /// <summary>
         /// Gets or sets the schema ID.

@@ -48,17 +48,23 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         [Test]
         public void FailToMatchPreloadedUriWithFragment()
         {
-            ExceptionAssert.Throws<JSchemaReaderException>(
-                () =>
-                {
-                    JSchemaPreloadedResolver resolver = new JSchemaPreloadedResolver();
-                    resolver.Add(new Uri("http://json-schema.org/geojson/crs.json#"), TestHelpers.OpenFile(@"resources\schemas\geojson\crs.json"));
-                    resolver.Add(new Uri("http://json-schema.org/geojson/bbox.json#"), TestHelpers.OpenFile(@"resources\schemas\geojson\bbox.json"));
-                    resolver.Add(new Uri("http://json-schema.org/geojson/geometry.json#"), TestHelpers.OpenFile(@"resources\schemas\geojson\geometry.json"));
+            try
+            {
+                JSchemaPreloadedResolver resolver = new JSchemaPreloadedResolver();
+                resolver.Add(new Uri("http://json-schema.org/geojson/crs.json#"), TestHelpers.OpenFile(@"resources\schemas\geojson\crs.json"));
+                resolver.Add(new Uri("http://json-schema.org/geojson/bbox.json#"), TestHelpers.OpenFile(@"resources\schemas\geojson\bbox.json"));
+                resolver.Add(new Uri("http://json-schema.org/geojson/geometry.json#"), TestHelpers.OpenFile(@"resources\schemas\geojson\geometry.json"));
 
-                    OpenSchemaFile(@"resources\schemas\geojson\geojson.json", resolver);
-                },
-                "Could not resolve schema reference 'http://json-schema.org/geojson/crs.json#'. Line 9, position 17.");
+                OpenSchemaFile(@"resources\schemas\geojson\geojson.json", resolver);
+            }
+            catch (JSchemaReaderException ex)
+            {
+                Assert.AreEqual("Could not resolve schema reference 'http://json-schema.org/geojson/crs.json#'. Path 'properties.crs', line 9, position 17.", ex.Message);
+
+                Uri baseUri = new Uri(TestHelpers.ResolveFilePath(@"resources\schemas\geojson\geojson.json"));
+
+                Assert.AreEqual(baseUri, ex.BaseUri);
+            }
         }
 
         [Test]
@@ -622,18 +628,27 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         [Test]
         public void UnresolvedReference()
         {
-            ExceptionAssert.Throws<Exception>(() =>
+            try
             {
                 string json = @"{
   ""id"":""CircularReferenceArray"",
   ""description"":""CircularReference"",
   ""type"":[""array""],
-  ""items"":{""$ref"":""MyUnresolvedReference""}
+  ""items"":{""$ref"":""#/definitions/nested""},
+  ""definitions"":{
+    ""nested"": {""$ref"":""MyUnresolvedReference""}
+  }
 }";
 
                 JSchemaReader schemaReader = new JSchemaReader(JSchemaDummyResolver.Instance);
                 schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
-            }, @"Could not resolve schema reference 'MyUnresolvedReference'. Line 5, position 12.");
+            }
+            catch (JSchemaReaderException ex)
+            {
+                Assert.AreEqual(@"Could not resolve schema reference 'MyUnresolvedReference'. Path 'definitions.nested', line 7, position 16.", ex.Message);
+
+                Assert.AreEqual(null, ex.BaseUri);
+            }
         }
 
         [Test]
@@ -818,7 +833,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             {
                 JSchemaReader schemaReader = new JSchemaReader(JSchemaDummyResolver.Instance);
                 schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
-            }, "Could not resolve schema reference '#/array/10'. Line 5, position 31.");
+            }, "Could not resolve schema reference '#/array/10'. Path 'properties.arrayprop', line 5, position 31.");
         }
 
         [Test]
@@ -836,7 +851,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             {
                 JSchemaReader schemaReader = new JSchemaReader(JSchemaDummyResolver.Instance);
                 schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
-            }, "Could not resolve schema reference '#/array/-1'. Line 5, position 31.");
+            }, "Could not resolve schema reference '#/array/-1'. Path 'properties.arrayprop', line 5, position 31.");
         }
 
         [Test]
@@ -854,7 +869,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             {
                 JSchemaReader schemaReader = new JSchemaReader(JSchemaDummyResolver.Instance);
                 schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
-            }, "Could not resolve schema reference '#/array/one'. Line 5, position 31.");
+            }, "Could not resolve schema reference '#/array/one'. Path 'properties.arrayprop', line 5, position 31.");
         }
 
         [Test]
@@ -872,7 +887,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             {
                 JSchemaReader schemaReader = new JSchemaReader(JSchemaDummyResolver.Instance);
                 schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
-            }, "Could not resolve schema reference '#/items/one'. Line 5, position 31.");
+            }, "Could not resolve schema reference '#/items/one'. Path 'properties.arrayprop', line 5, position 31.");
         }
 
         [Test]
@@ -881,7 +896,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             ExceptionAssert.Throws<JSchemaReaderException>(() =>
             {
                 TestHelpers.OpenSchemaFile(@"resources\schemas\grunt-clean-task.json");
-            }, "Could not resolve schema reference 'http://json.schemastore.org/grunt-task#/definitions/fileFormat'. Line 34, position 5.");
+            }, "Could not resolve schema reference 'http://json.schemastore.org/grunt-task#/definitions/fileFormat'. Path 'additionalProperties.anyOf[0]', line 34, position 5.");
         }
 
         [Test]
@@ -961,7 +976,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 
                     TestHelpers.OpenSchemaFile(@"resources\schemas\custom\root_invalidnestedref.json", resolver);
                 },
-                "Could not resolve schema reference 'sub/sub2.json#/definitions/invalid'. Line 7, position 23.");
+                "Could not resolve schema reference 'sub/sub2.json#/definitions/invalid'. Path 'properties.property2', line 7, position 23.");
         }
 
         [Test]
@@ -994,6 +1009,47 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 
             Assert.IsNotNull(refSchema.Not);
             Assert.AreEqual("used by unused", refSchema.Not.Not.Title);
+        }
+
+        [Test]
+        public void ErrorInExternalSchema()
+        {
+            string schemaJson = @"{
+  ""definitions"": {
+    ""unused"": {
+      ""not"": {
+        ""$ref"": ""#/definitions/used_by_unused""
+      }
+    },
+    ""used_by_unused"": {
+      ""$ref"": ""#/definitions/invalid""
+    }
+  }
+}";
+
+            JSchemaPreloadedResolver resolver = new JSchemaPreloadedResolver();
+            resolver.Add(new Uri("http://localhost/base"), schemaJson);
+
+            string json = @"{
+  ""not"": {
+    ""$ref"": ""http://localhost/base#/definitions/unused""
+  }
+}";
+
+            try
+            {
+                JSchemaReader schemaReader = new JSchemaReader(resolver);
+                schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
+            }
+            catch (JSchemaReaderException ex)
+            {
+                Assert.AreEqual("Error when resolving schema reference 'http://localhost/base#/definitions/unused'. Path 'not', line 2, position 11.", ex.Message);
+                Assert.AreEqual(null, ex.BaseUri);
+
+                JSchemaReaderException inner = (JSchemaReaderException)ex.InnerException;
+                Assert.AreEqual("Could not resolve schema reference '#/definitions/invalid'. Path 'definitions.used_by_unused', line 8, position 24.", inner.Message);
+                Assert.AreEqual(new Uri("http://localhost/base"), inner.BaseUri);
+            }
         }
 
         [Test]
@@ -1445,7 +1501,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             {
                 JSchemaReader schemaReader = new JSchemaReader(JSchemaDummyResolver.Instance);
                 schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
-            }, "Could not resolve schema reference '#/missing'. Line 1, position 1.");
+            }, "Could not resolve schema reference '#/missing'. Path '', line 1, position 1.");
         }
 
         [Test]
@@ -1459,7 +1515,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             {
                 JSchemaReader schemaReader = new JSchemaReader(JSchemaDummyResolver.Instance);
                 schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
-            }, "Could not resolve schema reference '#'. Line 1, position 1.");
+            }, "Could not resolve schema reference '#'. Path '', line 1, position 1.");
         }
 
         [Test]
@@ -1478,7 +1534,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
                     }
                 }");
 
-            }, "Could not resolve schema reference '#/definitions/c'. Line 8, position 32.");
+            }, "Could not resolve schema reference '#/definitions/c'. Path 'properties.id', line 8, position 32.");
         }
 
         [Test]
@@ -1492,7 +1548,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
                   ""b"": { ""$ref"": ""#/a"" }
                 }");
 
-            }, "Could not resolve schema reference '#/a'. Line 1, position 1.");
+            }, "Could not resolve schema reference '#/a'. Path '', line 1, position 1.");
         }
 
         [Test]

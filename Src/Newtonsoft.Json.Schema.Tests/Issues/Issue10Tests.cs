@@ -39,7 +39,7 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
 
                     JSchema.Parse(json);
                 },
-                "Could not resolve schema reference '#definitions/a'. Line 15, position 17.");
+                "Could not resolve schema reference '#definitions/a'. Path 'definitions.b.properties.b2', line 15, position 17.");
         }
     }
 }

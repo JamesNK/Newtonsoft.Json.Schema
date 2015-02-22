@@ -39,6 +39,12 @@ namespace Newtonsoft.Json.Schema
         public string Path { get; private set; }
 
         /// <summary>
+        /// Gets the base URI of the schema document, or <c>null</c> if not available.
+        /// </summary>
+        /// <value>The base URI of the schema document, or <c>null</c> if not available.</value>
+        public Uri BaseUri { get; private set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="JSchemaReaderException"/> class.
         /// </summary>
         public JSchemaReaderException()
@@ -80,30 +86,36 @@ namespace Newtonsoft.Json.Schema
         }
 #endif
 
-        internal JSchemaReaderException(string message, Exception innerException, string path, int lineNumber, int linePosition)
+        internal JSchemaReaderException(string message, Exception innerException, string path, int lineNumber, int linePosition, Uri baseUri)
             : base(message, innerException)
         {
             Path = path;
             LineNumber = lineNumber;
             LinePosition = linePosition;
+            BaseUri = baseUri;
         }
 
-        internal static JSchemaReaderException Create(JsonReader reader, string message)
+        internal static JSchemaReaderException Create(JsonReader reader, Uri baseUri, string message)
         {
-            return Create(reader, message, null);
+            return Create(reader, baseUri, message, null);
         }
 
-        internal static JSchemaReaderException Create(JsonReader reader, string message, Exception ex)
+        internal static JSchemaReaderException Create(JsonReader reader, Uri baseUri, string message, Exception ex)
         {
-            return Create(reader as IJsonLineInfo, reader.Path, message, ex);
+            return Create(reader as IJsonLineInfo, baseUri, reader.Path, message, ex);
         }
 
-        internal static JSchemaReaderException Create(IJsonLineInfo lineInfo, string message)
+        internal static JSchemaReaderException Create(IJsonLineInfo lineInfo, Uri baseUri, string message)
         {
             return Create(lineInfo, null, message, null);
         }
 
-        internal static JSchemaReaderException Create(IJsonLineInfo lineInfo, string path, string message, Exception ex)
+        internal static JSchemaReaderException Create(IJsonLineInfo lineInfo, Uri baseUri, string path, string message)
+        {
+            return Create(lineInfo, baseUri, path, message, null);
+        }
+
+        internal static JSchemaReaderException Create(IJsonLineInfo lineInfo, Uri baseUri, string path, string message, Exception ex)
         {
             message = FormatMessage(lineInfo, path, message);
 
@@ -120,7 +132,7 @@ namespace Newtonsoft.Json.Schema
                 linePosition = 0;
             }
 
-            return new JSchemaReaderException(message, ex, path, lineNumber, linePosition);
+            return new JSchemaReaderException(message, ex, path, lineNumber, linePosition, baseUri);
         }
     }
 }
