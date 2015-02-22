@@ -24,6 +24,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
     internal class JSchemaReader
     {
+        private static ThreadSafeStore<string, JSchema> SpecSchemaCache = new ThreadSafeStore<string, JSchema>(LoadResourceSchema);
+
         internal readonly Stack<JSchema> _schemaStack;
         private readonly IList<DeferedSchema> _deferedSchemas;
         private readonly JSchemaResolver _resolver;
@@ -1004,11 +1006,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                         {
                             if (_schemaVersion == SchemaVersion.Draft3)
                             {
-                                _validatingSchema = LoadResourceSchema("schema-draft-v3.json");
+                                _validatingSchema = SpecSchemaCache.Get("schema-draft-v3.json");
                             }
                             else if (_schemaVersion == SchemaVersion.Draft4)
                             {
-                                _validatingSchema = LoadResourceSchema("schema-draft-v4.json");
+                                _validatingSchema = SpecSchemaCache.Get("schema-draft-v4.json");
                             }
                             else
                             {
