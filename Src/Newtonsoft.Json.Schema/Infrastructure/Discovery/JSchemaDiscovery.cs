@@ -82,7 +82,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             {
                 foreach (KeyValuePair<string, JToken> valuePair in schema._extensionData)
                 {
-                    DiscoverTokenSchemas(valuePair.Key, valuePair.Value);
+                    DiscoverTokenSchemas(EscapePath(valuePair.Key), valuePair.Value);
                 }
             }
 
@@ -115,7 +115,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                 {
                     foreach (KeyValuePair<string, JToken> valuePair in o)
                     {
-                        DiscoverTokenSchemas(name + "/" + valuePair.Key, valuePair.Value);
+                        DiscoverTokenSchemas(name + "/" + EscapePath(valuePair.Key), valuePair.Value);
                     }
                 }
             }
@@ -139,7 +139,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                     JSchema schema = valuePair.Value as JSchema;
 
                     if (schema != null)
-                        DiscoverInternal(schema, name + "/" + valuePair.Key);
+                        DiscoverInternal(schema, name + "/" + EscapePath(valuePair.Key));
                 }
             }
         }
@@ -150,7 +150,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             {
                 foreach (KeyValuePair<string, JSchema> valuePair in schemas)
                 {
-                    DiscoverInternal(valuePair.Value, name + "/" + valuePair.Key.Replace("~", "~0").Replace("/", "~1"));
+                    DiscoverInternal(valuePair.Value, name + "/" + EscapePath(valuePair.Key));
                 }
             }
         }
@@ -170,6 +170,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
         {
             if (schema != null)
                 DiscoverInternal(schema, name);
+        }
+
+        private string EscapePath(string path)
+        {
+            return path.Replace("~", "~0").Replace("/", "~1");
         }
     }
 }
