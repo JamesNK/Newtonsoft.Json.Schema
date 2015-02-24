@@ -37,13 +37,35 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             }
         }
 
-        private void ReferenceOrWriteSchema(JSchema schema)
+        private void ReferenceOrWriteSchema(JSchema context, JSchema schema)
         {
             KnownSchema knownSchema = _knownSchemas.Single(s => s.Schema == schema);
 
             if (knownSchema.State != KnownSchemaState.InlinePending)
             {
-                WriteReferenceObject(knownSchema.Id);
+                KnownSchema currentKnownSchema = _knownSchemas.Single(s => s.Schema == context);
+
+                Uri reference;
+
+                // Id is fully qualified
+                // make it relative to the current schema
+                if (currentKnownSchema.Id.IsBaseOf(knownSchema.Id))
+                {
+                    reference = currentKnownSchema.Id.MakeRelativeUri(knownSchema.Id);
+
+                    // MakeRelativeUri escapes the result, need to unescape
+                    reference = new Uri(Uri.UnescapeDataString(reference.OriginalString), UriKind.RelativeOrAbsolute);
+                }
+                else if (knownSchema.Id == currentKnownSchema.Id)
+                {
+                    reference = new Uri("#", UriKind.RelativeOrAbsolute);
+                }
+                else
+                {
+                    reference = knownSchema.Id;
+                }
+
+                WriteReferenceObject(reference);
                 return;
             }
 
@@ -60,7 +82,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             _writer.WriteEndObject();
         }
 
-        private void WriteToken(JsonWriter writer, JToken token)
+        private void WriteToken(JSchema context, JsonWriter writer, JToken token)
         {
             if (token is JObject)
             {
@@ -70,7 +92,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
                 if (schemaAnnotation != null)
                 {
-                    ReferenceOrWriteSchema(schemaAnnotation.Schema);
+                    ReferenceOrWriteSchema(context, schemaAnnotation.Schema);
                 }
                 else
                 {
@@ -82,7 +104,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
                         JToken value = property.Value;
                         if (value != null)
-                            WriteToken(writer, value);
+                            WriteToken(context, writer, value);
                         else
                             writer.WriteNull();
                     }
@@ -98,7 +120,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
                 for (int i = 0; i < a.Count; i++)
                 {
-                    WriteToken(writer, a[i]);
+                    WriteToken(context, writer, a[i]);
                 }
 
                 writer.WriteEndArray();
@@ -111,7 +133,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
                 foreach (JToken t in c.Children())
                 {
-                    WriteToken(writer, t);
+                    WriteToken(context, writer, t);
                 }
 
                 writer.WriteEndConstructor();
@@ -161,7 +183,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 foreach (KeyValuePair<string, JToken> extensionDataPair in schema._extensionData)
                 {
                     _writer.WritePropertyName(extensionDataPair.Key);
-                    WriteToken(_writer, extensionDataPair.Value);
+                    WriteToken(schema, _writer, extensionDataPair.Value);
                 }
             }
 
@@ -183,7 +205,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 if (schema.AdditionalProperties != null)
                 {
                     _writer.WritePropertyName(Constants.PropertyNames.AdditionalProperties);
-                    ReferenceOrWriteSchema(schema.AdditionalProperties);
+                    ReferenceOrWriteSchema(schema, schema.AdditionalProperties);
                 }
             }
             if (!schema.AllowAdditionalItems)
@@ -196,12 +218,12 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 if (schema.AdditionalItems != null)
                 {
                     _writer.WritePropertyName(Constants.PropertyNames.AdditionalItems);
-                    ReferenceOrWriteSchema(schema.AdditionalItems);
+                    ReferenceOrWriteSchema(schema, schema.AdditionalItems);
                 }
             }
-            WriteSchemaDictionaryIfNotNull(_writer, Constants.PropertyNames.Properties, schema.Properties);
+            WriteSchemaDictionaryIfNotNull(schema, _writer, Constants.PropertyNames.Properties, schema._properties);
             WriteRequired(schema);
-            WriteSchemaDictionaryIfNotNull(_writer, Constants.PropertyNames.PatternProperties, schema.PatternProperties);
+            WriteSchemaDictionaryIfNotNull(schema, _writer, Constants.PropertyNames.PatternProperties, schema._patternProperties);
             WriteItems(schema);
             WritePropertyIfNotNull(_writer, Constants.PropertyNames.Minimum, schema.Minimum);
             WritePropertyIfNotNull(_writer, Constants.PropertyNames.Maximum, schema.Maximum);
@@ -226,10 +248,10 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 }
                 _writer.WriteEndArray();
             }
-            WriteSchemas(schema._allOf, Constants.PropertyNames.AllOf);
-            WriteSchemas(schema._anyOf, Constants.PropertyNames.AnyOf);
-            WriteSchemas(schema._oneOf, Constants.PropertyNames.OneOf);
-            WriteSchema(schema.Not, Constants.PropertyNames.Not);
+            WriteSchemas(schema, schema._allOf, Constants.PropertyNames.AllOf);
+            WriteSchemas(schema, schema._anyOf, Constants.PropertyNames.AnyOf);
+            WriteSchemas(schema, schema._oneOf, Constants.PropertyNames.OneOf);
+            WriteSchema(schema, schema.Not, Constants.PropertyNames.Not);
 
             _writer.WriteEndObject();
         }
@@ -248,16 +270,16 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             }
         }
 
-        private void WriteSchema(JSchema schema, string name)
+        private void WriteSchema(JSchema context, JSchema schema, string name)
         {
             if (schema != null)
             {
                 _writer.WritePropertyName(name);
-                ReferenceOrWriteSchema(schema);
+                ReferenceOrWriteSchema(context, schema);
             }
         }
 
-        private void WriteSchemas(List<JSchema> schemas, string name)
+        private void WriteSchemas(JSchema context, List<JSchema> schemas, string name)
         {
             if (schemas != null && schemas.Count > 0)
             {
@@ -265,7 +287,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 _writer.WriteStartArray();
                 foreach (JSchema s in schemas)
                 {
-                    ReferenceOrWriteSchema(s);
+                    ReferenceOrWriteSchema(context, s);
                 }
                 _writer.WriteEndArray();
             }
@@ -282,7 +304,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             {
                 if (schema._items != null && schema._items.Count > 0)
                 {
-                    ReferenceOrWriteSchema(schema._items[0]);
+                    ReferenceOrWriteSchema(schema, schema._items[0]);
                 }
                 else
                 {
@@ -299,14 +321,14 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                     {
                         var itemSchema = schema._items[i];
 
-                        ReferenceOrWriteSchema(itemSchema);
+                        ReferenceOrWriteSchema(schema, itemSchema);
                     }
                 }
                 _writer.WriteEndArray();
             }
         }
 
-        private void WriteSchemaDictionaryIfNotNull(JsonWriter writer, string propertyName, IDictionary<string, JSchema> properties)
+        private void WriteSchemaDictionaryIfNotNull(JSchema context, JsonWriter writer, string propertyName, IDictionary<string, JSchema> properties)
         {
             if (properties != null && properties.Count > 0)
             {
@@ -317,7 +339,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 {
                     writer.WritePropertyName(property.Key);
 
-                    ReferenceOrWriteSchema(property.Value);
+                    ReferenceOrWriteSchema(context, property.Value);
                 }
                 writer.WriteEndObject();
             }

@@ -27,6 +27,36 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
     [TestFixture]
     public class JSchemaReaderTests : TestFixtureBase
     {
+        [Test]
+        public void ReadEscapedReference()
+        {
+            JSchema schema = JSchema.Parse(@"{
+  ""id"": ""http://www.jnk.com/"",
+  ""properties"": {
+    ""pattern_parent"": {
+      ""patternProperties"": {
+        ""///~~~test~/~/~"": {
+          ""type"": ""object""
+        }
+      }
+    },
+    ""ref_parent"": {
+      ""items"": {
+        ""$ref"": ""#/properties/pattern_parent/patternProperties/~1~1~1~0~0~0test~0~1~0~1~0""
+      }
+    }
+  }
+}");
+
+            Assert.AreEqual(2, schema.Properties.Count);
+
+            JSchema nested = schema.Properties["pattern_parent"].PatternProperties["///~~~test~/~/~"];
+
+            Assert.AreEqual(JSchemaType.Object, nested.Type);
+
+            Assert.AreEqual(nested, schema.Properties["ref_parent"].Items[0]);
+        }
+
         public static JSchema OpenSchemaFile(string name, JSchemaResolver resolver, Uri baseUri = null)
         {
             string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
@@ -127,6 +157,55 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         }
 
         [Test]
+        public void ResolveScopedRelativeId()
+        {
+            string json = @"{
+  ""id"": ""MyExplicitId"",
+  ""type"": ""object"",
+  ""properties"": {
+    ""Name"": {
+      ""type"": [
+        ""string"",
+        ""null""
+      ]
+    },
+    ""Child"": {
+      ""id"": ""MyExplicitId-1"",
+      ""type"": [
+        ""object"",
+        ""null""
+      ],
+      ""properties"": {
+        ""Name"": {
+          ""type"": [
+            ""string"",
+            ""null""
+          ]
+        },
+        ""Child"": {
+          ""$ref"": ""#""
+        }
+      },
+      ""required"": [
+        ""Name"",
+        ""Child""
+      ]
+    }
+  },
+  ""required"": [
+    ""Name"",
+    ""Child""
+  ]
+}";
+
+            JSchema schema = JSchema.Parse(json);
+
+            JSchema child = schema.Properties["Child"];
+
+            Assert.AreEqual(child, child.Properties["Child"]);
+        }
+
+        [Test]
         public void ChromeManifest()
         {
             string schemaJson = TestHelpers.OpenFileText(@"resources\schemas\chrome-manifest.json");
@@ -140,8 +219,11 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         [Test]
         public void Swagger()
         {
+            JSchemaPreloadedResolver resolver = new JSchemaPreloadedResolver();
+            resolver.Add(new Uri("http://json-schema.org/draft-04/schema"), TestHelpers.OpenFileText(@"resources\schemas\schema-draft-v4.json"));
+
             string schemaJson = TestHelpers.OpenFileText(@"resources\schemas\swagger-2.0.json");
-            JSchema swaggerSchema = JSchema.Parse(schemaJson, new JSchemaUrlResolver());
+            JSchema swaggerSchema = JSchema.Parse(schemaJson, resolver);
 
             string json = TestHelpers.OpenFileText(@"resources\json\swagger-petstore.json");
             JObject o = JObject.Parse(json);
@@ -152,6 +234,8 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             Assert.IsFalse(valid);
             Assert.AreEqual(1, messages.Count);
             Assert.AreEqual(@"String 'http://petstore.swagger.io' does not match regex pattern '^[^{}/ :\\]+(?::\d+)?$'. Path 'host', line 16, position 41.", messages[0]);
+
+            Console.WriteLine(swaggerSchema.ToString());
         }
 
         [Test]

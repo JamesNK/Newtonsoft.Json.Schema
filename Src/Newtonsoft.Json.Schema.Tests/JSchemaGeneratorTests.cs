@@ -521,7 +521,7 @@ namespace Newtonsoft.Json.Schema.Tests
           ]
         },
         ""Child"": {
-          ""$ref"": ""MyExplicitId-1""
+          ""$ref"": ""#""
         }
       },
       ""required"": [
@@ -881,7 +881,7 @@ namespace Newtonsoft.Json.Schema.Tests
       ]
     },
     ""Parent"": {
-      ""$ref"": ""System.IO.DirectoryInfo""
+      ""$ref"": ""#""
     },
     ""Exists"": {
       ""type"": ""boolean""
@@ -1152,7 +1152,7 @@ namespace Newtonsoft.Json.Schema.Tests
       ""type"": ""string""
     },
     ""Child"": {
-      ""$ref"": ""Newtonsoft.Json.Schema.Tests.TestObjects.CircularReferenceClass""
+      ""$ref"": ""#""
     }
   },
   ""required"": [
@@ -1218,13 +1218,13 @@ namespace Newtonsoft.Json.Schema.Tests
       ]
     },
     ""ReferenceLoopHandlingErrorProperty"": {
-      ""$ref"": ""Newtonsoft.Json.Schema.Tests.TestObjects.JsonPropertyWithHandlingValues""
+      ""$ref"": ""#""
     },
     ""ReferenceLoopHandlingIgnoreProperty"": {
-      ""$ref"": ""Newtonsoft.Json.Schema.Tests.TestObjects.JsonPropertyWithHandlingValues""
+      ""$ref"": ""#""
     },
     ""ReferenceLoopHandlingSerializeProperty"": {
-      ""$ref"": ""Newtonsoft.Json.Schema.Tests.TestObjects.JsonPropertyWithHandlingValues""
+      ""$ref"": ""#""
     }
   },
   ""required"": [

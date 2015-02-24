@@ -17,7 +17,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
     public class JSchemaWriterTests : TestFixtureBase
     {
         [Test]
-        public void WriteTo_ReferenceWithPattern()
+        public void WriteTo_ReferenceWithRootId()
         {
             JSchema nested = new JSchema
             {
@@ -26,7 +26,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 
             JSchema s = new JSchema();
             s.Id = new Uri("http://www.jnk.com/");
-            s.PatternProperties["/test//"] = nested;
+            s.Items.Add(nested);
             s.Properties["test"] = nested;
 
             string json = s.ToString();
@@ -38,9 +38,53 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
       ""type"": ""object""
     }
   },
-  ""patternProperties"": {
-    ""/test//"": {
-      ""$ref"": ""http://www.jnk.com/#/properties/test""
+  ""items"": {
+    ""$ref"": ""#/properties/test""
+  }
+}", json);
+        }
+
+        [Test]
+        public void WriteTo_ReferenceToPatternChild()
+        {
+            JSchema nested = new JSchema
+            {
+                Type = JSchemaType.Object
+            };
+
+            JSchema s = new JSchema();
+            s.Id = new Uri("http://www.jnk.com/");
+            s.Properties["pattern_parent"] = new JSchema
+            {
+                PatternProperties =
+                {
+                    { "///~~~test~/~/~", nested }
+                }
+            };
+            s.Properties["ref_parent"] = new JSchema
+            {
+                Items =
+                {
+                    nested
+                }
+            };
+
+            string json = s.ToString();
+
+            Assert.AreEqual(@"{
+  ""id"": ""http://www.jnk.com/"",
+  ""properties"": {
+    ""pattern_parent"": {
+      ""patternProperties"": {
+        ""///~~~test~/~/~"": {
+          ""type"": ""object""
+        }
+      }
+    },
+    ""ref_parent"": {
+      ""items"": {
+        ""$ref"": ""#/properties/pattern_parent/patternProperties/~1~1~1~0~0~0test~0~1~0~1~0""
+      }
     }
   }
 }", json);
@@ -182,7 +226,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
   ""description"": ""CircularReference"",
   ""type"": ""array"",
   ""items"": {
-    ""$ref"": ""CircularReferenceArray""
+    ""$ref"": ""#""
   }
 }", writtenJson);
         }
@@ -671,7 +715,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
       ]
     },
     {
-      ""$ref"": ""root""
+      ""$ref"": ""#""
     }
   ],
   ""oneOf"": [
@@ -685,7 +729,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
       ]
     },
     {
-      ""$ref"": ""root""
+      ""$ref"": ""#""
     }
   ],
   ""not"": {

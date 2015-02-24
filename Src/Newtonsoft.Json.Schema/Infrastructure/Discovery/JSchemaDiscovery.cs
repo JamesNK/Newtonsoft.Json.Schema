@@ -150,7 +150,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             {
                 foreach (KeyValuePair<string, JSchema> valuePair in schemas)
                 {
-                    DiscoverInternal(valuePair.Value, name + "/" + valuePair.Key);
+                    DiscoverInternal(valuePair.Value, name + "/" + valuePair.Key.Replace("~", "~0").Replace("/", "~1"));
                 }
             }
         }
