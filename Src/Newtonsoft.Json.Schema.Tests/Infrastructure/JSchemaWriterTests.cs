@@ -71,7 +71,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 
             string json = s.ToString();
 
-            Assert.AreEqual(@"{
+            StringAssert.AreEqual(@"{
   ""id"": ""http://www.jnk.com/"",
   ""properties"": {
     ""pattern_parent"": {
