@@ -142,6 +142,10 @@ namespace Newtonsoft.Json.Schema.Tests
 
             string[] testFiles = Directory.GetFiles(baseTestPath, "*.json", SearchOption.AllDirectories);
 
+#if (PORTABLE || NET35)
+            testFiles = testFiles.Where(f => !f.EndsWith("bignum.json")).ToArray();
+#endif
+
             // read through each of the *.json test files and extract the test details
             foreach (string testFile in testFiles)
             {

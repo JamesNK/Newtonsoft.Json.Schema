@@ -7,6 +7,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+#if !(PORTABLE || NET35)
+using System.Numerics;
+#endif
 using System.Text;
 using NUnit.Framework;
 
@@ -42,6 +45,8 @@ namespace Newtonsoft.Json.Schema.Tests
             validatingWriter.WriteEndArray();
 
             Assert.IsNull(a);
+
+            Assert.AreEqual("[10,10]", sw.ToString());
         }
 
         [Test]
@@ -81,6 +86,8 @@ namespace Newtonsoft.Json.Schema.Tests
 
             validatingWriter.WriteEndArray();
             Assert.IsNull(a);
+
+            Assert.AreEqual(@"[""string"",true]", sw.ToString());
         }
 
         [Test]
@@ -116,6 +123,8 @@ namespace Newtonsoft.Json.Schema.Tests
             validatingWriter.WriteEndObject();
 
             Assert.IsNull(a);
+
+            Assert.AreEqual(@"{""prop1"":43,""prop2"":true}", sw.ToString());
         }
 
         [Test]
@@ -165,6 +174,8 @@ namespace Newtonsoft.Json.Schema.Tests
             validatingWriter.WriteEndObject();
 
             Assert.IsNull(a);
+
+            Assert.AreEqual(@"{""prop1"":true,""prop2"":45,""prop3"":45}", sw.ToString());
         }
 
         [Test]
@@ -210,6 +221,8 @@ namespace Newtonsoft.Json.Schema.Tests
             validatingWriter.WriteEndObject();
 
             Assert.IsNull(a);
+
+            Assert.AreEqual(@"{""foo"":[],""bar"":{}}", sw.ToString());
         }
 
         [Test]
@@ -387,6 +400,239 @@ namespace Newtonsoft.Json.Schema.Tests
         }
 
         [Test]
+        public void WriteValue_Object()
+        {
+            JSchema schema = new JSchema();
+            schema.Type = JSchemaType.Array;
+            schema.Items.Add(new JSchema
+            {
+                Type = JSchemaType.Integer
+            });
+
+            SchemaValidationEventArgs a = null;
+
+            StringWriter sw = new StringWriter();
+            JsonTextWriter writer = new JsonTextWriter(sw);
+            writer.Formatting = Formatting.Indented;
+            JSchemaValidatingWriter validatingWriter = new JSchemaValidatingWriter(writer);
+            validatingWriter.Schema = schema;
+            validatingWriter.ValidationEventHandler += (sender, args) =>
+            {
+                a = args;
+            };
+
+            validatingWriter.WriteStartArray();
+
+            validatingWriter.WriteValue((object)"string");
+            Assert.IsNotNull(a);
+            StringAssert.AreEqual("Invalid type. Expected Integer but got String. Path '[0]'.", a.Message);
+            Assert.AreEqual("string", a.ValidationError.Value);
+            Assert.AreEqual("#/items/0", a.ValidationError.SchemaId.ToString());
+            a = null;
+
+            validatingWriter.WriteValue((object)null);
+            Assert.IsNotNull(a);
+            StringAssert.AreEqual("Invalid type. Expected Integer but got Null. Path '[1]'.", a.Message);
+            Assert.AreEqual(null, a.ValidationError.Value);
+            a = null;
+
+            validatingWriter.WriteValue((object)'e');
+            Assert.IsNotNull(a);
+            StringAssert.AreEqual("Invalid type. Expected Integer but got String. Path '[2]'.", a.Message);
+            Assert.AreEqual("e", a.ValidationError.Value);
+            a = null;
+
+            validatingWriter.WriteValue((object)true);
+            Assert.IsNotNull(a);
+            StringAssert.AreEqual("Invalid type. Expected Integer but got Boolean. Path '[3]'.", a.Message);
+            Assert.AreEqual(true, a.ValidationError.Value);
+            a = null;
+
+            validatingWriter.WriteValue((object)null);
+            Assert.IsNotNull(a);
+            StringAssert.AreEqual("Invalid type. Expected Integer but got Null. Path '[4]'.", a.Message);
+            Assert.AreEqual(null, a.ValidationError.Value);
+            a = null;
+
+            validatingWriter.WriteNull();
+            Assert.IsNotNull(a);
+            StringAssert.AreEqual("Invalid type. Expected Integer but got Null. Path '[5]'.", a.Message);
+            Assert.AreEqual(null, a.ValidationError.Value);
+            a = null;
+
+            validatingWriter.WriteUndefined();
+            Assert.IsNotNull(a);
+            StringAssert.AreEqual("Invalid type. Expected Integer but got Undefined. Path '[6]'.", a.Message);
+            Assert.AreEqual(null, a.ValidationError.Value);
+            a = null;
+
+            validatingWriter.WriteValue((object)(ushort)12);
+            Assert.IsNull(a);
+            validatingWriter.WriteValue((object)(short)12);
+            Assert.IsNull(a);
+            validatingWriter.WriteValue((object)(byte)12);
+            Assert.IsNull(a);
+            validatingWriter.WriteValue((object)(sbyte)12);
+            Assert.IsNull(a);
+            validatingWriter.WriteValue((object)(long)12);
+            Assert.IsNull(a);
+            validatingWriter.WriteValue((object)(ulong)12);
+            Assert.IsNull(a);
+            validatingWriter.WriteValue((object)(int)12);
+            Assert.IsNull(a);
+            validatingWriter.WriteValue((object)(uint)12);
+            Assert.IsNull(a);
+
+            validatingWriter.WriteValue((object)1.1m);
+            Assert.IsNotNull(a);
+            StringAssert.AreEqual("Invalid type. Expected Integer but got Number. Path '[15]'.", a.Message);
+            Assert.AreEqual(1.1d, a.ValidationError.Value);
+            a = null;
+
+            validatingWriter.WriteValue((object)1.1d);
+            Assert.IsNotNull(a);
+            StringAssert.AreEqual("Invalid type. Expected Integer but got Number. Path '[16]'.", a.Message);
+            Assert.AreEqual(1.1d, a.ValidationError.Value);
+            a = null;
+
+            validatingWriter.WriteValue((object)1.1f);
+            Assert.IsNotNull(a);
+            StringAssert.AreEqual("Invalid type. Expected Integer but got Number. Path '[17]'.", a.Message);
+            Assert.AreEqual(1.1f, a.ValidationError.Value);
+            a = null;
+
+            validatingWriter.WriteValue((object)new Uri("http://test.test"));
+            Assert.IsNotNull(a);
+            StringAssert.AreEqual("Invalid type. Expected Integer but got String. Path '[18]'.", a.Message);
+            Assert.AreEqual("http://test.test", a.ValidationError.Value);
+            a = null;
+
+            validatingWriter.WriteValue((object)TimeSpan.FromMinutes(1.0));
+            Assert.IsNotNull(a);
+            StringAssert.AreEqual("Invalid type. Expected Integer but got String. Path '[19]'.", a.Message);
+            Assert.AreEqual("00:01:00", a.ValidationError.Value);
+            a = null;
+
+            validatingWriter.WriteValue((object)new Guid("3D1A74E8-0B2D-43F2-9D55-2E9DD4A1598E"));
+            Assert.IsNotNull(a);
+            StringAssert.AreEqual("Invalid type. Expected Integer but got String. Path '[20]'.", a.Message);
+            Assert.AreEqual("3d1a74e8-0b2d-43f2-9d55-2e9dd4a1598e", a.ValidationError.Value);
+            a = null;
+
+            validatingWriter.WriteValue((object)Encoding.UTF8.GetBytes("Hello world."));
+            Assert.IsNotNull(a);
+            StringAssert.AreEqual("Invalid type. Expected Integer but got String. Path '[21]'.", a.Message);
+            Assert.AreEqual("SGVsbG8gd29ybGQu", a.ValidationError.Value);
+            a = null;
+
+            validatingWriter.WriteValue((object)new DateTimeOffset(2000, 12, 2, 5, 6, 2, TimeSpan.Zero));
+            Assert.IsNotNull(a);
+            StringAssert.AreEqual("Invalid type. Expected Integer but got String. Path '[22]'.", a.Message);
+            Assert.AreEqual("2000-12-02T05:06:02+00:00", a.ValidationError.Value);
+            a = null;
+
+            validatingWriter.WriteValue((object)new DateTime(2000, 12, 2, 5, 6, 2, DateTimeKind.Utc));
+            Assert.IsNotNull(a);
+            StringAssert.AreEqual("Invalid type. Expected Integer but got String. Path '[23]'.", a.Message);
+            Assert.AreEqual("2000-12-02T05:06:02Z", a.ValidationError.Value);
+            a = null;
+
+            validatingWriter.WriteEndArray();
+            Assert.IsNull(a);
+
+            validatingWriter.Flush();
+
+            string json = sw.ToString();
+            Console.WriteLine(json);
+
+            StringAssert.AreEqual(@"[
+  ""string"",
+  null,
+  ""e"",
+  true,
+  null,
+  null,
+  undefined,
+  12,
+  12,
+  12,
+  12,
+  12,
+  12,
+  12,
+  12,
+  1.1,
+  1.1,
+  1.1,
+  ""http://test.test"",
+  ""00:01:00"",
+  ""3d1a74e8-0b2d-43f2-9d55-2e9dd4a1598e"",
+  ""SGVsbG8gd29ybGQu"",
+  ""2000-12-02T05:06:02+00:00"",
+  ""2000-12-02T05:06:02Z""
+]", json);
+        }
+
+#if !(PORTABLE || NET35)
+        [Test]
+        public void WriteBigInteger()
+        {
+            JSchema schema = new JSchema();
+            schema.Type = JSchemaType.Array;
+            schema.Items.Add(new JSchema
+            {
+                Type = JSchemaType.Integer,
+                Maximum = 5000
+            });
+
+            SchemaValidationEventArgs a = null;
+
+            StringWriter sw = new StringWriter();
+            JsonTextWriter writer = new JsonTextWriter(sw);
+            JSchemaValidatingWriter validatingWriter = new JSchemaValidatingWriter(writer);
+            validatingWriter.Schema = schema;
+            validatingWriter.ValidationEventHandler += (sender, args) =>
+            {
+                a = args;
+            };
+
+            validatingWriter.WriteStartArray();
+
+            validatingWriter.WriteValue(BigInteger.Parse("4001"));
+            Assert.IsNull(a);
+
+            validatingWriter.WriteValue((object)BigInteger.Parse("4002"));
+            Assert.IsNull(a);
+
+            validatingWriter.WriteValue(45);
+            Assert.IsNull(a);
+
+            validatingWriter.WriteValue(BigInteger.Parse("4000000000000000000000000000000000000000001"));
+            Assert.IsNotNull(a);
+            StringAssert.AreEqual(@"Integer 4000000000000000000000000000000000000000001 exceeds maximum value of 5000. Path '[3]'.", a.Message);
+            Assert.AreEqual(BigInteger.Parse("4000000000000000000000000000000000000000001"), a.ValidationError.Value);
+            a = null;
+
+            validatingWriter.WriteValue(46);
+            Assert.IsNull(a);
+
+            validatingWriter.WriteValue((object)BigInteger.Parse("4000000000000000000000000000000000000000002"));
+            Assert.IsNotNull(a);
+            StringAssert.AreEqual(@"Integer 4000000000000000000000000000000000000000002 exceeds maximum value of 5000. Path '[5]'.", a.Message);
+            Assert.AreEqual(BigInteger.Parse("4000000000000000000000000000000000000000002"), a.ValidationError.Value);
+            a = null;
+
+            validatingWriter.WriteValue(47);
+            Assert.IsNull(a);
+
+            validatingWriter.WriteEndArray();
+            Assert.IsNull(a);
+
+            Assert.AreEqual(@"[4001,4002,45,4000000000000000000000000000000000000000001,46,4000000000000000000000000000000000000000002,47]", sw.ToString());
+        }
+#endif
+
+        [Test]
         public void WriteStartConstructor()
         {
             JSchema schema = new JSchema();
@@ -428,6 +674,8 @@ namespace Newtonsoft.Json.Schema.Tests
 
             validatingWriter.WriteEndConstructor();
             Assert.IsNull(a);
+
+            Assert.AreEqual(@"new Test(1,""e""/*comment!*/)", sw.ToString());
         }
     }
 }

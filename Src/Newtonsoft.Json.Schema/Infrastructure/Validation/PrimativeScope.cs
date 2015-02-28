@@ -103,24 +103,38 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
             if (schema.Maximum != null)
             {
-                if (JValue.Compare(JTokenType.Integer, value, schema.Maximum) > 0)
+                object v;
+#if !(NET20 || NET35 || PORTABLE)
+                v = (value is BigInteger) ? (double)(BigInteger)value : value;
+#else
+                v = value;
+#endif
+
+                if (JValue.Compare(JTokenType.Integer, v, schema.Maximum) > 0)
                     RaiseError("Integer {0} exceeds maximum value of {1}.".FormatWith(CultureInfo.InvariantCulture, value, schema.Maximum), ErrorType.Maximum, schema, value, null);
-                if (schema.ExclusiveMaximum && JValue.Compare(JTokenType.Integer, value, schema.Maximum) == 0)
+                if (schema.ExclusiveMaximum && JValue.Compare(JTokenType.Integer, v, schema.Maximum) == 0)
                     RaiseError("Integer {0} equals maximum value of {1} and exclusive maximum is true.".FormatWith(CultureInfo.InvariantCulture, value, schema.Maximum), ErrorType.Maximum, schema, value, null);
             }
 
             if (schema.Minimum != null)
             {
-                if (JValue.Compare(JTokenType.Integer, value, schema.Minimum) < 0)
+                object v;
+#if !(NET20 || NET35 || PORTABLE)
+                v = (value is BigInteger) ? (double)(BigInteger)value : value;
+#else
+                v = value;
+#endif
+                
+                if (JValue.Compare(JTokenType.Integer, v, schema.Minimum) < 0)
                     RaiseError("Integer {0} is less than minimum value of {1}.".FormatWith(CultureInfo.InvariantCulture, value, schema.Minimum), ErrorType.Minimum, schema, value, null);
-                if (schema.ExclusiveMinimum && JValue.Compare(JTokenType.Integer, value, schema.Minimum) == 0)
+                if (schema.ExclusiveMinimum && JValue.Compare(JTokenType.Integer, v, schema.Minimum) == 0)
                     RaiseError("Integer {0} equals minimum value of {1} and exclusive minimum is true.".FormatWith(CultureInfo.InvariantCulture, value, schema.Minimum), ErrorType.Minimum, schema, value, null);
             }
 
             if (schema.MultipleOf != null)
             {
                 bool notDivisible;
-#if !(NET20 || NET35 || PORTABLE40 || PORTABLE)
+#if !(NET20 || NET35 || PORTABLE)
                 if (value is BigInteger)
                 {
                     double multipleOf = schema.MultipleOf.Value;

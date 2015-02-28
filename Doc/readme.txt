@@ -21,6 +21,11 @@ Documentation:
 http://www.newtonsoft.com/jsonschema/help
 
 
+Requirements:
+
+Json.NET Schema requires Json.NET 6.0.8 and above.
+
+
 Versions:
 
 Json.NET Schema has different libraries for the various .NET Framework versions.

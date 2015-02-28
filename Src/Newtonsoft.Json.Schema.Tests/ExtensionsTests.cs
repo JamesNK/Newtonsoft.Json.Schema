@@ -31,6 +31,26 @@ namespace Newtonsoft.Json.Schema.Tests
     [TestFixture]
     public class ExtensionsTests : TestFixtureBase
     {
+#if !(PORTABLE || NET35)
+        [Test]
+        public void BigNum()
+        {
+            ValidationError error = null;
+
+            JSchema s = JSchema.Parse(@"{""maximum"": 18446744073709551615}");
+
+            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader("18446744073709551600")));
+            reader.Schema = s;
+            reader.ValidationEventHandler += (sender, args) =>
+            {
+                error = args.ValidationError;
+            };
+
+            Assert.IsTrue(reader.Read());
+            Assert.IsNull(error);
+        }
+#endif
+
         [Test]
         public void ValidationErrorPath()
         {

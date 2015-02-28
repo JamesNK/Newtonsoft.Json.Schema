@@ -9,6 +9,9 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+#if !(NET20 || NET35 || PORTABLE || PORTABLE40)
+using System.Numerics;
+#endif
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema.Infrastructure.Discovery;
 using Newtonsoft.Json.Utilities;
@@ -315,6 +318,15 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         private double ReadDouble(JsonReader reader, string name)
         {
             EnsureToken(reader, name, Constants.NumberTokens);
+
+#if !(NET20 || NET35 || PORTABLE || PORTABLE40)
+            if (reader.Value is BigInteger)
+            {
+                BigInteger i = (BigInteger)reader.Value;
+                return (double)i;
+            }
+#endif
+
             return Convert.ToDouble(reader.Value, CultureInfo.InvariantCulture);
         }
 

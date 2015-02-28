@@ -7,6 +7,9 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+#if !(NET20 || NET35 || PORTABLE || PORTABLE40)
+using System.Numerics;
+#endif
 using Newtonsoft.Json.Schema.Infrastructure.Validation;
 using Newtonsoft.Json.Utilities;
 
@@ -220,6 +223,28 @@ namespace Newtonsoft.Json.Schema
 
             base.WriteUndefined();
             ValidateCurrentToken(JsonToken.Undefined, null, _writer.Top);
+        }
+
+        /// <summary>
+        /// Writes a <see cref="Object"/> value.
+        /// An error will raised if the value cannot be written as a single JSON token.
+        /// </summary>
+        /// <param name="value">The <see cref="Object"/> value to write.</param>
+        public override void WriteValue(object value)
+        {
+#if !(NET20 || NET35 || PORTABLE || PORTABLE40)
+            if (value is BigInteger)
+            {
+                _writer.WriteValue(value);
+
+                InternalWriteValue(JsonToken.Integer);
+                ValidateCurrentToken(JsonToken.Integer, value, _writer.Top);
+            }
+            else
+#endif
+            {
+                base.WriteValue(value);
+            }
         }
 
         /// <summary>
