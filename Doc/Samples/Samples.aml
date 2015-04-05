@@ -10,16 +10,16 @@
 
 <list class="bullet">
     <listItem>
-        <para><legacyBold>Create JSON Schemas</legacyBold> - Manually create and save JSON Schemas to disk</para>
-    </listItem>
-    <listItem>
-        <para><legacyBold>Generate JSON Schemas</legacyBold> - Automatically generate JSON Schemas from .NET types</para>
-    </listItem>
-    <listItem>
         <para><legacyBold>Load JSON Schemas</legacyBold> - Load JSON Schemas from JSON text, from the disk, and by reference</para>
     </listItem>
     <listItem>
         <para><legacyBold>Validate JSON</legacyBold> - Validate JSON when reading JSON, when writing JSON, when serializing JSON, and validate existing LINQ to JSON objects</para>
+    </listItem>
+    <listItem>
+        <para><legacyBold>Create JSON Schemas</legacyBold> - Manually create and save JSON Schemas to disk</para>
+    </listItem>
+    <listItem>
+        <para><legacyBold>Generate JSON Schemas</legacyBold> - Automatically generate JSON Schemas from .NET types</para>
     </listItem>
 </list>
 

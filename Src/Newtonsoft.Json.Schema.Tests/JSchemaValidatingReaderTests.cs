@@ -2180,5 +2180,34 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(JsonToken.None, reader.TokenType);
             Assert.AreEqual(null, validationEventArgs);
         }
+
+        [Test]
+        public void SchemaPath()
+        {
+            string schema = @"{
+   ""$schema"" : ""http://json-schema.org/draft-04/schema#"",
+   ""title"" : ""listing/update"",
+   ""type"" : ""object"",
+   ""id"" : ""http://test.com/update.json"",
+   ""required"" : [""derp""]
+}";
+
+            SchemaValidationEventArgs validationEventArgs = null;
+
+            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader("{}")));
+            reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
+            reader.Schema = JSchema.Parse(schema);
+
+            reader.Read();
+            Assert.AreEqual(JsonToken.StartObject, reader.TokenType);
+            Assert.AreEqual(null, validationEventArgs);
+
+            reader.Read();
+            Assert.AreEqual(JsonToken.EndObject, reader.TokenType);
+            Assert.AreNotEqual(null, validationEventArgs);
+
+            Console.WriteLine(validationEventArgs.ValidationError.SchemaId);
+            Console.WriteLine(JsonConvert.SerializeObject(validationEventArgs.ValidationError, Formatting.Indented));
+        }
     }
 }

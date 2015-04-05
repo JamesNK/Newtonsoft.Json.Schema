@@ -46,8 +46,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
             string schemaJson = @"{
               'description': 'A person',
               'type': 'object',
-              'properties':
-              {
+              'properties': {
                 'name': {'type': 'string'},
                 'hobbies': {
                   'type': 'array',
@@ -74,17 +73,16 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
         public void IsValidMessages()
         {
             string schemaJson = @"{
-               'description': 'A person',
-               'type': 'object',
-               'properties':
-               {
-                 'name': {'type': 'string'},
-                 'hobbies': {
-                   'type': 'array',
-                   'items': {'type': 'string'}
-                 }
-               }
-             }";
+              'description': 'A person',
+              'type': 'object',
+              'properties': {
+                'name': {'type': 'string'},
+                'hobbies': {
+                  'type': 'array',
+                  'items': {'type': 'string'}
+                }
+              }
+            }";
 
             #region IsValidMessages
             JSchema schema = JSchema.Parse(schemaJson);
@@ -96,9 +94,52 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
 
             IList<string> messages;
             bool valid = person.IsValid(schema, out messages);
-            // false
             // Invalid type. Expected String but got Null. Line 2, position 21.
             // Invalid type. Expected String but got Number. Line 3, position 51.
+            #endregion
+
+            Assert.IsFalse(valid);
+        }
+
+        [Test]
+        public void IsValidValidationError()
+        {
+            #region IsValidValidationError
+            string schemaJson = @"{
+              'description': 'Collection of non-primary colors',
+              'type': 'array',
+              'items': {
+                'allOf': [ { '$ref': '#/definitions/hexColor' } ],
+                'not': {
+                  'enum': ['#FF0000','#00FF00','#0000FF']
+                }
+              },
+              'definitions': {
+                'hexColor': {
+                  'type': 'string',
+                  'pattern': '^#[A-Fa-f0-9]{6}$'
+                }
+              }
+            }";
+
+            JSchema schema = JSchema.Parse(schemaJson);
+
+            JArray colors = JArray.Parse(@"[
+              '#DAA520', // goldenrod
+              '#FF69B4', // hot pink
+              '#0000FF', // blue
+              'Black'
+            ]");
+
+            IList<ValidationError> errors;
+            bool valid = colors.IsValid(schema, out errors);
+            // Message - JSON is valid against schema from 'not'. Path '[2]', line 4, position 24.
+            // SchemaId - #/items/0
+
+            // Message - JSON does not match all schemas from 'allOf'. Invalid schema indexes: 0. Path '[3]', line 5, position 22.
+            // SchemaId - #/items/0
+            //   Message - String 'Black' does not match regex pattern '^#[A-Fa-f0-9]{6}$'. Path '[3]', line 5, position 22.
+            //   SchemaId - #/definitions/hexColor
             #endregion
 
             Assert.IsFalse(valid);
@@ -168,5 +209,4 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
         }
     }
 }
-
 #endif

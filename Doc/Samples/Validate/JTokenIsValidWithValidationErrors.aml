@@ -1,10 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<topic id="JTokenIsValidWithMessages" revisionNumber="1">
+<topic id="JTokenIsValidWithValidationErrors" revisionNumber="1">
   <developerConceptualDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
     <introduction>
       <para>This sample validates a <codeEntityReference>T:Newtonsoft.Json.Linq.JObject</codeEntityReference>
-      using the <codeEntityReference>M:Newtonsoft.Json.Schema.SchemaExtensions.IsValid(Newtonsoft.Json.Linq.JToken,Newtonsoft.Json.Schema.JSchema,System.Collections.Generic.IList{System.String}@)</codeEntityReference>
-      extension method and returns error messages.</para>
+      using the <codeEntityReference>M:Newtonsoft.Json.Schema.SchemaExtensions.IsValid(Newtonsoft.Json.Linq.JToken,Newtonsoft.Json.Schema.JSchema,System.Collections.Generic.IList{Newtonsoft.Json.Schema.ValidationError}@)</codeEntityReference>
+      extension method and returns a collection of <codeEntityReference>T:Newtonsoft.Json.Schema.ValidationError</codeEntityReference>s.</para>
     </introduction>
     <section>
       <title>Sample</title>

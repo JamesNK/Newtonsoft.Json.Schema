@@ -101,6 +101,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Content Include="icons\favicon.ico" />
+    <None Include="Samples\Validate\JTokenIsValidWithValidationErrors.aml" />
     <None Include="Samples\Generation\CreateCustomProvider.aml" />
     <None Include="Samples\Load\JsonUrlSchemaResolverRelative.aml" />
     <None Include="Samples\Load\JsonUrlSchemaResolverHttp.aml" />

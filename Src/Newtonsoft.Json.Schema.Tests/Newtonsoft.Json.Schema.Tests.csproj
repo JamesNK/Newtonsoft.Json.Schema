@@ -78,6 +78,7 @@
     <Compile Include="Infrastructure\NestedPreloadedResolver.cs" />
     <Compile Include="Infrastructure\SerializationTests.cs" />
     <Compile Include="Issues\Issue10Tests.cs" />
+    <Compile Include="Issues\Issue14Tests.cs" />
     <Compile Include="Issues\Issue3Tests.cs" />
     <Compile Include="JSchemaValidatingWriterTests.cs" />
     <Compile Include="JSchemaSpecTests.cs" />
@@ -444,7 +445,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Newtonsoft.Json.Schema\Newtonsoft.Json.Schema.csproj">
       <Project>{959f7f85-c98b-4876-971a-9036224578e4}</Project>
