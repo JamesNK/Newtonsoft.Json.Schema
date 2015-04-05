@@ -27,11 +27,11 @@ overloads.</para>
 <section>
   <title>Detailed Validation Information</title>
 <content>
-<para>Detailed validation error information is accessible on <codeEntityReference>T:Newtonsoft.Json.Schema.ValidationError</codeEntityReference>.
-This class exposes the line number, position and path of where the error occured in the JSON document, the <codeEntityReference>T:Newtonsoft.Json.Schema.JSchema</codeEntityReference> that failed validation, and any child errors that occured.</para>
+<para>Detailed validation error information is accessable on <codeEntityReference>T:Newtonsoft.Json.Schema.ValidationError</codeEntityReference>.
+It provides the line number, position and path of where the error occurred in the JSON document, the <codeEntityReference>T:Newtonsoft.Json.Schema.JSchema</codeEntityReference> that failed validation, and any child errors that occured.</para>
 <para>
 <codeEntityReference>M:Newtonsoft.Json.Schema.SchemaExtensions.IsValid(Newtonsoft.Json.Linq.JToken,Newtonsoft.Json.Schema.JSchema,System.Collections.Generic.IList{Newtonsoft.Json.Schema.ValidationError}@)</codeEntityReference>
-and <codeEntityReference>P:Newtonsoft.Json.Schema.SchemaValidationEventArgs.ValidationError</codeEntityReference> both return <codeEntityReference>T:Newtonsoft.Json.Schema.ValidationError</codeEntityReference> instances for errors.
+and <codeEntityReference>P:Newtonsoft.Json.Schema.SchemaValidationEventArgs.ValidationError</codeEntityReference> both provide <codeEntityReference>T:Newtonsoft.Json.Schema.ValidationError</codeEntityReference> for any errors.
 </para>
 
 <code lang="cs" source="..\Src\Newtonsoft.Json.Schema.Tests\Documentation\ValidatingJson.cs" region="IsValidValidationError" title="Detailed validation information with ValidationError" />
