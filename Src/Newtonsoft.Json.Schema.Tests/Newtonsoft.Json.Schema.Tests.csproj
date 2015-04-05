@@ -58,6 +58,7 @@
     <Compile Include="Documentation\Samples\Load\JSchemaUrlResolverRelative.cs" />
     <Compile Include="Documentation\Samples\Load\JSchemaUrlResolverHttp.cs" />
     <Compile Include="Documentation\Samples\Validate\JsonValidatingWriterAndSerializer.cs" />
+    <Compile Include="Documentation\Samples\Validate\JTokenIsValidWithValidationErrors.cs" />
     <Compile Include="Documentation\ValidatingJson.cs" />
     <Compile Include="Documentation\Samples\Create\CreateJsonSchemaManually.cs" />
     <Compile Include="Documentation\Samples\Create\SaveJsonSchemaToFile.cs" />
