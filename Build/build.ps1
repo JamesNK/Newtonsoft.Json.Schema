@@ -1,7 +1,7 @@
 ﻿properties { 
-  $zipFileName = "JsonSchema10r8.zip"
+  $zipFileName = "JsonSchema10r9.zip"
   $majorVersion = "1.0"
-  $majorWithReleaseVersion = "1.0.8"
+  $majorWithReleaseVersion = "1.0.9"
   $version = GetVersion $majorWithReleaseVersion
   $signAssemblies = $false
   $signKeyPath = "C:\Development\Releases\newtonsoft.snk"
@@ -22,7 +22,7 @@
     @{Name = "Newtonsoft.Json.Schema"; TestsName = "Newtonsoft.Json.Schema.Tests"; TestsFunction = "NUnitTests"; Constants=$null; FinalDir="Net45"; NuGetDir = "net45"; Framework="net-4.0"; Sign=$true},
     @{Name = "Newtonsoft.Json.Schema.Net35"; TestsName = "Newtonsoft.Json.Schema.Net35.Tests"; TestsFunction = "NUnitTests"; Constants="NET35"; FinalDir="Net35"; NuGetDir = "net35"; Framework="net-2.0"; Sign=$true},
     @{Name = "Newtonsoft.Json.Schema.Net40"; TestsName = "Newtonsoft.Json.Schema.Net40.Tests"; TestsFunction = "NUnitTests"; Constants="NET40"; FinalDir="Net40"; NuGetDir = "net40"; Framework="net-4.0"; Sign=$true},
-    @{Name = "Newtonsoft.Json.Schema.Portable"; TestsName = "Newtonsoft.Json.Schema.Tests.Portable"; TestsFunction = "NUnitTests"; Constants="PORTABLE"; FinalDir="Portable"; NuGetDir = "portable-net45+wp80+win8+wpa81+aspnetcore50"; Framework="net-4.0"; Sign=$true}
+    @{Name = "Newtonsoft.Json.Schema.Portable"; TestsName = "Newtonsoft.Json.Schema.Tests.Portable"; TestsFunction = "NUnitTests"; Constants="PORTABLE"; FinalDir="Portable"; NuGetDir = "portable-net45+wp80+win8+wpa81+dnxcore50"; Framework="net-4.0"; Sign=$true}
   )
 }
 
