@@ -17,6 +17,21 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
     public class JSchemaWriterTests : TestFixtureBase
     {
         [Test]
+        public void WriteTo_UniqueItems()
+        {
+            JSchema s = new JSchema
+            {
+                UniqueItems = true
+            };
+
+            string json = s.ToString();
+
+            StringAssert.AreEqual(@"{
+  ""uniqueItems"": true
+}", json);
+        }
+
+        [Test]
         public void WriteTo_ReferenceWithRootId()
         {
             JSchema nested = new JSchema
