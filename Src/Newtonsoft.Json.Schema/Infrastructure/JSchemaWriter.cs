@@ -225,6 +225,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             WriteRequired(schema);
             WriteSchemaDictionaryIfNotNull(schema, _writer, Constants.PropertyNames.PatternProperties, schema._patternProperties);
             WriteItems(schema);
+            WritePropertyIfNotDefault(_writer, Constants.PropertyNames.UniqueItems, schema.UniqueItems);
             WritePropertyIfNotNull(_writer, Constants.PropertyNames.Minimum, schema.Minimum);
             WritePropertyIfNotNull(_writer, Constants.PropertyNames.Maximum, schema.Maximum);
             WritePropertyIfNotDefault(_writer, Constants.PropertyNames.ExclusiveMinimum, schema.ExclusiveMinimum);
