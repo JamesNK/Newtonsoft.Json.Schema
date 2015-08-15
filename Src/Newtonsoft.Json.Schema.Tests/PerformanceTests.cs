@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 
 namespace Newtonsoft.Json.Schema.Tests
@@ -16,42 +17,49 @@ namespace Newtonsoft.Json.Schema.Tests
     [TestFixture]
     public class PerformanceTests : TestFixtureBase
     {
+        private const int ValidationCount = 100;
+
+        [Test]
+        public void IsValidPerformance()
+        {
+            JArray a = JArray.Parse(Json);
+            a.IsValid(Schema);
+
+            using (var tester = new PerformanceTester("IsValid"))
+            {
+                for (int i = 1; i < ValidationCount; i++)
+                {
+                    a.IsValid(Schema);
+                }
+            }
+        }
+
         [Test]
         public void ReaderPerformance()
         {
-            string json = @"[
-    {
-        ""id"": 2,
-        ""name"": ""An ice sculpture"",
-        ""price"": 12.50,
-        ""tags"": [""cold"", ""ice""],
-        ""dimensions"": {
-            ""length"": 7.0,
-            ""width"": 12.0,
-            ""height"": 9.5
-        },
-        ""warehouseLocation"": {
-            ""latitude"": -78.75,
-            ""longitude"": 20.4
-        }
-    },
-    {
-        ""id"": 3,
-        ""name"": ""A blue mouse"",
-        ""price"": 25.50,
-        ""dimensions"": {
-            ""length"": 3.1,
-            ""width"": 1.0,
-            ""height"": 1.0
-        },
-        ""warehouseLocation"": {
-            ""latitude"": 54.4,
-            ""longitude"": -32.7
-        }
-    }
-]";
+            ReaderValidation();
 
-            JSchema schema = JSchema.Parse(@"{
+            using (var tester = new PerformanceTester("Reader"))
+            {
+                for (int i = 1; i < ValidationCount; i++)
+                {
+                    ReaderValidation();
+                }
+            }
+        }
+
+        private void ReaderValidation()
+        {
+            JsonTextReader reader = new JsonTextReader(new StringReader(Json));
+            JSchemaValidatingReader validatingReader = new JSchemaValidatingReader(reader);
+            validatingReader.Schema = Schema;
+
+            while (validatingReader.Read())
+            {
+            }
+        }
+
+        private readonly JSchema Schema = JSchema.Parse(@"{
     ""$schema"": ""http://json-schema.org/draft-04/schema#"",
     ""title"": ""Product set"",
     ""type"": ""array"",
@@ -101,20 +109,37 @@ namespace Newtonsoft.Json.Schema.Tests
     }
 }");
 
-            using (var tester = new PerformanceTester("Reader"))
-            {
-                for (int i = 0; i < 1000; i++)
-                {
-                    JsonTextReader reader = new JsonTextReader(new StringReader(json));
-                    JSchemaValidatingReader validatingReader = new JSchemaValidatingReader(reader);
-                    validatingReader.Schema = schema;
-
-                    while (validatingReader.Read())
-                    {
-                    }
-                }
-            }
+        private const string Json = @"[
+    {
+        ""id"": 2,
+        ""name"": ""An ice sculpture"",
+        ""price"": 12.50,
+        ""tags"": [""cold"", ""ice""],
+        ""dimensions"": {
+            ""length"": 7.0,
+            ""width"": 12.0,
+            ""height"": 9.5
+        },
+        ""warehouseLocation"": {
+            ""latitude"": -78.75,
+            ""longitude"": 20.4
         }
+    },
+    {
+        ""id"": 3,
+        ""name"": ""A blue mouse"",
+        ""price"": 25.50,
+        ""dimensions"": {
+            ""length"": 3.1,
+            ""width"": 1.0,
+            ""height"": 1.0
+        },
+        ""warehouseLocation"": {
+            ""latitude"": 54.4,
+            ""longitude"": -32.7
+        }
+    }
+]";
     }
 
     public class PerformanceTester : IDisposable
