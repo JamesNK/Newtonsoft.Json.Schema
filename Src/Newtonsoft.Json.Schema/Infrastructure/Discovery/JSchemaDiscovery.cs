@@ -20,7 +20,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
 
         public List<ValidationError> ValidationErrors { get; set; }
 
-        public IReadOnlyList<KnownSchema> KnownSchemas
+        public List<KnownSchema> KnownSchemas
         {
             get { return _knownSchemas; }
         }
