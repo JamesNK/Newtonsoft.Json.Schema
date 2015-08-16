@@ -9,6 +9,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 #if !(NET20 || NET35 || PORTABLE || PORTABLE40)
 using System.Numerics;
 #endif
@@ -29,11 +30,14 @@ namespace Newtonsoft.Json.Schema.Infrastructure
     {
         private static readonly ThreadSafeStore<string, JSchema> SpecSchemaCache = new ThreadSafeStore<string, JSchema>(LoadResourceSchema);
 
+        internal JSchemaDiscovery _schemaDiscovery;
         internal readonly Stack<JSchema> _schemaStack;
         private readonly IList<DeferedSchema> _deferedSchemas;
         private readonly JSchemaResolver _resolver;
         private readonly Uri _baseUri;
         private readonly bool _validateSchema;
+        private readonly SchemaValidationEventHandler _validationEventHandler;
+        private readonly List<ValidationError> _validationErrors;
 
         private Uri _schemaVersionUri;
         private SchemaVersion _schemaVersion;
@@ -56,6 +60,14 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             _resolver = settings.Resolver ?? JSchemaDummyResolver.Instance;
             _baseUri = settings.BaseUri;
             _validateSchema = settings.ValidateVersion;
+            _schemaDiscovery = new JSchemaDiscovery();
+            _validationEventHandler = settings.GetValidationEventHandler();
+
+            if (_validationEventHandler != null)
+            {
+                _validationErrors = new List<ValidationError>();
+                _schemaDiscovery.ValidationErrors = _validationErrors;
+            }
         }
 
         internal JSchema ReadRoot(JsonReader reader, bool resolveDeferedSchemas = true)
@@ -81,6 +93,18 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
             if (resolveDeferedSchemas)
                 ResolveDeferedSchemas();
+
+            if (_validationErrors != null)
+            {
+                foreach (ValidationError error in _validationErrors)
+                {
+                    KnownSchema knownSchema = _schemaDiscovery.KnownSchemas.SingleOrDefault(s => s.Schema == error.Schema);
+                    if (knownSchema != null)
+                        error.SchemaId = knownSchema.Id;
+
+                    _validationEventHandler(this, new SchemaValidationEventArgs(error));
+                }
+            }
 
             return RootSchema;
         }
@@ -232,7 +256,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 }
 
                 deferedSchema.SetResolvedSchema(s);
-            }, RootSchema, RootSchema.Id, reference, this);
+            }, RootSchema, RootSchema.Id, reference, this, ref _schemaDiscovery);
 
             if (found)
                 return;
@@ -969,6 +993,17 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 }
                 case Constants.PropertyNames.Pattern:
                     schema.Pattern = ReadString(reader, name);
+
+                    if (_validationErrors != null)
+                    {
+                        Regex patternRegex;
+                        string errorMessage;
+                        if (!schema.TryGetPatternRegex(out patternRegex, out errorMessage))
+                        {
+                            ValidationError error = ValidationError.CreateValidationError("Could not parse regex pattern '{0}'. Regex parser error: {1}".FormatWith(CultureInfo.InvariantCulture, schema.Pattern, errorMessage), ErrorType.Pattern, schema, null, schema.Pattern, null, schema, schema.Path);
+                            _validationErrors.Add(error);
+                        }                        
+                    }
                     break;
                 case Constants.PropertyNames.Enum:
                     ReadTokenArray(reader, name, ref schema._enum);

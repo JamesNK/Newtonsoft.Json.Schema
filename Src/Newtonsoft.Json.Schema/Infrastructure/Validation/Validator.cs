@@ -3,6 +3,7 @@
 // License: https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -59,20 +60,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 _schemaDiscovery.Discover(Schema, null);
             }
 
-            ValidationError error = new ValidationError();
-            error.Message = message;
-            error.ErrorType = errorType;
-            error.Path = path;
-            if (lineInfo != null)
-            {
-                error.LineNumber = lineInfo.LineNumber;
-                error.LinePosition = lineInfo.LinePosition;
-            }
-            error.Schema = schema;
-            error.SchemaId = _schemaDiscovery.KnownSchemas.Single(s => s.Schema == schema).Id;
-            error.SchemaBaseUri = schema.BaseUri;
-            error.Value = value;
-            error.ChildErrors = childErrors;
+            Uri schemaId = _schemaDiscovery.KnownSchemas.Single(s => s.Schema == schema).Id;
+
+            ValidationError error = ValidationError.CreateValidationError(message, errorType, schema, schemaId, value, childErrors, lineInfo, path);
 
             return error;
         }

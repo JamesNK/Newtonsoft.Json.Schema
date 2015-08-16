@@ -12,6 +12,8 @@ namespace Newtonsoft.Json.Schema
     /// </summary>
     public class JSchemaReaderSettings
     {
+        private SchemaValidationEventHandler _validationEventHandler;
+
         /// <summary>
         /// The base URI for the schema being read. The base URI is used to resolve relative URI schema references.
         /// </summary>
@@ -26,5 +28,19 @@ namespace Newtonsoft.Json.Schema
         /// Gets or sets a flag to indicate whether the schema JSON should be validated using the JSON Schema version identifer defined by '$schema'.
         /// </summary>
         public bool ValidateVersion { get; set; }
+
+        /// <summary>
+        /// Sets an event handler for receiving information about receives information about JSON Schema syntax errors. 
+        /// </summary>
+        public event SchemaValidationEventHandler ValidationEventHandler
+        {
+            add { _validationEventHandler += value; }
+            remove { _validationEventHandler -= value; }
+        }
+
+        internal SchemaValidationEventHandler GetValidationEventHandler()
+        {
+            return _validationEventHandler;
+        }
     }
 }

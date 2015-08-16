@@ -239,6 +239,22 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         }
 
         [Test]
+        public void BadRegexPattern()
+        {
+            string schema = @"{
+               ""pattern"": ""^[01][0-9]:[\\d$""
+            }";
+
+            JSchema s = JSchema.Parse(schema);
+
+            IList<ValidationError> errors;
+            new JValue("j").IsValid(s, out errors);
+
+            Assert.AreEqual(1, errors.Count);
+            Assert.AreEqual(@"Could not validate string with regex pattern '^[01][0-9]:[\d$'. There was an error parsing the regex: parsing ""^[01][0-9]:[\d$"" - Unterminated [] set.", errors[0].Message);
+        }
+
+        [Test]
         public void ReadAllResourceSchemas()
         {
             string schemaDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"resources\schemas");
@@ -1881,6 +1897,281 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
                     schemaReader.ReadRoot(new JsonTextReader(new StringReader(schemaJson)));
                 },
                 "Invalid JSON schema type: invalid. Path 'definitions.def1.def2.type', line 13, position 25.");
+        }
+
+        [Test]
+        public void DuplicateIdInDefinition()
+        {
+            string schemaJson = @"{
+    ""id"": ""http://json-schema.org/draft-04/schema#"",
+    ""$schema"": ""http://json-schema.org/draft-04/schema#"",
+    ""title"": ""Resource Form Schema"",
+    ""description"": ""Core GiS.IDM schema meta-schema"",
+    ""definitions"": {
+        ""positiveInteger"": {
+            ""type"": ""integer"",
+            ""minimum"": 1
+        },
+        ""resFormBodyTypes"": {
+            ""enum"": [
+                ""boolean"",
+                ""integer"",
+                ""timestamp"",
+                ""date"",
+                ""string""
+            ]
+        },
+        ""stringArray"": {
+            ""type"": ""array"",
+            ""items"": {
+                ""type"": ""string""
+            },
+            ""minItems"": 1,
+            ""uniqueItems"": true
+        },
+        ""rfType"": {
+            ""id"": ""http://json-schema.org/draft-04/schema#"",
+            ""$schema"": ""http://json-schema.org/draft-04/schema#"",
+            ""title"": ""Resource Form Type Schema"",
+            ""description"": ""Core GiS.IDM schema meta-schema"",
+            ""type"": ""object"",
+            ""properties"": {
+            },
+            ""additionalProperties"": false,
+            ""required"": [""type""]
+        }
+    },
+    ""type"": ""object"",
+    ""properties"": {
+        ""resFormBody"": {
+            ""type"": ""object"",
+            ""properties"": {
+                ""properties"": {
+                    ""type"": ""object"",
+                    ""properties"": {
+                    },
+                    ""patternProperties"": {
+                        ""^[a-z0-9_]+$"": {
+                            ""$ref"": ""#/definitions/rfType""
+                        }
+                    },
+                    ""additionalProperties"": false
+                }
+            },
+            ""required"": [""properties""],
+            ""additionalProperties"": false
+        }
+    },
+    ""required"": [
+        ""resFormName""
+    ],
+    ""additionalProperties"": false
+}";
+
+            List<ValidationError> errors = new List<ValidationError>();
+
+            JSchemaReaderSettings settings = new JSchemaReaderSettings();
+            settings.ValidationEventHandler += (o, e) => errors.Add(e.ValidationError);
+
+            JSchema s = JSchema.Parse(schemaJson, settings);
+
+            Assert.AreEqual(1, errors.Count);
+            Assert.AreEqual("Duplicate schema id 'http://json-schema.org/draft-04/schema#' encountered.", errors[0].Message);
+            Assert.AreEqual(ErrorType.Id, errors[0].ErrorType);
+            Assert.AreEqual((JSchema)s.ExtensionData["definitions"]["rfType"], errors[0].Schema);
+
+            string expected = @"{
+  ""id"": ""http://json-schema.org/draft-04/schema#"",
+  ""title"": ""Resource Form Schema"",
+  ""description"": ""Core GiS.IDM schema meta-schema"",
+  ""definitions"": {
+    ""positiveInteger"": {
+      ""type"": ""integer"",
+      ""minimum"": 1
+    },
+    ""resFormBodyTypes"": {
+      ""enum"": [
+        ""boolean"",
+        ""integer"",
+        ""timestamp"",
+        ""date"",
+        ""string""
+      ]
+    },
+    ""stringArray"": {
+      ""type"": ""array"",
+      ""items"": {
+        ""type"": ""string""
+      },
+      ""minItems"": 1,
+      ""uniqueItems"": true
+    },
+    ""rfType"": {
+      ""id"": ""http://json-schema.org/draft-04/schema#"",
+      ""title"": ""Resource Form Type Schema"",
+      ""description"": ""Core GiS.IDM schema meta-schema"",
+      ""$schema"": ""http://json-schema.org/draft-04/schema#"",
+      ""type"": ""object"",
+      ""additionalProperties"": false,
+      ""required"": [
+        ""type""
+      ]
+    }
+  },
+  ""type"": ""object"",
+  ""additionalProperties"": false,
+  ""properties"": {
+    ""resFormBody"": {
+      ""type"": ""object"",
+      ""additionalProperties"": false,
+      ""properties"": {
+        ""properties"": {
+          ""type"": ""object"",
+          ""additionalProperties"": false,
+          ""patternProperties"": {
+            ""^[a-z0-9_]+$"": {
+              ""$ref"": ""#""
+            }
+          }
+        }
+      },
+      ""required"": [
+        ""properties""
+      ]
+    }
+  },
+  ""required"": [
+    ""resFormName""
+  ]
+}";
+
+            string writtenJson = s.ToString();
+
+            StringAssert.AreEqual(expected, writtenJson);
+        }
+
+        [Test]
+        public void DuplicateIdInDefinition2()
+        {
+            string schemaJson = @"{
+    ""id"": ""http://json-schema.org/draft-04/schema#"",
+    ""$schema"": ""http://json-schema.org/draft-04/schema#"",
+    ""title"": ""Resource Form Schema"",
+    ""description"": ""Core GiS.IDM schema meta-schema"",
+    ""type"": ""object"",
+    ""properties"": {
+        ""resFormBody1"": {
+            ""id"": ""http://test#"",
+            ""title"": ""Resource Form Type Schema 1"",
+            ""type"": ""object""
+        },
+        ""resFormBody2"": {
+            ""id"": ""http://test#"",
+            ""title"": ""Resource Form Type Schema 2"",
+            ""type"": ""object""
+        },
+        ""resFormBody3"": {
+            ""$ref"": ""http://test#""
+        }
+    },
+    ""required"": [
+        ""resFormName""
+    ],
+    ""additionalProperties"": false
+}";
+
+            List<ValidationError> errors = new List<ValidationError>();
+
+            JSchemaReaderSettings settings = new JSchemaReaderSettings();
+            settings.ValidationEventHandler += (o, e) => errors.Add(e.ValidationError);
+
+            JSchema s = JSchema.Parse(schemaJson, settings);
+
+            Assert.AreEqual(1, errors.Count);
+            Assert.AreEqual("Duplicate schema id 'http://test#' encountered.", errors[0].Message);
+            Assert.AreEqual(ErrorType.Id, errors[0].ErrorType);
+            Assert.AreEqual(s.Properties["resFormBody2"], errors[0].Schema);
+            Assert.AreEqual("http://test#", errors[0].SchemaId.OriginalString);
+
+            Assert.AreEqual(s.Properties["resFormBody1"], s.Properties["resFormBody3"]);
+        }
+
+        [Test]
+        public void InvalidPattern()
+        {
+            string schemaJson = @"{
+    ""id"": ""http://goshes.com/format/schema#"",
+    ""$schema"": ""http://json-schema.org/draft-04/schema#"",
+    ""description"": ""Schema for goshes format"",
+    ""type"": ""array"",
+      ""items"":{
+        ""oneOf"":[
+          {""$ref"": ""#/definitions/SceneInformationInput""}
+        ]
+      },
+
+
+    ""definitions"": {
+
+        ""SceneInformationInput"": {
+
+          ""properties"":{
+                  ""inputId"":{
+                    ""type"":""string"",
+                    ""pattern"": ""^SceneInformationInput$""
+                  },
+                  ""data"":{""$ref"":""#/definitions/SceneInformationData""}
+
+           },
+
+           ""required"":[""inputId"", ""data""],
+
+                  ""additionalProperties"": false
+        } ,
+
+        ""Date"" : {
+           ""type"": ""object"",
+           ""properties"":{
+                ""name"":{
+                   ""type"":""string"",
+                   ""pattern"":""^[0-2][0-9]{3}-((0[1-9])|(1[0-2]))-(([0-2][0-9])|3[0-1]T[0)$""
+                }
+           }
+        },
+
+        ""SceneInformationData"":{
+                ""type"": ""object"",
+            ""properties"":{
+
+                ""name"":{
+                   ""type"":""string""
+                },
+                ""author"":{
+                        ""type"" : ""string""
+                },
+                ""createDate"":{ ""$ref"" : ""#/definitions/Date"" }
+                }
+            },
+
+                ""required"" : [""name"", ""author""]
+        }
+
+    }
+}";
+
+            List<ValidationError> errors = new List<ValidationError>();
+
+            JSchemaReaderSettings settings = new JSchemaReaderSettings();
+            settings.ValidationEventHandler += (o, e) => errors.Add(e.ValidationError);
+
+            JSchema s = JSchema.Parse(schemaJson, settings);
+
+            Assert.AreEqual(1, errors.Count);
+
+            Assert.AreEqual(@"Could not parse regex pattern '^[0-2][0-9]{3}-((0[1-9])|(1[0-2]))-(([0-2][0-9])|3[0-1]T[0)$'. Regex parser error: parsing ""^[0-2][0-9]{3}-((0[1-9])|(1[0-2]))-(([0-2][0-9])|3[0-1]T[0)$"" - Unterminated [] set.", errors[0].Message);
+            Assert.AreEqual(ErrorType.Pattern, errors[0].ErrorType);
+            Assert.AreEqual("http://goshes.com/format/schema#/definitions/Date/properties/name", errors[0].SchemaId.OriginalString);
+            Assert.AreEqual(s.Items[0].OneOf[0].Properties["data"].Properties["createDate"].Properties["name"], errors[0].Schema);
         }
     }
 }

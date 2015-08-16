@@ -99,5 +99,24 @@ namespace Newtonsoft.Json.Schema
         {
             return JSchemaException.FormatMessage(this, Path, Message);
         }
+
+        internal static ValidationError CreateValidationError(string message, ErrorType errorType, JSchema schema, Uri schemaId, object value, IList<ValidationError> childErrors, IJsonLineInfo lineInfo, string path)
+        {
+            ValidationError error = new ValidationError();
+            error.Message = message;
+            error.ErrorType = errorType;
+            error.Path = path;
+            if (lineInfo != null)
+            {
+                error.LineNumber = lineInfo.LineNumber;
+                error.LinePosition = lineInfo.LinePosition;
+            }
+            error.Schema = schema;
+            error.SchemaId = schemaId;
+            error.SchemaBaseUri = schema.BaseUri;
+            error.Value = value;
+            error.ChildErrors = childErrors;
+            return error;
+        }
     }
 }

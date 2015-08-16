@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Utilities;
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
 {
@@ -17,7 +18,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
         private readonly Stack<SchemaPath> _pathStack;
         private readonly List<KnownSchema> _knownSchemas;
 
-        public List<KnownSchema> KnownSchemas
+        public List<ValidationError> ValidationErrors { get; set; }
+
+        public IReadOnlyList<KnownSchema> KnownSchemas
         {
             get { return _knownSchemas; }
         }
@@ -34,13 +37,13 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             _knownSchemas = knownSchemas ?? new List<KnownSchema>();
         }
 
-        public void Discover(JSchema schema, Uri uri)
+        public void Discover(JSchema schema, Uri uri, string path = "#")
         {
             Uri resolvedUri = uri ?? schema.Id ?? new Uri(string.Empty, UriKind.RelativeOrAbsolute);
 
             _pathStack.Push(new SchemaPath(resolvedUri, string.Empty));
 
-            DiscoverInternal(schema, "#");
+            DiscoverInternal(schema, path);
 
             _pathStack.Pop();
         }
@@ -53,27 +56,32 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             if (_knownSchemas.Any(s => s.Schema == schema))
                 return;
 
-            string currentPath;
-            if (schema.Id == null)
-            {
-                Uri currentScopeId = _pathStack.First().Id;
-                currentPath = StringHelpers.Join("/", _pathStack.Where(p => p.Id == currentScopeId && !string.IsNullOrEmpty(p.Path)).Reverse().Select(p => p.Path));
-
-                if (!string.IsNullOrEmpty(currentPath))
-                    currentPath += "/";
-
-                currentPath += latestPath;
-            }
-            else
-            {
-                latestPath = "#";
-                currentPath = "#";
-            }
-
             Uri newScopeId;
-            Uri schemaKnownId = SchemaDiscovery.ResolveSchemaIdAndScopeId(_pathStack.First().Id, schema.Id, currentPath, out newScopeId);
+            Uri schemaKnownId = GetSchemaIdAndNewScopeId(schema, ref latestPath, out newScopeId);
 
+            // check whether a schema with the resolved id is already known
+            // this will be hit when a schema contains duplicate ids or references a schema with a duplicate id
+            KnownSchema existingSchema = _knownSchemas.SingleOrDefault(s => UriComparer.Instance.Equals(s.Id, schemaKnownId));
+
+#if DEBUG
+            if (_knownSchemas.Any(s => s.Schema == schema))
+                throw new InvalidOperationException("Schema with id '{0}' already a known schema.".FormatWith(CultureInfo.InvariantCulture, schemaKnownId));
+#endif
+
+            // add schema to known schemas whether duplicate or not to avoid multiple errors
+            // the first schema with a duplicate id will be used
             _knownSchemas.Add(new KnownSchema(schemaKnownId, schema, _state));
+
+            if (existingSchema != null)
+            {
+                if (ValidationErrors != null)
+                {
+                    ValidationError error = ValidationError.CreateValidationError("Duplicate schema id '{0}' encountered.".FormatWith(CultureInfo.InvariantCulture, schemaKnownId.OriginalString), ErrorType.Id, schema, null, schemaKnownId, null, schema, schema.Path);
+                    ValidationErrors.Add(error);
+                }
+
+                return;
+            }
 
             _pathStack.Push(new SchemaPath(newScopeId, latestPath));
 
@@ -98,6 +106,29 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             DiscoverSchema(Constants.PropertyNames.Not, schema.Not);
 
             _pathStack.Pop();
+        }
+
+        private Uri GetSchemaIdAndNewScopeId(JSchema schema, ref string latestPath, out Uri newScopeId)
+        {
+            string currentPath;
+            if (schema.Id == null)
+            {
+                Uri currentScopeId = _pathStack.First().Id;
+                currentPath = StringHelpers.Join("/", _pathStack.Where(p => p.Id == currentScopeId && !string.IsNullOrEmpty(p.Path)).Reverse().Select(p => p.Path));
+
+                if (!string.IsNullOrEmpty(currentPath))
+                    currentPath += "/";
+
+                currentPath += latestPath;
+            }
+            else
+            {
+                latestPath = "#";
+                currentPath = "#";
+            }
+
+            Uri schemaKnownId = SchemaDiscovery.ResolveSchemaIdAndScopeId(_pathStack.First().Id, schema.Id, currentPath, out newScopeId);
+            return schemaKnownId;
         }
 
         private void DiscoverTokenSchemas(string name, JToken token)

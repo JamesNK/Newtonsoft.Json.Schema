@@ -179,8 +179,18 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
             if (schema.Pattern != null)
             {
-                if (!Regex.IsMatch(value, schema.Pattern))
-                    RaiseError("String '{0}' does not match regex pattern '{1}'.".FormatWith(CultureInfo.InvariantCulture, value, schema.Pattern), ErrorType.Pattern, schema, value, null);
+                Regex regex;
+                string errorMessage;
+
+                if (schema.TryGetPatternRegex(out regex, out errorMessage))
+                {
+                    if (!regex.IsMatch(value))
+                        RaiseError("String '{0}' does not match regex pattern '{1}'.".FormatWith(CultureInfo.InvariantCulture, value, schema.Pattern), ErrorType.Pattern, schema, value, null);
+                }
+                else
+                {
+                    RaiseError("Could not validate string with regex pattern '{0}'. There was an error parsing the regex: {1}".FormatWith(CultureInfo.InvariantCulture, schema.Pattern, errorMessage), ErrorType.Pattern, schema, value, null);
+                }
             }
 
             if (schema.Format != null)

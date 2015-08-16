@@ -18,7 +18,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             return Uri.UnescapeDataString(reference).Replace("~1", "/").Replace("~0", "~");
         }
 
-        public static bool FindSchema(Action<JSchema> setSchema, JSchema schema, Uri rootSchemaId, Uri reference, JSchemaReader schemaReader)
+        public static bool FindSchema(Action<JSchema> setSchema, JSchema schema, Uri rootSchemaId, Uri reference, JSchemaReader schemaReader, ref JSchemaDiscovery discovery)
         {
             // todo, better way to get parts from Uri
             string[] parts = reference.ToString().Split('/');
@@ -167,7 +167,10 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                     }
                     else
                     {
-                        schemaReader.ReadInlineSchema(setSchema, t);
+                        JSchema inlineSchema = schemaReader.ReadInlineSchema(setSchema, t);
+
+                        discovery.Discover(inlineSchema, rootSchemaId, reference.OriginalString);
+
                         resolvedSchema = true;
                     }
                 }
@@ -193,13 +196,13 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             }
             else
             {
-                JSchemaDiscovery discovery = new JSchemaDiscovery();
                 discovery.Discover(schema, null);
 
                 Uri resolvedReference = ResolveSchemaId(rootSchemaId, reference);
 
                 // default Uri comparison ignores fragments
-                KnownSchema knownSchema = discovery.KnownSchemas.SingleOrDefault(s => s.Id.OriginalString.TrimEnd('#') == resolvedReference.OriginalString.TrimEnd('#'));
+                // use firstordefault to handle duplicates
+                KnownSchema knownSchema = discovery.KnownSchemas.FirstOrDefault(s => s.Id.OriginalString.TrimEnd('#') == resolvedReference.OriginalString.TrimEnd('#'));
 
                 if (knownSchema != null)
                 {
@@ -215,7 +218,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                         Uri fragment = new Uri(resolvedReference.OriginalString.Substring(hashIndex), UriKind.RelativeOrAbsolute);
 
                         // default Uri comparison ignores fragments
-                        knownSchema = discovery.KnownSchemas.SingleOrDefault(s => s.Id.OriginalString.TrimEnd('#') == path.OriginalString);
+                        // there could be duplicated ids. use FirstOrDefault to get first schema with an id
+                        knownSchema = discovery.KnownSchemas.FirstOrDefault(s => s.Id.OriginalString.TrimEnd('#') == path.OriginalString);
 
                         if (knownSchema != null)
                         {
@@ -225,7 +229,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                                 || !UriComparer.Instance.Equals(rootSchemaId, path)
                                 || !UriComparer.Instance.Equals(reference, fragment))
                             {
-                                resolvedSchema = FindSchema(setSchema, knownSchema.Schema, path, fragment, schemaReader);
+                                resolvedSchema = FindSchema(setSchema, knownSchema.Schema, path, fragment, schemaReader, ref discovery);
                             }
                             else
                             {

@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Text.RegularExpressions;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema.Infrastructure;
 using Newtonsoft.Json.Utilities;
@@ -37,6 +38,9 @@ namespace Newtonsoft.Json.Schema
         private int _linePosition;
         internal Uri BaseUri;
         internal string Path;
+        private string _pattern;
+        private Regex _patternRegex;
+        private string _patternError;
 
         /// <summary>
         /// Gets or sets the schema ID.
@@ -356,7 +360,53 @@ namespace Newtonsoft.Json.Schema
         /// Gets or sets the pattern.
         /// </summary>
         /// <value>The pattern.</value>
-        public string Pattern { get; set; }
+        public string Pattern
+        {
+            get { return _pattern; }
+            set
+            {
+                if (value != _pattern)
+                {
+                    // clear cached regex when pattern changes
+                    _patternRegex = null;
+                    _patternError = null;
+                    _pattern = value;
+                }
+            }
+        }
+
+        internal bool TryGetPatternRegex(out Regex regex, out string errorMessage)
+        {
+            if (_patternRegex == null)
+            {
+                if (_patternError != null)
+                {
+                    regex = null;
+                    errorMessage = _patternError;
+                    return false;
+                }
+
+                if (_pattern == null)
+                    throw new InvalidOperationException("Cannot get pattern regex, pattern has not been set.");
+
+                try
+                {
+                    _patternRegex = new Regex(_pattern);
+                }
+                catch (Exception ex)
+                {
+                    _patternError = ex.Message;
+
+                    regex = null;
+                    errorMessage = _patternError;
+                    return false;
+                }
+            }
+
+            regex = _patternRegex;
+            errorMessage = null;
+            return true;
+        }
 
         /// <summary>
         /// Gets the object property dependencies.

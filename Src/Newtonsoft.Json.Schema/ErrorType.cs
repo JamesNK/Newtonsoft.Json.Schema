@@ -131,6 +131,11 @@ namespace Newtonsoft.Json.Schema
         /// A 'format' error.
         /// </summary>
         [EnumMember(Value = "format")]
-        Format = 23
+        Format = 23,
+        /// <summary>
+        /// An 'id' error.
+        /// </summary>
+        [EnumMember(Value = "id")]
+        Id = 24
     }
 }
