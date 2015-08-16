@@ -1905,8 +1905,6 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             string schemaJson = @"{
     ""id"": ""http://json-schema.org/draft-04/schema#"",
     ""$schema"": ""http://json-schema.org/draft-04/schema#"",
-    ""title"": ""Resource Form Schema"",
-    ""description"": ""Core GiS.IDM schema meta-schema"",
     ""definitions"": {
         ""positiveInteger"": {
             ""type"": ""integer"",
@@ -1932,8 +1930,6 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         ""rfType"": {
             ""id"": ""http://json-schema.org/draft-04/schema#"",
             ""$schema"": ""http://json-schema.org/draft-04/schema#"",
-            ""title"": ""Resource Form Type Schema"",
-            ""description"": ""Core GiS.IDM schema meta-schema"",
             ""type"": ""object"",
             ""properties"": {
             },
@@ -1982,8 +1978,6 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 
             string expected = @"{
   ""id"": ""http://json-schema.org/draft-04/schema#"",
-  ""title"": ""Resource Form Schema"",
-  ""description"": ""Core GiS.IDM schema meta-schema"",
   ""definitions"": {
     ""positiveInteger"": {
       ""type"": ""integer"",
@@ -2008,8 +2002,6 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
     },
     ""rfType"": {
       ""id"": ""http://json-schema.org/draft-04/schema#"",
-      ""title"": ""Resource Form Type Schema"",
-      ""description"": ""Core GiS.IDM schema meta-schema"",
       ""$schema"": ""http://json-schema.org/draft-04/schema#"",
       ""type"": ""object"",
       ""additionalProperties"": false,
@@ -2172,6 +2164,42 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             Assert.AreEqual(ErrorType.Pattern, errors[0].ErrorType);
             Assert.AreEqual("http://goshes.com/format/schema#/definitions/Date/properties/name", errors[0].SchemaId.OriginalString);
             Assert.AreEqual(s.Items[0].OneOf[0].Properties["data"].Properties["createDate"].Properties["name"], errors[0].Schema);
+        }
+
+        [Test]
+        public void InvalidPattern2()
+        {
+            string schemaJson = @"{
+	""title"": ""JSON schema for DNX project.json files"",
+	""$schema"": ""http://json-schema.org/draft-04/schema#"",
+
+	""type"": ""object"",
+
+	""properties"": {
+		""authors"": {
+			""type"": ""array"",
+			""items"": {
+				""type"": ""string"",
+				""uniqueItems"": true,
+                ""pattern"":""[]""
+			}
+		}
+	}
+}";
+
+            List<ValidationError> errors = new List<ValidationError>();
+
+            JSchemaReaderSettings settings = new JSchemaReaderSettings();
+            settings.ValidationEventHandler += (o, e) => errors.Add(e.ValidationError);
+
+            JSchema s = JSchema.Parse(schemaJson, settings);
+
+            Assert.AreEqual(1, errors.Count);
+
+            Assert.AreEqual(@"Could not parse regex pattern '[]'. Regex parser error: parsing ""[]"" - Unterminated [] set.", errors[0].Message);
+            Assert.AreEqual(ErrorType.Pattern, errors[0].ErrorType);
+            Assert.AreEqual("#/properties/authors/items/0", errors[0].SchemaId.OriginalString);
+            Assert.AreEqual(s.Properties["authors"].Items[0], errors[0].Schema);
         }
     }
 }
