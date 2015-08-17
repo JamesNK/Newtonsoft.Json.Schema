@@ -94,7 +94,14 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             if (resolveDeferedSchemas)
                 ResolveDeferedSchemas();
 
-            if (_validationErrors != null)
+            RaiseValidationErrors();
+
+            return RootSchema;
+        }
+
+        public void RaiseValidationErrors()
+        {
+            if (_validationErrors != null && _validationErrors.Count > 0)
             {
                 if (_schemaDiscovery.KnownSchemas.Count == 0)
                     _schemaDiscovery.Discover(RootSchema, null);
@@ -107,9 +114,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
                     _validationEventHandler(this, new SchemaValidationEventArgs(error));
                 }
-            }
 
-            return RootSchema;
+                _validationErrors.Clear();
+            }
         }
 
         private bool EnsureVersion(SchemaVersion minimum)
@@ -796,8 +803,10 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             JSchemaReaderSettings settings = new JSchemaReaderSettings
             {
                 BaseUri = schemaReference.BaseUri,
-                Resolver = _resolver
+                Resolver = _resolver,
+                ValidateVersion = _validateSchema
             };
+            settings.SetValidationEventHandler(_validationEventHandler);
             JSchemaReader schemaReader = new JSchemaReader(settings);
 
             schemaReader.Cache = Cache;
@@ -807,6 +816,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             using (JsonTextReader jsonReader = new JsonTextReader(streamReader))
             {
                 rootSchema = schemaReader.ReadRoot(jsonReader, false);
+                rootSchema.InternalReader = schemaReader;
             }
 
             Cache[schemaReference.BaseUri] = rootSchema;

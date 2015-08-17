@@ -42,5 +42,10 @@ namespace Newtonsoft.Json.Schema
         {
             return _validationEventHandler;
         }
+
+        internal void SetValidationEventHandler(SchemaValidationEventHandler handler)
+        {
+            _validationEventHandler = handler;
+        }
     }
 }

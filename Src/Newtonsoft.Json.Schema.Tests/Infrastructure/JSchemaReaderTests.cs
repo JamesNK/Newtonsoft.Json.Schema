@@ -2201,5 +2201,110 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             Assert.AreEqual("#/properties/authors/items/0", errors[0].SchemaId.OriginalString);
             Assert.AreEqual(s.Properties["authors"].Items[0], errors[0].Schema);
         }
+
+        [Test]
+        public void InvalidPatternInResolvedSchema()
+        {
+            string schemaJson = @"{
+	""title"": ""JSON schema for DNX project.json files"",
+	""$schema"": ""http://json-schema.org/draft-04/schema#"",
+
+	""type"": ""object"",
+
+	""properties"": {
+		""authors"": {
+			""$ref"": ""http://test#""
+		}
+	}
+}";
+
+            string resolvedSchemaJson = @"{
+	""id"": ""http://test#"",
+	""$schema"": ""http://json-schema.org/draft-04/schema#"",
+
+	""properties"": {
+		""name"": {
+	        ""type"": ""string"",
+	        ""uniqueItems"": true,
+            ""pattern"":""[]""
+		}
+	}
+}";
+
+            JSchemaPreloadedResolver resolver = new JSchemaPreloadedResolver();
+            resolver.Add(new Uri("http://test"), resolvedSchemaJson);
+
+            List<ValidationError> errors = new List<ValidationError>();
+
+            JSchemaReaderSettings settings = new JSchemaReaderSettings();
+            settings.Resolver = resolver;
+            settings.ValidationEventHandler += (o, e) => errors.Add(e.ValidationError);
+
+            JSchema s = JSchema.Parse(schemaJson, settings);
+
+            Assert.AreEqual(1, errors.Count);
+
+            Assert.AreEqual(@"Could not parse regex pattern '[]'. Regex parser error: parsing ""[]"" - Unterminated [] set.", errors[0].Message);
+            Assert.AreEqual(ErrorType.Pattern, errors[0].ErrorType);
+            Assert.AreEqual("http://test/#/properties/name", errors[0].SchemaId.OriginalString);
+            Assert.AreEqual(s.Properties["authors"].Properties["name"], errors[0].Schema);
+        }
+
+        [Test]
+        public void InvalidPatternInDeferredResolvedSchema()
+        {
+            string schemaJson = @"{
+	""title"": ""JSON schema for DNX project.json files"",
+	""$schema"": ""http://json-schema.org/draft-04/schema#"",
+
+	""type"": ""object"",
+
+	""properties"": {
+		""authors"": {
+			""$ref"": ""http://test#/definitions/authors""
+		},
+		""authors2"": {
+			""pattern"":""[]""
+		}
+	}
+}";
+
+            string resolvedSchemaJson = @"{
+	""id"": ""http://test#"",
+	""$schema"": ""http://json-schema.org/draft-04/schema#"",
+
+	""definitions"": {
+		""authors"": {
+			""type"": ""array"",
+			""items"": {
+				""type"": ""string"",
+				""uniqueItems"": true,
+                ""pattern"":""[]""
+			}
+		}
+    }
+}";
+
+            JSchemaPreloadedResolver resolver = new JSchemaPreloadedResolver();
+            resolver.Add(new Uri("http://test"), resolvedSchemaJson);
+
+            List<ValidationError> errors = new List<ValidationError>();
+
+            JSchemaReaderSettings settings = new JSchemaReaderSettings();
+            settings.Resolver = resolver;
+            settings.ValidationEventHandler += (o, e) => errors.Add(e.ValidationError);
+
+            JSchema s = JSchema.Parse(schemaJson, settings);
+
+            Assert.AreEqual(2, errors.Count);
+
+            Assert.AreEqual(@"Could not parse regex pattern '[]'. Regex parser error: parsing ""[]"" - Unterminated [] set.", errors[0].Message);
+            Assert.AreEqual(ErrorType.Pattern, errors[0].ErrorType);
+            Assert.AreEqual("http://test/#/definitions/authors/items/0", errors[0].SchemaId.OriginalString);
+            Assert.AreEqual(s.Properties["authors"].Items[0], errors[0].Schema);
+            Assert.AreEqual("http://test", errors[0].Schema.BaseUri.OriginalString);
+
+            Assert.AreEqual(null, errors[1].Schema.BaseUri);
+        }
     }
 }

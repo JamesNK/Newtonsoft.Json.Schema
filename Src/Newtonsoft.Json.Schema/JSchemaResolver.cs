@@ -107,12 +107,16 @@ namespace Newtonsoft.Json.Schema
             Uri rootSchemaId = reference.BaseUri;
             Uri subschemaId = reference.SubschemaId;
 
-            JSchemaReader resolverSchemaReader = new JSchemaReader(new JSchemaReaderSettings
+            JSchemaReader resolverSchemaReader = rootSchema.InternalReader;
+            if (resolverSchemaReader == null)
             {
-                Resolver = this,
-                BaseUri = rootSchema.BaseUri
-            });
-            resolverSchemaReader.RootSchema = rootSchema;
+                resolverSchemaReader = new JSchemaReader(new JSchemaReaderSettings
+                {
+                    Resolver = this,
+                    BaseUri = rootSchema.BaseUri
+                });
+                resolverSchemaReader.RootSchema = rootSchema;
+            }
 
             JSchema subSchema = null;
 
@@ -121,6 +125,7 @@ namespace Newtonsoft.Json.Schema
             if (subSchema != null)
             {
                 resolverSchemaReader.ResolveDeferedSchemas();
+                resolverSchemaReader.RaiseValidationErrors();
 
                 return subSchema;
             }

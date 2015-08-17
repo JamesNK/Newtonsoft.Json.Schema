@@ -22,6 +22,7 @@ namespace Newtonsoft.Json.Schema
     {
         internal Uri Reference { get; set; }
         internal bool DeprecatedRequired { get; set; }
+        internal JSchemaReader InternalReader { get; set; }
 
         internal Dictionary<string, JToken> _extensionData;
         internal List<JSchema> _items;
