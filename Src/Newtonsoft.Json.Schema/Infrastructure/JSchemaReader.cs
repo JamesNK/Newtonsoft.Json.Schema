@@ -101,7 +101,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         public void RaiseValidationErrors()
         {
-            if (_validationErrors != null && _validationErrors.Count > 0)
+            if (_validationErrors != null)
             {
                 if (_schemaDiscovery.KnownSchemas.Count == 0)
                     _schemaDiscovery.Discover(RootSchema, null);

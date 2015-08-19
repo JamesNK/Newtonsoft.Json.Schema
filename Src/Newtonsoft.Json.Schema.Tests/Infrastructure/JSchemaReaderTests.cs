@@ -2306,5 +2306,473 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 
             Assert.AreEqual(null, errors[1].Schema.BaseUri);
         }
+
+        [Test]
+        public void DuplicatedIdMultipleTimes()
+        {
+            string schemaJson = @"{
+  ""$schema"": ""http://json-schema.org/draft-04/schema#"",
+  ""id"": ""/"",
+  ""type"": ""object"",
+  ""properties"": {
+    ""state"": {
+      ""id"": ""state"",
+      ""type"": ""string""
+    },
+    ""hotelData"": {
+      ""id"": ""hotelData"",
+      ""type"": ""object"",
+      ""properties"": {
+        ""id"": {
+          ""id"": ""id"",
+          ""type"": ""integer""
+        },
+        ""name"": {
+          ""id"": ""name"",
+          ""type"": ""string""
+        },
+        ""address"": {
+          ""id"": ""address"",
+          ""type"": ""string""
+        },
+        ""zip"": {
+          ""id"": ""zip"",
+          ""type"": ""string""
+        },
+        ""city"": {
+          ""id"": ""city"",
+          ""type"": ""string""
+        },
+        ""phone"": {
+          ""id"": ""phone"",
+          ""type"": ""string""
+        },
+        ""category"": {
+          ""id"": ""category"",
+          ""type"": ""integer""
+        },
+        ""superior"": {
+          ""id"": ""superior"",
+          ""type"": ""boolean""
+        },
+        ""homepage"": {
+          ""id"": ""homepage"",
+          ""type"": ""string""
+        },
+        ""offers"": {
+          ""id"": ""offers"",
+          ""type"": ""array"",
+          ""items"": {
+            ""id"": ""215"",
+            ""type"": ""object"",
+            ""properties"": {
+              ""prepaidRate"": {
+                ""id"": ""prepaidRate"",
+                ""type"": ""integer""
+              },
+              ""description"": {
+                ""id"": ""description"",
+                ""type"": ""string""
+              },
+              ""requiresCreditCard"": {
+                ""id"": ""requiresCreditCard"",
+                ""type"": ""integer""
+              },
+              ""price"": {
+                ""id"": ""price"",
+                ""type"": ""object"",
+                ""properties"": {
+                  ""euroValue"": {
+                    ""id"": ""euroValue"",
+                    ""type"": ""integer""
+                  },
+                  ""value"": {
+                    ""id"": ""value"",
+                    ""type"": ""integer""
+                  },
+                  ""currency"": {
+                    ""id"": ""currency"",
+                    ""type"": ""string""
+                  },
+                  ""native"": {
+                    ""id"": ""native"",
+                    ""type"": ""string""
+                  }
+                }
+              },
+              ""roomType"": {
+                ""id"": ""roomType"",
+                ""type"": ""string""
+              },
+              ""partnerId"": {
+                ""id"": ""partnerId"",
+                ""type"": ""integer""
+              },
+              ""partnerReferenceId"": {
+                ""id"": ""partnerReferenceId"",
+                ""type"": ""string""
+              },
+              ""link"": {
+                ""id"": ""link"",
+                ""type"": ""string""
+              },
+              ""expressBookingLink"": {
+                ""id"": ""expressBookingLink"",
+                ""type"": ""string""
+              },
+              ""breakfastPrice"": {
+                ""id"": ""breakfastPrice"",
+                ""type"": ""string""
+              },
+              ""breakfastIncluded"": {
+                ""id"": ""breakfastIncluded"",
+                ""type"": ""integer""
+              },
+              ""roomsLeftForDeal"": {
+                ""id"": ""roomsLeftForDeal"",
+                ""type"": ""integer""
+              },
+              ""payLater"": {
+                ""id"": ""payLater"",
+                ""type"": ""integer""
+              },
+              ""cancellable"": {
+                ""id"": ""cancellable"",
+                ""type"": ""integer""
+              }
+            }
+          }
+        },
+        ""overallLiking"": {
+          ""id"": ""overallLiking"",
+          ""type"": ""integer""
+        },
+        ""imageUrl"": {
+          ""id"": ""imageUrl"",
+          ""type"": ""string""
+        },
+        ""imageSquareUrl"": {
+          ""id"": ""imageSquareUrl"",
+          ""type"": ""string""
+        },
+        ""contentStats"": {
+          ""id"": ""contentStats"",
+          ""type"": ""object"",
+          ""properties"": {
+            ""countOpinion"": {
+              ""id"": ""countOpinion"",
+              ""type"": ""integer""
+            },
+            ""countPartner"": {
+              ""id"": ""countPartner"",
+              ""type"": ""integer""
+            },
+            ""countImage"": {
+              ""id"": ""countImage"",
+              ""type"": ""integer""
+            },
+            ""countDescription"": {
+              ""id"": ""countDescription"",
+              ""type"": ""integer""
+            }
+          }
+        },
+        ""partnerRatings"": {
+          ""id"": ""partnerRatings"",
+          ""type"": ""array"",
+          ""items"": {
+            ""type"": ""object"",
+            ""properties"": {
+              ""partnerName"": {
+                ""id"": ""partnerName"",
+                ""type"": ""string""
+              },
+              ""partnerId"": {
+                ""id"": ""partnerId"",
+                ""type"": ""integer""
+              },
+              ""overallLiking"": {
+                ""id"": ""overallLiking"",
+                ""type"": ""integer""
+              },
+              ""partnerRating"": {
+                ""id"": ""partnerRating"",
+                ""type"": [
+                  ""integer"",
+                  ""null""
+                ]
+              },
+              ""partnerMaxRating"": {
+                ""id"": ""partnerMaxRating"",
+                ""type"": ""integer""
+              },
+              ""reviewCount"": {
+                ""id"": ""reviewCount"",
+                ""type"": ""integer""
+              },
+              ""url"": {
+                ""id"": ""url"",
+                ""type"": ""string""
+              }
+            }
+          }
+        },
+        ""ratings"": {
+          ""id"": ""ratings"",
+          ""type"": ""array"",
+          ""items"": {}
+        },
+        ""fields"": {
+          ""id"": ""fields"",
+          ""type"": ""array"",
+          ""items"": {
+            ""id"": ""67"",
+            ""type"": ""object"",
+            ""properties"": {
+              ""group"": {
+                ""id"": ""group"",
+                ""type"": ""string""
+              },
+              ""group_id"": {
+                ""id"": ""group_id"",
+                ""type"": ""integer""
+              },
+              ""field"": {
+                ""id"": ""field"",
+                ""type"": ""string""
+              },
+              ""field_id"": {
+                ""id"": ""field_id"",
+                ""type"": ""integer""
+              },
+              ""label"": {
+                ""id"": ""label"",
+                ""type"": ""string""
+              },
+              ""label_id"": {
+                ""id"": ""label_id"",
+                ""type"": ""integer""
+              }
+            }
+          }
+        },
+        ""description"": {
+          ""id"": ""description"",
+          ""type"": ""string""
+        },
+        ""images"": {
+          ""id"": ""images"",
+          ""type"": ""array"",
+          ""items"": {
+            ""id"": ""24"",
+            ""type"": ""object"",
+            ""properties"": {
+              ""urlSmall"": {
+                ""id"": ""urlSmall"",
+                ""type"": ""string""
+              },
+              ""urlMedium"": {
+                ""id"": ""urlMedium"",
+                ""type"": ""string""
+              },
+              ""urlBig"": {
+                ""id"": ""urlBig"",
+                ""type"": ""string""
+              },
+              ""urlExtraBig"": {
+                ""id"": ""urlExtraBig"",
+                ""type"": ""string""
+              }
+            }
+          }
+        },
+        ""numberOfImages"": {
+          ""id"": ""numberOfImages"",
+          ""type"": ""integer""
+        },
+        ""location"": {
+          ""id"": ""location"",
+          ""type"": ""object"",
+          ""properties"": {
+            ""id"": {
+              ""id"": ""id"",
+              ""type"": ""integer""
+            },
+            ""name"": {
+              ""id"": ""name"",
+              ""type"": ""string""
+            },
+            ""coords"": {
+              ""id"": ""coords"",
+              ""type"": ""object"",
+              ""properties"": {
+                ""longitude"": {
+                  ""id"": ""longitude"",
+                  ""type"": ""number""
+                },
+                ""latitude"": {
+                  ""id"": ""latitude"",
+                  ""type"": ""number""
+                }
+              }
+            }
+          }
+        },
+        ""numberOfReviews"": {
+          ""id"": ""numberOfReviews"",
+          ""type"": ""integer""
+        },
+        ""isBookmark"": {
+          ""id"": ""isBookmark"",
+          ""type"": ""boolean""
+        }
+      }
+    },
+    ""partners"": {
+      ""id"": ""partners"",
+      ""type"": ""array"",
+      ""items"": {
+        ""id"": ""14"",
+        ""type"": ""object"",
+        ""properties"": {
+          ""id"": {
+            ""id"": ""id"",
+            ""type"": ""integer""
+          },
+          ""name"": {
+            ""id"": ""name"",
+            ""type"": ""string""
+          },
+          ""state"": {
+            ""id"": ""state"",
+            ""type"": ""string""
+          },
+          ""imgSizeSColored"": {
+            ""id"": ""imgSizeSColored"",
+            ""type"": ""string""
+          },
+          ""imgSizeSGrayscale"": {
+            ""id"": ""imgSizeSGrayscale"",
+            ""type"": ""string""
+          },
+          ""imgSizeMXColored"": {
+            ""id"": ""imgSizeMXColored"",
+            ""type"": ""string""
+          }
+        }
+      }
+    },
+    ""resultInfo"": {
+      ""id"": ""resultInfo"",
+      ""type"": ""object"",
+      ""properties"": {
+        ""resultCount"": {
+          ""id"": ""resultCount"",
+          ""type"": ""integer""
+        },
+        ""orderBy"": {
+          ""id"": ""orderBy"",
+          ""type"": ""object"",
+          ""properties"": {
+            ""type"": {
+              ""id"": ""type"",
+              ""type"": ""string""
+            },
+            ""flag"": {
+              ""id"": ""flag"",
+              ""type"": ""string""
+            }
+          }
+        },
+        ""paging"": {
+          ""id"": ""paging"",
+          ""type"": ""object"",
+          ""properties"": {
+            ""limit"": {
+              ""id"": ""limit"",
+              ""type"": ""integer""
+            },
+            ""offset"": {
+              ""id"": ""offset"",
+              ""type"": ""integer""
+            }
+          }
+        }
+      }
+    },
+    ""pathInfo"": {
+      ""id"": ""pathInfo"",
+      ""type"": ""object"",
+      ""properties"": {
+        ""isPath"": {
+          ""id"": ""isPath"",
+          ""type"": ""boolean""
+        },
+        ""isCity"": {
+          ""id"": ""isCity"",
+          ""type"": ""boolean""
+        },
+        ""path"": {
+          ""id"": ""path"",
+          ""type"": ""object"",
+          ""properties"": {
+            ""id"": {
+              ""id"": ""id"",
+              ""type"": ""integer""
+            },
+            ""name"": {
+              ""id"": ""name"",
+              ""type"": ""string""
+            },
+            ""coords"": {
+              ""id"": ""coords"",
+              ""type"": ""object"",
+              ""properties"": {
+                ""longitude"": {
+                  ""id"": ""longitude"",
+                  ""type"": ""number""
+                },
+                ""latitude"": {
+                  ""id"": ""latitude"",
+                  ""type"": ""number""
+                }
+              }
+            }
+          }
+        },
+        ""coords"": {
+          ""id"": ""coords"",
+          ""type"": ""null""
+        }
+      }
+    },
+    ""activeTests"": {
+      ""id"": ""activeTests"",
+      ""type"": ""array"",
+      ""items"": {
+        ""type"": ""integer""
+      }
+    }
+  },
+  ""required"": [
+    ""state"",
+    ""hotelData"",
+    ""partners"",
+    ""resultInfo"",
+    ""pathInfo"",
+    ""activeTests""
+  ]
+}";
+
+            List<ValidationError> errors = new List<ValidationError>();
+
+            JSchemaReaderSettings settings = new JSchemaReaderSettings();
+            settings.ValidationEventHandler += (o, e) => errors.Add(e.ValidationError);
+
+            JSchema.Parse(schemaJson, settings);
+
+            Assert.AreEqual(12, errors.Count);
+            Assert.AreEqual("Duplicate schema id 'partnerId' encountered.", errors[0].Message);
+        }
     }
 }

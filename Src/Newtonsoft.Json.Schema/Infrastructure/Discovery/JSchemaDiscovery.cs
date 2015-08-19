@@ -61,7 +61,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
 
             // check whether a schema with the resolved id is already known
             // this will be hit when a schema contains duplicate ids or references a schema with a duplicate id
-            KnownSchema existingSchema = _knownSchemas.SingleOrDefault(s => UriComparer.Instance.Equals(s.Id, schemaKnownId));
+            bool existingSchema = _knownSchemas.Any(s => UriComparer.Instance.Equals(s.Id, schemaKnownId));
 
 #if DEBUG
             if (_knownSchemas.Any(s => s.Schema == schema))
@@ -72,7 +72,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             // the first schema with a duplicate id will be used
             _knownSchemas.Add(new KnownSchema(schemaKnownId, schema, _state));
 
-            if (existingSchema != null)
+            if (existingSchema)
             {
                 if (ValidationErrors != null)
                 {
