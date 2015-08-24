@@ -31,7 +31,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 _readProperties = new List<string>();
 
                 if (schema._dependencies.Values.OfType<JSchema>().Any())
-                    _dependencyScopes = new Dictionary<string, SchemaScope>();
+                    _dependencyScopes = new Dictionary<string, SchemaScope>(StringComparer.Ordinal);
             }
         }
 
@@ -156,14 +156,14 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
         private bool IsPropertyDefinied(JSchema schema, string propertyName)
         {
-            if (schema.Properties != null && schema.Properties.ContainsKey(propertyName))
+            if (schema._properties != null && schema._properties.ContainsKey(propertyName))
                 return true;
 
-            if (schema.PatternProperties != null)
+            if (schema._patternProperties != null)
             {
-                foreach (string pattern in schema.PatternProperties.Keys)
+                foreach (KeyValuePair<string, PatternSchema> patternSchema in schema._patternProperties.GetPatternSchemas())
                 {
-                    if (Regex.IsMatch(propertyName, pattern))
+                    if (Regex.IsMatch(propertyName, patternSchema.Key))
                         return true;
                 }
             }
