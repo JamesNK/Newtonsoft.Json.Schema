@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using Newtonsoft.Json.Schema.Infrastructure;
 
-namespace Newtonsoft.Json.Schema
+namespace Newtonsoft.Json.Schema.Infrastructure
 {
     internal class PatternSchema
     {

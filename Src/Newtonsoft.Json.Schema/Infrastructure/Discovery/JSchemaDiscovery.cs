@@ -134,7 +134,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             }
             else
             {
-                bool parentHash = _pathStack.Any(p => p.Id == currentScopeId && p.Path != null && p.Path.Contains('#'));
+                bool parentHash = _pathStack.Any(p => p.Id == currentScopeId && p.Path != null && p.Path.IndexOf('#') != -1);
                 if (parentHash)
                 {
                     latestPath = string.Empty;

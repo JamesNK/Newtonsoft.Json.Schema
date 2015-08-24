@@ -64,6 +64,8 @@
     <Compile Include="Infrastructure\Licensing\LicenseHelpers.cs" />
     <Compile Include="Infrastructure\Licensing\LicenseType.cs" />
     <Compile Include="Infrastructure\Licensing\ReleaseDateAttribute.cs" />
+    <Compile Include="Infrastructure\PatternPropertyDictionary.cs" />
+    <Compile Include="Infrastructure\RegexHelpers.cs" />
     <Compile Include="Infrastructure\StreamHelpers.cs" />
     <Compile Include="Infrastructure\StringHelpers.cs" />
     <Compile Include="Infrastructure\Timer.cs" />
