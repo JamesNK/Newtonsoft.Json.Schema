@@ -103,8 +103,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         {
             if (_validationErrors != null)
             {
-                if (_schemaDiscovery.KnownSchemas.Count == 0)
-                    _schemaDiscovery.Discover(RootSchema, null);
+                _schemaDiscovery.Discover(RootSchema, null);
 
                 foreach (ValidationError error in _validationErrors)
                 {
@@ -925,6 +924,20 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 case Constants.PropertyNames.PatternProperties:
                     schema._patternProperties = new PatternPropertyDictionary();
                     ReadProperties(reader, schema._patternProperties);
+                    
+                    if (_validationErrors != null)
+                    {
+                        foreach (PatternSchema patternProperty in schema._patternProperties.GetPatternSchemas())
+                        {
+                            Regex patternRegex;
+                            string errorMessage;
+                            if (!patternProperty.TryGetPatternRegex(out patternRegex, out errorMessage))
+                            {
+                                ValidationError error = ValidationError.CreateValidationError("Could not parse regex pattern '{0}'. Regex parser error: {1}".FormatWith(CultureInfo.InvariantCulture, patternProperty.Pattern, errorMessage), ErrorType.Pattern, schema, null, patternProperty.Pattern, null, schema, schema.Path);
+                                _validationErrors.Add(error);
+                            }
+                        }
+                    }
                     break;
                 case Constants.PropertyNames.Required:
                     ReadRequired(reader, schema);

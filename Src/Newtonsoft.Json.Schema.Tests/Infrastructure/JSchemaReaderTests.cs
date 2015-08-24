@@ -2774,5 +2774,41 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             Assert.AreEqual(12, errors.Count);
             Assert.AreEqual("Duplicate schema id 'partnerId' encountered.", errors[0].Message);
         }
+
+        [Test]
+        public void InvalidPatternPropertyRegex()
+        {
+            string schemaJson = @"{
+  ""$schema"": ""http://json-schema.org/draft-04/schema"",
+  ""definitions"": {
+    ""pais"": {
+      ""type"": ""object""
+    }
+  },
+  ""properties"": {
+    ""$schema"": {
+      ""type"": ""string""
+    },
+    ""paises"": {
+      ""patternProperties"": {
+        ""[]"": {
+          ""$ref"": ""#/definitions/pais""
+        }
+      }
+    }
+  }
+}";
+
+            List<ValidationError> errors = new List<ValidationError>();
+
+            JSchemaReaderSettings settings = new JSchemaReaderSettings();
+            settings.ValidationEventHandler += (o, e) => errors.Add(e.ValidationError);
+
+            JSchema.Parse(schemaJson, settings);
+
+            Assert.AreEqual(1, errors.Count);
+            Assert.AreEqual(@"Could not parse regex pattern '[]'. Regex parser error: parsing ""[]"" - Unterminated [] set.", errors[0].Message);
+            Assert.AreEqual(new Uri("#/properties/paises", UriKind.Relative), errors[0].SchemaId);
+        }
     }
 }

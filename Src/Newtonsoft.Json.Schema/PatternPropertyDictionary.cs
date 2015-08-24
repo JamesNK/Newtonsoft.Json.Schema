@@ -16,6 +16,11 @@ namespace Newtonsoft.Json.Schema
         private Regex _patternRegex;
         private string _patternError;
 
+        public string Pattern
+        {
+            get { return _pattern; }
+        }
+
         public JSchema Schema
         {
             get { return _schema; }
@@ -46,9 +51,9 @@ namespace Newtonsoft.Json.Schema
             _inner = new Dictionary<string, PatternSchema>(StringComparer.Ordinal);
         }
 
-        public IEnumerable<KeyValuePair<string, PatternSchema>> GetPatternSchemas()
+        public IEnumerable<PatternSchema> GetPatternSchemas()
         {
-            return _inner;
+            return _inner.Values;
         }
 
         public IEnumerator<KeyValuePair<string, JSchema>> GetEnumerator()

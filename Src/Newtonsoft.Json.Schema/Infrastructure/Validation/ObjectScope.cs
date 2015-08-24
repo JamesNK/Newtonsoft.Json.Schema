@@ -88,6 +88,23 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                                 }
                             }
                         }
+
+                        if (Schema._patternProperties != null)
+                        {
+                            foreach (PatternSchema patternSchema in Schema._patternProperties.GetPatternSchemas())
+                            {
+                                Regex regex;
+                                string errorMessage;
+                                if (!patternSchema.TryGetPatternRegex(out regex, out errorMessage))
+                                {
+                                    RaiseError("Could not test property names with regex pattern '{0}'. There was an error parsing the regex: {1}".FormatWith(CultureInfo.InvariantCulture, patternSchema.Pattern, errorMessage),
+                                        ErrorType.Pattern,
+                                        Schema,
+                                        patternSchema.Pattern,
+                                        null);
+                                }
+                            }
+                        }
                         return true;
                     default:
                         throw new InvalidOperationException("Unexpected token when evaluating object: " + token);
@@ -132,12 +149,17 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
                         if (Schema._patternProperties != null)
                         {
-                            foreach (KeyValuePair<string, JSchema> patternProperty in Schema._patternProperties)
+                            foreach (PatternSchema patternProperty in Schema._patternProperties.GetPatternSchemas())
                             {
-                                if (Regex.IsMatch(_currentPropertyName, patternProperty.Key))
+                                Regex regex;
+                                string errorMessage;
+                                if (patternProperty.TryGetPatternRegex(out regex, out errorMessage))
                                 {
-                                    CreateScopesAndEvaluateToken(token, value, depth, patternProperty.Value);
-                                    matched = true;
+                                    if (regex.IsMatch(_currentPropertyName))
+                                    {
+                                        CreateScopesAndEvaluateToken(token, value, depth, patternProperty.Schema);
+                                        matched = true;
+                                    }
                                 }
                             }
                         }
@@ -145,7 +167,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                         if (!matched)
                         {
                             if (Schema.AllowAdditionalProperties && Schema.AdditionalProperties != null)
+                            {
                                 CreateScopesAndEvaluateToken(token, value, depth, Schema.AdditionalProperties);
+                            }
                         }
                     }
                 }
@@ -161,10 +185,20 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
             if (schema._patternProperties != null)
             {
-                foreach (KeyValuePair<string, PatternSchema> patternSchema in schema._patternProperties.GetPatternSchemas())
+                foreach (PatternSchema patternSchema in schema._patternProperties.GetPatternSchemas())
                 {
-                    if (Regex.IsMatch(propertyName, patternSchema.Key))
-                        return true;
+                    Regex regex;
+                    string errorMessage;
+                    if (patternSchema.TryGetPatternRegex(out regex, out errorMessage))
+                    {
+                        if (regex.IsMatch(_currentPropertyName))
+                        {
+                            if (Regex.IsMatch(propertyName, patternSchema.Pattern))
+                            {
+                                return true;
+                            }
+                        }
+                    }
                 }
             }
 

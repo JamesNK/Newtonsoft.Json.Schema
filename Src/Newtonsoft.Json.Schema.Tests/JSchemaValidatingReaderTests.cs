@@ -2209,5 +2209,54 @@ namespace Newtonsoft.Json.Schema.Tests
             Console.WriteLine(validationEventArgs.ValidationError.SchemaId);
             Console.WriteLine(JsonConvert.SerializeObject(validationEventArgs.ValidationError, Formatting.Indented));
         }
+
+        [Test]
+        public void InvalidPatternPropertyRegex()
+        {
+            string schemaJson = @"{
+  ""$schema"": ""http://json-schema.org/draft-04/schema"",
+  ""definitions"": {
+    ""pais"": {
+      ""type"": ""object""
+    }
+  },
+  ""properties"": {
+    ""$schema"": {
+      ""type"": ""string""
+    },
+    ""paises"": {
+      ""patternProperties"": {
+        ""[]"": {
+          ""$ref"": ""#/definitions/pais""
+        }
+      }
+    }
+  }
+}";
+
+            string json = @"{
+  ""$schema"": ""http://json-schema.org/draft-04/schema"",
+  ""paises"": {
+    ""name"": ""Test"",
+    ""age"": 52
+  }
+}";
+
+            JSchema schema = JSchema.Parse(schemaJson);
+
+            List<ValidationError> errors = new List<ValidationError>();
+
+            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            reader.ValidationEventHandler += (o, e) => errors.Add(e.ValidationError);
+            reader.Schema = schema;
+
+            while (reader.Read())
+            {
+            }
+
+            Assert.AreEqual(1, errors.Count);
+            Assert.AreEqual(@"Could not test property names with regex pattern '[]'. There was an error parsing the regex: parsing ""[]"" - Unterminated [] set.", errors[0].Message);
+            Assert.AreEqual(new Uri("#/properties/paises", UriKind.Relative), errors[0].SchemaId);
+        }
     }
 }
