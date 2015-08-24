@@ -2,7 +2,9 @@
   $zipFileName = "JsonSchema10r11.zip"
   $majorVersion = "1.0"
   $majorWithReleaseVersion = "1.0.11"
+  $nugetPrelease = "beta1"
   $version = GetVersion $majorWithReleaseVersion
+  $packageId = "Newtonsoft.Json.Schema"
   $signAssemblies = $false
   $signKeyPath = "C:\Development\Releases\newtonsoft.snk"
   $buildDocumentation = $false
@@ -107,10 +109,27 @@ task Package -depends Build {
   
   if ($buildNuGet)
   {
-    New-Item -Path $workingDir\NuGet -ItemType Directory    
-    Copy-Item -Path "$buildDir\Newtonsoft.Json.Schema.nuspec" -Destination $workingDir\NuGet\Newtonsoft.Json.Schema.nuspec -recurse
+    $nugetVersion = $majorWithReleaseVersion
+    if ($nugetPrelease -ne $null)
+    {
+      $nugetVersion = $nugetVersion + "-" + $nugetPrelease
+    }
 
-    New-Item -Path $workingDir\NuGet\tools -ItemType Directory
+    New-Item -Path $workingDir\NuGet -ItemType Directory
+
+    $nuspecPath = "$workingDir\NuGet\Newtonsoft.Json.Schema.nuspec"
+    Copy-Item -Path "$buildDir\Newtonsoft.Json.Schema.nuspec" -Destination $nuspecPath -recurse
+
+    Write-Host "Updating nuspec file at $nuspecPath" -ForegroundColor Green
+    Write-Host
+
+    $xml = [xml](Get-Content $nuspecPath)
+    Edit-XmlNodes -doc $xml -xpath "//*[local-name() = 'id']" -value $packageId
+    Edit-XmlNodes -doc $xml -xpath "//*[local-name() = 'version']" -value $nugetVersion
+
+    Write-Host $xml.OuterXml
+
+    $xml.save($nuspecPath)
     
     foreach ($build in $builds)
     {
@@ -128,6 +147,9 @@ task Package -depends Build {
     }
   
     robocopy $workingSourceDir $workingDir\NuGet\src *.cs /S /NP /XD Newtonsoft.Json.Schema.Tests Newtonsoft.Json.Schema.TestConsole obj | Out-Default
+
+    Write-Host "Building NuGet package with ID $packageId and version $nugetVersion" -ForegroundColor Green
+    Write-Host
 
     exec { .\Tools\NuGet\NuGet.exe pack $workingDir\NuGet\Newtonsoft.Json.Schema.nuspec -Symbols }
     move -Path .\*.nupkg -Destination $workingDir\NuGet
