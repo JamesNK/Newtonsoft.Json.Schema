@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using Newtonsoft.Json.Linq;
@@ -82,9 +83,11 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
                             new JSchema { Id = new Uri("#fragmentItem2Item2", UriKind.RelativeOrAbsolute) },
                             new JSchema { Id = new Uri("file.json", UriKind.RelativeOrAbsolute) },
                             new JSchema { Id = new Uri("/file1.json", UriKind.RelativeOrAbsolute) }
-                        }
+                        },
+                        ItemsPositionValidation = true
                     }
-                }
+                },
+                ItemsPositionValidation = true
             };
             JSchema prop2 = new JSchema
             {
@@ -120,10 +123,17 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
                 }
             };
 
+            Console.WriteLine(root.ToString());
+
             JSchemaDiscovery discovery = new JSchemaDiscovery();
             discovery.Discover(root, null);
 
             int i = 0;
+
+            foreach (KnownSchema knownSchema in discovery.KnownSchemas)
+            {
+                Console.WriteLine(knownSchema.Id);
+            }
 
             Assert.AreEqual(new Uri("http://localhost/#", UriKind.RelativeOrAbsolute), discovery.KnownSchemas[i].Id);
             Assert.AreEqual(root, discovery.KnownSchemas[i++].Schema);
@@ -232,6 +242,21 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             Assert.AreEqual("http://x.y.z/t/inner.json#a", discovery.KnownSchemas[4].Id.ToString());
             Assert.AreEqual("http://x.y.z/t/inner.json#/nestedmore", discovery.KnownSchemas[5].Id.ToString());
             Assert.AreEqual("some://where.else/completely#", discovery.KnownSchemas[6].Id.ToString());
+        }
+
+        [Test]
+        public void ComplexPath()
+        {
+            string path = TestHelpers.ResolveFilePath(@"resources\schemas\custom\validator1.json");
+
+            string schemaJson = File.ReadAllText(path);
+            JSchema schema = JSchema.Parse(schemaJson);
+
+            JSchemaDiscovery discovery = new JSchemaDiscovery();
+            discovery.Discover(schema, null);
+
+            // ensure the path does not contain multiple #'s
+            Assert.AreEqual("http://www.example.org/IntegralLifeProduct#/definitions/ProductType/allOf/0", discovery.KnownSchemas[3].Id.OriginalString);
         }
     }
 }

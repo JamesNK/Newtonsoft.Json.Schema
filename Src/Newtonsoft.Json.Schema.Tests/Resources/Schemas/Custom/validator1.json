@@ -1,0 +1,2074 @@
+﻿{
+  "title": "Integral Life Product Model",
+  "id": "http://www.example.org/IntegralLifeProduct#",
+  "type": "object",
+  "required": [
+    "Product"
+  ],
+
+  "additionalProperties": false,
+  "properties": {
+    "Product": {
+      "id": "#Product",
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/definitions/ProductType"
+        }
+      ]
+    }
+  },
+
+  "definitions": {
+    "ProductType": {
+      "description": "T5688 - Contract Processing Rules",
+      "required": [
+        "BasicContractDetails",
+        "Billing",
+        "Component",
+        "ContractValidation",
+        "LifeValidation",
+        "Accounting"
+      ],
+
+      "additionalProperties": false,
+      "properties": {
+        "BasicContractDetails": {
+          "id": "#BasicContractDetails",
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/BasicContractDetailsType"
+            }
+          ]
+        },
+
+        "Billing": {
+          "id": "#Billing",
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/BillingType"
+            }
+          ]
+        },
+
+        "Fees": {
+          "id": "#Fees",
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/FeesType"
+            }
+          ]
+        },
+
+        "Component": {
+          "id": "#Component",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "allOf": [
+              {
+                "$ref": "#/definitions/ComponentType"
+              }
+            ]
+          }
+        },
+
+        "ContractValidation": {
+          "id": "#ContractValidation",
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/ContractValidationType"
+            }
+          ]
+        },
+
+        "LifeValidation": {
+          "id": "#LifeValidation",
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/LifeValidationType"
+            }
+          ]
+        },
+
+        "Accounting": {
+          "id": "#Accounting",
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/AccountingType"
+            }
+          ]
+        },
+
+        "ModalPremium": {
+          "id": "#ModalPremium",
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/ModalPremiumType"
+            }
+          ]
+        },
+
+        "code": {
+          "description": "This is the unique product code. (CNTTYPE)",
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 3
+        },
+
+        "description": {
+          "type": "string"
+        },
+
+        "effectiveDate": {
+          "description": "This is the date the product is effective from.",
+          "type": "string"
+        }
+      }
+    },
+
+    "BillingType": {
+      "description": "T6654 - Billing Control Table",
+      "required": [
+        "Currency",
+        "MethodOfPayment"
+      ],
+
+      "additionalProperties": false,
+      "properties": {
+        "Currency": {
+          "id": "#Currency",
+          "description": "T6660 - Billing Currencies There are nine occurrences of contract currency as defined on T6660. For each contract currency there may be up to ten billing currencies defined.",
+          "type": "array",
+          "maxItems": 9,
+          "items": {
+            "allOf": [
+              {
+                "$ref": "#/definitions/CurrencyType"
+              }
+            ]
+          }
+        },
+
+        "MethodOfPayment": {
+          "id": "#MethodOfPayment",
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 10,
+          "items": {
+            "allOf": [
+              {
+                "$ref": "#/definitions/MethodOfPaymentType"
+              }
+            ]
+          }
+        }
+      }
+    },
+
+    "CurrencyType": {
+      "description": "T6660 - Billing Currencies",
+      "required": [
+        "billingCurrency"
+      ],
+
+      "additionalProperties": false,
+      "properties": {
+        "billingCurrency": {
+          "id": "#billingCurrency",
+          "description": "These are the available billing currencies for this contract currency.",
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 3
+        },
+
+        "contractCurrency": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 3
+        }
+      }
+    },
+
+    "FeesType": {
+      "additionalProperties": false
+    },
+
+    "FlatFeeType": {
+      "additionalProperties": false
+    },
+
+    "FlatFeeGroupType": {
+      "additionalProperties": false,
+      "properties": {
+        "billingFrequency": {
+          "type": "string"
+        },
+
+        "fee": {
+          "type": "number"
+        }
+      }
+    },
+
+    "LifeGroup": {
+      "required": [
+        "mortalityClass",
+        "lienCode"
+      ],
+
+      "additionalProperties": false,
+      "properties": {
+        "mortalityClass": {
+          "id": "#mortalityClass",
+          "type": "string"
+        },
+
+        "lienCode": {
+          "id": "#lienCode",
+          "type": "string"
+        }
+      }
+    },
+
+    "premiumType": {
+      "description": "T5687 - General Coverage/Rider Details",
+      "required": [
+        "PremiumCalculation"
+      ],
+
+      "additionalProperties": false,
+      "properties": {
+        "PremiumCalculation": {
+          "id": "#PremiumCalculation",
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/PremiumCalculationType"
+            }
+          ]
+        },
+
+        "BenefitBilling": {
+          "id": "#BenefitBilling",
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/BenefitBillingType"
+            }
+          ]
+        },
+
+        "FrequencyAlterationBasis": {
+          "id": "#FrequencyAlterationBasis",
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 12,
+          "items": {
+            "allOf": [
+              {
+                "$ref": "#/definitions/FrequencyAlterationBasisType"
+              }
+            ]
+          }
+        },
+
+        "ReportingCodes": {
+          "id": "#ReportingCodes",
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 6,
+          "items": {
+            "allOf": [
+              {
+                "$ref": "#/definitions/ReportingCodesType"
+              }
+            ]
+          }
+        },
+
+        "jointLifeAllowed": {
+          "type": "boolean"
+        },
+
+        "guaranteePeriod": {
+          "type": "integer"
+        },
+
+        "renewableTermFrequency": {
+          "type": "integer"
+        },
+
+        "singlePremium": {
+          "type": "boolean"
+        },
+
+        "reducingTerm": {
+          "type": "boolean"
+        },
+
+        "anniversaryProcessingMethod": {
+          "type": "string"
+        },
+
+        "partSurrenderMethod": {
+          "type": "string"
+        },
+
+        "defaultFollowUps": {
+          "type": "boolean"
+        },
+
+        "scheduleCode": {
+          "type": "string"
+        },
+
+        "premiumRateCode": {
+          "type": "string"
+        },
+
+        "statutoryFund": {
+          "type": "string"
+        },
+
+        "section": {
+          "type": "string"
+        },
+
+        "subSection": {
+          "type": "string"
+        }
+      }
+    },
+
+    "commissionType": {
+      "description": "Commission out of scope for all LIFE products.",
+      "additionalProperties": false
+    },
+
+    "MethodOfPaymentType": {
+      "description": "T5689 - Method of Payment/Billing Frequencies We have allowed for ten methods of payment. T5689 extra data screen has 30 occurrences of method of payment, frequency and day of month allowable combinations.",
+      "required": [
+        "AllowableFrequency",
+        "NonForfeiture"
+      ],
+
+      "additionalProperties": false,
+      "properties": {
+        "AllowableFrequency": {
+          "id": "#AllowableFrequency",
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 10,
+          "items": {
+            "allOf": [
+              {
+                "$ref": "#/definitions/AllowableFrequencyType"
+              }
+            ]
+          }
+        },
+
+        "NextBillingDate": {
+          "id": "#NextBillingDate",
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 6,
+          "items": {
+            "allOf": [
+              {
+                "$ref": "#/definitions/NextBillingDateType"
+              }
+            ]
+          }
+        },
+
+        "OverdueDetails": {
+          "id": "#OverdueDetails",
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 3,
+          "items": {
+            "allOf": [
+              {
+                "$ref": "#/definitions/OverdueDetailsType"
+              }
+            ]
+          }
+        },
+
+        "NonForfeiture": {
+          "id": "#NonForfeiture",
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/NonForfeitureType"
+            }
+          ]
+        },
+
+        "method": {
+          "type": "string"
+        },
+
+        "billingLeadDays": {
+          "description": "T6654 - Billing Control",
+          "type": "integer"
+        },
+
+        "defaultPremiumRenewalDate": {
+          "type": "boolean"
+        }
+      }
+    },
+
+    "AllowableFrequencyType": {
+      "description": "T5689 - Method of Payment/Billing Frequencies",
+      "additionalProperties": false,
+      "properties": {
+        "frequency": {
+          "type": "string"
+        },
+
+        "dayOfMonth": {
+          "type": "integer"
+        }
+      }
+    },
+
+    "ComponentType": {
+      "description": "T5687 - General Coverage/Rider Details",
+      "required": [
+        "PremiumDetails",
+        "CommissionDetails",
+        "Reassurance"
+      ],
+
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "UnitLinkedDetails"
+          ]
+        },
+
+        {
+          "required": [
+            "TermDetails"
+          ]
+        }
+      ],
+
+      "properties": {
+        "PremiumDetails": {
+          "id": "#PremiumDetails",
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/premiumType"
+            }
+          ]
+        },
+
+        "CommissionDetails": {
+          "id": "#CommissionDetails",
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/commissionType"
+            }
+          ]
+        },
+
+        "Reassurance": {
+          "id": "#Reassurance",
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/ReassuranceType"
+            }
+          ]
+        },
+
+        "UnitLinkedDetails": {
+          "id": "#UnitLinkedDetails",
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/UnitLinkedComponentType"
+            }
+          ]
+        },
+
+        "TermDetails": {
+          "id": "#TermDetails",
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/TermComponentType"
+            }
+          ]
+        },
+
+        "code": {
+          "type": "string"
+        },
+
+        "description": {
+          "type": "string"
+        },
+
+        "effdate": {
+          "type": "string"
+        }
+      }
+    },
+
+    "BenefitBillingType": {
+      "additionalProperties": false,
+      "properties": {
+        "AdminFees": {
+          "id": "#AdminFees",
+          "description": "An occurrence of 9 allows for up to 9 currencies - the same as defined for contract currency within the Billing element.",
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 9,
+          "items": {
+            "allOf": [
+              {
+                "$ref": "#/definitions/AdminFeesType"
+              }
+            ]
+          }
+        },
+
+        "premCalcMethod": {
+          "type": "string"
+        },
+
+        "jointLifeCalcMethod": {
+          "type": "string"
+        },
+
+        "surrenderMethod": {
+          "type": "string"
+        },
+
+        "frequencyOfUnitDeduction": {
+          "type": "string"
+        },
+
+        "processingSubroutine": {
+          "type": "string"
+        },
+
+        "adminFeesMethod": {
+          "type": "string"
+        }
+      }
+    },
+
+    "PremiumCalculationType": {
+      "additionalProperties": false
+    },
+
+    "VPMSPremiumCalcType": {
+      "additionalProperties": false
+    },
+
+    "DurationBasedPremiumCalcType": {
+      "additionalProperties": false
+    },
+
+    "NewType": {
+      "additionalProperties": false
+    },
+
+    "LifeValidationType": {
+      "description": "T5688 - Contract Processing Rules",
+      "additionalProperties": false,
+      "properties": {
+        "ageCalcRequired": {
+          "type": "boolean"
+        },
+
+        "smoking": {
+          "type": "boolean"
+        },
+
+        "occupation": {
+          "type": "boolean"
+        }
+      }
+    },
+
+    "AccountingType": {
+      "description": "T5688 - Contract Processing Rules",
+      "additionalProperties": false,
+      "properties": {
+        "componentLevel": {
+          "type": "boolean"
+        },
+
+        "revenue": {
+          "type": "boolean"
+        }
+      }
+    },
+
+    "ContractValidationType": {
+      "description": "T5688 - Contract Processing Rules",
+      "required": [
+        "minPoliciesOnPlan",
+        "maxPoliciesOnPlan",
+        "defaultPoliciesOnPlan",
+        "minLivesPerPolicy"
+      ],
+
+      "additionalProperties": false,
+      "properties": {
+        "maxCovInstances": {
+          "description": "T5673 - Contract Component Structure",
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 99
+        },
+
+        "minPoliciesOnPlan": {
+          "description": "This is the minimum number of policies which may be attached to a plan when it is first issued.",
+          "type": "integer",
+          "maximum": 99
+        },
+
+        "maxPoliciesOnPlan": {
+          "description": "This is the maximum number of policies which may be attached to a plan when it is first issued.",
+          "type": "integer",
+          "maximum": 99
+        },
+
+        "defaultPoliciesOnPlan": {
+          "description": "This is the default number of policies to be attached to a plan at proposal stage. It is only applicable for policies which require multiple policies (clusters) for each plan.",
+          "type": "integer",
+          "maximum": 99
+        },
+
+        "minLivesPerPolicy": {
+          "description": "This is the minimum number of lives allowed on a contract.",
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 99
+        },
+
+        "maxLivesPerPolicy": {
+          "description": "This is the maximum number of lives allowed on a contract.",
+          "type": "integer",
+          "maximum": 99
+        },
+
+        "minJointLivesPerLife": {
+          "description": "This is the minimum number of joint lives allowed per life on a contract of this type.",
+          "type": "integer",
+          "maximum": 99,
+          "exclusiveMaximum": true
+        },
+
+        "maxJointLivesPerLife": {
+          "description": "This is the maximum number of joint lives allowed per life on a contract of this type.",
+          "type": "integer",
+          "maximum": 99,
+          "exclusiveMaximum": true
+        }
+      }
+    },
+
+    "ContributionLimitsType": {
+      "description": "TH611 - Minimum/Maximum Modal Premium",
+      "additionalProperties": false,
+      "properties": {
+        "frequency": {
+          "type": "string",
+          "maxLength": 2
+        },
+
+        "minContribution": {
+          "type": "number"
+        },
+
+        "maxContribution": {
+          "type": "number"
+        }
+      }
+    },
+
+    "UnitLinkedContractDetailsType": {
+      "description": "T6647 - Unit Linked Contract Details",
+      "additionalProperties": false,
+      "properties": {
+        "switchRules": {
+          "type": "string"
+        },
+
+        "enhancedAllocation": {
+          "type": "string"
+        },
+
+        "effectiveDate": {
+          "type": "string"
+        },
+
+        "allocation": {
+          "type": "string"
+        },
+
+        "deallocation": {
+          "type": "string"
+        },
+
+        "sequenceNumber": {
+          "type": "integer"
+        },
+
+        "unitStatementMethod": {
+          "type": "string"
+        },
+
+        "negativeUnits": {
+          "type": "integer"
+        },
+
+        "debt": {
+          "type": "integer"
+        },
+
+        "lapse": {
+          "type": "integer"
+        },
+
+        "error": {
+          "type": "integer"
+        },
+
+        "bidOrOfferPrice": {
+          "type": "string"
+        }
+      }
+    },
+
+    "PremiumContributionType": {
+      "description": "T5533 - Premium Contribution Details",
+      "additionalProperties": false,
+      "properties": {
+        "ContributionLimits": {
+          "id": "#ContributionLimits",
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 8,
+          "items": {
+            "allOf": [
+              {
+                "$ref": "#/definitions/ContributionLimitsType"
+              }
+            ]
+          }
+        },
+
+        "currency": {
+          "description": "Again need to add the currency here as it is part of the key to T5533.",
+          "type": "string"
+        },
+
+        "minCasualContribution": {
+          "type": "number"
+        },
+
+        "maxCasualContribution": {
+          "type": "number"
+        },
+
+        "roundingFactor": {
+          "type": "integer"
+        },
+
+        "premiumUnit": {
+          "type": "integer"
+        }
+      }
+    },
+
+    "UnitLinkedComponentDetailsType": {
+      "description": "T5540 - General Unit Linked Details",
+      "required": [
+        "InitialUnits",
+        "AvailableFunds",
+        "UnitWithdrawal",
+        "EditRules",
+        "SumAsuredFactors",
+        "SpecialTerms"
+      ],
+
+      "additionalProperties": false,
+      "properties": {
+        "InitialUnits": {
+          "id": "#InitialUnits",
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/InitialUnitsType"
+            }
+          ]
+        },
+
+        "AvailableFunds": {
+          "id": "#AvailableFunds",
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/AvailableFundsType"
+            }
+          ]
+        },
+
+        "UnitWithdrawal": {
+          "id": "#UnitWithdrawal",
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/UnitWithdrawalType"
+            }
+          ]
+        },
+
+        "EditRules": {
+          "id": "#EditRules",
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/UnitLinkedEditRulesType"
+            }
+          ]
+        },
+
+        "SumAsuredFactors": {
+          "id": "#SumAsuredFactors",
+          "type": "array",
+          "maxItems": 12,
+          "items": {
+            "allOf": [
+              {
+                "$ref": "#/definitions/SumAssuredFactorsType"
+              }
+            ]
+          }
+        },
+
+        "SpecialTerms": {
+          "id": "#SpecialTerms",
+          "type": "array",
+          "items": {
+            "allOf": [
+              {
+                "$ref": "#/definitions/SpecialTermsType"
+              }
+            ]
+          }
+        },
+
+        "unitAllocationBasis": {
+          "type": "string"
+        },
+
+        "reviewProcessing": {
+          "type": "integer"
+        },
+
+        "defaultFundSplitPlan": {
+          "type": "string"
+        },
+
+        "maxFundsPerCoverage": {
+          "type": "string"
+        },
+
+        "ageLimit": {
+          "description": "T5646 - Sum Assured factors",
+          "type": "integer"
+        }
+      }
+    },
+
+    "InitialUnitsType": {
+      "description": "T5540 - General Unit Linked Details",
+      "additionalProperties": false,
+      "properties": {
+        "cancellationInd": {
+          "type": "string"
+        },
+
+        "discountBasis": {
+          "type": "string"
+        },
+
+        "discountFactor": {
+          "type": "string"
+        },
+
+        "discountFactorWOL": {
+          "type": "string"
+        },
+
+        "loyalty": {
+          "type": "string"
+        },
+
+        "withdrawalMethod": {
+          "type": "string"
+        }
+      }
+    },
+
+    "BasicContractDetailsType": {
+      "description": "T5688 - Contract Processing Rules",
+      "additionalProperties": false,
+      "properties": {
+        "followUpMethod": {
+          "description": "Indicates whether default follow ups are to be automatically set up for a policy when it is first entered. Leave blank for no default, otherwise specify a method (must exist on T5678).",
+          "type": "string",
+          "maxLength": 4
+        },
+
+        "minDepositInd": {
+          "description": "This indicates the method to be used in determining whether any premium is payable before issue of the contract, and if so, the calculation to be used to determine it.",
+          "type": "string"
+        },
+
+        "cancelFromInceptionLimit": {
+          "description": "This is the number of months after which a cancel or alter from inception will not be allowed.",
+          "type": "integer",
+          "maximum": 999,
+          "exclusiveMaximum": true
+        },
+
+        "newBusinessAllowedFlag": {
+          "type": "boolean"
+        },
+
+        "autoIncrease": {
+          "description": "T5654 - Automatic Increase Contract Rules",
+          "type": "boolean"
+        },
+
+        "cfiRefundPriceDateAllowed": {
+          "description": "This is the CFI Refund Price Date Allowed indicator.",
+          "type": "boolean"
+        }
+      }
+    },
+
+    "TermComponentType": {
+      "required": [
+        "TermComponentDetails"
+      ],
+
+      "additionalProperties": false,
+      "properties": {
+        "TermComponentDetails": {
+          "id": "#TermComponentDetails",
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/TermComponentDetailsType"
+            }
+          ]
+        }
+      }
+    },
+
+    "UnitLinkedComponentType": {
+      "required": [
+        "premiumContributionDetails",
+        "UnitLinkedComponentDetails"
+      ],
+
+      "additionalProperties": false,
+      "properties": {
+        "premiumContributionDetails": {
+          "id": "#premiumContributionDetails",
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/PremiumContributionType"
+            }
+          ]
+        },
+
+        "UnitLinkedComponentDetails": {
+          "id": "#UnitLinkedComponentDetails",
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/UnitLinkedComponentDetailsType"
+            }
+          ]
+        }
+      }
+    },
+
+    "ModalPremiumType": {
+      "description": "TH611 - Minimum/Maximum Modal Premium",
+      "required": [
+        "ContributionLimits"
+      ],
+
+      "additionalProperties": false,
+      "properties": {
+        "ContributionLimits": {
+          "id": "#ContributionLimits",
+          "description": "TH611",
+          "type": "array",
+          "maxItems": 8,
+          "items": {
+            "allOf": [
+              {
+                "$ref": "#/definitions/ContributionLimitsType"
+              }
+            ]
+          }
+        }
+      }
+    },
+
+    "UnitLinkedProductType": {
+      "additionalProperties": false
+    },
+
+    "PremiumAllocBasisType": {
+      "description": "T5537 - Premium Allocation Basis - Age and Term",
+      "required": [
+        "UpToAge"
+      ],
+
+      "additionalProperties": false,
+      "properties": {
+        "UpToAge": {
+          "id": "#UpToAge",
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 10,
+          "items": {
+            "allOf": [
+              {
+                "$ref": "#/definitions/UpToAgeType"
+              }
+            ]
+          }
+        }
+      }
+    },
+
+    "UpToAgeType": {
+      "description": "T5537 - Premium Allocation Basis - Age and Term",
+      "required": [
+        "UpToTerm"
+      ],
+
+      "additionalProperties": false,
+      "properties": {
+        "UpToTerm": {
+          "id": "#UpToTerm",
+          "type": "array",
+          "maxItems": 9,
+          "items": {
+            "allOf": [
+              {
+                "$ref": "#/definitions/UpToTermType"
+              }
+            ]
+          }
+        },
+
+        "age": {
+          "type": "integer"
+        }
+      }
+    },
+
+    "UpToTermType": {
+      "description": "T5537 - Premium Allocation Basis - Age and Term",
+      "additionalProperties": false,
+      "properties": {
+        "term": {
+          "type": "integer"
+        },
+
+        "allocationBasis": {
+          "type": "string"
+        }
+      }
+    },
+
+    "AvailableFundsType": {
+      "description": "T5543 - Available Funds",
+      "required": [
+        "Fund"
+      ],
+
+      "additionalProperties": false,
+      "properties": {
+        "Fund": {
+          "id": "#Fund",
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 12,
+          "items": {
+            "allOf": [
+              {
+                "$ref": "#/definitions/FundType"
+              }
+            ]
+          }
+        }
+      }
+    },
+
+    "FundType": {
+      "description": "T5515 -Unit Linked Fund Details",
+      "required": [
+        "InitialUnitCalc",
+        "AccumUnitCalc",
+        "FundSwitchBasis"
+      ],
+
+      "additionalProperties": false,
+      "properties": {
+        "InitialUnitCalc": {
+          "id": "#InitialUnitCalc",
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/UnitCalcType"
+            }
+          ]
+        },
+
+        "AccumUnitCalc": {
+          "id": "#AccumUnitCalc",
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/UnitCalcType"
+            }
+          ]
+        },
+
+        "FundSwitchBasis": {
+          "id": "#FundSwitchBasis",
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/FundSwitchBasisType"
+            }
+          ]
+        },
+
+        "fundCode": {
+          "type": "string"
+        },
+
+        "fundDescription": {
+          "type": "string"
+        },
+
+        "fundType": {
+          "type": "string",
+          "enum": [
+            "D",
+            "U"
+          ]
+        },
+
+        "fundCurrency": {
+          "type": "string"
+        },
+
+        "managementCharge": {
+          "type": "number",
+          "maximum": 100.00
+        },
+
+        "unitType": {
+          "type": "string"
+        },
+
+        "priceChangeTolerance": {
+          "type": "number",
+          "maximum": 99.99
+        },
+
+        "sameUnitDetails": {
+          "type": "string"
+        }
+      }
+    },
+
+    "UnitCalcType": {
+      "description": "T5515 -Unit Linked Fund Details",
+      "additionalProperties": false,
+      "properties": {
+        "roundingOfBidOffer": {
+          "type": "number"
+        },
+
+        "bidOfferDifferential": {
+          "type": "number"
+        }
+      }
+    },
+
+    "PremiumAllocationType": {
+      "required": [
+        "FrequencyAllocation"
+      ],
+
+      "additionalProperties": false,
+      "properties": {
+        "FrequencyAllocation": {
+          "id": "#FrequencyAllocation",
+          "type": "array",
+          "maxItems": 4,
+          "items": {
+            "allOf": [
+              {
+                "$ref": "#/definitions/FrequencyAllocationType"
+              }
+            ]
+          }
+        },
+
+        "frequency": {
+          "type": "string"
+        }
+      }
+    },
+
+    "FrequencyAllocationType": {
+      "additionalProperties": false,
+      "properties": {
+        "frequencyTo": {
+          "type": "string"
+        },
+
+        "percentageUnits": {
+          "type": "number"
+        },
+
+        "percentageInitial": {
+          "type": "number"
+        }
+      }
+    },
+
+    "FundSwitchBasisType": {
+      "description": "T5515 -Unit Linked Fund Details",
+      "additionalProperties": false,
+      "properties": {
+        "bidToBid": {
+          "type": "string"
+        },
+
+        "bidToOffer": {
+          "type": "string"
+        },
+
+        "bidToDiscountedOffer": {
+          "type": "string"
+        },
+
+        "discountPercentage": {
+          "type": "number",
+          "maximum": 100.00
+        },
+
+        "offerToOffer": {
+          "type": "string"
+        }
+      }
+    },
+
+    "UnitWithdrawalType": {
+      "description": "T5542 - Unit Withdrawal Amount",
+      "required": [
+        "WithdrawalAmount"
+      ],
+
+      "additionalProperties": false,
+      "properties": {
+        "WithdrawalAmount": {
+          "id": "#WithdrawalAmount",
+          "type": "array",
+          "maxItems": 6,
+          "items": {
+            "allOf": [
+              {
+                "$ref": "#/definitions/WithdrawalAmountType"
+              }
+            ]
+          }
+        }
+      }
+    },
+
+    "WithdrawalAmountType": {
+      "description": "T5542 - Unit Withdrawal Amount",
+      "additionalProperties": false,
+      "properties": {
+        "billingFrequency": {
+          "type": "string"
+        },
+
+        "monthsFromRCD": {
+          "type": "integer"
+        },
+
+        "minWithdrawalAmount": {
+          "type": "number"
+        },
+
+        "minAmountRemaining": {
+          "type": "number"
+        },
+
+        "flatWithdrawalFee": {
+          "type": "number"
+        },
+
+        "feePercentage": {
+          "type": "number",
+          "maximum": 100.00
+        },
+
+        "minimumFee": {
+          "type": "number"
+        },
+
+        "maximumFee": {
+          "type": "number"
+        }
+      }
+    },
+
+    "UnitLinkedEditRulesType": {
+      "description": "T5551 - Unit Linked Edit Rules",
+      "required": [
+        "AgeEditRules",
+        "TermEditRules",
+        "MortalityClass",
+        "LienCodes",
+        "SumInsured",
+        "LumpSum"
+      ],
+
+      "additionalProperties": false,
+      "properties": {
+        "AgeEditRules": {
+          "id": "#AgeEditRules",
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/AgeEditRulesType"
+            }
+          ]
+        },
+
+        "TermEditRules": {
+          "id": "#TermEditRules",
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/TermEditRulesType"
+            }
+          ]
+        },
+
+        "MortalityClass": {
+          "id": "#MortalityClass",
+          "type": "array",
+          "maxItems": 6,
+          "items": {
+            "allOf": [
+              {
+                "$ref": "#/definitions/MortalityClassType"
+              }
+            ]
+          }
+        },
+
+        "LienCodes": {
+          "id": "#LienCodes",
+          "type": "array",
+          "maxItems": 6,
+          "items": {
+            "allOf": [
+              {
+                "$ref": "#/definitions/LienCodesType"
+              }
+            ]
+          }
+        },
+
+        "SumInsured": {
+          "id": "#SumInsured",
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/SumInsuredType"
+            }
+          ]
+        },
+
+        "LumpSum": {
+          "id": "#LumpSum",
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/LumpSumType"
+            }
+          ]
+        },
+
+        "exactOrAnniversaryAge": {
+          "type": "string"
+        },
+
+        "surrenderChargeMethod": {
+          "type": "string"
+        },
+
+        "unitReserveFlag": {
+          "type": "boolean"
+        }
+      }
+    },
+
+    "AgeType": {
+      "description": "T5551 - Unit Linked Edit Rules",
+      "additionalProperties": false,
+      "properties": {
+        "minimumAge": {
+          "type": "integer"
+        },
+
+        "maximumAge": {
+          "type": "integer"
+        }
+      }
+    },
+
+    "AgeEditRulesType": {
+      "description": "T5551 - Unit Linked Edit Rules",
+      "required": [
+        "IssueAge",
+        "PremiumAge",
+        "MaturityAge"
+      ],
+
+      "additionalProperties": false,
+      "properties": {
+        "IssueAge": {
+          "id": "#IssueAge",
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "items": {
+            "allOf": [
+              {
+                "$ref": "#/definitions/AgeType"
+              }
+            ]
+          }
+        },
+
+        "PremiumAge": {
+          "id": "#PremiumAge",
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/AgeType"
+            }
+          ]
+        },
+
+        "MaturityAge": {
+          "id": "#MaturityAge",
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/AgeType"
+            }
+          ]
+        }
+      }
+    },
+
+    "TermEditRulesType": {
+      "description": "T5551 - Unit Linked Edit Rules",
+      "required": [
+        "IssueAge",
+        "PremiumTerm",
+        "MaturityTerm"
+      ],
+
+      "additionalProperties": false,
+      "properties": {
+        "IssueAge": {
+          "id": "#IssueAge",
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/AgeType"
+            }
+          ]
+        },
+
+        "PremiumTerm": {
+          "id": "#PremiumTerm",
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/TermType"
+            }
+          ]
+        },
+
+        "MaturityTerm": {
+          "id": "#MaturityTerm",
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/TermType"
+            }
+          ]
+        }
+      }
+    },
+
+    "TermType": {
+      "additionalProperties": false,
+      "properties": {
+        "minimumTerm": {
+          "type": "integer"
+        },
+
+        "maximumTerm": {
+          "type": "integer"
+        }
+      }
+    },
+
+    "MortalityClassType": {
+      "description": "T5608 - Term Based Edit Rules T5551 - Unit Linked Edit Rules",
+      "additionalProperties": false,
+      "properties": {
+        "mortalityClass": {
+          "type": "string"
+        }
+      }
+    },
+
+    "LienCodesType": {
+      "description": "T5608 - Term Based Edit Rules T5551 - Unit Linked Edit Rules",
+      "additionalProperties": false,
+      "properties": {
+        "lienCode": {
+          "type": "string"
+        }
+      }
+    },
+
+    "SumInsuredType": {
+      "description": "T5608 - Term Based Edit Rules T5551 - Unit Linked Edit Rules",
+      "additionalProperties": false,
+      "properties": {
+        "minimumSumInsured": {
+          "type": "integer"
+        },
+
+        "maximumSumInsured": {
+          "type": "integer"
+        }
+      }
+    },
+
+    "LumpSumType": {
+      "description": "T5551 - Unit Linked Edit Rules",
+      "additionalProperties": false,
+      "properties": {
+        "minimumLumpSum": {
+          "type": "integer"
+        },
+
+        "maximumLumpSum": {
+          "type": "integer"
+        }
+      }
+    },
+
+    "SumAssuredFactorsType": {
+      "description": "T5646 - Sum Assured Factors This factor is applied to the total premium to obtain the sum assured.",
+      "additionalProperties": false,
+      "properties": {
+        "fromAge": {
+          "type": "integer"
+        },
+
+        "toAge": {
+          "type": "integer"
+        },
+
+        "factor": {
+          "type": "number",
+          "maximum": 999.9999,
+          "exclusiveMaximum": true
+        }
+      }
+    },
+
+    "SpecialTermsType": {
+      "description": "T5657 - Special Terms Reason Defaults",
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+
+        "age": {
+          "type": "integer"
+        },
+
+        "percentage": {
+          "type": "number",
+          "maximum": 100.00
+        },
+
+        "rateAdjustment": {
+          "type": "integer"
+        },
+
+        "subStandardLife": {
+          "type": "string"
+        },
+
+        "exclusionClause": {
+          "type": "string"
+        }
+      }
+    },
+
+    "AgeBasedPremiumRatesType": {
+      "additionalProperties": false,
+      "properties": {
+        "riskUnit": {
+          "type": "integer"
+        }
+      }
+    },
+
+    "TermComponentDetailsType": {
+      "required": [
+        "EditRules"
+      ],
+
+      "additionalProperties": false,
+      "properties": {
+        "EditRules": {
+          "id": "#EditRules",
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/TradEditRulesType"
+            }
+          ]
+        }
+      }
+    },
+
+    "TradEditRulesType": {
+      "description": "T5608 - Term Based Edit Rules",
+      "required": [
+        "SumInsured",
+        "AgeEditRules",
+        "TermEditRules",
+        "MortalityClass",
+        "LienCodes"
+      ],
+
+      "additionalProperties": false,
+      "properties": {
+        "SumInsured": {
+          "id": "#SumInsured",
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/SumInsuredType"
+            }
+          ]
+        },
+
+        "AgeEditRules": {
+          "id": "#AgeEditRules",
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "items": {
+            "allOf": [
+              {
+                "$ref": "#/definitions/TradAgeEditRulesType"
+              }
+            ]
+          }
+        },
+
+        "TermEditRules": {
+          "id": "#TermEditRules",
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "items": {
+            "allOf": [
+              {
+                "$ref": "#/definitions/TradTermEditRulesType"
+              }
+            ]
+          }
+        },
+
+        "MortalityClass": {
+          "id": "#MortalityClass",
+          "type": "array",
+          "maxItems": 6,
+          "items": {
+            "allOf": [
+              {
+                "$ref": "#/definitions/MortalityClassType"
+              }
+            ]
+          }
+        },
+
+        "LienCodes": {
+          "id": "#LienCodes",
+          "type": "array",
+          "maxItems": 6,
+          "items": {
+            "allOf": [
+              {
+                "$ref": "#/definitions/LienCodesType"
+              }
+            ]
+          }
+        },
+
+        "exactOrAnniversaryAge": {
+          "type": "string"
+        },
+
+        "specialTermsAllowed": {
+          "type": "boolean"
+        }
+      }
+    },
+
+    "TradAgeEditRulesType": {
+      "description": "T5608 - Term Based Edit Rules",
+      "required": [
+        "IssueAge",
+        "CessationAge",
+        "PremiumCessationAge"
+      ],
+
+      "additionalProperties": false,
+      "properties": {
+        "IssueAge": {
+          "id": "#IssueAge",
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/AgeType"
+            }
+          ]
+        },
+
+        "CessationAge": {
+          "id": "#CessationAge",
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/AgeType"
+            }
+          ]
+        },
+
+        "PremiumCessationAge": {
+          "id": "#PremiumCessationAge",
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/AgeType"
+            }
+          ]
+        }
+      }
+    },
+
+    "TradTermEditRulesType": {
+      "description": "T5608 - Term Based Edit Rules",
+      "required": [
+        "IssueAge",
+        "CoverageTerm",
+        "PremiumCessationTerm"
+      ],
+
+      "additionalProperties": false,
+      "properties": {
+        "IssueAge": {
+          "id": "#IssueAge",
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/TermType"
+            }
+          ]
+        },
+
+        "CoverageTerm": {
+          "id": "#CoverageTerm",
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/TermType"
+            }
+          ]
+        },
+
+        "PremiumCessationTerm": {
+          "id": "#PremiumCessationTerm",
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/TermType"
+            }
+          ]
+        }
+      }
+    },
+
+    "NextBillingDateType": {
+      "description": "T6654 - Billing Control",
+      "additionalProperties": false,
+      "properties": {
+        "frequency": {
+          "type": "string"
+        },
+
+        "increment": {
+          "type": "integer"
+        }
+      }
+    },
+
+    "FrequencyAlterationBasisType": {
+      "description": "T5541 - Frequency Alteration Basis",
+      "additionalProperties": false,
+      "properties": {
+        "frequency": {
+          "type": "string"
+        },
+
+        "loadingFactor": {
+          "type": "number",
+          "maximum": 9.9999
+        }
+      }
+    },
+
+    "OverdueDetailsType": {
+      "additionalProperties": false,
+      "properties": {
+        "lagDays": {
+          "type": "integer"
+        }
+      }
+    },
+
+    "NonForfeitureType": {
+      "description": "T6597 - Non Forfeiture Parameters",
+      "additionalProperties": false,
+      "properties": {
+        "ArrearsDetails": {
+          "id": "#ArrearsDetails",
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 3,
+          "items": {
+            "allOf": [
+              {
+                "$ref": "#/definitions/ArrearsType"
+              }
+            ]
+          }
+        },
+
+        "nonForfeitureDescription": {
+          "type": "string"
+        },
+
+        "nonForfeitureDays": {
+          "type": "integer"
+        },
+
+        "lapseRiskStatusDescription": {
+          "description": "T6597 - Non Forfeiture Parameters",
+          "type": "string"
+        },
+
+        "lapsePremStatusDescription": {
+          "description": "T6597 - Non Forfeiture Parameters",
+          "type": "string"
+        }
+      }
+    },
+
+    "ReassuranceType": {
+      "additionalProperties": false,
+      "properties": {
+        "ArrangementHierarchy": {
+          "id": "#ArrangementHierarchy",
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 10,
+          "items": {
+            "allOf": [
+              {
+                "$ref": "#/definitions/ArrangementHierarchyType"
+              }
+            ]
+          }
+        },
+
+        "reassuranceRiskType": {
+          "type": "string"
+        },
+
+        "costingFrequency": {
+          "type": "string"
+        },
+
+        "priority": {
+          "type": "string"
+        },
+
+        "reviewFrequency": {
+          "type": "string"
+        },
+
+        "sumAtRiskCessionIndicator": {
+          "type": "string"
+        },
+
+        "sumAtRiskCostingIndicator": {
+          "type": "string"
+        },
+
+        "taxationBasis": {
+          "type": "string"
+        },
+
+        "ReserveCalcMethod": {
+          "type": "string"
+        },
+
+        "ClaimBasis": {
+          "type": "string"
+        },
+
+        "ProportionateProcessing": {
+          "type": "string"
+        }
+      }
+    },
+
+    "ArrearsType": {
+      "description": "T6597 - Non Forfeiture Parameters",
+      "additionalProperties": false,
+      "properties": {
+        "Months": {
+          "type": "integer"
+        },
+
+        "RiskStatusDescription": {
+          "type": "string"
+        },
+
+        "PremStatusDescription": {
+          "type": "string"
+        }
+      }
+    },
+
+    "ReportingCodesType": {
+      "additionalProperties": false,
+      "properties": {
+        "reportingCode": {
+          "type": "string"
+        }
+      }
+    },
+
+    "ArrangementHierarchyType": {
+      "additionalProperties": false,
+      "properties": {
+        "arrangementCode": {
+          "type": "string"
+        }
+      }
+    },
+
+    "AdminFeesType": {
+      "additionalProperties": false,
+      "properties": {
+        "currency": {
+          "description": "Currency needs to be added here as it is part of the key to table T5691.",
+          "type": "string"
+        },
+
+        "initialFeeAmount": {
+          "type": "number"
+        },
+
+        "periodicFeeAmount": {
+          "type": "number"
+        },
+
+        "adminChargePercent": {
+          "type": "number",
+          "maximum": 100.00
+        },
+
+        "topUpFees": {
+          "type": "number"
+        },
+
+        "topUpAdminPercentage": {
+          "type": "number",
+          "maximum": 100.00
+        }
+      }
+    }
+  }
+}

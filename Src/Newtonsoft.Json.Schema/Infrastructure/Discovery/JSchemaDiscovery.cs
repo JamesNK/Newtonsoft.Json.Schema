@@ -57,7 +57,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                 return;
 
             Uri newScopeId;
-            Uri schemaKnownId = GetSchemaIdAndNewScopeId(schema, ref latestPath, out newScopeId);
+            string scopePath = latestPath;
+            Uri schemaKnownId = GetSchemaIdAndNewScopeId(schema, ref scopePath, out newScopeId);
 
             // check whether a schema with the resolved id is already known
             // this will be hit when a schema contains duplicate ids or references a schema with a duplicate id
@@ -83,7 +84,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                 return;
             }
 
-            _pathStack.Push(new SchemaPath(newScopeId, latestPath));
+            _pathStack.Push(new SchemaPath(newScopeId, scopePath));
 
             // discover should happen in the same order as writer except extension data (e.g. definitions)
             if (schema._extensionData != null)
@@ -110,21 +111,40 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
 
         private Uri GetSchemaIdAndNewScopeId(JSchema schema, ref string latestPath, out Uri newScopeId)
         {
+            Uri currentScopeId = _pathStack.First().Id;
+
             string currentPath;
             if (schema.Id == null)
             {
-                Uri currentScopeId = _pathStack.First().Id;
                 currentPath = StringHelpers.Join("/", _pathStack.Where(p => p.Id == currentScopeId && !string.IsNullOrEmpty(p.Path)).Reverse().Select(p => p.Path));
 
+                if (currentScopeId.OriginalString.IndexOf('#') == -1
+                    && latestPath.IndexOf('#') == -1
+                    && currentPath.IndexOf('#') == -1)
+                {
+                    currentPath += "#";
+                }
+
                 if (!string.IsNullOrEmpty(currentPath))
+                {
                     currentPath += "/";
+                }
 
                 currentPath += latestPath;
             }
             else
             {
-                latestPath = "#";
-                currentPath = "#";
+                bool parentHash = _pathStack.Any(p => p.Id == currentScopeId && p.Path != null && p.Path.Contains('#'));
+                if (parentHash)
+                {
+                    latestPath = string.Empty;
+                    currentPath = string.Empty;
+                }
+                else
+                {
+                    latestPath = "#";
+                    currentPath = "#";
+                }
             }
 
             Uri schemaKnownId = SchemaDiscovery.ResolveSchemaIdAndScopeId(_pathStack.First().Id, schema.Id, currentPath, out newScopeId);
