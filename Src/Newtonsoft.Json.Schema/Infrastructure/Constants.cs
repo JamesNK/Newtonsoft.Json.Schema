@@ -94,7 +94,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             public const string Any = "any";
         }
 
-        public static readonly IDictionary<string, JSchemaType> JSchemaTypeMapping = new Dictionary<string, JSchemaType>
+        public static readonly IDictionary<string, JSchemaType> JSchemaTypeMapping = new Dictionary<string, JSchemaType>(StringComparer.Ordinal)
         {
             { Types.String, JSchemaType.String },
             { Types.Object, JSchemaType.Object },

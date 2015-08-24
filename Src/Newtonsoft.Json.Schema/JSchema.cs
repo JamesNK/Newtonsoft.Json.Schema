@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Xml.XPath;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema.Infrastructure;
 using Newtonsoft.Json.Utilities;
@@ -32,7 +33,7 @@ namespace Newtonsoft.Json.Schema
         internal Dictionary<string, object> _dependencies;
         internal List<JToken> _enum;
         internal Dictionary<string, JSchema> _properties;
-        internal Dictionary<string, JSchema> _patternProperties;
+        internal PatternPropertyDictionary _patternProperties;
         internal List<string> _required;
 
         private int _lineNumber;
@@ -69,7 +70,7 @@ namespace Newtonsoft.Json.Schema
             get
             {
                 if (_properties == null)
-                    _properties = new Dictionary<string, JSchema>();
+                    _properties = new Dictionary<string, JSchema>(StringComparer.Ordinal);
 
                 return _properties;
             }
@@ -254,7 +255,7 @@ namespace Newtonsoft.Json.Schema
             get
             {
                 if (_extensionData == null)
-                    _extensionData = new Dictionary<string, JToken>();
+                    _extensionData = new Dictionary<string, JToken>(StringComparer.Ordinal);
 
                 return _extensionData;
             }
@@ -378,35 +379,11 @@ namespace Newtonsoft.Json.Schema
 
         internal bool TryGetPatternRegex(out Regex regex, out string errorMessage)
         {
-            if (_patternRegex == null)
-            {
-                if (_patternError != null)
-                {
-                    regex = null;
-                    errorMessage = _patternError;
-                    return false;
-                }
-
-                if (_pattern == null)
-                    throw new InvalidOperationException("Cannot get pattern regex, pattern has not been set.");
-
-                try
-                {
-                    _patternRegex = new Regex(_pattern);
-                }
-                catch (Exception ex)
-                {
-                    _patternError = ex.Message;
-
-                    regex = null;
-                    errorMessage = _patternError;
-                    return false;
-                }
-            }
-
+            bool result = RegexHelpers.TryGetPatternRegex(_pattern, ref _patternRegex, ref _patternError);
             regex = _patternRegex;
-            errorMessage = null;
-            return true;
+            errorMessage = _patternError;
+
+            return result;
         }
 
         /// <summary>
@@ -417,7 +394,7 @@ namespace Newtonsoft.Json.Schema
             get
             {
                 if (_dependencies == null)
-                    _dependencies = new Dictionary<string, object>();
+                    _dependencies = new Dictionary<string, object>(StringComparer.Ordinal);
 
                 return _dependencies;
             }
@@ -438,7 +415,7 @@ namespace Newtonsoft.Json.Schema
             get
             {
                 if (_patternProperties == null)
-                    _patternProperties = new Dictionary<string, JSchema>();
+                    _patternProperties = new PatternPropertyDictionary();
 
                 return _patternProperties;
             }

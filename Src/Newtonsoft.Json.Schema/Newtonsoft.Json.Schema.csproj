@@ -63,6 +63,7 @@
     <Compile Include="Infrastructure\Licensing\LicenseType.cs" />
     <Compile Include="Infrastructure\Licensing\ReleaseDateAttribute.cs" />
     <Compile Include="Infrastructure\JTokenPathAnnotation.cs" />
+    <Compile Include="Infrastructure\RegexHelpers.cs" />
     <Compile Include="Infrastructure\StreamHelpers.cs" />
     <Compile Include="Infrastructure\StringHelpers.cs" />
     <Compile Include="Infrastructure\Timer.cs" />
@@ -70,6 +71,7 @@
     <Compile Include="JSchemaReaderException.cs" />
     <Compile Include="JSchemaReaderSettings.cs" />
     <Compile Include="JSchemaValidationException.cs" />
+    <Compile Include="PatternPropertyDictionary.cs" />
     <Compile Include="ResolveSchemaContext.cs" />
     <Compile Include="Infrastructure\UriComparer.cs" />
     <Compile Include="SchemaReference.cs" />

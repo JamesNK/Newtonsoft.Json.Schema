@@ -364,11 +364,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             return Convert.ToDouble(reader.Value, CultureInfo.InvariantCulture);
         }
 
-        private Dictionary<string, JSchema> ReadProperties(JsonReader reader)
+        private void ReadProperties(JsonReader reader, IDictionary<string, JSchema> properties)
         {
             EnsureToken(reader, Constants.PropertyNames.Properties, JsonToken.StartObject);
-
-            Dictionary<string, JSchema> properties = new Dictionary<string, JSchema>();
 
             while (reader.Read())
             {
@@ -387,7 +385,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                         // nom, nom
                         break;
                     case JsonToken.EndObject:
-                        return properties;
+                        return;
                     default:
                         throw JSchemaReaderException.Create(reader, _baseUri, "Unexpected token when reading properties: {0}".FormatWith(CultureInfo.InvariantCulture, reader.TokenType));
                 }
@@ -555,7 +553,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         {
             EnsureToken(reader, Constants.PropertyNames.Dependencies, JsonToken.StartObject);
 
-            Dictionary<string, object> dependencies = new Dictionary<string, object>();
+            Dictionary<string, object> dependencies = new Dictionary<string, object>(StringComparer.Ordinal);
 
             while (reader.Read())
             {
@@ -860,7 +858,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                     schema.Reference = ReadUri(reader, name);
                     break;
                 case Constants.PropertyNames.Properties:
-                    schema._properties = ReadProperties(reader);
+                    schema._properties = new Dictionary<string, JSchema>(StringComparer.Ordinal);
+                    ReadProperties(reader, schema._properties);
 
                     // add schemas with deprecated required flag to new required array
                     foreach (KeyValuePair<string, JSchema> schemaProperty in schema.Properties)
@@ -924,7 +923,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                     ReadAdditionalItems(reader, schema);
                     break;
                 case Constants.PropertyNames.PatternProperties:
-                    schema._patternProperties = ReadProperties(reader);
+                    schema._patternProperties = new PatternPropertyDictionary();
+                    ReadProperties(reader, schema._patternProperties);
                     break;
                 case Constants.PropertyNames.Required:
                     ReadRequired(reader, schema);
