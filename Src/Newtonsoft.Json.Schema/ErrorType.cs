@@ -136,6 +136,11 @@ namespace Newtonsoft.Json.Schema
         /// An 'id' error.
         /// </summary>
         [EnumMember(Value = "id")]
-        Id = 24
+        Id = 24,
+        /// <summary>
+        /// A 'patternProperties' error.
+        /// </summary>
+        [EnumMember(Value = "patternProperties")]
+        PatternProperties = 25
     }
 }

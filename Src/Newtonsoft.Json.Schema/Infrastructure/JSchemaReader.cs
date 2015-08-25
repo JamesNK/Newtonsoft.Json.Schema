@@ -327,7 +327,15 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         private Uri ReadUri(JsonReader reader, string name)
         {
             EnsureToken(reader, name, JsonToken.String);
-            return new Uri((string)reader.Value, UriKind.RelativeOrAbsolute);
+            string id = (string)reader.Value;
+            try
+            {
+                return new Uri(id, UriKind.RelativeOrAbsolute);
+            }
+            catch (UriFormatException ex)
+            {
+                throw new JSchemaReaderException("Error parsing id '{0}'. Id must be a valid URI.".FormatWith(CultureInfo.InvariantCulture, id), ex);
+            }
         }
 
         private string ReadString(JsonReader reader, string name)
@@ -933,7 +941,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                             string errorMessage;
                             if (!patternProperty.TryGetPatternRegex(out patternRegex, out errorMessage))
                             {
-                                ValidationError error = ValidationError.CreateValidationError("Could not parse regex pattern '{0}'. Regex parser error: {1}".FormatWith(CultureInfo.InvariantCulture, patternProperty.Pattern, errorMessage), ErrorType.Pattern, schema, null, patternProperty.Pattern, null, schema, schema.Path);
+                                ValidationError error = ValidationError.CreateValidationError("Could not parse regex pattern '{0}'. Regex parser error: {1}".FormatWith(CultureInfo.InvariantCulture, patternProperty.Pattern, errorMessage), ErrorType.PatternProperties, schema, null, patternProperty.Pattern, null, schema, schema.Path);
                                 _validationErrors.Add(error);
                             }
                         }

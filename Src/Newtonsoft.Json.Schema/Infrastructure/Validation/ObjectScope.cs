@@ -98,7 +98,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                                 if (!patternSchema.TryGetPatternRegex(out regex, out errorMessage))
                                 {
                                     RaiseError("Could not test property names with regex pattern '{0}'. There was an error parsing the regex: {1}".FormatWith(CultureInfo.InvariantCulture, patternSchema.Pattern, errorMessage),
-                                        ErrorType.Pattern,
+                                        ErrorType.PatternProperties,
                                         Schema,
                                         patternSchema.Pattern,
                                         null);

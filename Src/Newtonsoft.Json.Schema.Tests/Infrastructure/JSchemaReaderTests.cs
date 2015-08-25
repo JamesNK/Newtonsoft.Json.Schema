@@ -2809,6 +2809,21 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             Assert.AreEqual(1, errors.Count);
             Assert.AreEqual(@"Could not parse regex pattern '[]'. Regex parser error: parsing ""[]"" - Unterminated [] set.", errors[0].Message);
             Assert.AreEqual(new Uri("#/properties/paises", UriKind.Relative), errors[0].SchemaId);
+            Assert.AreEqual(ErrorType.PatternProperties, errors[0].ErrorType);
+        }
+
+        [Test]
+        public void InvalidId()
+        {
+            string schemaJson = @"{
+  ""$schema"": ""http://json-schema.org/draft-04/schema"",
+  ""id"": ""http://""
+}";
+
+            ExceptionAssert.Throws<JSchemaReaderException>(() =>
+            {
+                JSchema.Parse(schemaJson);
+            }, "Error parsing id 'http://'. Id must be a valid URI.");
         }
     }
 }
