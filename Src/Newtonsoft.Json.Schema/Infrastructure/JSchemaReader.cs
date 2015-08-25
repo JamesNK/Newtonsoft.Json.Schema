@@ -332,7 +332,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             {
                 return new Uri(id, UriKind.RelativeOrAbsolute);
             }
-            catch (UriFormatException ex)
+            catch (Exception ex)
             {
                 throw new JSchemaReaderException("Error parsing id '{0}'. Id must be a valid URI.".FormatWith(CultureInfo.InvariantCulture, id), ex);
             }
