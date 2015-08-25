@@ -2,7 +2,7 @@
   $zipFileName = "JsonSchema10r11.zip"
   $majorVersion = "1.0"
   $majorWithReleaseVersion = "1.0.11"
-  $nugetPrelease = "beta1"
+  $nugetPrelease = "beta2"
   $version = GetVersion $majorWithReleaseVersion
   $packageId = "Newtonsoft.Json.Schema"
   $signAssemblies = $false
