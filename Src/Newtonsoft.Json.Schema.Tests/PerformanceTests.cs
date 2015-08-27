@@ -17,12 +17,27 @@ namespace Newtonsoft.Json.Schema.Tests
     [TestFixture]
     public class PerformanceTests : TestFixtureBase
     {
-        private const int ValidationCount = 100;
+        private const int ValidationCount = 1000;
 
         [Test]
         public void IsValidPerformance()
         {
             JArray a = JArray.Parse(Json);
+            a.IsValid(Schema);
+
+            using (var tester = new PerformanceTester("IsValid"))
+            {
+                for (int i = 1; i < ValidationCount; i++)
+                {
+                    a.IsValid(Schema);
+                }
+            }
+        }
+
+        [Test]
+        public void IsValidPerformance_Failure()
+        {
+            JArray a = JArray.Parse(JsonFailure);
             a.IsValid(Schema);
 
             using (var tester = new PerformanceTester("IsValid"))
@@ -132,6 +147,35 @@ namespace Newtonsoft.Json.Schema.Tests
         ""dimensions"": {
             ""length"": 3.1,
             ""width"": 1.0,
+            ""height"": 1.0
+        },
+        ""warehouseLocation"": {
+            ""latitude"": 54.4,
+            ""longitude"": -32.7
+        }
+    }
+]";
+
+        private const string JsonFailure = @"[
+    {
+        ""id"": ""2"",
+        ""name"": ""An ice sculpture"",
+        ""price"": 12.50,
+        ""tags"": [""cold"", ""ice""],
+        ""dimensions"": {
+            ""length"": 7.0,
+            ""width"": 12.0,
+            ""height"": 9.5
+        },
+        ""warehouseLocation"": {
+            ""latitude"": -78.75,
+            ""longitude"": 20.4
+        }
+    },
+    {
+        ""id"": 3,
+        ""name"": ""A blue mouse"",
+        ""dimensions"": {
             ""height"": 1.0
         },
         ""warehouseLocation"": {

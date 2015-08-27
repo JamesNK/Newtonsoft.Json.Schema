@@ -25,7 +25,7 @@ namespace Newtonsoft.Json.Schema.TestConsole
             string schemaVersion = FileVersionInfo.GetVersionInfo(typeof(JSchema).Assembly.Location).FileVersion;
             Console.WriteLine("Json.NET Version: " + jsonNetVersion);
             Console.WriteLine("Json.NET Schema Version: " + schemaVersion);
-            Console.ReadKey();
+            //Console.ReadKey();
 
             Console.WriteLine("Doing stuff...");
 
@@ -34,13 +34,13 @@ namespace Newtonsoft.Json.Schema.TestConsole
             Console.WriteLine();
             Console.WriteLine("Finished");
             Console.WriteLine("Press any key to exit");
-            Console.ReadKey();
+            //Console.ReadKey();
         }
 
         public static void ValidateJson()
         {
             PerformanceTests t = new PerformanceTests();
-            t.ReaderPerformance();
+            t.IsValidPerformance_Failure();
         }
     }
 }

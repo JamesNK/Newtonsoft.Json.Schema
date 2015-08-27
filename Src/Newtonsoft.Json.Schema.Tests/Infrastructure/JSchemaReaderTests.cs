@@ -2771,7 +2771,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 
             JSchema.Parse(schemaJson, settings);
 
-            Assert.AreEqual(12, errors.Count);
+            Assert.AreEqual(14, errors.Count);
             Assert.AreEqual("Duplicate schema id 'partnerId' encountered.", errors[0].Message);
         }
 

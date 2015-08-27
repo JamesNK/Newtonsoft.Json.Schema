@@ -45,6 +45,14 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
         {
             ValidationError error = CreateError(message, errorType, schema, value, childErrors);
 
+            if (_schemaDiscovery == null)
+            {
+                _schemaDiscovery = new JSchemaDiscovery();
+                _schemaDiscovery.Discover(Schema, null);
+            }
+
+            PopulateSchemaId(error);
+
             SchemaValidationEventHandler handler = ValidationEventHandler;
             if (handler != null)
                 handler(_publicValidator, new SchemaValidationEventArgs(error));
@@ -52,17 +60,21 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 throw JSchemaValidationException.Create(error);
         }
 
+        private void PopulateSchemaId(ValidationError error)
+        {
+            Uri schemaId = _schemaDiscovery.KnownSchemas.Single(s => s.Schema == error.Schema).Id;
+
+            error.SchemaId = schemaId;
+
+            foreach (ValidationError validationError in error.ChildErrors)
+            {
+                PopulateSchemaId(validationError);
+            }
+        }
+
         protected ValidationError CreateError(string message, ErrorType errorType, JSchema schema, object value, IList<ValidationError> childErrors, IJsonLineInfo lineInfo, string path)
         {
-            if (_schemaDiscovery == null)
-            {
-                _schemaDiscovery = new JSchemaDiscovery();
-                _schemaDiscovery.Discover(Schema, null);
-            }
-
-            Uri schemaId = _schemaDiscovery.KnownSchemas.Single(s => s.Schema == schema).Id;
-
-            ValidationError error = ValidationError.CreateValidationError(message, errorType, schema, schemaId, value, childErrors, lineInfo, path);
+            ValidationError error = ValidationError.CreateValidationError(message, errorType, schema, null, value, childErrors, lineInfo, path);
 
             return error;
         }
