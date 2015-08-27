@@ -476,5 +476,45 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             Assert.AreEqual("#/properties/holiday_key", discovery.KnownSchemas[35].Id.OriginalString);
             Assert.AreEqual("#/properties/cpu_alerting_threshold", discovery.KnownSchemas[36].Id.OriginalString);
         }
+
+        [Test]
+        public void DuplicateIds()
+        {
+            JSchema root = new JSchema
+            {
+                Properties =
+                {
+                    {
+                        "prop1", new JSchema
+                        {
+                            Id = new Uri("duplicate", UriKind.RelativeOrAbsolute),
+                            Properties =
+                            {
+                                { "test", new JSchema() }
+                            }
+                        }
+                    },
+                    {
+                        "prop2", new JSchema
+                        {
+                            Id = new Uri("duplicate", UriKind.RelativeOrAbsolute),
+                            Properties =
+                            {
+                                { "test", new JSchema() }
+                            }
+                        }
+                    }
+                }
+            };
+
+            JSchemaDiscovery discovery = new JSchemaDiscovery();
+            discovery.Discover(root, null);
+
+            Assert.AreEqual("#", discovery.KnownSchemas[0].Id.OriginalString);
+            Assert.AreEqual("duplicate", discovery.KnownSchemas[1].Id.OriginalString);
+            Assert.AreEqual("duplicate#/properties/test", discovery.KnownSchemas[2].Id.OriginalString);
+            Assert.AreEqual("duplicate", discovery.KnownSchemas[3].Id.OriginalString);
+            Assert.AreEqual("duplicate#/properties/test", discovery.KnownSchemas[4].Id.OriginalString);
+        }
     }
 }
