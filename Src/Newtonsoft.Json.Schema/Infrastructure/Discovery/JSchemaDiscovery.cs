@@ -118,14 +118,15 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             {
                 currentPath = StringHelpers.Join("/", _pathStack.Where(p => p.Id == currentScopeId && !string.IsNullOrEmpty(p.Path)).Reverse().Select(p => p.Path));
 
-                if (currentScopeId.OriginalString.IndexOf('#') == -1
-                    && latestPath.IndexOf('#') == -1
-                    && currentPath.IndexOf('#') == -1)
+                if (!string.IsNullOrEmpty(currentScopeId.OriginalString)
+                    && currentPath != "#"
+                    && !currentPath.StartsWith("#/", StringComparison.Ordinal))
                 {
-                    currentPath += "#";
+                    currentPath = "#/" + currentPath;
                 }
 
-                if (!string.IsNullOrEmpty(currentPath))
+                if (!string.IsNullOrEmpty(currentPath)
+                    && !currentPath.EndsWith('/'))
                 {
                     currentPath += "/";
                 }
