@@ -52,7 +52,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
                     errorType: ErrorType.MinimumLength,
                     schema: new JSchema
                     {
-                        Id = new Uri("test.xml", UriKind.RelativeOrAbsolute),
+                        BaseUri = new Uri("test.xml", UriKind.RelativeOrAbsolute),
                         Type = JSchemaType.Number
                     },
                     schemaId: new Uri("test.xml", UriKind.RelativeOrAbsolute),
