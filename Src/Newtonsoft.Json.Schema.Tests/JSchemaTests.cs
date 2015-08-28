@@ -1,4 +1,9 @@
-﻿using System;
+﻿#region License
+// Copyright (c) Newtonsoft. All Rights Reserved.
+// License: https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md
+#endregion
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -142,11 +147,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(1, errors.Count);
             Assert.AreEqual("#/properties/prop1", errors[0].SchemaId.OriginalString);
 
-            Assert.IsNotNull(s.Discovery);
-            Assert.AreEqual(2, s.Discovery.KnownSchemas.Count);
+            Assert.AreEqual(2, s.KnownSchemas.Count);
 
             s.Properties["prop2"] = new JSchema { Type = JSchemaType.String };
-            Assert.IsNull(s.Discovery);
+            Assert.AreEqual(0, s.KnownSchemas.Count);
 
             o.IsValid(s, out errors);
 
@@ -154,8 +158,7 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual("#/properties/prop1", errors[0].SchemaId.OriginalString);
             Assert.AreEqual("#/properties/prop2", errors[1].SchemaId.OriginalString);
 
-            Assert.IsNotNull(s.Discovery);
-            Assert.AreEqual(3, s.Discovery.KnownSchemas.Count);
+            Assert.AreEqual(3, s.KnownSchemas.Count);
         }
     }
 }

@@ -3,6 +3,7 @@
 // License: https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md
 #endregion
 
+using System;
 using System.Collections.Generic;
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Validation
@@ -21,7 +22,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             InitialDepth = initialDepth;
         }
 
-        internal virtual void RaiseError(string message, ErrorType errorType, JSchema schema, object value, IList<ValidationError> childErrors)
+        internal virtual void RaiseError(IFormattable message, ErrorType errorType, JSchema schema, object value, IList<ValidationError> childErrors)
         {
             // mark all parent SchemaScopes as invalid
             Scope current = this;

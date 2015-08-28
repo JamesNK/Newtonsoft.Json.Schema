@@ -3,6 +3,7 @@
 // License: https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md
 #endregion
 
+using System;
 using System.Collections.Generic;
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Validation
@@ -16,7 +17,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
         {
         }
 
-        public override void RaiseError(string message, ErrorType errorType, JSchema schema, object value, IList<ValidationError> childErrors)
+        public override void RaiseError(IFormattable message, ErrorType errorType, JSchema schema, object value, IList<ValidationError> childErrors)
         {
             if (Errors == null)
                 Errors = new List<ValidationError>();

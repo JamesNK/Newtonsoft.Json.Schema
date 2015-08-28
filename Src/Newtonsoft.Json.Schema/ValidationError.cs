@@ -17,62 +17,76 @@ namespace Newtonsoft.Json.Schema
     public class ValidationError : IJsonLineInfo
     {
         private IList<ValidationError> _childErrors;
+        private IFormattable _formattable;
+        private string _message;
 
         /// <summary>
         /// Gets the message describing the error that occurred.
         /// </summary>
         /// <value>The message describing the error that occurred.</value>
-        public string Message { get; internal set; }
+        public string Message
+        {
+            get
+            {
+                if (_formattable != null)
+                {
+                    _message = _formattable.ToString(null, CultureInfo.InvariantCulture);
+                    _formattable = null;
+                }
+
+                return _message;
+            }
+        }
 
         /// <summary>
         /// Gets the line number indicating where the error occurred.
         /// </summary>
         /// <value>The line number indicating where the error occurred.</value>
-        public int LineNumber { get; internal set; }
+        public int LineNumber { get; private set; }
 
         /// <summary>
         /// Gets the line position indicating where the error occurred.
         /// </summary>
         /// <value>The line position indicating where the error occurred.</value>
-        public int LinePosition { get; internal set; }
+        public int LinePosition { get; private set; }
 
         /// <summary>
         /// Gets the path to the JSON where the error occurred.
         /// </summary>
         /// <value>The path to the JSON where the error occurred.</value>
-        public string Path { get; internal set; }
+        public string Path { get; private set; }
 
         /// <summary>
         /// Gets the JSON value when the error occurred.
         /// </summary>
         /// <value>The JSON value when the error occurred.</value>
-        public object Value { get; internal set; }
+        public object Value { get; private set; }
 
         /// <summary>
         /// Gets the <see cref="JSchema"/> that generated the error.
         /// </summary>
         /// <value>The <see cref="JSchema"/> that generated the error.</value>
         [JsonIgnore]
-        public JSchema Schema { get; internal set; }
+        public JSchema Schema { get; private set; }
 
         /// <summary>
         /// Gets the ID of the <see cref="JSchema"/> that generated the error, relative to the root schema.
         /// </summary>
         /// <value>The path of the <see cref="JSchema"/> that generated the error, relative to the root schema.</value>
-        public Uri SchemaId { get; set; }
+        public Uri SchemaId { get; internal set; }
 
         /// <summary>
         /// Gets the base URI of the <see cref="JSchema"/> that generated the error.
         /// </summary>
         /// <value>The base URI of the <see cref="JSchema"/> that generated the error.</value>
-        public Uri SchemaBaseUri { get; set; }
+        public Uri SchemaBaseUri { get; private set; }
 
         /// <summary>
         /// Gets the <see cref="ErrorType"/> that generated the error.
         /// </summary>
         /// <value>The <see cref="ErrorType"/> that generated the error.</value>
         [JsonConverter(typeof(StringEnumConverter))]
-        public ErrorType ErrorType { get; internal set; }
+        public ErrorType ErrorType { get; private set; }
 
         /// <summary>
         /// Gets the <see cref="ValidationError"/>'s child errors.
@@ -87,7 +101,7 @@ namespace Newtonsoft.Json.Schema
 
                 return _childErrors;
             }
-            internal set { _childErrors = value; }
+            private set { _childErrors = value; }
         }
 
         bool IJsonLineInfo.HasLineInfo()
@@ -100,10 +114,10 @@ namespace Newtonsoft.Json.Schema
             return JSchemaException.FormatMessage(this, Path, Message);
         }
 
-        internal static ValidationError CreateValidationError(string message, ErrorType errorType, JSchema schema, Uri schemaId, object value, IList<ValidationError> childErrors, IJsonLineInfo lineInfo, string path)
+        internal static ValidationError CreateValidationError(IFormattable message, ErrorType errorType, JSchema schema, Uri schemaId, object value, IList<ValidationError> childErrors, IJsonLineInfo lineInfo, string path)
         {
             ValidationError error = new ValidationError();
-            error.Message = message;
+            error._formattable = message;
             error.ErrorType = errorType;
             error.Path = path;
             if (lineInfo != null)

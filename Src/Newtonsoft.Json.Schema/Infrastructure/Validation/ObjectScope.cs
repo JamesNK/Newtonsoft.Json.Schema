@@ -31,8 +31,14 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             {
                 _readProperties = new List<string>();
 
-                if (schema._dependencies.Values.OfType<JSchema>().Any())
-                    _dependencyScopes = new Dictionary<string, SchemaScope>(StringComparer.Ordinal);
+                foreach (KeyValuePair<string, object> dependency in schema._dependencies)
+                {
+                    if (dependency.Value is JSchema)
+                    {
+                        _dependencyScopes = new Dictionary<string, SchemaScope>(StringComparer.Ordinal);
+                        break;
+                    }
+                }
             }
         }
 
@@ -51,13 +57,13 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                         return false;
                     case JsonToken.EndObject:
                         if (_requiredProperties != null && _requiredProperties.Count > 0)
-                            RaiseError("Required properties are missing from object: {0}.".FormatWith(CultureInfo.InvariantCulture, StringHelpers.Join(", ", _requiredProperties)), ErrorType.Required, Schema, _requiredProperties, null);
+                            RaiseError($"Required properties are missing from object: {StringHelpers.Join(", ", _requiredProperties)}.", ErrorType.Required, Schema, _requiredProperties, null);
 
                         if (Schema.MaximumProperties != null && _propertyCount > Schema.MaximumProperties)
-                            RaiseError("Object property count {0} exceeds maximum count of {1}.".FormatWith(CultureInfo.InvariantCulture, _propertyCount, Schema.MaximumProperties), ErrorType.MaximumProperties, Schema, _propertyCount, null);
+                            RaiseError($"Object property count {_propertyCount} exceeds maximum count of {Schema.MaximumProperties}.", ErrorType.MaximumProperties, Schema, _propertyCount, null);
 
                         if (Schema.MinimumProperties != null && _propertyCount < Schema.MinimumProperties)
-                            RaiseError("Object property count {0} is less than minimum count of {1}.".FormatWith(CultureInfo.InvariantCulture, _propertyCount, Schema.MinimumProperties), ErrorType.MinimumProperties, Schema, _propertyCount, null);
+                            RaiseError($"Object property count {_propertyCount} is less than minimum count of {Schema.MinimumProperties}.", ErrorType.MinimumProperties, Schema, _propertyCount, null);
 
                         if (_readProperties != null)
                         {
@@ -72,7 +78,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                                         if (!requiredProperties.All(r => _readProperties.Contains(r)))
                                         {
                                             List<string> missingRequiredProperties = requiredProperties.Where(r => !_readProperties.Contains(r)).ToList();
-                                            string message = "Dependencies for property '{0}' failed. Missing required keys: {1}.".FormatWith(CultureInfo.InvariantCulture, readProperty, StringHelpers.Join(", ", missingRequiredProperties));
+                                            IFormattable message = $"Dependencies for property '{readProperty}' failed. Missing required keys: {StringHelpers.Join(", ", missingRequiredProperties)}.";
 
                                             RaiseError(message, ErrorType.Dependencies, Schema, readProperty, null);
                                         }
@@ -82,7 +88,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                                         SchemaScope dependencyScope = _dependencyScopes[readProperty];
                                         if (dependencyScope.Context.HasErrors)
                                         {
-                                            string message = "Dependencies for property '{0}' failed.".FormatWith(CultureInfo.InvariantCulture, readProperty);
+                                            IFormattable message = $"Dependencies for property '{readProperty}' failed.";
                                             RaiseError(message, ErrorType.Dependencies, Schema, readProperty, ((ConditionalContext)dependencyScope.Context).Errors);
                                         }
                                     }
@@ -98,7 +104,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                                 string errorMessage;
                                 if (!patternSchema.TryGetPatternRegex(out regex, out errorMessage))
                                 {
-                                    RaiseError("Could not test property names with regex pattern '{0}'. There was an error parsing the regex: {1}".FormatWith(CultureInfo.InvariantCulture, patternSchema.Pattern, errorMessage),
+                                    RaiseError($"Could not test property names with regex pattern '{patternSchema.Pattern}'. There was an error parsing the regex: {errorMessage}",
                                         ErrorType.PatternProperties,
                                         Schema,
                                         patternSchema.Pattern,
@@ -128,7 +134,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     {
                         if (!IsPropertyDefinied(Schema, _currentPropertyName))
                         {
-                            string message = "Property '{0}' has not been defined and the schema does not allow additional properties.".FormatWith(CultureInfo.InvariantCulture, _currentPropertyName);
+                            IFormattable message = $"Property '{_currentPropertyName}' has not been defined and the schema does not allow additional properties.";
                             RaiseError(message, ErrorType.AdditionalProperties, Schema, _currentPropertyName, null);
                         }
                     }

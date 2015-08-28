@@ -31,7 +31,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             get { return _scopes; }
         }
 
-        public abstract ValidationError CreateError(string message, ErrorType errorType, JSchema schema, object value, IList<ValidationError> childErrors);
+        public abstract ValidationError CreateError(IFormattable message, ErrorType errorType, JSchema schema, object value, IList<ValidationError> childErrors);
 
         protected Validator(object publicValidator)
         {
@@ -40,17 +40,22 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             _context = new ValidatorContext(this);
         }
 
-        public void RaiseError(string message, ErrorType errorType, JSchema schema, object value, IList<ValidationError> childErrors)
+        public void RaiseError(IFormattable message, ErrorType errorType, JSchema schema, object value, IList<ValidationError> childErrors)
         {
             ValidationError error = CreateError(message, errorType, schema, value, childErrors);
 
-            if (Schema.Discovery == null)
+            // shared cache information that could be read/populated from multiple threads
+            // lock to ensure that only one thread writes known schemas
+            if (Schema.KnownSchemas.Count == 0)
             {
-                Schema.Discovery = new JSchemaDiscovery();
-            }
-            if (Schema.Discovery.KnownSchemas.Count == 0)
-            {
-                Schema.Discovery.Discover(Schema, null);
+                lock (Schema.KnownSchemas)
+                {
+                    if (Schema.KnownSchemas.Count == 0)
+                    {
+                        JSchemaDiscovery discovery = new JSchemaDiscovery(Schema.KnownSchemas, KnownSchemaState.External);
+                        discovery.Discover(Schema, null);
+                    }
+                }
             }
 
             PopulateSchemaId(error);
@@ -64,7 +69,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
         private void PopulateSchemaId(ValidationError error)
         {
-            Uri schemaId = Schema.Discovery.KnownSchemas.Single(s => s.Schema == error.Schema).Id;
+            Uri schemaId = Schema.KnownSchemas.Single(s => s.Schema == error.Schema).Id;
 
             error.SchemaId = schemaId;
 
@@ -74,7 +79,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             }
         }
 
-        protected ValidationError CreateError(string message, ErrorType errorType, JSchema schema, object value, IList<ValidationError> childErrors, IJsonLineInfo lineInfo, string path)
+        protected ValidationError CreateError(IFormattable message, ErrorType errorType, JSchema schema, object value, IList<ValidationError> childErrors, IJsonLineInfo lineInfo, string path)
         {
             ValidationError error = ValidationError.CreateValidationError(message, errorType, schema, null, value, childErrors, lineInfo, path);
 

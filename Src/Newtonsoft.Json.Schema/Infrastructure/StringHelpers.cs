@@ -45,3 +45,31 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         }
     }
 }
+
+namespace System.Runtime.CompilerServices
+{
+    internal static class FormattableStringFactory
+    {
+        public static FormattableString Create(string s, params object[] args)
+        {
+            return new FormattableString(s, args);
+        }
+    }
+
+    internal class FormattableString : IFormattable
+    {
+        private readonly string s;
+        private readonly object[] args;
+
+        public FormattableString(string s, object[] args)
+        {
+            this.s = s;
+            this.args = args;
+        }
+
+        public string ToString(string ignored, IFormatProvider formatProvider)
+        {
+            return string.Format(formatProvider, s, args);
+        }
+    }
+}

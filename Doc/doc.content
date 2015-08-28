@@ -4,6 +4,7 @@
   <Topic id="LoadingSchemas" visible="True" title="Loading Schemas" />
   <Topic id="ValidatingJson" visible="True" title="Validating JSON" />
   <Topic id="GeneratingSchemas" visible="True" title="Generating Schemas" />
+  <Topic id="Performance" visible="True" isSelected="true" title="Performance Tips" />
   <Topic id="Samples" visible="True" isExpanded="true" title="Samples">
     <Topic id="231aab62-1033-489c-826f-66d6b4e25ecd" visible="True" noFile="true" isExpanded="true" title="Load JSON Schemas">
       <Topic id="JsonSchemaParse" visible="True" title="Parse JSON Schema from JSON" />
@@ -18,7 +19,7 @@
       <Topic id="JTokenValidateWithEvent" visible="True" title="Validate with validation error events" />
       <Topic id="JsonValidatingReaderAndSerializer" visible="True" title="Validate JSON with JSchemaValidatingReader" />
       <Topic id="JsonValidatingWriterAndSerializer" visible="True" title="Validate JSON with JSchemaValidatingWriter" />
-      <Topic id="JTokenIsValidWithValidationErrors" visible="True" isSelected="true" title="Detailed validation error information" />
+      <Topic id="JTokenIsValidWithValidationErrors" visible="True" title="Detailed validation error information" />
     </Topic>
     <Topic id="14690d92-d0f9-4083-a409-a0fc9f571e9f" visible="True" noFile="true" isExpanded="true" title="Create JSON Schemas">
       <Topic id="CreateJsonSchemaManually" visible="True" title="Create JSON Schema manually" />

@@ -2,9 +2,42 @@
 <topic id="Performance" revisionNumber="1">
   <developerConceptualDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
     <introduction>
-      <para>Json.NET Schema is a high performance validator. Using <codeEntityReference>T:Newtonsoft.Json.Schema.JSchemaValidatingReader</codeEntityReference> JSON can be validated as it is read, and using <codeEntityReference>T:Newtonsoft.Json.Schema.JSchemaValidatingWriter</codeEntityReference> JSON can be validated as it is written.</para>
+      <para>Json.NET Schema has been designed for high performance. Here are some tips to rapidly validate JSON data.</para>
     </introduction>
+    <section>
+      <title>Reuse JSchemas</title>
+      <content>
+        <para>The best way to improve performance is to load a JSON Schema into JSchema once and reuse it each time you validate JSON. Reusing a JSchema eliminates the time required to parse and load the schema from JSON every time you validate data.</para>
+        <para>A loaded JSchema is thread-safe for validation and can be safely cached once and reused for the life-time of an application or website.</para>        
+      </content>
+    </section>
+    <section>
+      <title>Optimize Memory Usage</title>
+      <content>
+        <para>To keep an application consistently fast, it is important to minimize the
+        amount of time the .NET framework spends performing <externalLink>
+<linkText>garbage collection</linkText>
+<linkUri>http://msdn.microsoft.com/en-us/library/ms973837.aspx</linkUri>
+<linkTarget>_blank</linkTarget>
+</externalLink>.
+        Allocating too many objects or allocating very large objects can slow down or even
+        halt an application while garbage collection is in progress.
+        </para>
+        <para>To minimize memory usage and the number of objects allocated, Json.NET Schema supports
+        validating JSON as it is being read from or written to a stream. Validating JSON a piece at a time, instead of loading
+        the entire JSON document into memory, is especially important when working with JSON
+        documents greater than 85kb in size to avoid the JSON string ending up in the <externalLink>
+<linkText>large object heap</linkText>
+<linkUri>http://msdn.microsoft.com/en-us/magazine/cc534993.aspx</linkUri>
+<linkTarget>_blank</linkTarget>
+</externalLink>.</para>
+
+<code lang="cs" source="..\Src\Newtonsoft.Json.Schema.Tests\Documentation\PerformanceTests.cs" region="ValidateStream" title="Validate Stream" />
+        
+      </content>
+    </section>
     <relatedTopics>
+      <codeEntityReference>T:Newtonsoft.Json.Schema.JSchema</codeEntityReference>
       <codeEntityReference>T:Newtonsoft.Json.Schema.JSchemaValidatingReader</codeEntityReference>
       <codeEntityReference>T:Newtonsoft.Json.Schema.JSchemaValidatingWriter</codeEntityReference>
     </relatedTopics>

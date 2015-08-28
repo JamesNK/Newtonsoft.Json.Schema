@@ -40,7 +40,7 @@ namespace Newtonsoft.Json.Schema.TestConsole
         public static void ValidateJson()
         {
             PerformanceTests t = new PerformanceTests();
-            t.IsValidPerformance_Failure();
+            t.IsValid_SchemaSpec();
         }
     }
 }

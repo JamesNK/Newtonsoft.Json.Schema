@@ -26,28 +26,43 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             Assert.AreEqual(s1, s2);
         }
 
+        public class DummyLineInfo : IJsonLineInfo
+        {
+            public bool HasLineInfo()
+            {
+                return true;
+            }
+
+            public int LineNumber
+            {
+                get { return 11; }
+            }
+
+            public int LinePosition
+            {
+                get { return 5; }
+            }
+        }
+
         [Test]
         public void SerializeError()
         {
-            ValidationError error = new ValidationError
-            {
-                LineNumber = 11,
-                LinePosition = 5,
-                Value = "A value!",
-                Message = "A message!",
-                Path = "sdf.sdf",
-                ErrorType = ErrorType.MinimumLength,
-                SchemaId = new Uri("test.xml", UriKind.RelativeOrAbsolute),
-                SchemaBaseUri = new Uri("test.xml", UriKind.RelativeOrAbsolute),
-                Schema = new JSchema { Type = JSchemaType.Number },
-                ChildErrors =
-                {
-                    new ValidationError
+            ValidationError error = ValidationError.CreateValidationError(
+                    message: $"A message!",
+                    errorType: ErrorType.MinimumLength,
+                    schema: new JSchema
                     {
-                        Message = "Child message!"
-                    }
-                }
-            };
+                        Id = new Uri("test.xml", UriKind.RelativeOrAbsolute),
+                        Type = JSchemaType.Number
+                    },
+                    schemaId: new Uri("test.xml", UriKind.RelativeOrAbsolute),
+                    value: "A value!",
+                    childErrors: new List<ValidationError>
+                    {
+                        ValidationError.CreateValidationError($"Child message!", ErrorType.None, null, null, null, null, null, null)
+                    },
+                    lineInfo: new DummyLineInfo(),
+                    path: "sdf.sdf");
 
             string json = JsonConvert.SerializeObject(error, Formatting.Indented);
 

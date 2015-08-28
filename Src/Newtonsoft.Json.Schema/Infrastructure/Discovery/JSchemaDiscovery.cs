@@ -77,7 +77,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             {
                 if (ValidationErrors != null)
                 {
-                    ValidationError error = ValidationError.CreateValidationError("Duplicate schema id '{0}' encountered.".FormatWith(CultureInfo.InvariantCulture, schemaKnownId.OriginalString), ErrorType.Id, schema, null, schemaKnownId, null, schema, schema.Path);
+                    ValidationError error = ValidationError.CreateValidationError($"Duplicate schema id '{schemaKnownId.OriginalString}' encountered.", ErrorType.Id, schema, null, schemaKnownId, null, schema, schema.Path);
                     ValidationErrors.Add(error);
                 }
             }

@@ -110,7 +110,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 {
                     KnownSchema knownSchema = _schemaDiscovery.KnownSchemas.SingleOrDefault(s => s.Schema == error.Schema);
                     if (knownSchema != null)
+                    {
                         error.SchemaId = knownSchema.Id;
+                    }
 
                     _validationEventHandler(this, new SchemaValidationEventArgs(error));
                 }
@@ -940,7 +942,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                             string errorMessage;
                             if (!patternProperty.TryGetPatternRegex(out patternRegex, out errorMessage))
                             {
-                                ValidationError error = ValidationError.CreateValidationError("Could not parse regex pattern '{0}'. Regex parser error: {1}".FormatWith(CultureInfo.InvariantCulture, patternProperty.Pattern, errorMessage), ErrorType.PatternProperties, schema, null, patternProperty.Pattern, null, schema, schema.Path);
+                                ValidationError error = ValidationError.CreateValidationError($"Could not parse regex pattern '{patternProperty.Pattern}'. Regex parser error: {errorMessage}", ErrorType.PatternProperties, schema, null, patternProperty.Pattern, null, schema, schema.Path);
                                 _validationErrors.Add(error);
                             }
                         }
@@ -1033,7 +1035,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                         string errorMessage;
                         if (!schema.TryGetPatternRegex(out patternRegex, out errorMessage))
                         {
-                            ValidationError error = ValidationError.CreateValidationError("Could not parse regex pattern '{0}'. Regex parser error: {1}".FormatWith(CultureInfo.InvariantCulture, schema.Pattern, errorMessage), ErrorType.Pattern, schema, null, schema.Pattern, null, schema, schema.Path);
+                            ValidationError error = ValidationError.CreateValidationError($"Could not parse regex pattern '{schema.Pattern}'. Regex parser error: {errorMessage}", ErrorType.Pattern, schema, null, schema.Pattern, null, schema, schema.Path);
                             _validationErrors.Add(error);
                         }                        
                     }

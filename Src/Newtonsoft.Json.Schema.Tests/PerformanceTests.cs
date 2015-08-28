@@ -50,6 +50,23 @@ namespace Newtonsoft.Json.Schema.Tests
         }
 
         [Test]
+        public void IsValid_SchemaSpec()
+        {
+            string schemaJson = TestHelpers.OpenFileText(@"resources\schemas\schema-draft-v4.json");
+            JSchema s = JSchema.Parse(schemaJson);
+            JObject o = JObject.Parse(schemaJson);
+            o.IsValid(s);
+
+            using (var tester = new PerformanceTester("IsValid_SchemaSpec"))
+            {
+                for (int i = 1; i < ValidationCount; i++)
+                {
+                    o.IsValid(s);
+                }
+            }
+        }
+
+        [Test]
         public void ReaderPerformance()
         {
             ReaderValidation();

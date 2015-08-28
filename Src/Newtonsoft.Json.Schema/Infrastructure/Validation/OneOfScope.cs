@@ -36,11 +36,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                         index++;
                     }
 
-                    string message = "JSON is valid against more than one schema from 'oneOf'. ";
+                    IFormattable message;
                     if (validIndexes.Count > 0)
-                        message += "Valid schema indexes: {0}.".FormatWith(CultureInfo.InvariantCulture, StringHelpers.Join(", ", validIndexes));
+                        message = $"JSON is valid against more than one schema from 'oneOf'. Valid schema indexes: {StringHelpers.Join(", ", validIndexes)}.";
                     else
-                        message += "No valid schemas.";
+                        message = $"JSON is valid against more than one schema from 'oneOf'. No valid schemas.";
 
                     RaiseError(message, ErrorType.OneOf, ParentSchemaScope.Schema, null, ConditionalContext.Errors);
                 }

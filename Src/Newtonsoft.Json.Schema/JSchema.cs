@@ -60,7 +60,7 @@ namespace Newtonsoft.Json.Schema
         internal string Path;
 
         internal event Action<JSchema> Changed;
-        internal JSchemaDiscovery Discovery;
+        internal readonly List<KnownSchema> KnownSchemas;
         internal JSchemaState State;
 
         internal void OnChildChanged(JSchema changedSchema)
@@ -82,7 +82,7 @@ namespace Newtonsoft.Json.Schema
 
             try
             {
-                Discovery = null;
+                KnownSchemas.Clear();
 
                 State = JSchemaState.Reentrant;
                 Changed?.Invoke(changedSchema);
@@ -364,6 +364,7 @@ namespace Newtonsoft.Json.Schema
         {
             AllowAdditionalProperties = true;
             AllowAdditionalItems = true;
+            KnownSchemas = new List<KnownSchema>();
         }
 
         /// <summary>

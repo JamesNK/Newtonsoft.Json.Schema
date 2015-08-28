@@ -3,6 +3,7 @@
 // License: https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -101,7 +102,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                         StringWriter sw = new StringWriter(CultureInfo.InvariantCulture);
                         Context.TokenWriter.CurrentToken.WriteTo(new JsonTextWriter(sw));
 
-                        RaiseError("Value {0} is not defined in enum.".FormatWith(CultureInfo.InvariantCulture, sw.ToString()), ErrorType.Enum, Schema, value, null);
+                        RaiseError($"Value {sw.ToString()} is not defined in enum.", ErrorType.Enum, Schema, value, null);
                     }
                 }
             }
@@ -111,7 +112,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
         {
             if (!JSchemaTypeHelpers.HasFlag(currentSchema.Type, currentType))
             {
-                RaiseError("Invalid type. Expected {0} but got {1}.".FormatWith(CultureInfo.InvariantCulture, currentSchema.Type, currentType), ErrorType.Type, currentSchema, value, null);
+                RaiseError($"Invalid type. Expected {currentSchema.Type} but got {currentType}.", ErrorType.Type, currentSchema, value, null);
                 return false;
             }
 
@@ -134,7 +135,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             }
         }
 
-        internal override void RaiseError(string message, ErrorType errorType, JSchema schema, object value, IList<ValidationError> childErrors)
+        internal override void RaiseError(IFormattable message, ErrorType errorType, JSchema schema, object value, IList<ValidationError> childErrors)
         {
             IsValid = false;
 

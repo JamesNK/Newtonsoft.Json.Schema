@@ -3,6 +3,7 @@
 // License: https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Newtonsoft.Json.Linq;
@@ -30,7 +31,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             Validator = validator;
         }
         
-        public abstract void RaiseError(string message, ErrorType errorType, JSchema schema, object value, IList<ValidationError> childErrors);
+        public abstract void RaiseError(IFormattable message, ErrorType errorType, JSchema schema, object value, IList<ValidationError> childErrors);
         public abstract bool HasErrors { get; }
     }
 }
