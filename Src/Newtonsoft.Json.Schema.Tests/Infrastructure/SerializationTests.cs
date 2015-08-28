@@ -59,7 +59,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
                     value: "A value!",
                     childErrors: new List<ValidationError>
                     {
-                        ValidationError.CreateValidationError($"Child message!", ErrorType.None, null, null, null, null, null, null)
+                        ValidationError.CreateValidationError($"Child message!", ErrorType.None, new JSchema(), null, null, null, null, null)
                     },
                     lineInfo: new DummyLineInfo(),
                     path: "sdf.sdf");
