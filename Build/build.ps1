@@ -28,7 +28,7 @@
   )
 }
 
-framework '4.0x86'
+framework '4.6x86'
 
 task default -depends Test
 

@@ -10,10 +10,19 @@ using System.IO;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema.Infrastructure;
+using Newtonsoft.Json.Schema.Infrastructure.Collections;
+using Newtonsoft.Json.Schema.Infrastructure.Discovery;
 using Newtonsoft.Json.Utilities;
 
 namespace Newtonsoft.Json.Schema
 {
+    internal enum JSchemaState
+    {
+        Default,
+        Loading,
+        Reentrant
+    }
+
     /// <summary>
     /// An in-memory representation of a JSON Schema.
     /// </summary>
@@ -25,28 +34,85 @@ namespace Newtonsoft.Json.Schema
         internal JSchemaReader InternalReader { get; set; }
 
         internal Dictionary<string, JToken> _extensionData;
-        internal List<JSchema> _items;
-        internal List<JSchema> _anyOf;
-        internal List<JSchema> _allOf;
-        internal List<JSchema> _oneOf;
-        internal Dictionary<string, object> _dependencies;
+        internal JSchemaCollection _items;
+        internal JSchemaCollection _anyOf;
+        internal JSchemaCollection _allOf;
+        internal JSchemaCollection _oneOf;
+        internal JSchemaDependencyDictionary _dependencies;
         internal List<JToken> _enum;
-        internal Dictionary<string, JSchema> _properties;
-        internal PatternPropertyDictionary _patternProperties;
+        internal JSchemaDictionary _properties;
+        internal JSchemaDictionary _patternProperties;
         internal List<string> _required;
 
         private int _lineNumber;
         private int _linePosition;
-        internal Uri BaseUri;
-        internal string Path;
         private string _pattern;
         private Regex _patternRegex;
         private string _patternError;
+        private Uri _id;
+        private bool _itemsPositionValidation;
+        private JSchema _not;
+        private JSchema _additionalProperties;
+        private JSchema _additionalItems;
+        private JSchemaPatternDictionary _internalPatternProperties;
+
+        internal Uri BaseUri;
+        internal string Path;
+
+        internal event Action<JSchema> Changed;
+        internal JSchemaDiscovery Discovery;
+        internal JSchemaState State;
+
+        internal void OnChildChanged(JSchema changedSchema)
+        {
+            OnChanged(changedSchema);
+        }
+
+        internal void OnSelfChanged()
+        {
+            OnChanged(this);
+        }
+
+        private void OnChanged(JSchema changedSchema)
+        {
+            if (State != JSchemaState.Default)
+            {
+                return;
+            }
+
+            try
+            {
+                Discovery = null;
+
+                State = JSchemaState.Reentrant;
+                Changed?.Invoke(changedSchema);
+            }
+            finally
+            {
+                State = JSchemaState.Default;
+            }
+        }
+
+        internal IEnumerable<PatternSchema> GetPatternSchemas()
+        {
+            return _internalPatternProperties.GetPatternSchemas();
+        }
 
         /// <summary>
         /// Gets or sets the schema ID.
         /// </summary>
-        public Uri Id { get; set; }
+        public Uri Id
+        {
+            get { return _id; }
+            set
+            {
+                if (!UriComparer.Instance.Equals(value, _id))
+                {
+                    _id = value;
+                    OnSelfChanged();
+                }
+            }
+        }
 
         /// <summary>
         /// Gets or sets the types of values allowed by the schema.
@@ -69,7 +135,7 @@ namespace Newtonsoft.Json.Schema
             get
             {
                 if (_properties == null)
-                    _properties = new Dictionary<string, JSchema>(StringComparer.Ordinal);
+                    _properties = new JSchemaDictionary(this);
 
                 return _properties;
             }
@@ -84,7 +150,7 @@ namespace Newtonsoft.Json.Schema
             get
             {
                 if (_items == null)
-                    _items = new List<JSchema>();
+                    _items = new JSchemaCollection(this);
 
                 return _items;
             }
@@ -96,7 +162,18 @@ namespace Newtonsoft.Json.Schema
         /// <value>
         /// 	<c>true</c> if items are validated using their array position; otherwise, <c>false</c>.
         /// </value>
-        public bool ItemsPositionValidation { get; set; }
+        public bool ItemsPositionValidation
+        {
+            get { return _itemsPositionValidation; }
+            set
+            {
+                if (value != _itemsPositionValidation)
+                {
+                    _itemsPositionValidation = value;
+                    OnSelfChanged();
+                }
+            }
+        }
 
         /// <summary>
         /// Gets the required object properties.
@@ -122,7 +199,7 @@ namespace Newtonsoft.Json.Schema
             get
             {
                 if (_allOf == null)
-                    _allOf = new List<JSchema>();
+                    _allOf = new JSchemaCollection(this);
 
                 return _allOf;
             }
@@ -137,7 +214,7 @@ namespace Newtonsoft.Json.Schema
             get
             {
                 if (_anyOf == null)
-                    _anyOf = new List<JSchema>();
+                    _anyOf = new JSchemaCollection(this);
 
                 return _anyOf;
             }
@@ -152,7 +229,7 @@ namespace Newtonsoft.Json.Schema
             get
             {
                 if (_oneOf == null)
-                    _oneOf = new List<JSchema>();
+                    _oneOf = new JSchemaCollection(this);
 
                 return _oneOf;
             }
@@ -162,7 +239,27 @@ namespace Newtonsoft.Json.Schema
         /// Gets the Not schema.
         /// </summary>
         /// <value>The Not schema.</value>
-        public JSchema Not { get; set; }
+        public JSchema Not
+        {
+            get { return _not; }
+            set { SetSchema(ref _not, value); }
+        }
+
+        private void SetSchema(ref JSchema schema, JSchema newSchema)
+        {
+            if (schema != newSchema)
+            {
+                if (schema != null)
+                {
+                    schema.Changed -= OnChildChanged;
+                }
+
+                schema = newSchema;
+                schema.Changed += OnChildChanged;
+
+                OnSelfChanged();
+            }
+        }
 
         /// <summary>
         /// Gets the collection of valid enum values allowed.
@@ -393,7 +490,7 @@ namespace Newtonsoft.Json.Schema
             get
             {
                 if (_dependencies == null)
-                    _dependencies = new Dictionary<string, object>(StringComparer.Ordinal);
+                    _dependencies = new JSchemaDependencyDictionary(this);
 
                 return _dependencies;
             }
@@ -403,7 +500,11 @@ namespace Newtonsoft.Json.Schema
         /// Gets or sets the <see cref="JSchema"/> for additional properties.
         /// </summary>
         /// <value>The <see cref="JSchema"/> for additional properties.</value>
-        public JSchema AdditionalProperties { get; set; }
+        public JSchema AdditionalProperties
+        {
+            get { return _additionalProperties; }
+            set { SetSchema(ref _additionalProperties, value); }
+        }
 
         /// <summary>
         /// Gets the object pattern properties.
@@ -414,7 +515,10 @@ namespace Newtonsoft.Json.Schema
             get
             {
                 if (_patternProperties == null)
-                    _patternProperties = new PatternPropertyDictionary();
+                {
+                    _internalPatternProperties = new JSchemaPatternDictionary();
+                    _patternProperties = new JSchemaDictionary(this, _internalPatternProperties);
+                }
 
                 return _patternProperties;
             }
@@ -432,7 +536,11 @@ namespace Newtonsoft.Json.Schema
         /// Gets or sets the <see cref="JSchema"/> for additional items.
         /// </summary>
         /// <value>The <see cref="JSchema"/> for additional items.</value>
-        public JSchema AdditionalItems { get; set; }
+        public JSchema AdditionalItems
+        {
+            get { return _additionalItems; }
+            set { SetSchema(ref _additionalItems, value); }
+        }
 
         /// <summary>
         /// Gets or sets a value indicating whether additional items are allowed.
@@ -489,7 +597,9 @@ namespace Newtonsoft.Json.Schema
             ValidationUtils.ArgumentNotNull(settings, "settings");
 
             JSchemaReader schemaReader = new JSchemaReader(settings);
-            return schemaReader.ReadRoot(reader);
+            JSchema schema = schemaReader.ReadRoot(reader);
+
+            return schema;
         }
 
         /// <summary>

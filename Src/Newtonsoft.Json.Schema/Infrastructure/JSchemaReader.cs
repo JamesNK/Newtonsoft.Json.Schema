@@ -14,6 +14,7 @@ using System.Text.RegularExpressions;
 using System.Numerics;
 #endif
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Schema.Infrastructure.Collections;
 using Newtonsoft.Json.Schema.Infrastructure.Discovery;
 using Newtonsoft.Json.Utilities;
 
@@ -401,7 +402,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             throw JSchemaReaderException.Create(reader, _baseUri, "Unexpected end when reading schema properties.");
         }
 
-        private static void SetAtIndex<T>(List<T> list, int index, T value)
+        private static void SetAtIndex<T>(IList<T> list, int index, T value)
         {
             if (index == list.Count)
                 list.Add(value);
@@ -411,16 +412,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 throw new InvalidOperationException("Could not add value to list. Index is greater than the list length.");
         }
 
-        private void EnsureList<T>(ref List<T> value)
-        {
-            if (value == null)
-                value = new List<T>();
-        }
-
         private void ReadItems(JsonReader reader, JSchema schema)
         {
             EnsureRead(reader, Constants.PropertyNames.Items);
-            EnsureList(ref schema._items);
+            if (schema._items == null)
+                schema._items = new JSchemaCollection(schema);
 
             switch (reader.TokenType)
             {
@@ -437,11 +433,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             }
         }
 
-        private void ReadSchemaArray(JsonReader reader, string name, out List<JSchema> schemas)
+        private void ReadSchemaArray(JsonReader reader, JSchema schema, string name, out JSchemaCollection schemas)
         {
             EnsureToken(reader, name, JsonToken.StartArray);
 
-            schemas = new List<JSchema>();
+            schemas = new JSchemaCollection(schema);
 
             PopulateSchemaArray(reader, name, schemas);
         }
@@ -489,7 +485,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         private void ReadExtends(JsonReader reader, JSchema schema)
         {
             EnsureRead(reader, Constants.PropertyNames.Extends);
-            EnsureList(ref schema._allOf);
+            if (schema._allOf == null)
+                schema._allOf = new JSchemaCollection(schema);
 
             switch (reader.TokenType)
             {
@@ -560,7 +557,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         {
             EnsureToken(reader, Constants.PropertyNames.Dependencies, JsonToken.StartObject);
 
-            Dictionary<string, object> dependencies = new Dictionary<string, object>(StringComparer.Ordinal);
+            JSchemaDependencyDictionary dependencies = new JSchemaDependencyDictionary(schema);
 
             while (reader.Read())
             {
@@ -606,7 +603,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             throw JSchemaReaderException.Create(reader, _baseUri, "Unexpected end when reading dependencies.");
         }
 
-        private void PopulateSchemaArray(JsonReader reader, string name, List<JSchema> schemas)
+        private void PopulateSchemaArray(JsonReader reader, string name, IList<JSchema> schemas)
         {
             while (reader.Read())
             {
@@ -648,12 +645,12 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             return mappedType;
         }
 
-        private object ReadType(JsonReader reader, string name)
+        private object ReadType(JsonReader reader, JSchema schema, string name)
         {
             EnsureRead(reader, name);
 
             List<JSchemaType> types = new List<JSchemaType>();
-            List<JSchema> typeSchemas = null;
+            JSchemaCollection typeSchemas = null;
             bool isAny = false;
 
             switch (reader.TokenType)
@@ -703,7 +700,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                                 {
                                     if (typeSchemas == null)
                                     {
-                                        typeSchemas = new List<JSchema>();
+                                        typeSchemas = new JSchemaCollection(schema);
                                         foreach (JSchemaType type in types)
                                         {
                                             typeSchemas.Add(new JSchema
@@ -714,7 +711,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                                         types = null;
                                     }
                                     int count = typeSchemas.Count;
-                                    List<JSchema> l = typeSchemas;
+                                    JSchemaCollection l = typeSchemas;
                                     LoadAndSetSchema(reader, s => SetAtIndex(l, count, s));
                                 }
                                 else
@@ -735,6 +732,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         private void LoadAndSetSchema(JsonReader reader, Action<JSchema> setSchema, bool isRoot = false)
         {
             JSchema schema = new JSchema();
+            schema.State = JSchemaState.Loading;
             schema.BaseUri = _baseUri;
 
             IJsonLineInfo lineInfo = reader as IJsonLineInfo;
@@ -752,6 +750,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
                 AddDeferedSchema(resolvedReference, schema, setSchema);
             }
+
+            schema.State = JSchemaState.Default;
 
             setSchema(schema);
 
@@ -865,11 +865,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                     schema.Reference = ReadUri(reader, name);
                     break;
                 case Constants.PropertyNames.Properties:
-                    schema._properties = new Dictionary<string, JSchema>(StringComparer.Ordinal);
+                    schema._properties = new JSchemaDictionary(schema);
                     ReadProperties(reader, schema._properties);
 
                     // add schemas with deprecated required flag to new required array
-                    foreach (KeyValuePair<string, JSchema> schemaProperty in schema.Properties)
+                    foreach (KeyValuePair<string, JSchema> schemaProperty in schema._properties)
                     {
                         if (schemaProperty.Value.DeprecatedRequired)
                         {
@@ -883,28 +883,28 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                     break;
                 case Constants.PropertyNames.Type:
                 {
-                    object typeResult = ReadType(reader, name);
+                    object typeResult = ReadType(reader, schema, name);
                     if (typeResult is JSchemaType)
                         schema.Type = (JSchemaType)typeResult;
                     else
-                        schema._anyOf = (List<JSchema>)typeResult;
+                        schema._anyOf = (JSchemaCollection)typeResult;
                     break;
                 }
                 case Constants.PropertyNames.AnyOf:
                     if (EnsureVersion(SchemaVersion.Draft4))
-                        ReadSchemaArray(reader, name, out schema._anyOf);
+                        ReadSchemaArray(reader, schema, name, out schema._anyOf);
                     else
                         ReadExtensionData(reader, schema, name);
                     break;
                 case Constants.PropertyNames.AllOf:
                     if (EnsureVersion(SchemaVersion.Draft4))
-                        ReadSchemaArray(reader, name, out schema._allOf);
+                        ReadSchemaArray(reader, schema, name, out schema._allOf);
                     else
                         ReadExtensionData(reader, schema, name);
                     break;
                 case Constants.PropertyNames.OneOf:
                     if (EnsureVersion(SchemaVersion.Draft4))
-                        ReadSchemaArray(reader, name, out schema._oneOf);
+                        ReadSchemaArray(reader, schema, name, out schema._oneOf);
                     else
                         ReadExtensionData(reader, schema, name);
                     break;
@@ -930,12 +930,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                     ReadAdditionalItems(reader, schema);
                     break;
                 case Constants.PropertyNames.PatternProperties:
-                    schema._patternProperties = new PatternPropertyDictionary();
-                    ReadProperties(reader, schema._patternProperties);
+                    ReadProperties(reader, schema.PatternProperties);
                     
                     if (_validationErrors != null)
                     {
-                        foreach (PatternSchema patternProperty in schema._patternProperties.GetPatternSchemas())
+                        foreach (PatternSchema patternProperty in schema.GetPatternSchemas())
                         {
                             Regex patternRegex;
                             string errorMessage;
@@ -1008,7 +1007,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                         if (schema.Not == null)
                             schema.Not = new JSchema();
 
-                        object disallowResult = ReadType(reader, name);
+                        object disallowResult = ReadType(reader, schema, name);
                         if (disallowResult is JSchemaType)
                         {
                             JSchemaType type = schema.Not.Type ?? JSchemaType.None;
@@ -1016,7 +1015,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                         }
                         else
                         {
-                            schema.Not._anyOf = (List<JSchema>)disallowResult;
+                            schema.Not._anyOf = (JSchemaCollection)disallowResult;
                         }
                     }
                     else

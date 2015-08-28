@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Newtonsoft.Json.Schema.Infrastructure.Collections;
 using Newtonsoft.Json.Utilities;
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Validation
@@ -91,7 +92,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
                         if (Schema._patternProperties != null)
                         {
-                            foreach (PatternSchema patternSchema in Schema._patternProperties.GetPatternSchemas())
+                            foreach (PatternSchema patternSchema in Schema.GetPatternSchemas())
                             {
                                 Regex regex;
                                 string errorMessage;
@@ -149,7 +150,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
                         if (Schema._patternProperties != null)
                         {
-                            foreach (PatternSchema patternProperty in Schema._patternProperties.GetPatternSchemas())
+                            foreach (PatternSchema patternProperty in Schema.GetPatternSchemas())
                             {
                                 Regex regex;
                                 string errorMessage;
@@ -185,7 +186,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
             if (schema._patternProperties != null)
             {
-                foreach (PatternSchema patternSchema in schema._patternProperties.GetPatternSchemas())
+                foreach (PatternSchema patternSchema in schema.GetPatternSchemas())
                 {
                     Regex regex;
                     string errorMessage;

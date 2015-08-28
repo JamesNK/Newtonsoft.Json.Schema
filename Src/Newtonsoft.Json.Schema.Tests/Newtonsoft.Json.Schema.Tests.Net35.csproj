@@ -66,6 +66,7 @@
     <Compile Include="Infrastructure\NestedPreloadedResolver.cs" />
     <Compile Include="Infrastructure\SerializationTests.cs" />
     <Compile Include="Issues\Issue3Tests.cs" />
+    <Compile Include="JSchemaTests.cs" />
     <Compile Include="JSchemaValidatingWriterTests.cs" />
     <Compile Include="JSchemaSpecTests.cs" />
     <Compile Include="JSchemaValidatingReaderTests.cs" />

@@ -17,6 +17,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             if (x != y)
                 return false;
 
+            if (x == null && y == null)
+                return true;
+
             if (!x.IsAbsoluteUri)
                 return true;
 

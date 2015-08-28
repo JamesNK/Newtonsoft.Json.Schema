@@ -40,7 +40,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JArray a = JArray.Parse(JsonFailure);
             a.IsValid(Schema);
 
-            using (var tester = new PerformanceTester("IsValid"))
+            using (var tester = new PerformanceTester("IsValid_Failure"))
             {
                 for (int i = 1; i < ValidationCount; i++)
                 {

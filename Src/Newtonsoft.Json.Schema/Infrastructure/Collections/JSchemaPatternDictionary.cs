@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
-namespace Newtonsoft.Json.Schema.Infrastructure
+namespace Newtonsoft.Json.Schema.Infrastructure.Collections
 {
     internal class PatternSchema
     {
@@ -38,11 +38,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         }
     }
 
-    internal class PatternPropertyDictionary : IDictionary<string, JSchema>
+    internal class JSchemaPatternDictionary : IDictionary<string, JSchema>
     {
         private readonly Dictionary<string, PatternSchema> _inner;
 
-        public PatternPropertyDictionary()
+        public JSchemaPatternDictionary()
         {
             _inner = new Dictionary<string, PatternSchema>(StringComparer.Ordinal);
         }

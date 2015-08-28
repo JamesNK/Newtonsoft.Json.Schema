@@ -51,8 +51,12 @@
     <Compile Include="ErrorType.cs" />
     <Compile Include="ExternalSchema.cs" />
     <Compile Include="Generation\JSchemaTypeGenerationContext.cs" />
+    <Compile Include="Infrastructure\Collections\JSchemaCollection.cs" />
+    <Compile Include="Infrastructure\Collections\JSchemaDependencyDictionary.cs" />
     <Compile Include="Infrastructure\ColorHelpers.cs" />
+    <Compile Include="Infrastructure\Collections\DictionaryBase.cs" />
     <Compile Include="Infrastructure\JSchemaConverter.cs" />
+    <Compile Include="Infrastructure\Collections\JSchemaDictionary.cs" />
     <Compile Include="Infrastructure\Licensing\CryptographyHelpers.cs" />
     <Compile Include="Infrastructure\DataAnnotationHelpers.cs" />
     <Compile Include="Infrastructure\EmailHelpers.cs" />
@@ -63,7 +67,7 @@
     <Compile Include="Infrastructure\Licensing\LicenseType.cs" />
     <Compile Include="Infrastructure\Licensing\ReleaseDateAttribute.cs" />
     <Compile Include="Infrastructure\JTokenPathAnnotation.cs" />
-    <Compile Include="Infrastructure\PatternPropertyDictionary.cs" />
+    <Compile Include="Infrastructure\Collections\JSchemaPatternDictionary.cs" />
     <Compile Include="Infrastructure\RegexHelpers.cs" />
     <Compile Include="Infrastructure\StreamHelpers.cs" />
     <Compile Include="Infrastructure\StringHelpers.cs" />

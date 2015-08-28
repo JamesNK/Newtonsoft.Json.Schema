@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Schema.Infrastructure.Collections;
 using Newtonsoft.Json.Schema.Infrastructure.Discovery;
 using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json.Utilities;
@@ -282,7 +283,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             }
         }
 
-        private void WriteSchemas(JSchema context, List<JSchema> schemas, string name)
+        private void WriteSchemas(JSchema context, JSchemaCollection schemas, string name)
         {
             if (schemas != null && schemas.Count > 0)
             {

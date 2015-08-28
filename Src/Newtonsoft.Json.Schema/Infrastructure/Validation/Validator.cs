@@ -20,7 +20,6 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
         private readonly List<Scope> _scopes;
         private readonly object _publicValidator;
         private readonly ValidatorContext _context;
-        private JSchemaDiscovery _schemaDiscovery;
         
         public JTokenWriter TokenWriter;
         public JSchema Schema;
@@ -45,10 +44,13 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
         {
             ValidationError error = CreateError(message, errorType, schema, value, childErrors);
 
-            if (_schemaDiscovery == null)
+            if (Schema.Discovery == null)
             {
-                _schemaDiscovery = new JSchemaDiscovery();
-                _schemaDiscovery.Discover(Schema, null);
+                Schema.Discovery = new JSchemaDiscovery();
+            }
+            if (Schema.Discovery.KnownSchemas.Count == 0)
+            {
+                Schema.Discovery.Discover(Schema, null);
             }
 
             PopulateSchemaId(error);
@@ -62,7 +64,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
         private void PopulateSchemaId(ValidationError error)
         {
-            Uri schemaId = _schemaDiscovery.KnownSchemas.Single(s => s.Schema == error.Schema).Id;
+            Uri schemaId = Schema.Discovery.KnownSchemas.Single(s => s.Schema == error.Schema).Id;
 
             error.SchemaId = schemaId;
 
