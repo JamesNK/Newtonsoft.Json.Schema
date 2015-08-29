@@ -2823,7 +2823,28 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             ExceptionAssert.Throws<JSchemaReaderException>(() =>
             {
                 JSchema.Parse(schemaJson);
-            }, "Error parsing id 'http://'. Id must be a valid URI.");
+            }, "Error parsing id 'http://'. Id must be a valid URI. Path 'id', line 3, position 18.");
+        }
+
+        [Test]
+        public void InvalidSchemaId()
+        {
+            string schemaJson = @"{
+  ""id"": ""#root"",
+  ""$schema"": ""http://json-schema.org/draft-04/schema#"",
+  ""title"": ""command"",
+  ""type"": ""object"",
+  ""oneOf"": [
+    {
+      ""$ref"": ""file:system.json#/definitions/username""
+    }
+  ]
+}";
+
+            ExceptionAssert.Throws<JSchemaReaderException>(() =>
+            {
+                JSchema.Parse(schemaJson);
+            }, "Error resolving schema reference 'file:system.json#/definitions/username' in the scope '#root'. The resolved reference must be a valid URI. Path 'oneOf[0]', line 7, position 6.");
         }
     }
 }

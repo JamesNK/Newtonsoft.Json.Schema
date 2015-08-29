@@ -516,5 +516,156 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             Assert.AreEqual("duplicate", discovery.KnownSchemas[3].Id.OriginalString);
             Assert.AreEqual("duplicate#/properties/test", discovery.KnownSchemas[4].Id.OriginalString);
         }
+
+        [Test]
+        public void InvalidSchemaId()
+        {
+            string schemaJson = @"{
+  ""id"": ""#root"",
+  ""$schema"": ""http://json-schema.org/draft-04/schema#"",
+  ""title"": ""command"",
+  ""type"": ""object"",
+  ""oneOf"": [
+    {
+      ""$ref"": ""#/definitions/registerCommand""
+    },
+    {
+      ""$ref"": ""#/definitions/unregisterCommand""
+    },
+    {
+      ""$ref"": ""#/definitions/loginCommand""
+    },
+    {
+      ""$ref"": ""#/definitions/logoutCommand""
+    },
+    {
+      ""$ref"": ""#/definitions/syncCommand""
+    },
+    {
+      ""$ref"": ""#/definitions/sendmsgCommand""
+    }
+  ],
+  ""required"": [
+    ""cmd""
+  ],
+  ""definitions"": {
+    ""registerCommand"": {
+      ""properties"": {
+        ""cmd"": {
+          ""enum"": [
+            ""register""
+          ]
+        },
+        ""pms"": {
+          ""$ref"": ""#/definitions/authParams""
+        }
+      },
+      ""required"": [
+        ""pms""
+      ]
+    },
+    ""unregisterCommand"": {
+      ""properties"": {
+        ""cmd"": {
+          ""enum"": [
+            ""unregister""
+          ]
+        }
+      }
+    },
+    ""loginCommand"": {
+      ""title"": ""log in"",
+      ""properties"": {
+        ""cmd"": {
+          ""enum"": [
+            ""login""
+          ]
+        },
+        ""pms"": {
+          ""$ref"": ""#/definitions/authParams""
+        }
+      },
+      ""required"": [
+        ""pms""
+      ]
+    },
+    ""logoutCommand"": {
+      ""title"": ""log out"",
+      ""properties"": {
+        ""cmd"": {
+          ""enum"": [
+            ""logout""
+          ]
+        }
+      }
+    },
+    ""syncCommand"": {
+      ""properties"": {
+        ""cmd"": {
+          ""enum"": [
+            ""sync""
+          ]
+        },
+        ""pms"": {
+          ""$ref"": ""#/definitions/syncParams""
+        }
+      },
+      ""required"": [
+        ""pms""
+      ]
+    },
+    ""sendmsgCommand"": {
+      ""properties"": {
+        ""cmd"": {
+          ""enum"": [
+            ""sendmsg""
+          ]
+        },
+        ""pms"": {
+        }
+      },
+      ""required"": [
+        ""pms""
+      ]
+    },
+    ""authParams"": {
+      ""type"": ""object"",
+      ""properties"": {
+        ""username"": {
+        },
+        ""password"": {
+        }
+      },
+      ""required"": [
+        ""username"",
+        ""password""
+      ]
+    },
+    ""syncParams"": {
+      ""type"": ""object"",
+      ""properties"": {
+        ""inbox"": {
+        },
+        ""contacts"": {
+        }
+      },
+      ""required"": [
+        ""inbox"",
+        ""contacts""
+      ]
+    }
+  }
+}";
+
+            JSchemaReader schemaReader = new JSchemaReader(new JSchemaReaderSettings());
+            schemaReader.ReadRoot(new JsonTextReader(new StringReader(schemaJson)));
+
+            JSchemaDiscovery discovery = schemaReader._schemaDiscovery;
+
+            foreach (KnownSchema knownSchema in discovery.KnownSchemas)
+            {
+                Assert.IsFalse(knownSchema.Id.OriginalString.StartsWith("#/#/", StringComparison.Ordinal));
+            }
+        }
     }
 }

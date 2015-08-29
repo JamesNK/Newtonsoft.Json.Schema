@@ -117,8 +117,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                 currentPath = StringHelpers.Join("/", _pathStack.Where(p => p.Id == currentScopeId && !string.IsNullOrEmpty(p.Path)).Reverse().Select(p => p.Path));
 
                 if (!string.IsNullOrEmpty(currentScopeId.OriginalString)
-                    && currentPath != "#"
-                    && !currentPath.StartsWith("#/", StringComparison.Ordinal))
+                    && !currentPath.StartsWith("#", StringComparison.Ordinal))
                 {
                     currentPath = "#/" + currentPath;
                 }
@@ -146,8 +145,30 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                 }
             }
 
-            Uri schemaKnownId = SchemaDiscovery.ResolveSchemaIdAndScopeId(_pathStack.First().Id, schema.Id, currentPath, out newScopeId);
+            Uri schemaKnownId = ResolveSchemaIdAndScopeId(currentScopeId, schema.Id, currentPath, out newScopeId);
             return schemaKnownId;
+        }
+
+        public static Uri ResolveSchemaIdAndScopeId(Uri idScope, Uri schemaId, string path, out Uri newScope)
+        {
+            Uri knownSchemaId;
+            if (schemaId != null)
+            {
+                newScope = SchemaDiscovery.ResolveSchemaId(idScope, schemaId);
+
+                knownSchemaId = newScope;
+            }
+            else
+            {
+                if (idScope == null)
+                    knownSchemaId = new Uri(path, UriKind.RelativeOrAbsolute);
+                else
+                    knownSchemaId = SchemaDiscovery.ResolveSchemaId(idScope, new Uri(path, UriKind.RelativeOrAbsolute));
+
+                newScope = idScope;
+            }
+
+            return knownSchemaId;
         }
 
         private void DiscoverTokenSchemas(string name, JToken token)

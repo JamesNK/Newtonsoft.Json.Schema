@@ -337,7 +337,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             }
             catch (Exception ex)
             {
-                throw new JSchemaReaderException("Error parsing id '{0}'. Id must be a valid URI.".FormatWith(CultureInfo.InvariantCulture, id), ex);
+                throw JSchemaReaderException.Create(reader, _baseUri, "Error parsing id '{0}'. Id must be a valid URI.".FormatWith(CultureInfo.InvariantCulture, id), ex);
             }
         }
 
@@ -851,7 +851,16 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 }
             }
 
-            resolvedReference = SchemaDiscovery.ResolveSchemaId(resolvedReference, schema.Reference);
+            try
+            {
+                resolvedReference = SchemaDiscovery.ResolveSchemaId(resolvedReference, schema.Reference);
+            }
+            catch (Exception ex)
+            {
+                string message = "Error resolving schema reference '{0}' in the scope '{1}'. The resolved reference must be a valid URI.".FormatWith(CultureInfo.InvariantCulture, schema.Reference, resolvedReference);
+                throw JSchemaReaderException.Create(schema, _baseUri, schema.Path, message, ex);
+            }
+
             return resolvedReference;
         }
 

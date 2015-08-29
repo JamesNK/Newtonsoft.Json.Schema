@@ -169,7 +169,13 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                     {
                         JSchema inlineSchema = schemaReader.ReadInlineSchema(setSchema, t);
 
-                        discovery.Discover(inlineSchema, rootSchemaId, reference.OriginalString);
+                        string path = reference.OriginalString;
+                        if (path.StartsWith("#/", StringComparison.Ordinal))
+                        {
+                            path = path.Substring(2, path.Length - 2);
+                        }
+
+                        discovery.Discover(inlineSchema, rootSchemaId, path);
 
                         resolvedSchema = true;
                     }
@@ -248,28 +254,6 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                 }
             }
             return resolvedSchema;
-        }
-
-        public static Uri ResolveSchemaIdAndScopeId(Uri idScope, Uri schemaId, string path, out Uri newScope)
-        {
-            Uri knownSchemaId;
-            if (schemaId != null)
-            {
-                newScope = ResolveSchemaId(idScope, schemaId);
-
-                knownSchemaId = newScope;
-            }
-            else
-            {
-                if (idScope == null)
-                    knownSchemaId = new Uri(path, UriKind.RelativeOrAbsolute);
-                else
-                    knownSchemaId = ResolveSchemaId(idScope, new Uri(path, UriKind.RelativeOrAbsolute));
-
-                newScope = idScope;
-            }
-
-            return knownSchemaId;
         }
 
         public static Uri ResolveSchemaId(Uri idScope, Uri schemaId)
