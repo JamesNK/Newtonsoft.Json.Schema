@@ -331,6 +331,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         {
             EnsureToken(reader, name, JsonToken.String);
             string id = (string)reader.Value;
+            return ParseUri(reader, id);
+        }
+
+        private Uri ParseUri(JsonReader reader, string id)
+        {
             try
             {
                 return new Uri(id, UriKind.RelativeOrAbsolute);
@@ -1076,7 +1081,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                         if (reader.TokenType != JsonToken.String)
                             throw JSchemaReaderException.Create(reader, _baseUri, "Unexpected token encountered when reading value for '$schema'. Expected String, got {0}.".FormatWith(CultureInfo.InvariantCulture, reader.TokenType));
 
-                        _schemaVersionUri = new Uri((string)reader.Value, UriKind.RelativeOrAbsolute);
+                        _schemaVersionUri = ParseUri(reader, (string)reader.Value);
 
 #if !PORTABLE
                         string tempUriText = _schemaVersionUri.OriginalString.ToLower(CultureInfo.InvariantCulture);

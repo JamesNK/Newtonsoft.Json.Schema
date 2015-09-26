@@ -2827,7 +2827,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         }
 
         [Test]
-        public void InvalidSchemaId()
+        public void InvalidRefId()
         {
             string schemaJson = @"{
   ""id"": ""#root"",
@@ -2845,6 +2845,22 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             {
                 JSchema.Parse(schemaJson);
             }, "Error resolving schema reference 'file:system.json#/definitions/username' in the scope '#root'. The resolved reference must be a valid URI. Path 'oneOf[0]', line 7, position 6.");
+        }
+
+        [Test]
+        public void InvalidSchemaId()
+        {
+            string schemaJson = @"{
+  ""id"": ""#root"",
+  ""$schema"": ""http://"",
+  ""title"": ""command"",
+  ""type"": ""object""
+}";
+
+            ExceptionAssert.Throws<JSchemaReaderException>(() =>
+            {
+                JSchema.Parse(schemaJson);
+            }, "Error parsing id 'http://'. Id must be a valid URI. Path '$schema', line 3, position 23.");
         }
     }
 }

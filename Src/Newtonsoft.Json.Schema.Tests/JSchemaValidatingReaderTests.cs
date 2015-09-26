@@ -2259,5 +2259,33 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(new Uri("#/properties/paises", UriKind.Relative), errors[0].SchemaId);
             Assert.AreEqual(ErrorType.PatternProperties, errors[0].ErrorType);
         }
+
+        [Test]
+        [Ignore]
+        public void DateFormat()
+        {
+            string schemaJson = "{\"type\":\"object\",\"properties\":{\"DueDate\":{\"required\":true,\"type\":\"string\",\"format\":\"date\"},\"DateCompleted\":{\"required\":true,\"type\":\"string\",\"format\":\"date-time\"}}}";
+
+            string json = "{\"DueDate\":\"2015-08-25\",\"DateCompleted\":\"2015-08-27T22:40:09.3749084-05:00\"}";
+
+            IList<string> errors = new List<string>();
+            var schema = JSchema.Parse(schemaJson);
+
+            var jsonReader = new JsonTextReader(new StringReader(json));
+            var validatingReader = new JSchemaValidatingReader(jsonReader);
+            validatingReader.Schema = schema;
+            validatingReader.ValidationEventHandler += (o, a) => errors.Add(a.Path + ": " + a.Message);
+
+            var serializer = new JsonSerializer();
+            var hw = serializer.Deserialize<Homework>(validatingReader);
+
+            Assert.AreEqual(0, errors.Count);
+        }
+
+        public class Homework
+        {
+            public DateTime DueDate { get; set; }
+            public DateTime DateCompleted { get; set; }
+        }
     }
 }
