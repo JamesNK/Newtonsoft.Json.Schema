@@ -48,7 +48,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
               'type': 'object',
               'properties':
               {
-                'name': {'type':'string'},
+                'name': {'type':['string','null']},
                 'hobbies': {
                   'type': 'array',
                   'items': {'type':'string'}
@@ -62,6 +62,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
             #endregion
 
             Assert.AreEqual(JSchemaType.Object, schema.Type);
+            Assert.AreEqual(JSchemaType.String | JSchemaType.Null, schema.Properties["name"].Type);
         }
 
         [Test]

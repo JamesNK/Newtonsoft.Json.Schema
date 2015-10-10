@@ -17,6 +17,21 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
     public class JSchemaWriterTests : TestFixtureBase
     {
         [Test]
+        public void WriteTo_MaximumLength_Large()
+        {
+            JSchema s = new JSchema
+            {
+                MaximumLength = long.MaxValue
+            };
+
+            string json = s.ToString();
+
+            StringAssert.AreEqual(@"{
+  ""maxLength"": 9223372036854775807
+}", json);
+        }
+
+        [Test]
         public void WriteTo_UniqueItems()
         {
             JSchema s = new JSchema

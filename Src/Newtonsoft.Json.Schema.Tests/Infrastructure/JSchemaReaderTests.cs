@@ -2862,5 +2862,33 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
                 JSchema.Parse(schemaJson);
             }, "Error parsing id 'http://'. Id must be a valid URI. Path '$schema', line 3, position 23.");
         }
+
+        [Test]
+        public void LargeMaxLength()
+        {
+            string schemaJson = @"{
+  ""type"": ""integer"",
+  ""maxLength"": 9223372036854775807
+}";
+
+            JSchema s = JSchema.Parse(schemaJson);
+            Assert.AreEqual(long.MaxValue, s.MaximumLength);
+        }
+
+#if !(NET20 || NET35 || PORTABLE || PORTABLE40)
+        [Test]
+        public void LargeMaxLength_TooLarge()
+        {
+            string schemaJson = @"{
+  ""type"": ""integer"",
+  ""maxLength"": 9223372036854775808
+}";
+
+            ExceptionAssert.Throws<JSchemaReaderException>(() =>
+            {
+                JSchema.Parse(schemaJson);
+            }, "Error parsing integer for 'maxLength'. 9223372036854775808 cannot fit in an Int64. Path 'maxLength', line 3, position 35.");
+        }
+#endif
     }
 }

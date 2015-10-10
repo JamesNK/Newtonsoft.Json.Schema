@@ -358,10 +358,25 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             return (bool)reader.Value;
         }
 
-        private int ReadInteger(JsonReader reader, string name)
+        private long ReadLong(JsonReader reader, string name)
         {
             EnsureToken(reader, name, JsonToken.Integer);
-            return Convert.ToInt32(reader.Value, CultureInfo.InvariantCulture);
+
+#if !(NET20 || NET35 || PORTABLE || PORTABLE40)
+            if (reader.Value is BigInteger)
+            {
+                BigInteger i = (BigInteger)reader.Value;
+
+                if (i > long.MaxValue || i < long.MaxValue)
+                {
+                    throw JSchemaReaderException.Create(reader, _baseUri, "Error parsing integer for '{0}'. {1} cannot fit in an Int64.".FormatWith(CultureInfo.InvariantCulture, name, i));
+                }
+
+                return (long)i;
+            }
+#endif
+
+            return Convert.ToInt64(reader.Value, CultureInfo.InvariantCulture);
         }
 
         private double ReadDouble(JsonReader reader, string name)
@@ -981,26 +996,26 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                     schema.ExclusiveMaximum = ReadBoolean(reader, name);
                     break;
                 case Constants.PropertyNames.MaximumLength:
-                    schema.MaximumLength = ReadInteger(reader, name);
+                    schema.MaximumLength = ReadLong(reader, name);
                     break;
                 case Constants.PropertyNames.MinimumLength:
-                    schema.MinimumLength = ReadInteger(reader, name);
+                    schema.MinimumLength = ReadLong(reader, name);
                     break;
                 case Constants.PropertyNames.MaximumItems:
-                    schema.MaximumItems = ReadInteger(reader, name);
+                    schema.MaximumItems = ReadLong(reader, name);
                     break;
                 case Constants.PropertyNames.MinimumItems:
-                    schema.MinimumItems = ReadInteger(reader, name);
+                    schema.MinimumItems = ReadLong(reader, name);
                     break;
                 case Constants.PropertyNames.MaximumProperties:
                     if (EnsureVersion(SchemaVersion.Draft4))
-                        schema.MaximumProperties = ReadInteger(reader, name);
+                        schema.MaximumProperties = ReadLong(reader, name);
                     else
                         ReadExtensionData(reader, schema, name);
                     break;
                 case Constants.PropertyNames.MinimumProperties:
                     if (EnsureVersion(SchemaVersion.Draft4))
-                        schema.MinimumProperties = ReadInteger(reader, name);
+                        schema.MinimumProperties = ReadLong(reader, name);
                     else
                         ReadExtensionData(reader, schema, name);
                     break;

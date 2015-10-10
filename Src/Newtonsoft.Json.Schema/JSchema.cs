@@ -286,13 +286,13 @@ namespace Newtonsoft.Json.Schema
         /// Gets or sets the minimum length of a string.
         /// </summary>
         /// <value>The minimum length of a string.</value>
-        public int? MinimumLength { get; set; }
+        public long? MinimumLength { get; set; }
 
         /// <summary>
         /// Gets or sets the maximum length of a string.
         /// </summary>
         /// <value>The maximum length of a string.</value>
-        public int? MaximumLength { get; set; }
+        public long? MaximumLength { get; set; }
 
         /// <summary>
         /// Gets or sets the minimum value of a number.
@@ -322,25 +322,25 @@ namespace Newtonsoft.Json.Schema
         /// Gets or sets the minimum number of array items.
         /// </summary>
         /// <value>The minimum number of array items.</value>
-        public int? MinimumItems { get; set; }
+        public long? MinimumItems { get; set; }
 
         /// <summary>
         /// Gets or sets the maximum number of array items.
         /// </summary>
         /// <value>The maximum number of array items.</value>
-        public int? MaximumItems { get; set; }
+        public long? MaximumItems { get; set; }
 
         /// <summary>
         /// Gets or sets the minimum number of object properties.
         /// </summary>
         /// <value>The minimum number of object properties.</value>
-        public int? MinimumProperties { get; set; }
+        public long? MinimumProperties { get; set; }
 
         /// <summary>
         /// Gets or sets the maximum number of object properties.
         /// </summary>
         /// <value>The maximum number of object properties.</value>
-        public int? MaximumProperties { get; set; }
+        public long? MaximumProperties { get; set; }
 
         /// <summary>
         /// Gets the extension data for the <see cref="JSchema"/>.
