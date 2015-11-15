@@ -86,6 +86,7 @@ task Build -depends Clean {
 
       Write-Host
       Write-Host "Restoring"
+      [Environment]::SetEnvironmentVariable("EnableNuGetPackageRestore", "true", "Process")
       exec { .\Tools\NuGet\NuGet.exe restore "$workingSourceDir\$name.sln" "-NoCache" | Out-Default } "Error restoring $name"
 
       Write-Host

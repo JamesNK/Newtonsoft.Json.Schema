@@ -4,9 +4,8 @@
 #endregion
 
 using System;
-using Newtonsoft.Json.Linq;
 
-namespace Newtonsoft.Json.Schema
+namespace Newtonsoft.Json.Schema.Generation
 {
     internal class TypeSchemaKey : IEquatable<TypeSchemaKey>
     {

@@ -29,6 +29,7 @@ using System.Xml;
 using System.Xml.Schema;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema;
+using Newtonsoft.Json.Schema.Generation;
 using Newtonsoft.Json.Utilities;
 
 namespace Newtonsoft.Json.Schema.Tests

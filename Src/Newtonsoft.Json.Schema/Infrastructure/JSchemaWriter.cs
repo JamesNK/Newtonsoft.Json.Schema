@@ -42,10 +42,14 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         {
             KnownSchema knownSchema = _knownSchemas.SingleOrDefault(s => s.Schema == schema);
             if (knownSchema == null)
+            {
                 return;
+            }
 
             if (propertyName != null)
+            {
                 _writer.WritePropertyName(propertyName);
+            }
 
             if (knownSchema.State != KnownSchemaState.InlinePending)
             {
@@ -55,16 +59,23 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
                 // Id is fully qualified
                 // make it relative to the current schema
-                if (currentKnownSchema.Id.IsBaseOf(knownSchema.Id))
+                if (currentKnownSchema.Id.IsAbsoluteUri)
                 {
-                    reference = currentKnownSchema.Id.MakeRelativeUri(knownSchema.Id);
+                    if (currentKnownSchema.Id.IsBaseOf(knownSchema.Id))
+                    {
+                        reference = currentKnownSchema.Id.MakeRelativeUri(knownSchema.Id);
 
-                    // MakeRelativeUri escapes the result, need to unescape
-                    reference = new Uri(Uri.UnescapeDataString(reference.OriginalString), UriKind.RelativeOrAbsolute);
-                }
-                else if (knownSchema.Id == currentKnownSchema.Id)
-                {
-                    reference = new Uri("#", UriKind.RelativeOrAbsolute);
+                        // MakeRelativeUri escapes the result, need to unescape
+                        reference = new Uri(Uri.UnescapeDataString(reference.OriginalString), UriKind.RelativeOrAbsolute);
+                    }
+                    else if (knownSchema.Id == currentKnownSchema.Id)
+                    {
+                        reference = new Uri("#", UriKind.RelativeOrAbsolute);
+                    }
+                    else
+                    {
+                        reference = knownSchema.Id;
+                    }
                 }
                 else
                 {

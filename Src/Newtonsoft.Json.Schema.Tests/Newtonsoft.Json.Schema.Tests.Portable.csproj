@@ -115,6 +115,13 @@
     <Compile Include="Documentation\Samples\Create\CreateJsonSchemaManually.cs" />
     <Compile Include="Documentation\Samples\Create\SaveJsonSchemaToFile.cs" />
     <Compile Include="Documentation\Samples\File.cs" />
+    <Compile Include="Documentation\Samples\Generation\CreateCustomProvider.cs" />
+    <Compile Include="Documentation\Samples\Generation\GenerateSchema.cs" />
+    <Compile Include="Documentation\Samples\Generation\GenerateWithContractResolver.cs" />
+    <Compile Include="Documentation\Samples\Generation\GenerateWithDataAnnotations.cs" />
+    <Compile Include="Documentation\Samples\Generation\GenerateWithJsonNetAttributes.cs" />
+    <Compile Include="Documentation\Samples\Generation\GenerateWithProvider.cs" />
+    <Compile Include="Documentation\Samples\Generation\GenerateWithSchemaIdGenerationHandling.cs" />
     <Compile Include="Documentation\Samples\Load\JsonSchemaParse.cs" />
     <Compile Include="Documentation\Samples\Load\LoadJsonSchemaFromFile.cs" />
     <Compile Include="Documentation\Samples\Load\RefJsonSchemaResolver.cs" />
@@ -521,9 +528,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Documentation\Samples\Generation\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\Newtonsoft.Json.Schema\Newtonsoft.Json.Schema.Portable.csproj">
       <Project>{959f7f85-c98b-4876-971a-9036224578e4}</Project>

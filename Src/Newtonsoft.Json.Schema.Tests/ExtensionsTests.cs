@@ -22,6 +22,7 @@ using NUnit.Framework;
 using Newtonsoft.Json.Schema;
 using Newtonsoft.Json.Linq;
 using System.IO;
+using Newtonsoft.Json.Schema.Generation;
 #if !(NETFX_CORE || ASPNETCORE50)
 using System.Data;
 #endif
@@ -187,7 +188,7 @@ namespace Newtonsoft.Json.Schema.Tests
             LicenseHelpers.ResetCounts(null);
 
             JSchemaGenerator generator = new JSchemaGenerator();
-            generator.UndefinedSchemaIdHandling = JSchemaUndefinedIdHandling.UseAssemblyQualifiedName;
+            generator.SchemaIdGenerationHandling = SchemaIdGenerationHandling.AssemblyQualifiedName;
             JSchema typeSchema = generator.Generate(typeof(T));
             string schema = typeSchema.ToString();
 

@@ -1,9 +1,10 @@
-﻿using System;
+﻿#if !(NET35 || NET40)
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using Newtonsoft.Json.Schema.Generation;
 using Newtonsoft.Json.Serialization;
 using NUnit.Framework;
 
@@ -73,3 +74,4 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation.Samples.Generation
         }
     }
 }
+#endif

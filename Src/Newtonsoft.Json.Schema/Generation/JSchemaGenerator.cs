@@ -9,13 +9,12 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Schema.Generation;
 using Newtonsoft.Json.Schema.Infrastructure;
 using Newtonsoft.Json.Schema.Infrastructure.Licensing;
 using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json.Utilities;
 
-namespace Newtonsoft.Json.Schema
+namespace Newtonsoft.Json.Schema.Generation
 {
     /// <summary>
     /// Generates a <see cref="JSchema"/> from a specified <see cref="Type"/>.
@@ -28,9 +27,24 @@ namespace Newtonsoft.Json.Schema
         private IList<JSchemaGenerationProvider> _generationProviders;
 
         /// <summary>
-        /// Gets or sets how undefined schemas are handled by the serializer.
+        /// Gets or sets how IDs are generated for schemas with no ID.
         /// </summary>
-        public JSchemaUndefinedIdHandling UndefinedSchemaIdHandling { get; set; }
+        public SchemaIdGenerationHandling SchemaIdGenerationHandling { get; set; }
+
+        /// <summary>
+        /// Gets or sets the schema property order.
+        /// </summary>
+        public SchemaPropertyOrderHandling SchemaPropertyOrderHandling { get; set; }
+
+        /// <summary>
+        /// Gets or sets the location of referenced schemas.
+        /// </summary>
+        public SchemaLocationHandling SchemaLocationHandling { get; set; }
+
+        /// <summary>
+        /// Gets or sets whether generated schemas can be referenced.
+        /// </summary>
+        public SchemaReferenceHandling SchemaReferenceHandling { get; set; }
 
         /// <summary>
         /// Gets a collection of <see cref="JSchemaGenerationProvider"/> instances that are used to customize <see cref="JSchema"/> generation.
@@ -40,7 +54,9 @@ namespace Newtonsoft.Json.Schema
             get
             {
                 if (_generationProviders == null)
+                {
                     _generationProviders = new List<JSchemaGenerationProvider>();
+                }
 
                 return _generationProviders;
             }
@@ -55,7 +71,9 @@ namespace Newtonsoft.Json.Schema
             get
             {
                 if (_contractResolver == null)
+                {
                     return DefaultContractResolver.Instance;
+                }
 
                 return _contractResolver;
             }
@@ -68,6 +86,8 @@ namespace Newtonsoft.Json.Schema
         public JSchemaGenerator()
         {
             _typeSchemas = new List<TypeSchema>();
+
+            SchemaReferenceHandling = SchemaReferenceHandling.Objects;
         }
 
         /// <summary>
@@ -92,7 +112,49 @@ namespace Newtonsoft.Json.Schema
 
             LicenseHelpers.IncrementAndCheckGenerationCount();
 
-            return GenerateInternal(type, (!rootSchemaNullable) ? Required.Always : Required.Default, null, null);
+            JSchema schema = GenerateInternal(type, (!rootSchemaNullable) ? Required.Always : Required.Default, null, null);
+
+            if (SchemaLocationHandling == SchemaLocationHandling.Definitions)
+            {
+                if (_typeSchemas.Count > 1)
+                {
+                    JToken definitions;
+                    if (!schema.ExtensionData.TryGetValue("definitions", out definitions))
+                    {
+                        definitions = new JObject();
+                        schema.ExtensionData["definitions"] = definitions;
+                    }
+
+                    foreach (TypeSchema t in _typeSchemas)
+                    {
+                        if (t.Schema == schema)
+                        {
+                            continue;
+                        }
+
+                        string id;
+                        if (t.Schema.Id != null)
+                        {
+                            id = t.Schema.Id.OriginalString;
+                        }
+                        else
+                        {
+                            id = t.Key.Type.Name;
+                            int i = 1;
+                            while (definitions[id] != null)
+                            {
+                                id = t.Key.Type.Name + "-" + i;
+                                i++;
+                            }
+                        }
+
+                        definitions[id] = t.Schema;
+                    }
+
+                }
+            }
+
+            return schema;
         }
 
         private string GetTitle(Type type)
@@ -100,7 +162,9 @@ namespace Newtonsoft.Json.Schema
             JsonContainerAttribute containerAttribute = JsonTypeReflector.GetCachedAttribute<JsonContainerAttribute>(type);
 
             if (containerAttribute != null && !string.IsNullOrEmpty(containerAttribute.Title))
+            {
                 return containerAttribute.Title;
+            }
 
             return null;
         }
@@ -110,12 +174,16 @@ namespace Newtonsoft.Json.Schema
             JsonContainerAttribute containerAttribute = JsonTypeReflector.GetCachedAttribute<JsonContainerAttribute>(type);
 
             if (containerAttribute != null && !string.IsNullOrEmpty(containerAttribute.Description))
+            {
                 return containerAttribute.Description;
+            }
 
 #if !(NETFX_CORE || PORTABLE40 || PORTABLE)
             DescriptionAttribute descriptionAttribute = ReflectionUtils.GetAttribute<DescriptionAttribute>(type);
             if (descriptionAttribute != null)
+            {
                 return descriptionAttribute.Description;
+            }
 #endif
 
             return null;
@@ -134,14 +202,19 @@ namespace Newtonsoft.Json.Schema
             else
             {
                 if (explicitOnly)
-                    return null;
-
-                switch (UndefinedSchemaIdHandling)
                 {
-                    case JSchemaUndefinedIdHandling.UseTypeName:
+                    return null;
+                }
+
+                switch (SchemaIdGenerationHandling)
+                {
+                    case SchemaIdGenerationHandling.TypeName:
+                        typeId = new Uri(type.Name, UriKind.RelativeOrAbsolute);
+                        break;
+                    case SchemaIdGenerationHandling.FullTypeName:
                         typeId = new Uri(type.FullName, UriKind.RelativeOrAbsolute);
                         break;
-                    case JSchemaUndefinedIdHandling.UseAssemblyQualifiedName:
+                    case SchemaIdGenerationHandling.AssemblyQualifiedName:
                         typeId = new Uri(type.AssemblyQualifiedName, UriKind.RelativeOrAbsolute);
                         break;
                     default:
@@ -166,14 +239,18 @@ namespace Newtonsoft.Json.Schema
             JSchemaGenerationProviderAttribute providerAttribute = null;
 
             if (memberProperty != null && memberProperty.AttributeProvider != null)
+            {
                 providerAttribute = (JSchemaGenerationProviderAttribute)memberProperty.AttributeProvider.GetAttributes(typeof(JSchemaGenerationProviderAttribute), true).SingleOrDefault();
+            }
 
             if (providerAttribute == null)
             {
                 providerAttribute = ReflectionUtils.GetAttribute<JSchemaGenerationProviderAttribute>(nonNullableType, true);
 
                 if (providerAttribute == null)
+                {
                     return null;
+                }
             }
 
             JSchemaGenerationProvider provider = (JSchemaGenerationProvider)Activator.CreateInstance(providerAttribute.ProviderType, providerAttribute.ProviderParameters);
@@ -190,17 +267,15 @@ namespace Newtonsoft.Json.Schema
 
             JsonContract contract = ContractResolver.ResolveContract(type);
 
-            var key = CreateKey(valueRequired, memberProperty, contract);
+            TypeSchemaKey key = CreateKey(valueRequired, memberProperty, contract);
 
-            switch (contract.ContractType)
+            if (ShouldReferenceType(contract))
             {
-                case JsonContractType.Object:
-                case JsonContractType.Array:
-                case JsonContractType.Dictionary:
-                    TypeSchema typeSchema = _typeSchemas.SingleOrDefault(s => s.Key.Equals(key));
-                    if (typeSchema != null)
-                        return typeSchema.Schema;
-                    break;
+                TypeSchema typeSchema = _typeSchemas.SingleOrDefault(s => s.Key.Equals(key));
+                if (typeSchema != null)
+                {
+                    return typeSchema.Schema;
+                }
             }
 
             JSchema schema = null;
@@ -213,7 +288,9 @@ namespace Newtonsoft.Json.Schema
                 schema = provider.GetSchema(context);
 
                 if (schema == null)
+                {
                     throw new JSchemaException("Could not get schema for type '{0}' from provider '{1}'.".FormatWith(CultureInfo.InvariantCulture, type.FullName, provider.GetType().FullName));
+                }
             }
             
             if (_generationProviders != null)
@@ -228,36 +305,56 @@ namespace Newtonsoft.Json.Schema
 
             if (schema != null)
             {
-                _typeSchemas.Add(new TypeSchema(key, schema));
-                return schema;
+                if (ShouldReferenceType(contract))
+                {
+                    _typeSchemas.Add(new TypeSchema(key, schema));
+                }
+            }
+            else
+            {
+                schema = new JSchema();
+                if (explicitId != null)
+                {
+                    schema.Id = explicitId;
+                }
+
+                if (ShouldReferenceType(contract))
+                {
+                    _typeSchemas.Add(new TypeSchema(key, schema));
+                }
+
+                PopulateSchema(schema, contract, memberProperty, valueRequired);
             }
 
-            schema = new JSchema();
-            if (explicitId != null)
-                schema.Id = explicitId;
+            return schema;
+        }
 
+        private bool ShouldReferenceType(JsonContract contract)
+        {
             switch (contract.ContractType)
             {
                 case JsonContractType.Object:
+                    return (SchemaReferenceHandling & SchemaReferenceHandling.Objects) == SchemaReferenceHandling.Objects;
                 case JsonContractType.Array:
+                    return (SchemaReferenceHandling & SchemaReferenceHandling.Arrays) == SchemaReferenceHandling.Arrays;
                 case JsonContractType.Dictionary:
-                    _typeSchemas.Add(new TypeSchema(key, schema));
-                    break;
+                    return (SchemaReferenceHandling & SchemaReferenceHandling.Dictionaries) == SchemaReferenceHandling.Dictionaries;
+                default:
+                    return false;
             }
-
-            return PopulateSchema(schema, contract, memberProperty, valueRequired);
         }
 
         private static TypeSchemaKey CreateKey(Required valueRequired, JsonProperty memberProperty, JsonContract contract)
         {
             int? minLength = DataAnnotationHelpers.GetMinLength(memberProperty);
             int? maxLength = DataAnnotationHelpers.GetMaxLength(memberProperty);
-
+            
             TypeSchemaKey key = new TypeSchemaKey(contract.UnderlyingType, valueRequired, minLength, maxLength);
+
             return key;
         }
 
-        private JSchema PopulateSchema(JSchema schema, JsonContract contract, JsonProperty memberProperty, Required valueRequired)
+        private void PopulateSchema(JSchema schema, JsonContract contract, JsonProperty memberProperty, Required valueRequired)
         {
             schema.Title = GetTitle(contract.NonNullableUnderlyingType);
             schema.Description = GetDescription(contract.NonNullableUnderlyingType);
@@ -274,14 +371,18 @@ namespace Newtonsoft.Json.Schema
                 {
                     case JsonContractType.Object:
                         if (schema.Id == null)
+                        {
                             schema.Id = GetTypeId(contract.NonNullableUnderlyingType, false);
+                        }
 
                         schema.Type = AddNullType(JSchemaType.Object, valueRequired);
                         GenerateObjectSchema(schema, contract.NonNullableUnderlyingType, (JsonObjectContract)contract);
                         break;
                     case JsonContractType.Array:
                         if (schema.Id == null)
+                        {
                             schema.Id = GetTypeId(contract.NonNullableUnderlyingType, false);
+                        }
 
                         schema.Type = AddNullType(JSchemaType.Array, valueRequired);
                         schema.MinimumItems = DataAnnotationHelpers.GetMinLength(memberProperty);
@@ -386,7 +487,9 @@ namespace Newtonsoft.Json.Schema
                         break;
                     case JsonContractType.Serializable:
                         if (schema.Id == null)
+                        {
                             schema.Id = GetTypeId(contract.NonNullableUnderlyingType, false);
+                        }
 
                         schema.Type = AddNullType(JSchemaType.Object, valueRequired);
                         schema.AllowAdditionalProperties = true;
@@ -399,14 +502,14 @@ namespace Newtonsoft.Json.Schema
                         throw new JSchemaException("Unexpected contract type: {0}".FormatWith(CultureInfo.InvariantCulture, contract));
                 }
             }
-
-            return schema;
         }
 
         private JSchemaType AddNullType(JSchemaType type, Required valueRequired)
         {
             if (valueRequired != Required.Always)
+            {
                 return type | JSchemaType.Null;
+            }
 
             return type;
         }
@@ -418,7 +521,20 @@ namespace Newtonsoft.Json.Schema
 
         private void GenerateObjectSchema(JSchema schema, Type type, JsonObjectContract contract)
         {
-            foreach (JsonProperty property in contract.Properties)
+            IList<JsonProperty> properties;
+            if (SchemaPropertyOrderHandling == SchemaPropertyOrderHandling.Alphabetical)
+            {
+                properties = contract.Properties
+                    .OrderBy(p => p.Order ?? 0)
+                    .ThenBy(p => p.PropertyName)
+                    .ToList();
+            }
+            else
+            {
+                properties = contract.Properties;
+            }
+
+            foreach (JsonProperty property in properties)
             {
                 if (!property.Ignored)
                 {
@@ -429,37 +545,51 @@ namespace Newtonsoft.Json.Schema
 
                     Required required = property.Required;
                     if (DataAnnotationHelpers.GetRequired(property))
+                    {
                         required = Required.Always;
+                    }
 
                     JSchema propertySchema = GenerateInternal(property.PropertyType, required, property, contract);
 
                     if (property.DefaultValue != null)
+                    {
                         propertySchema.Default = JToken.FromObject(property.DefaultValue);
+                    }
 
                     schema.Properties.Add(property.PropertyName, propertySchema);
 
                     if (!optional)
+                    {
                         schema.Required.Add(property.PropertyName);
+                    }
                 }
             }
 
             if (type.IsSealed())
+            {
                 schema.AllowAdditionalProperties = false;
+            }
         }
 
         internal static bool HasFlag(JSchemaType? value, JSchemaType flag)
         {
             // default value is Any
             if (value == null)
+            {
                 return true;
+            }
 
             bool match = ((value & flag) == flag);
             if (match)
+            {
                 return true;
+            }
 
             // integer is a subset of float
             if (flag == JSchemaType.Integer && (value & JSchemaType.Number) == JSchemaType.Number)
+            {
                 return true;
+            }
 
             return false;
         }
@@ -470,10 +600,14 @@ namespace Newtonsoft.Json.Schema
             if (ReflectionUtils.IsNullable(type))
             {
                 if (valueRequired != Required.Always)
+                {
                     schemaType = JSchemaType.Null;
+                }
 
                 if (ReflectionUtils.IsNullableType(type))
+                {
                     type = Nullable.GetUnderlyingType(type);
+                }
             }
 
             PrimitiveTypeCode typeCode = ConvertUtils.GetTypeCode(type);

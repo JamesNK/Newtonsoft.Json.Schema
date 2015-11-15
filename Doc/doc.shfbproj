@@ -107,7 +107,7 @@
     <None Include="Samples\Load\JsonUrlSchemaResolverHttp.aml" />
     <None Include="Samples\Generation\GenerateWithJsonNetAttributes.aml" />
     <None Include="Samples\Generation\GenerateWithProvider.aml" />
-    <None Include="Samples\Generation\GenerateWithJSchemaUndefinedIdHandling.aml" />
+    <None Include="Samples\Generation\GenerateWithSchemaIdGenerationHandling.aml" />
     <None Include="Samples\Generation\GenerateWithDataAnnotations.aml" />
     <None Include="Samples\Generation\GenerateWithContractResolver.aml" />
     <None Include="Samples\Validate\JsonValidatingWriterAndSerializer.aml" />

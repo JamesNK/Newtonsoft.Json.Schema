@@ -98,13 +98,13 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
         }
 
         [Test]
-        public void JSchemaUndefinedIdHandling()
+        public void SchemaIdGenerationHandlingTest()
         {
-            #region JSchemaUndefinedIdHandling
+            #region SchemaIdGenerationHandling
             JSchemaGenerator generator = new JSchemaGenerator();
 
             // types with no defined ID have their type name as the ID
-            generator.UndefinedSchemaIdHandling = Schema.JSchemaUndefinedIdHandling.UseTypeName;
+            generator.SchemaIdGenerationHandling = SchemaIdGenerationHandling.TypeName;
 
             JSchema schema = generator.Generate(typeof(Person));
             //{
@@ -121,7 +121,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
             #endregion
 
             Assert.AreEqual(JSchemaType.Object, schema.Type);
-            Assert.AreEqual("Newtonsoft.Json.Schema.Tests.Documentation.GeneratingSchemas+Person", schema.Id.OriginalString);
+            Assert.AreEqual("Person", schema.Id.OriginalString);
         }
 
 #if !NET40

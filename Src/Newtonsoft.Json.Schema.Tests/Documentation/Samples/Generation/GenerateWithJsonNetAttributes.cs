@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using Newtonsoft.Json.Schema.Generation;
 using Newtonsoft.Json.Serialization;
 using NUnit.Framework;
 

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using Newtonsoft.Json.Schema.Generation;
 using NUnit.Framework;
 
 namespace Newtonsoft.Json.Schema.Tests.Documentation.Samples.Generation

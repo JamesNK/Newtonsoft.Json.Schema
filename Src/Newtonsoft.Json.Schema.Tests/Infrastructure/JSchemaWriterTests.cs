@@ -235,6 +235,34 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         public void WriteTo_CircularReference()
         {
             string json = @"{
+  ""description"":""CircularReference"",
+  ""type"":[""array""],
+  ""items"":{""$ref"":""#""}
+}";
+
+            JSchema schema = JSchema.Parse(json);
+
+            StringWriter writer = new StringWriter();
+            JsonTextWriter jsonWriter = new JsonTextWriter(writer);
+            jsonWriter.Formatting = Formatting.Indented;
+
+            schema.WriteTo(jsonWriter);
+
+            string writtenJson = writer.ToString();
+
+            StringAssert.AreEqual(@"{
+  ""description"": ""CircularReference"",
+  ""type"": ""array"",
+  ""items"": {
+    ""$ref"": ""#""
+  }
+}", writtenJson);
+        }
+
+        [Test]
+        public void WriteTo_CircularReference_WithRootId()
+        {
+            string json = @"{
   ""id"":""CircularReferenceArray"",
   ""description"":""CircularReference"",
   ""type"":[""array""],
@@ -256,7 +284,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
   ""description"": ""CircularReference"",
   ""type"": ""array"",
   ""items"": {
-    ""$ref"": ""#""
+    ""$ref"": ""CircularReferenceArray""
   }
 }", writtenJson);
         }
@@ -745,7 +773,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
       ]
     },
     {
-      ""$ref"": ""#""
+      ""$ref"": ""root""
     }
   ],
   ""oneOf"": [
@@ -759,7 +787,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
       ]
     },
     {
-      ""$ref"": ""#""
+      ""$ref"": ""root""
     }
   ],
   ""not"": {

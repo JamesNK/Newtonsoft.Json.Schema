@@ -2,25 +2,25 @@
 <topic id="GeneratingSchemas" revisionNumber="1">
   <developerConceptualDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
     <introduction>
-      <para>Json.NET Schema supports automatically generating JSON Schemas for .NET types using the <codeEntityReference>T:Newtonsoft.Json.Schema.JSchemaGenerator</codeEntityReference> object. The generator has a number of options for customizing generated schemas.</para>
+      <para>Json.NET Schema supports automatically generating JSON Schemas for .NET types using the <codeEntityReference>T:Newtonsoft.Json.Schema.Generation.JSchemaGenerator</codeEntityReference> object. The generator has a number of options for customizing generated schemas.</para>
     </introduction>
 
 <section>
   <title>Generate JSON Schemas from .NET types</title>
 <content>
-<para>Schema generation is performed by the <codeEntityReference>T:Newtonsoft.Json.Schema.JSchemaGenerator</codeEntityReference> object. It maps .NET objects, collections, properties, and their attributes to their JSON Schema equivalent. A generated schema will successfully validate serialized JSON for that type.</para>
+<para>Schema generation is performed by the <codeEntityReference>T:Newtonsoft.Json.Schema.Generation.JSchemaGenerator</codeEntityReference> object. It maps .NET objects, collections, properties, and their attributes to their JSON Schema equivalent. A generated schema will successfully validate serialized JSON for that type.</para>
 
 <code lang="cs" source="..\Src\Newtonsoft.Json.Schema.Tests\Documentation\GeneratingSchemas.cs" region="PersonClass" title=".NET type" />
 
 <code lang="cs" source="..\Src\Newtonsoft.Json.Schema.Tests\Documentation\GeneratingSchemas.cs" region="BasicGeneration" title="Generate a JSON Schema from a .NET type" />
 
-<para><codeEntityReference>T:Newtonsoft.Json.Schema.JSchemaGenerator</codeEntityReference> has a number of options to customize output. An <codeEntityReference>T:Newtonsoft.Json.Serialization.IContractResolver</codeEntityReference> will customize how the type's properties and collections are reflected.</para>
+<para><codeEntityReference>T:Newtonsoft.Json.Schema.Generation.JSchemaGenerator</codeEntityReference> has a number of options to customize output. An <codeEntityReference>T:Newtonsoft.Json.Serialization.IContractResolver</codeEntityReference> will customize how the type's properties and collections are reflected.</para>
 
 <code lang="cs" source="..\Src\Newtonsoft.Json.Schema.Tests\Documentation\GeneratingSchemas.cs" region="IContractResolver" title="Generate a JSON Schema using an IContractResolver" />
 
-<codeEntityReference>T:Newtonsoft.Json.Schema.JSchemaUndefinedIdHandling</codeEntityReference> is used to control whether types with no ID defined have one infered from their type name.
+<codeEntityReference>T:Newtonsoft.Json.Schema.SchemaIdGenerationHandling</codeEntityReference> is used to control whether types with no ID defined have one infered from their type name.
 
-<code lang="cs" source="..\Src\Newtonsoft.Json.Schema.Tests\Documentation\GeneratingSchemas.cs" region="JSchemaUndefinedIdHandling" title="Generate a JSON Schema using JSchemaUndefinedIdHandling" />
+<code lang="cs" source="..\Src\Newtonsoft.Json.Schema.Tests\Documentation\GeneratingSchemas.cs" region="SchemaIdGenerationHandling" title="Generate a JSON Schema using SchemaIdGenerationHandling" />
 
 </content>
 </section>
@@ -29,7 +29,7 @@
 <section>
   <title>Using Data Annotation attributes</title>
 <content>
-<para><codeEntityReference>T:Newtonsoft.Json.Schema.JSchemaGenerator</codeEntityReference> will look for .NET Data Annotation attributes.</para>
+<para><codeEntityReference>T:Newtonsoft.Json.Schema.Generation.JSchemaGenerator</codeEntityReference> will look for .NET Data Annotation attributes.</para>
 
 <code lang="cs" source="..\Src\Newtonsoft.Json.Schema.Tests\Documentation\GeneratingSchemas.cs" region="BuildingClass" title=".NET type with Data Annotations" />
 
@@ -109,7 +109,7 @@
 
 
     <relatedTopics>
-      <codeEntityReference>T:Newtonsoft.Json.Schema.JSchemaGenerator</codeEntityReference>
+      <codeEntityReference>T:Newtonsoft.Json.Schema.Generation.JSchemaGenerator</codeEntityReference>
       <codeEntityReference>T:Newtonsoft.Json.Schema.JSchemaUndefinedIdHandling</codeEntityReference>
       <codeEntityReference>T:Newtonsoft.Json.Schema.Generation.JSchemaGenerationProvider</codeEntityReference>
     </relatedTopics>

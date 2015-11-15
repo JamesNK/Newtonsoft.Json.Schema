@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using Newtonsoft.Json.Schema.Generation;
 using Newtonsoft.Json.Serialization;
 using NUnit.Framework;
 
 namespace Newtonsoft.Json.Schema.Tests.Documentation.Samples.Generation
 {
     [TestFixture]
-    public class GenerateWithJSchemaUndefinedIdHandling : TestFixtureBase
+    public class GenerateWithSchemaIdGenerationHandling : TestFixtureBase
     {
         #region Types
         public class Person
@@ -26,7 +26,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation.Samples.Generation
             JSchemaGenerator generator = new JSchemaGenerator();
 
             // types with no defined ID have their type name as the ID
-            generator.UndefinedSchemaIdHandling = JSchemaUndefinedIdHandling.UseTypeName;
+            generator.SchemaIdGenerationHandling = SchemaIdGenerationHandling.TypeName;
 
             JSchema schema = generator.Generate(typeof(Person));
             // {
@@ -43,7 +43,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation.Samples.Generation
             #endregion
 
             Assert.AreEqual(JSchemaType.Object, schema.Type);
-            Assert.AreEqual("Newtonsoft.Json.Schema.Tests.Documentation.Samples.Generation.GenerateWithJSchemaUndefinedIdHandling+Person", schema.Id.OriginalString);
+            Assert.AreEqual("Person", schema.Id.OriginalString);
         }
     }
 }

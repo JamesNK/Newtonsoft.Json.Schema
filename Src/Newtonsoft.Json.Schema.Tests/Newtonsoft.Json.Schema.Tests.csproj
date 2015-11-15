@@ -52,7 +52,7 @@
     <Compile Include="Documentation\Samples\Generation\GenerateWithJsonNetAttributes.cs" />
     <Compile Include="Documentation\Samples\Generation\GenerateWithProvider.cs" />
     <Compile Include="Documentation\Samples\Generation\GenerateWithDataAnnotations.cs" />
-    <Compile Include="Documentation\Samples\Generation\GenerateWithJSchemaUndefinedIdHandling.cs" />
+    <Compile Include="Documentation\Samples\Generation\GenerateWithSchemaIdGenerationHandling.cs" />
     <Compile Include="Documentation\Samples\Generation\GenerateWithContractResolver.cs" />
     <Compile Include="Documentation\Samples\Generation\GenerateSchema.cs" />
     <Compile Include="Documentation\Samples\Load\JSchemaUrlResolverRelative.cs" />

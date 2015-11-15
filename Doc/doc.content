@@ -31,7 +31,7 @@
       <Topic id="GenerateWithProvider" visible="True" title="Using JSchemaGenerationProvider" />
       <Topic id="GenerateWithJsonNetAttributes" visible="True" title="Using Json.NET attributes" />
       <Topic id="GenerateWithDataAnnotations" visible="True" title="Using Data Annotation attributes" />
-      <Topic id="GenerateWithJSchemaUndefinedIdHandling" visible="True" title="Auto schema ID generation" />
+      <Topic id="GenerateWithSchemaIdGenerationHandling" visible="True" title="Auto schema ID generation" />
       <Topic id="CreateCustomProvider" visible="True" title="Create a custom JSchemaGenerationProvider" />
     </Topic>
   </Topic>

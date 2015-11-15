@@ -51,7 +51,13 @@
   <ItemGroup>
     <Compile Include="ErrorType.cs" />
     <Compile Include="ExternalSchema.cs" />
+    <Compile Include="Generation\JSchemaGenerator.cs" />
     <Compile Include="Generation\JSchemaTypeGenerationContext.cs" />
+    <Compile Include="Generation\SchemaIdGenerationHandling.cs" />
+    <Compile Include="Generation\SchemaLocationHandling.cs" />
+    <Compile Include="Generation\SchemaPropertyOrderHandling.cs" />
+    <Compile Include="Generation\SchemaReferenceHandling.cs" />
+    <Compile Include="Generation\TypeSchema.cs" />
     <Compile Include="Infrastructure\Collections\DictionaryBase.cs" />
     <Compile Include="Infrastructure\Collections\JSchemaCollection.cs" />
     <Compile Include="Infrastructure\Collections\JSchemaDependencyDictionary.cs" />
@@ -77,7 +83,6 @@
     <Compile Include="Infrastructure\UriComparer.cs" />
     <Compile Include="JSchema.cs" />
     <Compile Include="Generation\JSchemaGenerationProviderAttribute.cs" />
-    <Compile Include="JSchemaGenerator.cs" />
     <Compile Include="Generation\JSchemaGenerationProvider.cs" />
     <Compile Include="JSchemaReaderException.cs" />
     <Compile Include="JSchemaReaderSettings.cs" />
@@ -95,7 +100,6 @@
     <Compile Include="Infrastructure\Constants.cs" />
     <Compile Include="JSchemaException.cs" />
     <Compile Include="JSchemaType.cs" />
-    <Compile Include="JSchemaUndefinedIdHandling.cs" />
     <Compile Include="SchemaReference.cs" />
     <Compile Include="SchemaValidationEventArgs.cs" />
     <Compile Include="SchemaValidationEventHandler.cs" />
@@ -126,7 +130,6 @@
     <Compile Include="Infrastructure\JSchemaAnnotation.cs" />
     <Compile Include="Infrastructure\Validation\Validator.cs" />
     <Compile Include="Generation\StringEnumGenerationProvider.cs" />
-    <Compile Include="TypeSchema.cs" />
     <Compile Include="ValidationError.cs" />
   </ItemGroup>
   <ItemGroup>
