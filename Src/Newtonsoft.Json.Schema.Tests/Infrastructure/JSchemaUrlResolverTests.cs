@@ -35,7 +35,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
     ]
 }", resolver);
             },
-                "Error when resolving schema reference 'http://google.com/#'. Path 'allOf[0]', line 3, position 10.");
+                "Error when resolving schema reference 'http://google.com/#'. Path 'allOf[0]', line 3, position 9.");
         }
 #endif
     }

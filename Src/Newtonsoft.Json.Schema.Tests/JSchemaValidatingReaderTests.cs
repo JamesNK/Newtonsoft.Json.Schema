@@ -933,14 +933,14 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.Date, reader.TokenType);
             Assert.IsNotNull(a);
-            StringAssert.AreEqual(@"String '2000-12-02T05:06:02Z' is less than minimum length of 21. Path '[1]', line 3, position 25.", a.Message);
+            StringAssert.AreEqual(@"String '2000-12-02T05:06:02Z' is less than minimum length of 21. Path '[1]', line 3, position 24.", a.Message);
             Assert.AreEqual("2000-12-02T05:06:02Z", a.ValidationError.Value);
             a = null;
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.Integer, reader.TokenType);
             Assert.IsNotNull(a);
-            StringAssert.AreEqual("Invalid type. Expected String but got Integer. Path '[2]', line 4, position 4.", a.Message);
+            StringAssert.AreEqual("Invalid type. Expected String but got Integer. Path '[2]', line 4, position 3.", a.Message);
             Assert.AreEqual(1, a.ValidationError.Value);
             a = null;
 
@@ -986,14 +986,14 @@ namespace Newtonsoft.Json.Schema.Tests
             reader.ReadAsString();
             Assert.AreEqual(JsonToken.String, reader.TokenType);
             Assert.IsNotNull(a);
-            StringAssert.AreEqual(@"String '2000-12-02T05:06:02Z' is less than minimum length of 21. Path '[1]', line 3, position 25.", a.Message);
+            StringAssert.AreEqual(@"String '2000-12-02T05:06:02Z' is less than minimum length of 21. Path '[1]', line 3, position 24.", a.Message);
             Assert.AreEqual("2000-12-02T05:06:02Z", a.ValidationError.Value);
             a = null;
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.Integer, reader.TokenType);
             Assert.IsNotNull(a);
-            StringAssert.AreEqual("Invalid type. Expected String but got Integer. Path '[2]', line 4, position 4.", a.Message);
+            StringAssert.AreEqual("Invalid type. Expected String but got Integer. Path '[2]', line 4, position 3.", a.Message);
             Assert.AreEqual(1, a.ValidationError.Value);
             a = null;
 
@@ -1040,14 +1040,14 @@ namespace Newtonsoft.Json.Schema.Tests
             reader.ReadAsDateTime();
             Assert.AreEqual(JsonToken.Date, reader.TokenType);
             Assert.IsNotNull(a);
-            StringAssert.AreEqual(@"String '2000-12-02T05:06:02Z' is less than minimum length of 21. Path '[1]', line 3, position 25.", a.Message);
+            StringAssert.AreEqual(@"String '2000-12-02T05:06:02Z' is less than minimum length of 21. Path '[1]', line 3, position 24.", a.Message);
             Assert.AreEqual("2000-12-02T05:06:02Z", a.ValidationError.Value);
             a = null;
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.Integer, reader.TokenType);
             Assert.IsNotNull(a);
-            StringAssert.AreEqual("Invalid type. Expected String but got Integer. Path '[2]', line 4, position 4.", a.Message);
+            StringAssert.AreEqual("Invalid type. Expected String but got Integer. Path '[2]', line 4, position 3.", a.Message);
             Assert.AreEqual(1, a.ValidationError.Value);
             a = null;
 
@@ -1090,14 +1090,14 @@ namespace Newtonsoft.Json.Schema.Tests
             reader.ReadAsString();
             Assert.AreEqual(JsonToken.String, reader.TokenType);
             Assert.IsNotNull(a);
-            StringAssert.AreEqual(@"String '2000-12-02T05:06:02Z' is less than minimum length of 21. Path '[1]', line 3, position 25.", a.Message);
+            StringAssert.AreEqual(@"String '2000-12-02T05:06:02Z' is less than minimum length of 21. Path '[1]', line 3, position 24.", a.Message);
             Assert.AreEqual("2000-12-02T05:06:02Z", a.ValidationError.Value);
             a = null;
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.Integer, reader.TokenType);
             Assert.IsNotNull(a);
-            StringAssert.AreEqual("Invalid type. Expected String but got Integer. Path '[2]', line 4, position 4.", a.Message);
+            StringAssert.AreEqual("Invalid type. Expected String but got Integer. Path '[2]', line 4, position 3.", a.Message);
             Assert.AreEqual(1, a.ValidationError.Value);
             a = null;
 
@@ -1737,13 +1737,13 @@ namespace Newtonsoft.Json.Schema.Tests
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.Integer, reader.TokenType);
-            Assert.AreEqual("Invalid type. Expected String but got Integer. Path 'ho', line 4, position 10.", validationEventArgs.Message);
+            Assert.AreEqual("Invalid type. Expected String but got Integer. Path 'ho', line 4, position 9.", validationEventArgs.Message);
             Assert.AreEqual(1, validationEventArgs.ValidationError.Value);
             Assert.AreEqual("#/patternProperties/ho", validationEventArgs.ValidationError.SchemaId.ToString());
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.PropertyName, reader.TokenType);
-            Assert.AreEqual("Property 'hey' has not been defined and the schema does not allow additional properties. Path 'hey', line 5, position 9.", validationEventArgs.Message);
+            Assert.AreEqual("Property 'hey' has not been defined and the schema does not allow additional properties. Path 'hey', line 5, position 8.", validationEventArgs.Message);
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.String, reader.TokenType);
@@ -1835,7 +1835,7 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(JsonToken.PropertyName, reader.TokenType);
             Assert.AreEqual("firstproperty", reader.Value.ToString());
             StringAssert.AreEqual(@"firstproperty", errors[0].Path);
-            StringAssert.AreEqual(@"Property 'firstproperty' has not been defined and the schema does not allow additional properties. Path 'firstproperty', line 2, position 19.", errors[0].BuildExtendedMessage());
+            StringAssert.AreEqual(@"Property 'firstproperty' has not been defined and the schema does not allow additional properties. Path 'firstproperty', line 2, position 18.", errors[0].BuildExtendedMessage());
             Assert.AreEqual("firstproperty", errors[0].Value);
 
             Assert.IsTrue(reader.Read());
@@ -1870,7 +1870,7 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual("aaa", reader.Value.ToString());
             Assert.AreEqual(2, errors.Count);
             StringAssert.AreEqual(@"thirdproperty.thirdproperty_firstproperty", errors[1].Path);
-            StringAssert.AreEqual(@"String 'aaa' does not match regex pattern 'hi'. Path 'thirdproperty.thirdproperty_firstproperty', line 5, position 40.", errors[1].BuildExtendedMessage());
+            StringAssert.AreEqual(@"String 'aaa' does not match regex pattern 'hi'. Path 'thirdproperty.thirdproperty_firstproperty', line 5, position 39.", errors[1].BuildExtendedMessage());
             Assert.AreEqual("aaa", errors[1].Value);
 
             Assert.IsTrue(reader.Read());
@@ -1887,17 +1887,17 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(JsonToken.EndObject, reader.TokenType);
             Assert.AreEqual(3, errors.Count);
             StringAssert.AreEqual(@"thirdproperty", errors[2].Path);
-            StringAssert.AreEqual(@"JSON does not match all schemas from 'allOf'. Invalid schema indexes: 0. Path 'thirdproperty', line 7, position 4.", errors[2].BuildExtendedMessage());
+            StringAssert.AreEqual(@"JSON does not match all schemas from 'allOf'. Invalid schema indexes: 0. Path 'thirdproperty', line 7, position 3.", errors[2].BuildExtendedMessage());
             Assert.AreEqual(null, errors[2].Value);
             Assert.AreEqual(4, errors[2].ChildErrors.Count);
             StringAssert.AreEqual(@"thirdproperty.thirdproperty_firstproperty", errors[2].ChildErrors[0].Path);
-            StringAssert.AreEqual(@"String 'aaa' is less than minimum length of 6. Path 'thirdproperty.thirdproperty_firstproperty', line 5, position 40.", errors[2].ChildErrors[0].BuildExtendedMessage());
+            StringAssert.AreEqual(@"String 'aaa' is less than minimum length of 6. Path 'thirdproperty.thirdproperty_firstproperty', line 5, position 39.", errors[2].ChildErrors[0].BuildExtendedMessage());
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.EndObject, reader.TokenType);
             Assert.AreEqual(4, errors.Count);
             StringAssert.AreEqual(@"", errors[3].Path);
-            StringAssert.AreEqual(@"JSON does not match all schemas from 'allOf'. Invalid schema indexes: 0. Path '', line 8, position 2.", errors[3].BuildExtendedMessage());
+            StringAssert.AreEqual(@"JSON does not match all schemas from 'allOf'. Invalid schema indexes: 0. Path '', line 8, position 1.", errors[3].BuildExtendedMessage());
             Assert.AreEqual(null, errors[3].Value);
             Assert.AreEqual(2, errors[3].ChildErrors.Count);
 

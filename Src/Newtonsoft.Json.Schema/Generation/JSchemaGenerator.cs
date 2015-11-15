@@ -47,6 +47,11 @@ namespace Newtonsoft.Json.Schema.Generation
         public SchemaReferenceHandling SchemaReferenceHandling { get; set; }
 
         /// <summary>
+        /// Gets or sets the default required state of schemas.
+        /// </summary>
+        public Required DefaultRequired { get; set; }
+
+        /// <summary>
         /// Gets a collection of <see cref="JSchemaGenerationProvider"/> instances that are used to customize <see cref="JSchema"/> generation.
         /// </summary>
         public IList<JSchemaGenerationProvider> GenerationProviders
@@ -88,6 +93,7 @@ namespace Newtonsoft.Json.Schema.Generation
             _typeSchemas = new List<TypeSchema>();
 
             SchemaReferenceHandling = SchemaReferenceHandling.Objects;
+            DefaultRequired = Required.AllowNull;
         }
 
         /// <summary>
@@ -97,6 +103,8 @@ namespace Newtonsoft.Json.Schema.Generation
         /// <returns>A <see cref="JSchema"/> generated from the specified type.</returns>
         public JSchema Generate(Type type)
         {
+            ValidationUtils.ArgumentNotNull(type, "type");
+
             return Generate(type, false);
         }
 
@@ -112,7 +120,9 @@ namespace Newtonsoft.Json.Schema.Generation
 
             LicenseHelpers.IncrementAndCheckGenerationCount();
 
-            JSchema schema = GenerateInternal(type, (!rootSchemaNullable) ? Required.Always : Required.Default, null, null);
+            Required required = rootSchemaNullable ? Required.AllowNull : Required.Always;
+
+            JSchema schema = GenerateInternal(type, required, null, null);
 
             if (SchemaLocationHandling == SchemaLocationHandling.Definitions)
             {
@@ -150,7 +160,6 @@ namespace Newtonsoft.Json.Schema.Generation
 
                         definitions[id] = t.Schema;
                     }
-
                 }
             }
 
@@ -257,7 +266,7 @@ namespace Newtonsoft.Json.Schema.Generation
             return provider;
         }
 
-        private JSchema GenerateInternal(Type type, Required valueRequired, JsonProperty memberProperty, JsonContainerContract container)
+        private JSchema GenerateInternal(Type type, Required? valueRequired, JsonProperty memberProperty, JsonContainerContract container)
         {
             ValidationUtils.ArgumentNotNull(type, "type");
 
@@ -267,7 +276,9 @@ namespace Newtonsoft.Json.Schema.Generation
 
             JsonContract contract = ContractResolver.ResolveContract(type);
 
-            TypeSchemaKey key = CreateKey(valueRequired, memberProperty, contract);
+            Required resolvedRequired = valueRequired ?? DefaultRequired;
+
+            TypeSchemaKey key = CreateKey(resolvedRequired, memberProperty, contract);
 
             if (ShouldReferenceType(contract))
             {
@@ -283,7 +294,7 @@ namespace Newtonsoft.Json.Schema.Generation
             JSchemaGenerationProvider provider = ResolveTypeProvider(nonNullableType, memberProperty);
             if (provider != null)
             {
-                JSchemaTypeGenerationContext context = new JSchemaTypeGenerationContext(type, valueRequired, memberProperty, container, this);
+                JSchemaTypeGenerationContext context = new JSchemaTypeGenerationContext(type, resolvedRequired, memberProperty, container, this);
 
                 schema = provider.GetSchema(context);
 
@@ -295,7 +306,7 @@ namespace Newtonsoft.Json.Schema.Generation
             
             if (_generationProviders != null)
             {
-                JSchemaTypeGenerationContext context = new JSchemaTypeGenerationContext(type, valueRequired, memberProperty, container, this);
+                JSchemaTypeGenerationContext context = new JSchemaTypeGenerationContext(type, resolvedRequired, memberProperty, container, this);
 
                 foreach (JSchemaGenerationProvider generationProvider in _generationProviders)
                 {
@@ -323,7 +334,7 @@ namespace Newtonsoft.Json.Schema.Generation
                     _typeSchemas.Add(new TypeSchema(key, schema));
                 }
 
-                PopulateSchema(schema, contract, memberProperty, valueRequired);
+                PopulateSchema(schema, contract, memberProperty, resolvedRequired);
             }
 
             return schema;
@@ -348,8 +359,23 @@ namespace Newtonsoft.Json.Schema.Generation
         {
             int? minLength = DataAnnotationHelpers.GetMinLength(memberProperty);
             int? maxLength = DataAnnotationHelpers.GetMaxLength(memberProperty);
-            
-            TypeSchemaKey key = new TypeSchemaKey(contract.UnderlyingType, valueRequired, minLength, maxLength);
+
+            Required resolvedRequired;
+            switch (valueRequired)
+            {
+                case Required.Default:
+                case Required.AllowNull:
+                    resolvedRequired = Required.AllowNull;
+                    break;
+                case Required.Always:
+                case Required.DisallowNull:
+                    resolvedRequired = Required.DisallowNull;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException("valueRequired");
+            }
+
+            TypeSchemaKey key = new TypeSchemaKey(contract.UnderlyingType, resolvedRequired, minLength, maxLength);
 
             return key;
         }
@@ -389,12 +415,17 @@ namespace Newtonsoft.Json.Schema.Generation
                         schema.MaximumItems = DataAnnotationHelpers.GetMaxLength(memberProperty);
 
                         JsonArrayAttribute arrayAttribute = JsonTypeReflector.GetCachedAttribute<JsonArrayAttribute>(contract.NonNullableUnderlyingType);
-                        bool allowNullItem = (arrayAttribute == null || arrayAttribute.AllowNullItems);
+
+                        Required? required = null;
+                        if (arrayAttribute != null && !arrayAttribute.AllowNullItems)
+                        {
+                            required = Required.Always;
+                        }
 
                         Type collectionItemType = ReflectionUtils.GetCollectionItemType(contract.NonNullableUnderlyingType);
                         if (collectionItemType != null)
                         {
-                            schema.Items.Add(GenerateInternal(collectionItemType, (!allowNullItem) ? Required.Always : Required.Default, null, (JsonArrayContract)contract));
+                            schema.Items.Add(GenerateInternal(collectionItemType, required, null, (JsonArrayContract)contract));
                         }
                         break;
                     case JsonContractType.Primitive:
@@ -506,7 +537,7 @@ namespace Newtonsoft.Json.Schema.Generation
 
         private JSchemaType AddNullType(JSchemaType type, Required valueRequired)
         {
-            if (valueRequired != Required.Always)
+            if (valueRequired == Required.Default || valueRequired == Required.AllowNull)
             {
                 return type | JSchemaType.Null;
             }
@@ -538,12 +569,7 @@ namespace Newtonsoft.Json.Schema.Generation
             {
                 if (!property.Ignored)
                 {
-                    bool optional = property.NullValueHandling == NullValueHandling.Ignore ||
-                                    HasFlag(property.DefaultValueHandling.GetValueOrDefault(), DefaultValueHandling.Ignore) ||
-                                    property.ShouldSerialize != null ||
-                                    property.GetIsSpecified != null;
-
-                    Required required = property.Required;
+                    Required? required = property._required;
                     if (DataAnnotationHelpers.GetRequired(property))
                     {
                         required = Required.Always;
@@ -557,6 +583,25 @@ namespace Newtonsoft.Json.Schema.Generation
                     }
 
                     schema.Properties.Add(property.PropertyName, propertySchema);
+
+                    Required resolvedRequired = required ?? DefaultRequired;
+                    bool optional;
+                    switch (resolvedRequired)
+                    {
+                        case Required.Default:
+                        case Required.DisallowNull:
+                            optional = true;
+                            break;
+                        case Required.Always:
+                        case Required.AllowNull:
+                            optional = property.NullValueHandling == NullValueHandling.Ignore ||
+                                       HasFlag(property.DefaultValueHandling.GetValueOrDefault(), DefaultValueHandling.Ignore) ||
+                                       property.ShouldSerialize != null ||
+                                       property.GetIsSpecified != null;
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException("required");
+                    }
 
                     if (!optional)
                     {
@@ -599,7 +644,7 @@ namespace Newtonsoft.Json.Schema.Generation
             JSchemaType schemaType = JSchemaType.None;
             if (ReflectionUtils.IsNullable(type))
             {
-                if (valueRequired != Required.Always)
+                if (valueRequired == Required.Default || valueRequired == Required.AllowNull)
                 {
                     schemaType = JSchemaType.Null;
                 }

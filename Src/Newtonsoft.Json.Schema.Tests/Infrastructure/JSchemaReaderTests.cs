@@ -89,7 +89,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             }
             catch (JSchemaReaderException ex)
             {
-                Assert.AreEqual("Could not resolve schema reference 'http://json-schema.org/geojson/crs.json#'. Path 'properties.crs', line 9, position 17.", ex.Message);
+                Assert.AreEqual("Could not resolve schema reference 'http://json-schema.org/geojson/crs.json#'. Path 'properties.crs', line 9, position 16.", ex.Message);
 
                 Uri baseUri = new Uri(TestHelpers.ResolveFilePath(@"resources\schemas\geojson\geojson.json"));
 
@@ -233,7 +233,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 
             Assert.IsFalse(valid);
             Assert.AreEqual(1, messages.Count);
-            Assert.AreEqual(@"String 'http://petstore.swagger.io' does not match regex pattern '^[^{}/ :\\]+(?::\d+)?$'. Path 'host', line 16, position 41.", messages[0]);
+            Assert.AreEqual(@"String 'http://petstore.swagger.io' does not match regex pattern '^[^{}/ :\\]+(?::\d+)?$'. Path 'host', line 16, position 40.", messages[0]);
 
             Console.WriteLine(swaggerSchema.ToString());
         }
@@ -745,7 +745,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             }
             catch (JSchemaReaderException ex)
             {
-                Assert.AreEqual(@"Could not resolve schema reference 'MyUnresolvedReference'. Path 'definitions.nested', line 7, position 16.", ex.Message);
+                Assert.AreEqual(@"Could not resolve schema reference 'MyUnresolvedReference'. Path 'definitions.nested', line 7, position 15.", ex.Message);
 
                 Assert.AreEqual(null, ex.BaseUri);
             }
@@ -933,7 +933,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             {
                 JSchemaReader schemaReader = new JSchemaReader(JSchemaDummyResolver.Instance);
                 schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
-            }, "Could not resolve schema reference '#/array/10'. Path 'properties.arrayprop', line 5, position 31.");
+            }, "Could not resolve schema reference '#/array/10'. Path 'properties.arrayprop', line 5, position 30.");
         }
 
         [Test]
@@ -951,7 +951,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             {
                 JSchemaReader schemaReader = new JSchemaReader(JSchemaDummyResolver.Instance);
                 schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
-            }, "Could not resolve schema reference '#/array/-1'. Path 'properties.arrayprop', line 5, position 31.");
+            }, "Could not resolve schema reference '#/array/-1'. Path 'properties.arrayprop', line 5, position 30.");
         }
 
         [Test]
@@ -969,7 +969,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             {
                 JSchemaReader schemaReader = new JSchemaReader(JSchemaDummyResolver.Instance);
                 schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
-            }, "Could not resolve schema reference '#/array/one'. Path 'properties.arrayprop', line 5, position 31.");
+            }, "Could not resolve schema reference '#/array/one'. Path 'properties.arrayprop', line 5, position 30.");
         }
 
         [Test]
@@ -987,7 +987,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             {
                 JSchemaReader schemaReader = new JSchemaReader(JSchemaDummyResolver.Instance);
                 schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
-            }, "Could not resolve schema reference '#/items/one'. Path 'properties.arrayprop', line 5, position 31.");
+            }, "Could not resolve schema reference '#/items/one'. Path 'properties.arrayprop', line 5, position 30.");
         }
 
         [Test]
@@ -996,7 +996,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             ExceptionAssert.Throws<JSchemaReaderException>(() =>
             {
                 TestHelpers.OpenSchemaFile(@"resources\schemas\grunt-clean-task.json");
-            }, "Could not resolve schema reference 'http://json.schemastore.org/grunt-task#/definitions/fileFormat'. Path 'additionalProperties.anyOf[0]', line 34, position 5.");
+            }, "Could not resolve schema reference 'http://json.schemastore.org/grunt-task#/definitions/fileFormat'. Path 'additionalProperties.anyOf[0]', line 34, position 4.");
         }
 
         [Test]
@@ -1076,7 +1076,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 
                     TestHelpers.OpenSchemaFile(@"resources\schemas\custom\root_invalidnestedref.json", resolver);
                 },
-                "Could not resolve schema reference 'sub/sub2.json#/definitions/invalid'. Path 'properties.property2', line 7, position 23.");
+                "Could not resolve schema reference 'sub/sub2.json#/definitions/invalid'. Path 'properties.property2', line 7, position 22.");
         }
 
         [Test]
@@ -1143,11 +1143,11 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             }
             catch (JSchemaReaderException ex)
             {
-                Assert.AreEqual("Error when resolving schema reference 'http://localhost/base#/definitions/unused'. Path 'not', line 2, position 11.", ex.Message);
+                Assert.AreEqual("Error when resolving schema reference 'http://localhost/base#/definitions/unused'. Path 'not', line 2, position 10.", ex.Message);
                 Assert.AreEqual(null, ex.BaseUri);
 
                 JSchemaReaderException inner = (JSchemaReaderException)ex.InnerException;
-                Assert.AreEqual("Could not resolve schema reference '#/definitions/invalid'. Path 'definitions.used_by_unused', line 8, position 24.", inner.Message);
+                Assert.AreEqual("Could not resolve schema reference '#/definitions/invalid'. Path 'definitions.used_by_unused', line 8, position 23.", inner.Message);
                 Assert.AreEqual(new Uri("http://localhost/base"), inner.BaseUri);
             }
         }
@@ -1276,7 +1276,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 	              ""$schema"": ""http://json-schema.org/draft-04/schema#"",
                   ""type"": ""any""
                 }", settings);
-            }, "Validation error raised by version schema 'http://json-schema.org/draft-04/schema#': JSON does not match any schemas from 'anyOf'. Path 'type', line 3, position 32.");
+            }, "Validation error raised by version schema 'http://json-schema.org/draft-04/schema#': JSON does not match any schemas from 'anyOf'. Path 'type', line 3, position 31.");
         }
 
         [Test]
@@ -1303,7 +1303,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
   }
 }", settings);
 
-            }, "Validation error raised by version schema 'http://json-schema.org/draft-04/schema#': JSON does not match any schemas from 'anyOf'. Path 'definitions.hasAny.type', line 10, position 20.");
+            }, "Validation error raised by version schema 'http://json-schema.org/draft-04/schema#': JSON does not match any schemas from 'anyOf'. Path 'definitions.hasAny.type', line 10, position 19.");
         }
 
         [Test]
@@ -1316,7 +1316,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
   ""$schema"": ""http://json-schema.org/draft-04/schema#"",
   ""type"": ""any""
 }");
-                }, "Invalid JSON schema type: any. Path 'type', line 3, position 16.");
+                }, "Invalid JSON schema type: any. Path 'type', line 3, position 15.");
         }
 
         [Test]
@@ -1330,7 +1330,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
   ""required"": true
 }");
                 },
-                "Unexpected token encountered when reading value for 'required'. Expected StartArray, got Boolean. Path 'required', line 3, position 19.");
+                "Unexpected token encountered when reading value for 'required'. Expected StartArray, got Boolean. Path 'required', line 3, position 18.");
         }
 
         [Test]
@@ -1344,7 +1344,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
   ""required"": []
 }");
                 },
-                "Unexpected token encountered when reading value for 'required'. Expected Boolean, got StartArray. Path 'required', line 3, position 16.");
+                "Unexpected token encountered when reading value for 'required'. Expected Boolean, got StartArray. Path 'required', line 3, position 15.");
         }
 
         [Test]
@@ -1634,7 +1634,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
                     }
                 }");
 
-            }, "Could not resolve schema reference '#/definitions/c'. Path 'properties.id', line 8, position 32.");
+            }, "Could not resolve schema reference '#/definitions/c'. Path 'properties.id', line 8, position 31.");
         }
 
         [Test]
@@ -1829,7 +1829,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
                     JSchemaReader schemaReader = new JSchemaReader(JSchemaDummyResolver.Instance);
                     schemaReader.ReadRoot(new JsonTextReader(new StringReader(schemaJson)));
                 },
-                "Invalid JSON schema type: invalid. Path 'definitions.def1.type', line 9, position 29.");
+                "Invalid JSON schema type: invalid. Path 'definitions.def1.type', line 9, position 28.");
         }
 
         [Test]
@@ -1856,7 +1856,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
                     schemaReader.ReadRoot(new JsonTextReader(new StringReader(schemaJson)));
                 },
                 // path here is wrong, will be fixed in future json.net release
-                "Invalid JSON schema type: invalid. Path 'definitions[0].def1[0]type', line 10, position 32.");
+                "Invalid JSON schema type: invalid. Path 'definitions[0].def1[0].type', line 10, position 31.");
 
             JObject o = JObject.Parse(schemaJson);
 
@@ -1896,7 +1896,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
                     JSchemaReader schemaReader = new JSchemaReader(JSchemaDummyResolver.Instance);
                     schemaReader.ReadRoot(new JsonTextReader(new StringReader(schemaJson)));
                 },
-                "Invalid JSON schema type: invalid. Path 'definitions.def1.def2.type', line 13, position 25.");
+                "Invalid JSON schema type: invalid. Path 'definitions.def1.def2.type', line 13, position 24.");
         }
 
         [Test]
@@ -2823,7 +2823,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             ExceptionAssert.Throws<JSchemaReaderException>(() =>
             {
                 JSchema.Parse(schemaJson);
-            }, "Error parsing id 'http://'. Id must be a valid URI. Path 'id', line 3, position 18.");
+            }, "Error parsing id 'http://'. Id must be a valid URI. Path 'id', line 3, position 17.");
         }
 
         [Test]
@@ -2844,7 +2844,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             ExceptionAssert.Throws<JSchemaReaderException>(() =>
             {
                 JSchema.Parse(schemaJson);
-            }, "Error resolving schema reference 'file:system.json#/definitions/username' in the scope '#root'. The resolved reference must be a valid URI. Path 'oneOf[0]', line 7, position 6.");
+            }, "Error resolving schema reference 'file:system.json#/definitions/username' in the scope '#root'. The resolved reference must be a valid URI. Path 'oneOf[0]', line 7, position 5.");
         }
 
         [Test]
@@ -2860,7 +2860,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             ExceptionAssert.Throws<JSchemaReaderException>(() =>
             {
                 JSchema.Parse(schemaJson);
-            }, "Error parsing id 'http://'. Id must be a valid URI. Path '$schema', line 3, position 23.");
+            }, "Error parsing id 'http://'. Id must be a valid URI. Path '$schema', line 3, position 22.");
         }
 
         [Test]
@@ -2887,7 +2887,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             ExceptionAssert.Throws<JSchemaReaderException>(() =>
             {
                 JSchema.Parse(schemaJson);
-            }, "Error parsing integer for 'maxLength'. 9223372036854775808 cannot fit in an Int64. Path 'maxLength', line 3, position 35.");
+            }, "Error parsing integer for 'maxLength'. 9223372036854775808 cannot fit in an Int64. Path 'maxLength', line 3, position 34.");
         }
 #endif
     }

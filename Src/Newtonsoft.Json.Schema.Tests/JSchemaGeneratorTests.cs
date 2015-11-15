@@ -94,6 +94,30 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(true, schema.Required.Contains("FirstName"));
             Assert.AreEqual(true, schema.Required.Contains("LastName"));
         }
+
+        [Test]
+        public void DynamicTest_DefaultRequired()
+        {
+            JSchemaGenerator generator = new JSchemaGenerator();
+            generator.DefaultRequired = Required.DisallowNull;
+
+            dynamic person = new
+            {
+                Id = 1,
+                FirstName = "John",
+                LastName = "Doe"
+            };
+
+            JSchema schema = generator.Generate(person.GetType());
+
+            Assert.AreEqual(JSchemaType.Integer, schema.Properties["Id"].Type);
+            Assert.AreEqual(JSchemaType.String, schema.Properties["FirstName"].Type);
+            Assert.AreEqual(JSchemaType.String, schema.Properties["LastName"].Type);
+
+            Assert.AreEqual(false, schema.AllowAdditionalProperties);
+
+            Assert.AreEqual(0, schema.Required.Count);
+        }
 #endif
 
         public class GeneratorTestClass
@@ -108,6 +132,9 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaGenerator generator = new JSchemaGenerator();
 
             JSchema schema = generator.Generate(typeof(GeneratorTestClass));
+
+            Assert.AreEqual(1, schema.Required.Count);
+            Assert.AreEqual("RequiredProperty", schema.Required[0]);
 
             JSchema propertySchema = schema.Properties["RequiredProperty"];
 
@@ -1147,6 +1174,7 @@ namespace Newtonsoft.Json.Schema.Tests
         public void CircularReferenceWithMixedRequires()
         {
             JSchemaGenerator generator = new JSchemaGenerator();
+            generator.DefaultRequired = Required.AllowNull;
 
             JSchema schema = generator.Generate(typeof(CircularReferenceClass), false);
             string json = schema.ToString();
