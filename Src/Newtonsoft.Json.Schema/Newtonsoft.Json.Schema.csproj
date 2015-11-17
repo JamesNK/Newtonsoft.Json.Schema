@@ -50,6 +50,7 @@
   <ItemGroup>
     <Compile Include="ErrorType.cs" />
     <Compile Include="ExternalSchema.cs" />
+    <Compile Include="Generation\JSchemaGeneratorInternal.cs" />
     <Compile Include="Generation\JSchemaTypeGenerationContext.cs" />
     <Compile Include="Generation\SchemaPropertyOrderHandling.cs" />
     <Compile Include="Generation\SchemaLocationHandling.cs" />

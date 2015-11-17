@@ -36,9 +36,8 @@
     <DocumentationFile>bin\Release\Net35\Newtonsoft.Json.Schema.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Newtonsoft.Json.Unsigned.6.0.8\lib\net35\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.Unsigned.8.0.1-beta3\lib\net35\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -50,6 +49,7 @@
     <Compile Include="ErrorType.cs" />
     <Compile Include="ExternalSchema.cs" />
     <Compile Include="Generation\JSchemaGenerator.cs" />
+    <Compile Include="Generation\JSchemaGeneratorInternal.cs" />
     <Compile Include="Generation\JSchemaTypeGenerationContext.cs" />
     <Compile Include="Generation\SchemaIdGenerationHandling.cs" />
     <Compile Include="Generation\SchemaLocationHandling.cs" />
