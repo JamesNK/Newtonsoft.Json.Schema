@@ -31,8 +31,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Newtonsoft.Json.Unsigned.8.0.1-beta3\lib\net45\Newtonsoft.Json.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="nunit.framework">
       <HintPath>..\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
@@ -73,6 +73,7 @@
     <Compile Include="Documentation\Samples\Validate\JTokenValidateWithEvent.cs" />
     <Compile Include="Infrastructure\CryptographyHelpersTests.cs" />
     <Compile Include="Infrastructure\EmailHelpersTests.cs" />
+    <Compile Include="Infrastructure\EnumHelpersTests.cs" />
     <Compile Include="Infrastructure\JSchemaDiscoveryTests.cs" />
     <Compile Include="Infrastructure\JSchemaUrlResolverTests.cs" />
     <Compile Include="Infrastructure\JSchemaWriterTests.cs" />
@@ -89,6 +90,7 @@
     <Compile Include="ExtensionsTests.cs" />
     <Compile Include="Infrastructure\JSchemaReaderTests.cs" />
     <Compile Include="JSchemaGeneratorTests.cs" />
+    <Compile Include="JsonValidatorTests.cs" />
     <Compile Include="LicenseTests.cs" />
     <Compile Include="PerformanceTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

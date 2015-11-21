@@ -17,26 +17,52 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
     {
         private int _propertyCount;
         private string _currentPropertyName;
-        private readonly List<string> _requiredProperties;
-        private readonly List<string> _readProperties;
-        private readonly Dictionary<string, SchemaScope> _dependencyScopes;
+        private List<string> _requiredProperties;
+        private List<string> _readProperties;
+        private Dictionary<string, SchemaScope> _dependencyScopes;
 
-        public ObjectScope(ContextBase context, Scope parent, int initialDepth, JSchema schema)
-            : base(context, parent, initialDepth, schema)
+        public void Initialize(ContextBase context, Scope parent, int initialDepth, JSchema schema)
         {
-            if (schema._required != null)
-                _requiredProperties = schema._required.ToList();
+            Initialize(context, parent, initialDepth, ScopeType.Object);
+            InitializeSchema(schema);
 
-            if (schema._dependencies != null && schema._dependencies.Count > 0)
+            if (!schema._required.IsNullOrEmpty())
             {
-                _readProperties = new List<string>();
-
-                foreach (KeyValuePair<string, object> dependency in schema._dependencies)
+                if (_requiredProperties != null)
                 {
-                    if (dependency.Value is JSchema)
+                    _requiredProperties.Clear();
+                }
+                else
+                {
+                    _requiredProperties = new List<string>(schema._required.Count);
+                }
+
+                foreach (string required in schema._required)
+                {
+                    _requiredProperties.Add(required);
+                }
+            }
+
+            if (!schema._dependencies.IsNullOrEmpty())
+            {
+                if (_readProperties != null)
+                {
+                    _readProperties.Clear();
+                }
+                else
+                {
+                    _readProperties = new List<string>();
+                }
+
+                if (schema._dependencies.HasSchemas)
+                {
+                    if (_dependencyScopes != null)
+                    {
+                        _dependencyScopes.Clear();
+                    }
+                    else
                     {
                         _dependencyScopes = new Dictionary<string, SchemaScope>(StringComparer.Ordinal);
-                        break;
                     }
                 }
             }
@@ -53,19 +79,25 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 switch (token)
                 {
                     case JsonToken.StartObject:
-                        TestType(Schema, JSchemaType.Object, null);
+                        TestType(Schema, JSchemaType.Object);
                         return false;
                     case JsonToken.EndObject:
-                        if (_requiredProperties != null && _requiredProperties.Count > 0)
+                        if (!Schema._required.IsNullOrEmpty() && _requiredProperties.Count > 0)
+                        {
                             RaiseError($"Required properties are missing from object: {StringHelpers.Join(", ", _requiredProperties)}.", ErrorType.Required, Schema, _requiredProperties, null);
+                        }
 
                         if (Schema.MaximumProperties != null && _propertyCount > Schema.MaximumProperties)
+                        {
                             RaiseError($"Object property count {_propertyCount} exceeds maximum count of {Schema.MaximumProperties}.", ErrorType.MaximumProperties, Schema, _propertyCount, null);
+                        }
 
                         if (Schema.MinimumProperties != null && _propertyCount < Schema.MinimumProperties)
+                        {
                             RaiseError($"Object property count {_propertyCount} is less than minimum count of {Schema.MinimumProperties}.", ErrorType.MinimumProperties, Schema, _propertyCount, null);
+                        }
 
-                        if (_readProperties != null)
+                        if (!Schema._dependencies.IsNullOrEmpty())
                         {
                             foreach (string readProperty in _readProperties)
                             {
@@ -125,10 +157,14 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     _propertyCount++;
                     _currentPropertyName = (string)value;
 
-                    if (_requiredProperties != null)
+                    if (!Schema._required.IsNullOrEmpty())
+                    {
                         _requiredProperties.Remove(_currentPropertyName);
-                    if (_readProperties != null)
+                    }
+                    if (!Schema._dependencies.IsNullOrEmpty())
+                    {
                         _readProperties.Add(_currentPropertyName);
+                    }
 
                     if (!Schema.AllowAdditionalProperties)
                     {
@@ -188,7 +224,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
         private bool IsPropertyDefinied(JSchema schema, string propertyName)
         {
             if (schema._properties != null && schema._properties.ContainsKey(propertyName))
+            {
                 return true;
+            }
 
             if (schema._patternProperties != null)
             {
@@ -214,9 +252,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
         public void InitializeScopes(JsonToken token)
         {
-            if (_dependencyScopes != null)
+            if (!Schema._dependencies.IsNullOrEmpty())
             {
-                foreach (KeyValuePair<string, object> dependency in Schema._dependencies)
+                foreach (KeyValuePair<string, object> dependency in Schema._dependencies.GetInnerDictionary())
                 {
                     JSchema dependencySchema = dependency.Value as JSchema;
                     if (dependencySchema != null)

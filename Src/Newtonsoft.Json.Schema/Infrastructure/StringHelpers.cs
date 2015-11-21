@@ -1,6 +1,10 @@
-﻿using System;
+﻿#region License
+// Copyright (c) Newtonsoft. All Rights Reserved.
+// License: https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md
+#endregion
+
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 namespace Newtonsoft.Json.Schema.Infrastructure
@@ -13,15 +17,21 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             return string.Join(separator, values);
 #else
             if (values == null)
+            {
                 throw new ArgumentNullException("values");
+            }
 
             if (separator == null)
+            {
                 separator = string.Empty;
+            }
 
             using (IEnumerator<T> enumerator = values.GetEnumerator())
             {
                 if (!enumerator.MoveNext())
+                {
                     return string.Empty;
+                }
 
                 StringBuilder sb = new StringBuilder();
                 if (enumerator.Current != null)

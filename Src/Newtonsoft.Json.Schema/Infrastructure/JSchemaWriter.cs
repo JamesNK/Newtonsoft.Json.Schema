@@ -254,7 +254,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             WritePropertyIfNotNull(_writer, Constants.PropertyNames.MultipleOf, schema.MultipleOf);
             WritePropertyIfNotNull(_writer, Constants.PropertyNames.Pattern, schema.Pattern);
             WritePropertyIfNotNull(_writer, Constants.PropertyNames.Format, schema.Format);
-            if (schema._enum != null && schema._enum.Count > 0)
+            if (!schema._enum.IsNullOrEmpty())
             {
                 _writer.WritePropertyName(Constants.PropertyNames.Enum);
                 _writer.WriteStartArray();
@@ -274,7 +274,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         private void WriteRequired(JSchema schema)
         {
-            if (schema._required != null && schema._required.Count > 0)
+            if (!schema._required.IsNullOrEmpty())
             {
                 _writer.WritePropertyName(Constants.PropertyNames.Required);
                 _writer.WriteStartArray();
@@ -296,7 +296,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         private void WriteSchemas(JSchema context, JSchemaCollection schemas, string name)
         {
-            if (schemas != null && schemas.Count > 0)
+            if (!schemas.IsNullOrEmpty())
             {
                 _writer.WritePropertyName(name);
                 _writer.WriteStartArray();
@@ -310,12 +310,14 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         private void WriteItems(JSchema schema)
         {
-            if ((schema._items == null || schema._items.Count == 0) && !schema.ItemsPositionValidation)
+            if (schema._items.IsNullOrEmpty() && !schema.ItemsPositionValidation)
+            {
                 return;
+            }
 
             if (!schema.ItemsPositionValidation)
             {
-                if (schema._items != null && schema._items.Count > 0)
+                if (!schema._items.IsNullOrEmpty())
                 {
                     ReferenceOrWriteSchema(schema, schema._items[0], Constants.PropertyNames.Items);
                 }
@@ -345,7 +347,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         private void WriteSchemaDictionaryIfNotNull(JSchema context, JsonWriter writer, string propertyName, IDictionary<string, JSchema> properties)
         {
-            if (properties != null && properties.Count > 0)
+            if (!properties.IsNullOrEmpty())
             {
                 writer.WritePropertyName(propertyName);
 

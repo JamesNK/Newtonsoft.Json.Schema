@@ -13,11 +13,6 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 {
     internal class AllOfScope : ConditionalScope
     {
-        public AllOfScope(SchemaScope parent, ContextBase context, int depth)
-            : base(context, parent, depth)
-        {
-        }
-
         protected override bool EvaluateTokenCore(JsonToken token, object value, int depth)
         {
             if (depth == InitialDepth && JsonTokenHelpers.IsPrimitiveOrEndToken(token))

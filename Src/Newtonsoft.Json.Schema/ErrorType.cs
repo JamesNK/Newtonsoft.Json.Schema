@@ -141,6 +141,11 @@ namespace Newtonsoft.Json.Schema
         /// A 'patternProperties' error.
         /// </summary>
         [EnumMember(Value = "patternProperties")]
-        PatternProperties = 25
+        PatternProperties = 25,
+        /// <summary>
+        /// A 'validator' error.
+        /// </summary>
+        [EnumMember(Value = "validator")]
+        Validator = 26
     }
 }

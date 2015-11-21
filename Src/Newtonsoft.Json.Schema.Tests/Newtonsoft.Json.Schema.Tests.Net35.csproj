@@ -66,6 +66,7 @@
     <Compile Include="Documentation\ValidatingJson.cs" />
     <Compile Include="Infrastructure\CryptographyHelpersTests.cs" />
     <Compile Include="Infrastructure\EmailHelpersTests.cs" />
+    <Compile Include="Infrastructure\EnumHelpersTests.cs" />
     <Compile Include="Infrastructure\JSchemaDiscoveryTests.cs" />
     <Compile Include="Infrastructure\JSchemaUrlResolverTests.cs" />
     <Compile Include="Infrastructure\JSchemaWriterTests.cs" />
@@ -80,9 +81,11 @@
     <Compile Include="ExtensionsTests.cs" />
     <Compile Include="Infrastructure\JSchemaReaderTests.cs" />
     <Compile Include="JSchemaGeneratorTests.cs" />
+    <Compile Include="JsonValidatorTests.cs" />
     <Compile Include="LicenseTests.cs" />
     <Compile Include="PerformanceTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RealWorldTests.cs" />
     <Compile Include="TestFixtureBase.cs" />
     <Compile Include="TestHelpers.cs" />
     <Compile Include="TestObjects\CircularReferenceClass.cs" />

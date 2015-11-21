@@ -18,8 +18,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
         public JSchema Schema;
         public bool IsValid;
 
-        protected SchemaScope(ContextBase context, Scope parent, int initialDepth, JSchema schema)
-            : base(context, parent, initialDepth)
+        protected void InitializeSchema(JSchema schema)
         {
             Schema = schema;
             IsValid = true;
@@ -32,7 +31,12 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             switch (token)
             {
                 case JsonToken.StartObject:
-                    var objectScope = new ObjectScope(context, parent, depth, schema);
+                    ObjectScope objectScope = context.Validator.GetCachedScope<ObjectScope>(ScopeType.Object);
+                    if (objectScope == null)
+                    {
+                        objectScope = new ObjectScope();
+                    }
+                    objectScope.Initialize(context, parent, depth, schema);
                     context.Scopes.Add(objectScope);
 
                     objectScope.InitializeScopes(token);
@@ -41,42 +45,76 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     break;
                 case JsonToken.StartArray:
                 case JsonToken.StartConstructor:
-                    scope = new ArrayScope(context, parent, depth, schema);
-                    context.Scopes.Add(scope);
+                    ArrayScope arrayScope = context.Validator.GetCachedScope<ArrayScope>(ScopeType.Array);
+                    if (arrayScope == null)
+                    {
+                        arrayScope = new ArrayScope();
+                    }
+                    arrayScope.Initialize(context, parent, depth, schema);
+
+                    context.Scopes.Add(arrayScope);
+                    scope = arrayScope;
                     break;
                 default:
-                    scope = new PrimativeScope(context, parent, depth, schema);
+                    PrimativeScope primativeScope = context.Validator.GetCachedScope<PrimativeScope>(ScopeType.Primitive);
+                    if (primativeScope == null)
+                    {
+                        primativeScope = new PrimativeScope();
+                    }
+                    primativeScope.Initialize(context, parent, depth, schema);
+
+                    scope = primativeScope;
                     context.Scopes.Add(scope);
                     break;
             }
 
-            if (schema._allOf != null && schema._allOf.Count > 0)
+            if (!schema._allOf.IsNullOrEmpty())
             {
-                AllOfScope allOfScope = new AllOfScope(scope, context, depth);
+                AllOfScope allOfScope = context.Validator.GetCachedScope<AllOfScope>(ScopeType.AllOf);
+                if (allOfScope == null)
+                {
+                    allOfScope = new AllOfScope();
+                }
+                allOfScope.Initialize(context, scope, depth, ScopeType.AllOf);
                 context.Scopes.Add(allOfScope);
 
-                allOfScope.InitializeScopes(token, schema._allOf);
+                allOfScope.InitializeScopes(token, schema._allOf.GetInnerList());
             }
-            if (schema._anyOf != null && schema._anyOf.Count > 0)
+            if (!schema._anyOf.IsNullOrEmpty())
             {
-                AnyOfScope anyOfScope = new AnyOfScope(scope, context, depth);
+                AnyOfScope anyOfScope = context.Validator.GetCachedScope<AnyOfScope>(ScopeType.AnyOf);
+                if (anyOfScope == null)
+                {
+                    anyOfScope = new AnyOfScope();
+                }
+                anyOfScope.Initialize(context, scope, depth, ScopeType.AnyOf);
                 context.Scopes.Add(anyOfScope);
 
-                anyOfScope.InitializeScopes(token, schema._anyOf);
+                anyOfScope.InitializeScopes(token, schema._anyOf.GetInnerList());
             }
-            if (schema._oneOf != null && schema._oneOf.Count > 0)
+            if (!schema._oneOf.IsNullOrEmpty())
             {
-                OneOfScope oneOfScope = new OneOfScope(scope, context, depth);
+                OneOfScope oneOfScope = context.Validator.GetCachedScope<OneOfScope>(ScopeType.OneOf);
+                if (oneOfScope == null)
+                {
+                    oneOfScope = new OneOfScope();
+                }
+                oneOfScope.Initialize(context, scope, depth, ScopeType.OneOf);
                 context.Scopes.Add(oneOfScope);
 
-                oneOfScope.InitializeScopes(token, schema._oneOf);
+                oneOfScope.InitializeScopes(token, schema._oneOf.GetInnerList());
             }
             if (schema.Not != null)
             {
-                NotScope notScope = new NotScope(scope, context, depth);
+                NotScope notScope = context.Validator.GetCachedScope<NotScope>(ScopeType.Not);
+                if (notScope == null)
+                {
+                    notScope = new NotScope();
+                }
+                notScope.Initialize(context, scope, depth, ScopeType.Not);
                 context.Scopes.Add(notScope);
 
-                notScope.InitializeScopes(token, Enumerable.Repeat(schema.Not, 1));
+                notScope.InitializeScopes(token, new List<JSchema> { schema.Not });
             }
 
             return scope;
@@ -84,7 +122,10 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
         protected void EnsureEnum(JsonToken token, object value)
         {
-            if (Schema._enum != null && Schema._enum.Count > 0)
+            bool isEnum = !Schema._enum.IsNullOrEmpty();
+            bool hasValidator = !Schema._validators.IsNullOrEmpty();
+
+            if (isEnum || hasValidator)
             {
                 if (JsonTokenHelpers.IsPrimitiveOrStartToken(token))
                 {
@@ -97,22 +138,44 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
                 if (JsonTokenHelpers.IsPrimitiveOrEndToken(token))
                 {
-                    if (!Schema._enum.ContainsValue(Context.TokenWriter.CurrentToken, JToken.EqualityComparer))
-                    {
-                        StringWriter sw = new StringWriter(CultureInfo.InvariantCulture);
-                        Context.TokenWriter.CurrentToken.WriteTo(new JsonTextWriter(sw));
+                    JToken currentToken = Context.TokenWriter.CurrentToken;
 
-                        RaiseError($"Value {sw.ToString()} is not defined in enum.", ErrorType.Enum, Schema, value, null);
+                    if (isEnum)
+                    {
+                        bool defined = JsonTokenHelpers.Contains(Schema._enum, currentToken);
+
+                        if (!defined)
+                        {
+                            StringWriter sw = new StringWriter(CultureInfo.InvariantCulture);
+                            currentToken.WriteTo(new JsonTextWriter(sw));
+
+                            RaiseError($"Value {sw.ToString()} is not defined in enum.", ErrorType.Enum, Schema, value, null);
+                        }
+                    }
+
+                    if (hasValidator)
+                    {
+                        JsonValidatorContext context = new JsonValidatorContext(this, Schema);
+
+                        foreach (JsonValidator validator in Schema._validators)
+                        {
+                            validator.Validate(currentToken, context);
+                        }
                     }
                 }
             }
         }
 
-        protected bool TestType(JSchema currentSchema, JSchemaType currentType, object value)
+        protected bool TestType(JSchema currentSchema, JSchemaType currentType)
+        {
+            return TestType<object>(currentSchema, currentType, null);
+        }
+
+        protected bool TestType<T>(JSchema currentSchema, JSchemaType currentType, T value)
         {
             if (!JSchemaTypeHelpers.HasFlag(currentSchema.Type, currentType))
             {
-                RaiseError($"Invalid type. Expected {currentSchema.Type} but got {currentType}.", ErrorType.Type, currentSchema, value, null);
+                RaiseError($"Invalid type. Expected {currentSchema.Type.Value.GetDisplayText()} but got {currentType.GetDisplayText()}.", ErrorType.Type, currentSchema, value, null);
                 return false;
             }
 

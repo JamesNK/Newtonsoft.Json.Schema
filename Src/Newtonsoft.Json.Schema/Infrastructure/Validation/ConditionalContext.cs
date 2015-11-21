@@ -20,7 +20,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
         public override void RaiseError(IFormattable message, ErrorType errorType, JSchema schema, object value, IList<ValidationError> childErrors)
         {
             if (Errors == null)
+            {
                 Errors = new List<ValidationError>();
+            }
 
             Errors.Add(Validator.CreateError(message, errorType, schema, value, childErrors));
         }
@@ -32,7 +34,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
         public override bool HasErrors
         {
-            get { return (Errors != null && Errors.Count > 0); }
+            get { return !Errors.IsNullOrEmpty(); }
         }
     }
 }

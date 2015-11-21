@@ -4,6 +4,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 
 namespace Newtonsoft.Json.Schema
 {
@@ -28,6 +29,12 @@ namespace Newtonsoft.Json.Schema
         /// Gets or sets a flag to indicate whether the schema JSON should be validated using the JSON Schema version identifer defined by '$schema'.
         /// </summary>
         public bool ValidateVersion { get; set; }
+
+        /// <summary>
+        /// Gets or sets a <see cref="JsonValidator"/> collection that will be used during validation.
+        /// </summary>
+        /// <value>The converters.</value>
+        public IList<JsonValidator> Validators { get; set; }
 
         /// <summary>
         /// Sets an event handler for receiving information about receives information about JSON Schema syntax errors. 

@@ -14,6 +14,24 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 {
     internal static class JSchemaTypeHelpers
     {
+        private static readonly Dictionary<JSchemaType, string> CachedSchemaTypeNames;
+
+        static JSchemaTypeHelpers()
+        {
+            List<JSchemaType> allValues = EnumHelpers.GetAllEnums<JSchemaType>();
+            CachedSchemaTypeNames = new Dictionary<JSchemaType, string>(allValues.Count);
+
+            foreach (JSchemaType type in allValues)
+            {
+                CachedSchemaTypeNames.Add(type, type.ToString());
+            }
+        }
+
+        public static string GetDisplayText(this JSchemaType value)
+        {
+            return CachedSchemaTypeNames[value];
+        }
+
         internal static bool HasFlag(JSchemaType? value, JSchemaType flag)
         {
             // default value is Any

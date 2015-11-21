@@ -860,11 +860,6 @@ namespace Newtonsoft.Json.Schema.Tests
 
         public class CustomDirectoryInfoMapper : DefaultContractResolver
         {
-            public CustomDirectoryInfoMapper()
-                : base(true)
-            {
-            }
-
             protected override JsonContract CreateContract(Type objectType)
             {
                 if (objectType == typeof(DirectoryInfo))

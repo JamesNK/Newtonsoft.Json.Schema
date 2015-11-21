@@ -3,6 +3,7 @@
 // License: https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md
 #endregion
 
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Collections
@@ -11,7 +12,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Collections
     {
         private readonly JSchema _parentSchema;
 
-        public JSchemaCollection(JSchema parentSchema)
+        public JSchemaCollection(JSchema parentSchema) : base(new List<JSchema>())
         {
             _parentSchema = parentSchema;
         }
@@ -63,6 +64,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Collections
 
             base.ClearItems();
             OnChanged();
+        }
+
+        public List<JSchema> GetInnerList()
+        {
+            return (List<JSchema>) Items;
         }
     }
 }

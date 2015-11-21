@@ -45,6 +45,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Collections
             _dictionary = new Dictionary<TKey, TValue>(capacity, comparer);
         }
 
+        protected IDictionary<TKey, TValue> Dictionary
+        {
+            get { return _dictionary; }
+        }
+
         protected virtual void AddItem(TKey key, TValue value)
         {
             _dictionary.Add(key, value);

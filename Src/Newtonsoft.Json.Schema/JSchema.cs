@@ -43,6 +43,7 @@ namespace Newtonsoft.Json.Schema
         internal JSchemaDictionary _properties;
         internal JSchemaDictionary _patternProperties;
         internal List<string> _required;
+        internal List<JsonValidator> _validators;
 
         private int _lineNumber;
         private int _linePosition;
@@ -556,6 +557,23 @@ namespace Newtonsoft.Json.Schema
         /// </summary>
         /// <value>The format.</value>
         public string Format { get; set; }
+
+        /// <summary>
+        /// Gets a <see cref="JsonValidator"/> collection that will be used during validation.
+        /// </summary>
+        /// <value>The converters.</value>
+        public List<JsonValidator> Validators
+        {
+            get
+            {
+                if (_validators == null)
+                {
+                    _validators = new List<JsonValidator>();
+                }
+
+                return _validators;
+            }
+        }
 
         /// <summary>
         /// Loads a <see cref="JSchema"/> from the specified <see cref="JsonReader"/>.

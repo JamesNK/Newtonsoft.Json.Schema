@@ -4,6 +4,7 @@
 #endregion
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Collections
@@ -11,11 +12,22 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Collections
     internal class JSchemaDependencyDictionary : DictionaryBase<string, object>
     {
         private readonly JSchema _parentSchema;
+        private int _schemasCount;
 
         public JSchemaDependencyDictionary(JSchema parentSchema)
             : base(StringComparer.Ordinal)
         {
             _parentSchema = parentSchema;
+        }
+
+        public bool HasSchemas
+        {
+            get { return _schemasCount > 0; }
+        }
+
+        public Dictionary<string, object> GetInnerDictionary()
+        {
+            return (Dictionary<string, object>) Dictionary;
         }
 
         private void OnChanged()
@@ -34,6 +46,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Collections
             JSchema s = value as JSchema;
             if (s != null)
             {
+                _schemasCount++;
                 s.Changed += OnChildChanged;
                 OnChanged();
             }
@@ -55,6 +68,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Collections
                         return;
                     }
 
+                    _schemasCount--;
                     s1.Changed -= OnChildChanged;
                     changed = true;
                 }
@@ -64,9 +78,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Collections
             JSchema s2 = value as JSchema;
             if (s2 != null)
             {
+                _schemasCount++;
                 s2.Changed += OnChildChanged;
                 changed = true;
             }
+
             if (changed)
             {
                 OnChanged();
@@ -86,6 +102,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Collections
             base.RemoveItem(key);
             if (s != null)
             {
+                _schemasCount--;
                 s.Changed -= OnChildChanged;
                 OnChanged();
             }
@@ -107,6 +124,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Collections
             }
 
             base.ClearItems();
+            _schemasCount = 0;
 
             if (changed)
             {

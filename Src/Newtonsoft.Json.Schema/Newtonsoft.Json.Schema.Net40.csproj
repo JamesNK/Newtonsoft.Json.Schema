@@ -59,12 +59,14 @@
     <Compile Include="Generation\SchemaPropertyOrderHandling.cs" />
     <Compile Include="Generation\SchemaReferenceHandling.cs" />
     <Compile Include="Generation\TypeSchema.cs" />
+    <Compile Include="Infrastructure\CollectionHelpers.cs" />
     <Compile Include="Infrastructure\Collections\DictionaryBase.cs" />
     <Compile Include="Infrastructure\Collections\JSchemaCollection.cs" />
     <Compile Include="Infrastructure\Collections\JSchemaDependencyDictionary.cs" />
     <Compile Include="Infrastructure\Collections\JSchemaDictionary.cs" />
     <Compile Include="Infrastructure\Collections\JSchemaPatternDictionary.cs" />
     <Compile Include="Infrastructure\ColorHelpers.cs" />
+    <Compile Include="Infrastructure\EnumHelpers.cs" />
     <Compile Include="Infrastructure\JSchemaConverter.cs" />
     <Compile Include="Infrastructure\JTokenPathAnnotation.cs" />
     <Compile Include="Infrastructure\Licensing\CryptographyHelpers.cs" />
@@ -94,6 +96,7 @@
     <Compile Include="JSchemaValidationException.cs" />
     <Compile Include="JSchemaWriterSettings.cs" />
     <Compile Include="JSchemaPreloadedResolver.cs" />
+    <Compile Include="JsonValidator.cs" />
     <Compile Include="License.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ResolveSchemaContext.cs" />

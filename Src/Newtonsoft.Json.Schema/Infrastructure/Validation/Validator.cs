@@ -18,9 +18,10 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
     internal abstract class Validator
     {
         private readonly List<Scope> _scopes;
+        private readonly List<Scope> _scopesCache;
         private readonly object _publicValidator;
         private readonly ValidatorContext _context;
-        
+
         public JTokenWriter TokenWriter;
         public JSchema Schema;
         public event SchemaValidationEventHandler ValidationEventHandler;
@@ -37,13 +38,18 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
         {
             _publicValidator = publicValidator;
             _scopes = new List<Scope>();
+            _scopesCache = new List<Scope>();
             _context = new ValidatorContext(this);
         }
 
         public void RaiseError(IFormattable message, ErrorType errorType, JSchema schema, object value, IList<ValidationError> childErrors)
         {
             ValidationError error = CreateError(message, errorType, schema, value, childErrors);
+            RaiseError(error);
+        }
 
+        public void RaiseError(ValidationError error)
+        {
             // shared cache information that could be read/populated from multiple threads
             // lock to ensure that only one thread writes known schemas
             if (Schema.KnownSchemas.Count == 0)
@@ -62,9 +68,13 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
             SchemaValidationEventHandler handler = ValidationEventHandler;
             if (handler != null)
+            {
                 handler(_publicValidator, new SchemaValidationEventArgs(error));
+            }
             else
+            {
                 throw JSchemaValidationException.Create(error);
+            }
         }
 
         private void PopulateSchemaId(ValidationError error)
@@ -91,27 +101,52 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             if (_scopes.Count == 0)
             {
                 if (Schema == null)
+                {
                     throw new JSchemaException("No schema has been set for the validator.");
+                }
 
                 LicenseHelpers.IncrementAndCheckValidationCount();
                 SchemaScope.CreateTokenScope(token, Schema, _context, null, depth);
             }
 
             if (TokenWriter != null)
+            {
                 TokenWriter.WriteToken(token, value);
+            }
 
             for (int i = _scopes.Count - 1; i >= 0; i--)
             {
                 Scope scope = _scopes[i];
 
                 if (!scope.Complete)
+                {
                     scope.EvaluateToken(token, value, depth);
+                }
                 else
+                {
                     _scopes.RemoveAt(i);
+                    _scopesCache.Add(scope);
+                }
             }
 
             if (TokenWriter != null && TokenWriter.Top == 0)
+            {
                 TokenWriter = null;
+            }
+        }
+
+        public T GetCachedScope<T>(ScopeType type) where T : Scope
+        {
+            for (int i = 0; i < _scopesCache.Count; i++)
+            {
+                Scope s = _scopesCache[i];
+                if (s.Type == type)
+                {
+                    _scopesCache.RemoveAt(i);
+                    return (T)s;
+                }
+            }
+            return null;
         }
     }
 }

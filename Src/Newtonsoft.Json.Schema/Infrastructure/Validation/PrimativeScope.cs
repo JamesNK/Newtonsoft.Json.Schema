@@ -17,9 +17,10 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 {
     internal class PrimativeScope : SchemaScope
     {
-        public PrimativeScope(ContextBase context, Scope parent, int initialDepth, JSchema schema)
-            : base(context, parent, initialDepth, schema)
+        public void Initialize(ContextBase context, Scope parent, int initialDepth, JSchema schema)
         {
+            Initialize(context, parent, initialDepth, ScopeType.Primitive);
+            InitializeSchema(schema);
         }
 
         protected override bool EvaluateTokenCore(JsonToken token, object value, int depth)
@@ -72,7 +73,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 }
                 case JsonToken.Undefined:
                 {
-                    RaiseError($"Invalid type. Expected {Schema.Type} but got {token}.", ErrorType.Type, Schema, value, null);
+                    RaiseError($"Invalid type. Expected {Schema.Type.Value.GetDisplayText()} but got {token}.", ErrorType.Type, Schema, value, null);
                     break;
                 }
                 default:
