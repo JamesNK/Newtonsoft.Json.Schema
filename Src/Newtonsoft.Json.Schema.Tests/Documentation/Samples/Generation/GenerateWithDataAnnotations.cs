@@ -1,4 +1,9 @@
-﻿#if !(NET35 || NET40)
+﻿#region License
+// Copyright (c) Newtonsoft. All Rights Reserved.
+// License: https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md
+#endregion
+
+#if !(NET35 || NET40)
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
