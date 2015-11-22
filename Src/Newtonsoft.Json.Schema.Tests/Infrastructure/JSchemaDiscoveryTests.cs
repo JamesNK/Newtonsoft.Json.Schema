@@ -123,17 +123,10 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
                 }
             };
 
-            Console.WriteLine(root.ToString());
-
             JSchemaDiscovery discovery = new JSchemaDiscovery();
             discovery.Discover(root, null);
 
             int i = 0;
-
-            foreach (KnownSchema knownSchema in discovery.KnownSchemas)
-            {
-                Console.WriteLine(knownSchema.Id);
-            }
 
             Assert.AreEqual(new Uri("http://localhost/#", UriKind.RelativeOrAbsolute), discovery.KnownSchemas[i].Id);
             Assert.AreEqual(root, discovery.KnownSchemas[i++].Schema);
@@ -254,8 +247,6 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 
             JSchemaDiscovery discovery = new JSchemaDiscovery();
             discovery.Discover(schema, null);
-
-            Console.WriteLine(discovery.KnownSchemas[3].Id.OriginalString);
 
             // ensure the path does not contain multiple #'s
             Assert.AreEqual("http://www.example.org/IntegralLifeProduct#/definitions/ProductType/allOf/0", discovery.KnownSchemas[3].Id.OriginalString);

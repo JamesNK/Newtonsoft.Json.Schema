@@ -400,8 +400,6 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(JSchemaType.String | JSchemaType.Null, string2.Type);
             Assert.AreEqual(null, string2.MinimumLength);
             Assert.AreEqual(null, string2.MaximumLength);
-
-            Console.WriteLine(schema.ToString());
         }
 
         public class StringAttributeOptions
@@ -469,8 +467,6 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual("email", schema.Properties["String10"].Format);
             Assert.AreEqual(0, schema.Properties["String11"].MinimumLength);
             Assert.AreEqual(50, schema.Properties["String11"].MaximumLength);
-
-            Console.WriteLine(schema.ToString());
         }
 #endif
 
@@ -505,8 +501,6 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(JSchemaType.Number, doubleProperty.Type);
             Assert.AreEqual(0.5, doubleProperty.Minimum);
             Assert.AreEqual(1.5, doubleProperty.Maximum);
-
-            Console.WriteLine(schema.ToString());
         }
 
 #if !NET35
@@ -536,8 +530,6 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(JSchemaType.Integer, integer.Type);
             Assert.AreEqual(6, integer.Enum.Count);
             Assert.AreEqual(0, (int)integer.Enum[0]);
-
-            Console.WriteLine(schema.ToString());
         }
 #endif
 
@@ -585,8 +577,6 @@ namespace Newtonsoft.Json.Schema.Tests
 
             string json = schema.ToString();
 
-            Console.WriteLine(json);
-
             StringAssert.AreEqual(@"{
   ""type"": ""object"",
   ""additionalProperties"": false,
@@ -617,8 +607,6 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchema schema = generator.Generate(typeof(DefaultValueAttributeTestClass));
 
             string json = schema.ToString();
-
-            Console.WriteLine(json);
 
             StringAssert.AreEqual(@"{
   ""type"": ""object"",
@@ -685,8 +673,6 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchema schema = generator.Generate(typeof(UserNullable));
 
             string json = schema.ToString();
-
-            Console.WriteLine(json);
 
             StringAssert.AreEqual(@"{
   ""type"": ""object"",
@@ -810,8 +796,6 @@ namespace Newtonsoft.Json.Schema.Tests
 
             JSchema schema = generator.Generate(typeof(CircularReferenceWithIdClass));
 
-            Console.WriteLine(schema.ToString());
-
             Assert.AreEqual(JSchemaType.String | JSchemaType.Null, schema.Properties["Name"].Type);
             Assert.AreEqual(new Uri("MyExplicitId", UriKind.RelativeOrAbsolute), schema.Id);
             Assert.AreEqual(JSchemaType.Object | JSchemaType.Null, schema.Properties["Child"].Type);
@@ -897,8 +881,6 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchema schema = generator.Generate(typeof(DirectoryInfo), true);
 
             string json = schema.ToString();
-
-            Console.WriteLine(json);
 
             StringAssert.AreEqual(@"{
   ""type"": [

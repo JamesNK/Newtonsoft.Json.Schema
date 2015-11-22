@@ -374,8 +374,6 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
                 }
             };
             root.Not = nestedInId;
-
-            Console.WriteLine(root);
         }
 
         [Test]

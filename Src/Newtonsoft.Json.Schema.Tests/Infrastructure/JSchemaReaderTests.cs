@@ -141,7 +141,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             Assert.AreEqual(new Uri("http://json-schema.org/geojson/bbox.json"), errors[0].SchemaBaseUri);
             Assert.AreEqual(new Uri("http://json-schema.org/geojson/geojson.json"), errors[1].SchemaBaseUri);
 
-            PrintErrorsRecursive(errors, 0);
+            //PrintErrorsRecursive(errors, 0);
         }
 
         private void PrintErrorsRecursive(IList<ValidationError> errors, int depth)
@@ -212,8 +212,6 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             JSchema chromeManifestSchema = JSchema.Parse(schemaJson);
 
             Assert.AreEqual("JSON schema for Google Chrome extension manifest files", chromeManifestSchema.Title);
-
-            Console.WriteLine(chromeManifestSchema.ToString());
         }
 
         [Test]
@@ -234,8 +232,6 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             Assert.IsFalse(valid);
             Assert.AreEqual(1, messages.Count);
             Assert.AreEqual(@"String 'http://petstore.swagger.io' does not match regex pattern '^[^{}/ :\\]+(?::\d+)?$'. Path 'host', line 16, position 40.", messages[0]);
-
-            Console.WriteLine(swaggerSchema.ToString());
         }
 
         [Test]
@@ -1586,8 +1582,6 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             }");
 
             Assert.AreEqual(JSchemaType.Integer, schema.Properties["id"].Type);
-
-            Console.WriteLine(schema.ToString());
         }
 
         [Test]
@@ -1861,8 +1855,6 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             JObject o = JObject.Parse(schemaJson);
 
             JToken token = o["definitions"][0]["def1"][0]["type"];
-
-            Console.WriteLine(token.Path);
 
             JToken selectedToken = o.SelectToken("definitions[0].def1[0].type");
 

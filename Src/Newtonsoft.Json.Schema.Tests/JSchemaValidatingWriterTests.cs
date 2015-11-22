@@ -369,7 +369,6 @@ namespace Newtonsoft.Json.Schema.Tests
             validatingWriter.Flush();
 
             string json = sw.ToString();
-            Console.WriteLine(json);
 
             StringAssert.AreEqual(@"[
   ""string"",
@@ -543,7 +542,6 @@ namespace Newtonsoft.Json.Schema.Tests
             validatingWriter.Flush();
 
             string json = sw.ToString();
-            Console.WriteLine(json);
 
             StringAssert.AreEqual(@"[
   ""string"",

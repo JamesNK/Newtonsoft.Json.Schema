@@ -233,8 +233,6 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
             //}
             #endregion
 
-            Console.WriteLine(stringEnumSchema.ToString());
-
             Assert.AreEqual(JSchemaType.Object, schema.Type);
         }
 #endif

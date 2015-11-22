@@ -2206,9 +2206,6 @@ namespace Newtonsoft.Json.Schema.Tests
             reader.Read();
             Assert.AreEqual(JsonToken.EndObject, reader.TokenType);
             Assert.AreNotEqual(null, validationEventArgs);
-
-            Console.WriteLine(validationEventArgs.ValidationError.SchemaId);
-            Console.WriteLine(JsonConvert.SerializeObject(validationEventArgs.ValidationError, Formatting.Indented));
         }
 
         [Test]
