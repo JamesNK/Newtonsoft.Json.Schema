@@ -33,17 +33,18 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         internal JSchemaDiscovery _schemaDiscovery;
         internal readonly Stack<JSchema> _schemaStack;
-        private readonly IList<DeferedSchema> _deferedSchemas;
+        private readonly List<DeferedSchema> _deferedSchemas;
         private readonly JSchemaResolver _resolver;
         private readonly Uri _baseUri;
         private readonly bool _validateSchema;
         private readonly SchemaValidationEventHandler _validationEventHandler;
         private readonly List<ValidationError> _validationErrors;
+        private readonly IList<JsonValidator> _validators;
 
         private Uri _schemaVersionUri;
         private SchemaVersion _schemaVersion;
         private JSchema _validatingSchema;
-        private IList<JsonValidator> _validators;
+        private bool _isReentrant;
 
         public JSchema RootSchema { get; set; }
         public Dictionary<Uri, JSchema> Cache { get; set; }
@@ -228,6 +229,13 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         public void ResolveDeferedSchemas()
         {
+            if (_isReentrant)
+            {
+                return;
+            }
+
+            _isReentrant = true;
+
             if (_deferedSchemas.Count > 0)
             {
                 List<DeferedSchema> resolvedDeferedSchemas = new List<DeferedSchema>();
@@ -269,6 +277,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                     }
                 }
             }
+
+            _isReentrant = false;
         }
 
         private void ResolveDeferedSchema(DeferedSchema deferedSchema)
