@@ -26,11 +26,14 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
             if (schema.UniqueItems)
             {
-                _uniqueArrayItems = new List<JToken>();
-            }
-            else
-            {
-                _uniqueArrayItems = null;
+                if (_uniqueArrayItems != null)
+                {
+                    _uniqueArrayItems.Clear();
+                }
+                else
+                {
+                    _uniqueArrayItems = new List<JToken>();
+                }
             }
         }
 
@@ -48,7 +51,12 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                         TestType(Schema, JSchemaType.Array);
                         return false;
                     case JsonToken.StartConstructor:
-                        RaiseError($"Invalid type. Expected {Schema.Type.Value.GetDisplayText()} but got Constructor.", ErrorType.Type, Schema, value, null);
+                        JSchemaType schemaType = Schema.Type.GetValueOrDefault(JSchemaType.None);
+
+                        if (schemaType != JSchemaType.None)
+                        {
+                            RaiseError($"Invalid type. Expected {schemaType.GetDisplayText()} but got Constructor.", ErrorType.Type, Schema, value, null);
+                        }
                         return false;
                     case JsonToken.EndArray:
                     case JsonToken.EndConstructor:

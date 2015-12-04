@@ -26,6 +26,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             Initialize(context, parent, initialDepth, ScopeType.Object);
             InitializeSchema(schema);
 
+            _propertyCount = 0;
+            _currentPropertyName = null;
+
             if (!schema._required.IsNullOrEmpty())
             {
                 if (_requiredProperties != null)
