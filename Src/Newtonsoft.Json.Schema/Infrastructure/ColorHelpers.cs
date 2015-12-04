@@ -34,10 +34,14 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         public static bool IsValid(string s)
         {
             if (string.IsNullOrEmpty(s))
+            {
                 return false;
+            }
 
             if (NamedColors.Contains(s))
+            {
                 return true;
+            }
 
             if (s[0] == '#')
             {
@@ -49,11 +53,13 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                     {
                         char c = s[i];
                         bool isHex = ((c >= '0' && c <= '9') ||
-                                 (c >= 'a' && c <= 'f') ||
-                                 (c >= 'A' && c <= 'F'));
+                                      (c >= 'a' && c <= 'f') ||
+                                      (c >= 'A' && c <= 'F'));
 
                         if (!isHex)
+                        {
                             return false;
+                        }
                     }
 
                     return true;

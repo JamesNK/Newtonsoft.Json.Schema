@@ -31,7 +31,7 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
             // because the root schema has no BaseUri this schema won't be set back
             ExceptionAssert.Throws<JSchemaException>(() =>
             {
-                JSchema bazSchema = (JSchema) schema.ExtensionData["definitions"]["baz"];
+                JSchema bazSchema = (JSchema)schema.ExtensionData["definitions"]["baz"];
                 Assert.IsNotNull(bazSchema);
             }, "Cannot convert JToken to JSchema. No schema is associated with this token.");
 

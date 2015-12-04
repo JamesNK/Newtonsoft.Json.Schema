@@ -134,7 +134,6 @@ namespace Newtonsoft.Json.Schema.Tests
             JObject o = JObject.Parse(coffeeLintJson);
 
             Assert.IsTrue(o.IsValid(schema));
-
         }
 
         [Test]

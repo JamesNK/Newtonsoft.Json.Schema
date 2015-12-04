@@ -125,15 +125,18 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
         }
 
 #if !NET40
+
         #region BuildingClass
         public class Building
         {
             [Required]
             [MaxLength(100)]
             public string Name { get; set; }
+
             [Required]
             [Phone]
             public string PhoneNumber { get; set; }
+
             [Required]
             [EnumDataType(typeof(BuildingZone))]
             public string Zone { get; set; }
@@ -211,7 +214,6 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
             //  },
             //  "required": [ "Date", "Zone" ]
             //}
-
 
             // change Zone enum to generate a string property
             JSchemaGenerator stringEnumGenerator = new JSchemaGenerator();

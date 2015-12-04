@@ -50,7 +50,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             JSchemaReaderSettings settings = new JSchemaReaderSettings
             {
-                Validators = new List<JsonValidator> {new UniqueKeyValidator()}
+                Validators = new List<JsonValidator> { new UniqueKeyValidator() }
             };
 
             JSchema schema = JSchema.Parse(@"{
@@ -69,7 +69,7 @@ namespace Newtonsoft.Json.Schema.Tests
     }
   }
 }", settings);
-            
+
             JObject o = JObject.Parse(json);
 
             IList<string> errors;

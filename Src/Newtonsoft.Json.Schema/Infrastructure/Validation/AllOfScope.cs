@@ -24,7 +24,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     foreach (SchemaScope schemaScope in GetChildren())
                     {
                         if (!schemaScope.IsValid)
+                        {
                             invalidIndexes.Add(index);
+                        }
 
                         index++;
                     }

@@ -228,7 +228,9 @@ namespace Newtonsoft.Json.Schema.Tests
         {
             _stopwatch.Stop();
             if (_callback != null)
+            {
                 _callback(Result);
+            }
         }
 
         public TimeSpan Result

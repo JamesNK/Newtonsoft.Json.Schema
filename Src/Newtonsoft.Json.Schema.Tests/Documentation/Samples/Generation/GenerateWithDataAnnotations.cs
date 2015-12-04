@@ -24,9 +24,11 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation.Samples.Generation
             [Required]
             [MaxLength(100)]
             public string Name { get; set; }
+
             [Required]
             [Phone]
             public string PhoneNumber { get; set; }
+
             [Required]
             [EnumDataType(typeof(BuildingZone))]
             public string Zone { get; set; }
@@ -79,4 +81,5 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation.Samples.Generation
         }
     }
 }
+
 #endif

@@ -15,13 +15,19 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         public bool Equals(Uri x, Uri y)
         {
             if (x != y)
+            {
                 return false;
+            }
 
             if (x == null && y == null)
+            {
                 return true;
+            }
 
             if (!x.IsAbsoluteUri)
+            {
                 return true;
+            }
 
             return string.Equals(x.Fragment, y.Fragment, StringComparison.Ordinal);
         }
@@ -29,7 +35,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         public int GetHashCode(Uri obj)
         {
             if (!obj.IsAbsoluteUri || string.IsNullOrEmpty(obj.Fragment))
+            {
                 return obj.GetHashCode();
+            }
 
             return obj.GetHashCode() ^ obj.Fragment.GetHashCode();
         }

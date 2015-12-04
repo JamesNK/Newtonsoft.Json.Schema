@@ -36,15 +36,21 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         {
             // default value is Any
             if (value == null)
+            {
                 return true;
+            }
 
             bool match = ((value & flag) == flag);
             if (match)
+            {
                 return true;
+            }
 
             // integer is a subset of number
             if (flag == JSchemaType.Integer && (value & JSchemaType.Number) == JSchemaType.Number)
+            {
                 return true;
+            }
 
             return false;
         }

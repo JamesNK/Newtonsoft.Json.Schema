@@ -59,6 +59,6 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
          }
       }
    }
-}";    
+}";
     }
 }

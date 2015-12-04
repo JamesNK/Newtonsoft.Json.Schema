@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Linq;
 #if !PORTABLE
 using System.Security.Cryptography;
+
 #endif
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Licensing

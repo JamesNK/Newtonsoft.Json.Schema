@@ -51,10 +51,14 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
         private void DiscoverInternal(JSchema schema, string latestPath)
         {
             if (schema.Reference != null)
+            {
                 return;
+            }
 
             if (_knownSchemas.Any(s => s.Schema == schema))
+            {
                 return;
+            }
 
             Uri newScopeId;
             string scopePath = latestPath;
@@ -66,7 +70,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
 
 #if DEBUG
             if (_knownSchemas.Any(s => s.Schema == schema))
+            {
                 throw new InvalidOperationException("Schema with id '{0}' already a known schema.".FormatWith(CultureInfo.InvariantCulture, schemaKnownId));
+            }
 #endif
 
             // add schema to known schemas whether duplicate or not to avoid multiple errors
@@ -161,9 +167,13 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             else
             {
                 if (idScope == null)
+                {
                     knownSchemaId = new Uri(path, UriKind.RelativeOrAbsolute);
+                }
                 else
+                {
                     knownSchemaId = SchemaDiscovery.ResolveSchemaId(idScope, new Uri(path, UriKind.RelativeOrAbsolute));
+                }
 
                 newScope = idScope;
             }
@@ -210,7 +220,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                     JSchema schema = valuePair.Value as JSchema;
 
                     if (schema != null)
+                    {
                         DiscoverInternal(schema, name + "/" + EscapePath(valuePair.Key));
+                    }
                 }
             }
         }
@@ -240,7 +252,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
         private void DiscoverSchema(string name, JSchema schema)
         {
             if (schema != null)
+            {
                 DiscoverInternal(schema, name);
+            }
         }
 
         private string EscapePath(string path)

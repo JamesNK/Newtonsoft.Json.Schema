@@ -27,7 +27,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Collections
 
         public Dictionary<string, object> GetInnerDictionary()
         {
-            return (Dictionary<string, object>) Dictionary;
+            return (Dictionary<string, object>)Dictionary;
         }
 
         private void OnChanged()

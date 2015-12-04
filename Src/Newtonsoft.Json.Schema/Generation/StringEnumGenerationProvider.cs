@@ -31,7 +31,9 @@ namespace Newtonsoft.Json.Schema.Generation
             Type t = isNullable ? Nullable.GetUnderlyingType(context.ObjectType) : context.ObjectType;
 
             if (!t.IsEnum())
+            {
                 return null;
+            }
 
             JSchema schema = new JSchema
             {

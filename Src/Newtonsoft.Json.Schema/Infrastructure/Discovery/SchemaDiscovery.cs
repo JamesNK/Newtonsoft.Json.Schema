@@ -99,9 +99,13 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                             if (int.TryParse(unescapedPart, NumberStyles.None, CultureInfo.InvariantCulture, out index))
                             {
                                 if (index > t.Count() || index < 0)
+                                {
                                     resolvedToken = null;
+                                }
                                 else
+                                {
                                     resolvedToken = t[index];
+                                }
                             }
                             else
                             {
@@ -117,9 +121,13 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                         {
                             JSchemaAnnotation annotation = resolvedToken.Annotation<JSchemaAnnotation>();
                             if (annotation != null)
+                            {
                                 current = annotation.Schema;
+                            }
                             else
+                            {
                                 current = resolvedToken;
+                            }
                         }
                         else
                         {
@@ -140,9 +148,13 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                         if (int.TryParse(unescapedPart, NumberStyles.None, CultureInfo.InvariantCulture, out index))
                         {
                             if (index > l.Count || index < 0)
+                            {
                                 current = null;
+                            }
                             else
+                            {
                                 current = l[index];
+                            }
                         }
                         else
                         {
@@ -190,7 +202,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
 
                         // schema is a reference schema and needs to be resolved
                         if (s.Reference != null)
+                        {
                             schemaReader.AddDeferedSchema(setSchema, s);
+                        }
                     }
                     else
                     {

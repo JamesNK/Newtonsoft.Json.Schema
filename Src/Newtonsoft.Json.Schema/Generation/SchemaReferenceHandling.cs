@@ -17,18 +17,22 @@ namespace Newtonsoft.Json.Schema.Generation
         /// No schemas can be referenced.
         /// </summary>
         None,
+
         /// <summary>
         /// Object schemas can be referenced.
         /// </summary>
         Objects = 1,
+
         /// <summary>
         /// Array schemas can be referenced.
         /// </summary>
         Arrays = 2,
+
         /// <summary>
         /// Dictionary schemas can be referenced.
         /// </summary>
         Dictionaries = 3,
+
         /// <summary>
         /// All schemas can be referenced.
         /// </summary>

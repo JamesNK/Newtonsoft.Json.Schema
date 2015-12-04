@@ -53,21 +53,21 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         public void SerializeError()
         {
             ValidationError error = ValidationError.CreateValidationError(
-                    message: $"A message!",
-                    errorType: ErrorType.MinimumLength,
-                    schema: new JSchema
-                    {
-                        BaseUri = new Uri("test.xml", UriKind.RelativeOrAbsolute),
-                        Type = JSchemaType.Number
-                    },
-                    schemaId: new Uri("test.xml", UriKind.RelativeOrAbsolute),
-                    value: "A value!",
-                    childErrors: new List<ValidationError>
-                    {
-                        ValidationError.CreateValidationError($"Child message!", ErrorType.None, new JSchema(), null, null, null, null, null)
-                    },
-                    lineInfo: new DummyLineInfo(),
-                    path: "sdf.sdf");
+                message: $"A message!",
+                errorType: ErrorType.MinimumLength,
+                schema: new JSchema
+                {
+                    BaseUri = new Uri("test.xml", UriKind.RelativeOrAbsolute),
+                    Type = JSchemaType.Number
+                },
+                schemaId: new Uri("test.xml", UriKind.RelativeOrAbsolute),
+                value: "A value!",
+                childErrors: new List<ValidationError>
+                {
+                    ValidationError.CreateValidationError($"Child message!", ErrorType.None, new JSchema(), null, null, null, null, null)
+                },
+                lineInfo: new DummyLineInfo(),
+                path: "sdf.sdf");
 
             string json = JsonConvert.SerializeObject(error, Formatting.Indented);
 

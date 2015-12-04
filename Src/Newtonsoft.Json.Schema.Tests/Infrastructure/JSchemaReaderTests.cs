@@ -523,7 +523,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             JSchemaReader schemaReader = new JSchemaReader(JSchemaDummyResolver.Instance);
             JSchema schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
 
-            Assert.AreEqual("foo", ((IList<string>) schema.Dependencies["bar"])[0]);
+            Assert.AreEqual("foo", ((IList<string>)schema.Dependencies["bar"])[0]);
             Assert.AreEqual("Dependency schema", ((JSchema)schema.Dependencies["foo"]).Title);
             Assert.AreEqual("blah", ((IList<string>)schema.Dependencies["stuff"])[0]);
             Assert.AreEqual("blah2", ((IList<string>)schema.Dependencies["stuff"])[1]);
@@ -702,7 +702,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             JSchema root = new JSchema
             {
                 Id = new Uri("http://test.test"),
-                Items = 
+                Items =
                 {
                     nested
                 }
@@ -989,10 +989,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         [Test]
         public void Reference_InnerSchemaOfExternalSchema_Failure()
         {
-            ExceptionAssert.Throws<JSchemaReaderException>(() =>
-            {
-                TestHelpers.OpenSchemaFile(@"resources\schemas\grunt-clean-task.json");
-            }, "Could not resolve schema reference 'http://json.schemastore.org/grunt-task#/definitions/fileFormat'. Path 'additionalProperties.anyOf[0]', line 34, position 4.");
+            ExceptionAssert.Throws<JSchemaReaderException>(() => { TestHelpers.OpenSchemaFile(@"resources\schemas\grunt-clean-task.json"); }, "Could not resolve schema reference 'http://json.schemastore.org/grunt-task#/definitions/fileFormat'. Path 'additionalProperties.anyOf[0]', line 34, position 4.");
         }
 
         [Test]
@@ -1203,7 +1200,6 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
   ]
 }", newJson);
 
-
             json = @"{
   ""type"":""object"",
   ""extends"":[{""type"":""string""},{""type"":""object""}],
@@ -1298,7 +1294,6 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
     }
   }
 }", settings);
-
             }, "Validation error raised by version schema 'http://json-schema.org/draft-04/schema#': JSON does not match any schemas from 'anyOf'. Path 'definitions.hasAny.type', line 10, position 19.");
         }
 
@@ -1306,26 +1301,20 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         public void Any_Draft4()
         {
             ExceptionAssert.Throws<JSchemaReaderException>(
-                () =>
-                {
-                    JSchema.Parse(@"{
+                () => { JSchema.Parse(@"{
   ""$schema"": ""http://json-schema.org/draft-04/schema#"",
   ""type"": ""any""
-}");
-                }, "Invalid JSON schema type: any. Path 'type', line 3, position 15.");
+}"); }, "Invalid JSON schema type: any. Path 'type', line 3, position 15.");
         }
 
         [Test]
         public void Required_Draft4()
         {
             ExceptionAssert.Throws<JSchemaReaderException>(
-                () =>
-                {
-                    JSchema.Parse(@"{
+                () => { JSchema.Parse(@"{
   ""$schema"": ""http://json-schema.org/draft-04/schema#"",
   ""required"": true
-}");
-                },
+}"); },
                 "Unexpected token encountered when reading value for 'required'. Expected StartArray, got Boolean. Path 'required', line 3, position 18.");
         }
 
@@ -1333,13 +1322,10 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         public void Required_Draft3()
         {
             ExceptionAssert.Throws<JSchemaReaderException>(
-                () =>
-                {
-                    JSchema.Parse(@"{
+                () => { JSchema.Parse(@"{
   ""$schema"": ""http://json-schema.org/draft-03/schema#"",
   ""required"": []
-}");
-                },
+}"); },
                 "Unexpected token encountered when reading value for 'required'. Expected Boolean, got StartArray. Path 'required', line 3, position 15.");
         }
 
@@ -1615,9 +1601,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         [Test]
         public void CircularRef()
         {
-            ExceptionAssert.Throws<JSchemaReaderException>(() =>
-            {
-                JSchema.Parse(@"{
+            ExceptionAssert.Throws<JSchemaReaderException>(() => { JSchema.Parse(@"{
                     ""definitions"": {
                         ""a"": {""$ref"": ""#/definitions/c""},
                         ""b"": {""$ref"": ""#/definitions/a""},
@@ -1626,23 +1610,17 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
                     ""properties"": {
                         ""id"": {""$ref"": ""#/definitions/c""}
                     }
-                }");
-
-            }, "Could not resolve schema reference '#/definitions/c'. Path 'properties.id', line 8, position 31.");
+                }"); }, "Could not resolve schema reference '#/definitions/c'. Path 'properties.id', line 8, position 31.");
         }
 
         [Test]
         public void NestedCircularRef()
         {
-            ExceptionAssert.Throws<JSchemaReaderException>(() =>
-            {
-                JSchema.Parse(@"{
+            ExceptionAssert.Throws<JSchemaReaderException>(() => { JSchema.Parse(@"{
                   ""$ref"": ""#/a"",
                   ""a"": { ""$ref"": ""#/b"" },
                   ""b"": { ""$ref"": ""#/a"" }
-                }");
-
-            }, "Could not resolve schema reference '#/a'. Path '', line 1, position 1.");
+                }"); }, "Could not resolve schema reference '#/a'. Path '', line 1, position 1.");
         }
 
         [Test]
@@ -2812,10 +2790,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
   ""id"": ""http://""
 }";
 
-            ExceptionAssert.Throws<JSchemaReaderException>(() =>
-            {
-                JSchema.Parse(schemaJson);
-            }, "Error parsing id 'http://'. Id must be a valid URI. Path 'id', line 3, position 17.");
+            ExceptionAssert.Throws<JSchemaReaderException>(() => { JSchema.Parse(schemaJson); }, "Error parsing id 'http://'. Id must be a valid URI. Path 'id', line 3, position 17.");
         }
 
         [Test]
@@ -2833,10 +2808,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
   ]
 }";
 
-            ExceptionAssert.Throws<JSchemaReaderException>(() =>
-            {
-                JSchema.Parse(schemaJson);
-            }, "Error resolving schema reference 'file:system.json#/definitions/username' in the scope '#root'. The resolved reference must be a valid URI. Path 'oneOf[0]', line 7, position 5.");
+            ExceptionAssert.Throws<JSchemaReaderException>(() => { JSchema.Parse(schemaJson); }, "Error resolving schema reference 'file:system.json#/definitions/username' in the scope '#root'. The resolved reference must be a valid URI. Path 'oneOf[0]', line 7, position 5.");
         }
 
         [Test]
@@ -2849,10 +2821,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
   ""type"": ""object""
 }";
 
-            ExceptionAssert.Throws<JSchemaReaderException>(() =>
-            {
-                JSchema.Parse(schemaJson);
-            }, "Error parsing id 'http://'. Id must be a valid URI. Path '$schema', line 3, position 22.");
+            ExceptionAssert.Throws<JSchemaReaderException>(() => { JSchema.Parse(schemaJson); }, "Error parsing id 'http://'. Id must be a valid URI. Path '$schema', line 3, position 22.");
         }
 
         [Test]
@@ -2876,10 +2845,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
   ""maxLength"": 9223372036854775808
 }";
 
-            ExceptionAssert.Throws<JSchemaReaderException>(() =>
-            {
-                JSchema.Parse(schemaJson);
-            }, "Error parsing integer for 'maxLength'. 9223372036854775808 cannot fit in an Int64. Path 'maxLength', line 3, position 34.");
+            ExceptionAssert.Throws<JSchemaReaderException>(() => { JSchema.Parse(schemaJson); }, "Error parsing integer for 'maxLength'. 9223372036854775808 cannot fit in an Int64. Path 'maxLength', line 3, position 34.");
         }
 #endif
     }

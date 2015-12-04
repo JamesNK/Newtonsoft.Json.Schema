@@ -141,13 +141,19 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             if (property != null)
             {
                 if (GetAttributeByName(property, UrlAttributeName) != null)
+                {
                     return Constants.Formats.Uri;
+                }
 
                 if (GetAttributeByName(property, PhoneAttributeName) != null)
+                {
                     return Constants.Formats.Phone;
+                }
 
                 if (GetAttributeByName(property, EmailAddressAttributeName) != null)
+                {
                     return Constants.Formats.Email;
+                }
 
                 Attribute dataTypeAttribute = GetAttributeByName(property, DataTypeAttributeName);
                 if (dataTypeAttribute != null)

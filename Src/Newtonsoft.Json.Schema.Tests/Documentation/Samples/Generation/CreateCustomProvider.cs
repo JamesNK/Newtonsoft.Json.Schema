@@ -29,17 +29,29 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation.Samples.Generation
             {
                 // customize the generated schema for these types to have a format
                 if (context.ObjectType == typeof(int))
+                {
                     return CreateSchemaWithFormat(context.ObjectType, context.Required, "int32");
+                }
                 if (context.ObjectType == typeof(long))
+                {
                     return CreateSchemaWithFormat(context.ObjectType, context.Required, "int64");
+                }
                 if (context.ObjectType == typeof(float))
+                {
                     return CreateSchemaWithFormat(context.ObjectType, context.Required, "float");
+                }
                 if (context.ObjectType == typeof(double))
+                {
                     return CreateSchemaWithFormat(context.ObjectType, context.Required, "double");
+                }
                 if (context.ObjectType == typeof(byte))
+                {
                     return CreateSchemaWithFormat(context.ObjectType, context.Required, "byte");
+                }
                 if (context.ObjectType == typeof(DateTime) || context.ObjectType == typeof(DateTimeOffset))
+                {
                     return CreateSchemaWithFormat(context.ObjectType, context.Required, "date-time");
+                }
 
                 // use default schema generation for all other types
                 return null;
@@ -96,5 +108,4 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation.Samples.Generation
             Assert.AreEqual("int32", schema.Properties["Id"].Format);
         }
     }
-
 }

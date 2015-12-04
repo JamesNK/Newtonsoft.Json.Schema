@@ -69,11 +69,15 @@ namespace Newtonsoft.Json.Schema
                 message = message.Trim();
 
                 if (!message.EndsWith('.'))
+                {
                     message += ".";
+                }
             }
 
             if (path == null && !lineInfo.HasLineInfo())
+            {
                 return message;
+            }
 
             message += " ";
 
@@ -82,7 +86,9 @@ namespace Newtonsoft.Json.Schema
                 message += "Path '{0}'".FormatWith(CultureInfo.InvariantCulture, path);
 
                 if (lineInfo != null && lineInfo.HasLineInfo())
+                {
                     message += ", line {0}, position {1}".FormatWith(CultureInfo.InvariantCulture, lineInfo.LineNumber, lineInfo.LinePosition);
+                }
             }
             else
             {

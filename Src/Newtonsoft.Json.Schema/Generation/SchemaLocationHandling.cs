@@ -14,6 +14,7 @@ namespace Newtonsoft.Json.Schema.Generation
         /// Referenced schemas are placed in the root schema's definitions collection.
         /// </summary>
         Definitions,
+
         /// <summary>
         /// Referenced schemas are inline.
         /// </summary>

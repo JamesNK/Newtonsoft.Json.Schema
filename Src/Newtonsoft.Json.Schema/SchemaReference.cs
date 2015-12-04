@@ -16,6 +16,7 @@ namespace Newtonsoft.Json.Schema
         /// The base URI for the referenced schema.
         /// </summary>
         public Uri BaseUri { get; set; }
+
         /// <summary>
         /// The subschema ID for the referenced schema.
         /// </summary>

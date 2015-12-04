@@ -36,7 +36,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Licensing
         public static void IncrementAndCheckValidationCount()
         {
             if (_registeredLicense != null)
+            {
                 return;
+            }
 
             EnsureResetTimer();
 
@@ -44,13 +46,17 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Licensing
             Interlocked.Increment(ref _validationCount);
 
             if (_validationCount > maxOperationCount)
+            {
                 throw new JSchemaException("The free-quota limit of {0} schema validations per hour has been reached. Please visit http://www.newtonsoft.com/jsonschema to upgrade to a commercial license.".FormatWith(CultureInfo.InvariantCulture, maxOperationCount));
+            }
         }
 
         public static void IncrementAndCheckGenerationCount()
         {
             if (_registeredLicense != null)
+            {
                 return;
+            }
 
             EnsureResetTimer();
 
@@ -58,7 +64,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Licensing
             Interlocked.Increment(ref _generationCount);
 
             if (_generationCount > maxOperationCount)
+            {
                 throw new JSchemaException("The free-quota limit of {0} schema generations per hour has been reached. Please visit http://www.newtonsoft.com/jsonschema to upgrade to a commercial license.".FormatWith(CultureInfo.InvariantCulture, maxOperationCount));
+            }
         }
 
         private static void EnsureResetTimer()
@@ -97,15 +105,21 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Licensing
         internal static void RegisterLicense(string license, DateTime releaseDate)
         {
             if (string.IsNullOrEmpty(license))
+            {
                 throw new JSchemaException("License text is empty.");
+            }
 
             string[] licenseParts = license.Trim().Split('-');
             if (licenseParts.Length != 2)
+            {
                 throw new JSchemaException("Specified license text is invalid.");
+            }
 
             int licenseId;
             if (!int.TryParse(licenseParts[0], NumberStyles.Integer, CultureInfo.InvariantCulture, out licenseId))
+            {
                 throw new JSchemaException("Specified license text is invalid.");
+            }
 
             byte[] licenseData;
 
@@ -119,21 +133,27 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Licensing
             }
 
             if (licenseData.Length <= 128)
+            {
                 throw new JSchemaException("Specified license text is invalid.");
+            }
 
             MemoryStream ms = new MemoryStream(licenseData, 128, licenseData.Length - 128);
             JsonSerializer serializer = new JsonSerializer();
-            
+
             LicenseDetails deserializedLicense = serializer.Deserialize<LicenseDetails>(new JsonTextReader(new StreamReader(ms)));
 
             byte[] data = deserializedLicense.GetSignificateData();
             byte[] signature = SubArray(licenseData, 0, 128);
 
             if (!CryptographyHelpers.ValidateData(data, signature))
+            {
                 throw new JSchemaException("License text does not match signature.");
+            }
 
             if (deserializedLicense.Id != licenseId)
+            {
                 throw new JSchemaException("License ID does not match signature license ID.");
+            }
 
             if (deserializedLicense.ExpiryDate < releaseDate)
             {
@@ -146,7 +166,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Licensing
             }
 
             if (deserializedLicense.Type == LicenseType.Test)
+            {
                 throw new JSchemaException("Specified license is for testing only.");
+            }
 
             SetRegisteredLicense(deserializedLicense);
         }

@@ -156,7 +156,7 @@ namespace Newtonsoft.Json.Schema.Generation
 
             if (memberProperty != null && memberProperty.AttributeProvider != null)
             {
-                providerAttribute = (JSchemaGenerationProviderAttribute) memberProperty.AttributeProvider.GetAttributes(typeof (JSchemaGenerationProviderAttribute), true).SingleOrDefault();
+                providerAttribute = (JSchemaGenerationProviderAttribute)memberProperty.AttributeProvider.GetAttributes(typeof(JSchemaGenerationProviderAttribute), true).SingleOrDefault();
             }
 
             if (providerAttribute == null)
@@ -169,7 +169,7 @@ namespace Newtonsoft.Json.Schema.Generation
                 }
             }
 
-            JSchemaGenerationProvider provider = (JSchemaGenerationProvider) Activator.CreateInstance(providerAttribute.ProviderType, providerAttribute.ProviderParameters);
+            JSchemaGenerationProvider provider = (JSchemaGenerationProvider)Activator.CreateInstance(providerAttribute.ProviderType, providerAttribute.ProviderParameters);
             return provider;
         }
 
@@ -309,7 +309,7 @@ namespace Newtonsoft.Json.Schema.Generation
                         }
 
                         schema.Type = AddNullType(JSchemaType.Object, valueRequired);
-                        GenerateObjectSchema(schema, contract.NonNullableUnderlyingType, (JsonObjectContract) contract);
+                        GenerateObjectSchema(schema, contract.NonNullableUnderlyingType, (JsonObjectContract)contract);
                         break;
                     case JsonContractType.Array:
                         if (schema.Id == null)
@@ -332,7 +332,7 @@ namespace Newtonsoft.Json.Schema.Generation
                         Type collectionItemType = ReflectionUtils.GetCollectionItemType(contract.NonNullableUnderlyingType);
                         if (collectionItemType != null)
                         {
-                            schema.Items.Add(GenerateInternal(collectionItemType, required, null, (JsonArrayContract) contract));
+                            schema.Items.Add(GenerateInternal(collectionItemType, required, null, (JsonArrayContract)contract));
                         }
                         break;
                     case JsonContractType.Primitive:
@@ -419,7 +419,7 @@ namespace Newtonsoft.Json.Schema.Generation
                             // can be converted to a string
                             if (keyContract.ContractType == JsonContractType.Primitive)
                             {
-                                schema.AdditionalProperties = GenerateInternal(valueType, Required.Default, null, (JsonDictionaryContract) contract);
+                                schema.AdditionalProperties = GenerateInternal(valueType, Required.Default, null, (JsonDictionaryContract)contract);
                             }
                         }
                         break;

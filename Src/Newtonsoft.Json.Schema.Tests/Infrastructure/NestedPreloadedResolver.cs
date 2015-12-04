@@ -15,7 +15,9 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             SchemaReference reference = base.ResolveSchemaReference(context);
 
             if (PreloadedUris.Any(i => i == reference.BaseUri))
+            {
                 return reference;
+            }
 
             foreach (Uri preloadedUri in PreloadedUris)
             {
@@ -25,13 +27,15 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 
                     string uriText = relativeUri.OriginalString;
                     if (reference.SubschemaId != null)
+                    {
                         uriText += reference.SubschemaId.OriginalString;
+                    }
 
                     reference.BaseUri = preloadedUri;
                     reference.SubschemaId = new Uri(uriText, UriKind.RelativeOrAbsolute);
 
                     return reference;
-                }   
+                }
             }
 
             return reference;

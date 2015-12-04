@@ -62,10 +62,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
             {
                 // assign schema and setup event handler
                 reader.Schema = schema;
-                reader.ValidationEventHandler += (sender, args) =>
-                {
-                    Console.WriteLine(args.Message);
-                };
+                reader.ValidationEventHandler += (sender, args) => { Console.WriteLine(args.Message); };
 
                 // bigdata.json will be validated without loading the entire document into memory
                 while (reader.Read())
@@ -76,4 +73,5 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
         }
     }
 }
+
 #endif

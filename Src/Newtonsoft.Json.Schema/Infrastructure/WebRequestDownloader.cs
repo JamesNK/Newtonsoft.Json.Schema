@@ -6,6 +6,7 @@
 using System;
 using System.IO;
 using System.Net;
+
 #if PORTABLE
 using System.Threading.Tasks;
 #endif
@@ -19,11 +20,15 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             WebRequest request = WebRequest.Create(uri);
 #if !PORTABLE
             if (timeout != null)
+            {
                 request.Timeout = timeout.Value;
+            }
 #endif
 
             if (credentials != null)
+            {
                 request.Credentials = credentials;
+            }
 
             WebResponse response;
 
@@ -40,10 +45,14 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
             Stream responseStream = response.GetResponseStream();
             if (timeout != null)
+            {
                 responseStream.ReadTimeout = timeout.Value;
+            }
 
             if (byteLimit != null)
+            {
                 return new LimitedStream(responseStream, byteLimit.Value);
+            }
 
             return responseStream;
         }
@@ -70,7 +79,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             }
 
             if (_totalBytesRead > _byteLimit)
+            {
                 throw new IOException("Maximum read limit exceeded");
+            }
 
             return bytesRead;
         }

@@ -14,6 +14,7 @@ namespace Newtonsoft.Json.Schema.Generation
         /// Use the default order of properties.
         /// </summary>
         Default,
+
         /// <summary>
         /// Alphabetical order of properties.
         /// </summary>

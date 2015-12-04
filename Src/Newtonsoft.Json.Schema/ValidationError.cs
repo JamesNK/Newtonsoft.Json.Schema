@@ -97,7 +97,9 @@ namespace Newtonsoft.Json.Schema
             get
             {
                 if (_childErrors == null)
+                {
                     _childErrors = new List<ValidationError>();
+                }
 
                 return _childErrors;
             }

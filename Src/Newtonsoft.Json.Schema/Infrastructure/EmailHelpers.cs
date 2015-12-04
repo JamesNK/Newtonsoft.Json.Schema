@@ -50,7 +50,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             int startIndex = index;
 
             while (index < text.Length && IsAtom(text[index], allowInternational))
+            {
                 index++;
+            }
 
             return index > startIndex;
         }
@@ -58,12 +60,16 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         private static bool SkipSubDomain(string text, ref int index, bool allowInternational)
         {
             if (!IsDomain(text[index], allowInternational) || text[index] == '-')
+            {
                 return false;
+            }
 
             index++;
 
             while (index < text.Length && IsDomain(text[index], allowInternational))
+            {
                 index++;
+            }
 
             return true;
         }
@@ -71,17 +77,23 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         private static bool SkipDomain(string text, ref int index, bool allowInternational)
         {
             if (!SkipSubDomain(text, ref index, allowInternational))
+            {
                 return false;
+            }
 
             while (index < text.Length && text[index] == '.')
             {
                 index++;
 
                 if (index == text.Length)
+                {
                     return false;
+                }
 
                 if (!SkipSubDomain(text, ref index, allowInternational))
+                {
                     return false;
+                }
             }
 
             return true;
@@ -97,7 +109,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             while (index < text.Length)
             {
                 if (text[index] >= 128 && !allowInternational)
+                {
                     return false;
+                }
 
                 if (text[index] == '\\')
                 {
@@ -106,7 +120,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 else if (!escaped)
                 {
                     if (text[index] == '"')
+                    {
                         break;
+                    }
                 }
                 else
                 {
@@ -117,7 +133,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             }
 
             if (index >= text.Length || text[index] != '"')
+            {
                 return false;
+            }
 
             index++;
 
@@ -127,7 +145,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         private static bool SkipWord(string text, ref int index, bool allowInternational)
         {
             if (text[index] == '"')
+            {
                 return SkipQuoted(text, ref index, allowInternational);
+            }
 
             return SkipAtom(text, ref index, allowInternational);
         }
@@ -143,17 +163,21 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
                 while (index < text.Length && text[index] >= '0' && text[index] <= '9')
                 {
-                    value = (value*10) + (text[index] - '0');
+                    value = (value * 10) + (text[index] - '0');
                     index++;
                 }
 
                 if (index == startIndex || index - startIndex > 3 || value > 255)
+                {
                     return false;
+                }
 
                 groups++;
 
                 if (groups < 4 && index < text.Length && text[index] == '.')
+                {
                     index++;
+                }
             }
 
             return groups == 4;
@@ -189,10 +213,14 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 int startIndex = index;
 
                 while (index < text.Length && IsHexDigit(text[index]))
+                {
                     index++;
+                }
 
                 if (index >= text.Length)
+                {
                     break;
+                }
 
                 if (index > startIndex && colons > 2 && text[index] == '.')
                 {
@@ -200,30 +228,42 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                     index = startIndex;
 
                     if (!SkipIPv4Literal(text, ref index))
+                    {
                         return false;
+                    }
 
                     break;
                 }
 
                 int count = index - startIndex;
                 if (count > 4)
+                {
                     return false;
+                }
 
                 if (text[index] != ':')
+                {
                     break;
+                }
 
                 startIndex = index;
                 while (index < text.Length && text[index] == ':')
+                {
                     index++;
+                }
 
                 count = index - startIndex;
                 if (count > 2)
+                {
                     return false;
+                }
 
                 if (count == 2)
                 {
                     if (compact)
+                    {
                         return false;
+                    }
 
                     compact = true;
                     colons += 2;
@@ -235,10 +275,14 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             }
 
             if (colons < 2)
+            {
                 return false;
+            }
 
             if (compact)
+            {
                 return colons < 6;
+            }
 
             return colons < 7;
         }
@@ -262,30 +306,42 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             int index = 0;
 
             if (email == null)
+            {
                 throw new ArgumentNullException("email");
+            }
 
             if (email.Length == 0)
+            {
                 return false;
+            }
 
             if (!SkipWord(email, ref index, allowInternational) || index >= email.Length)
+            {
                 return false;
+            }
 
             while (index < email.Length && email[index] == '.')
             {
                 index++;
 
                 if (!SkipWord(email, ref index, allowInternational) || index >= email.Length)
+                {
                     return false;
+                }
             }
 
             if (index + 1 >= email.Length || email[index++] != '@')
+            {
                 return false;
+            }
 
             if (email[index] != '[')
             {
                 // domain
                 if (!SkipDomain(email, ref index, allowInternational))
+                {
                     return false;
+                }
 
                 return index == email.Length;
             }
@@ -295,23 +351,31 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
             // we need at least 8 more characters
             if (index + 8 >= email.Length)
+            {
                 return false;
+            }
 
             var ipv6 = email.Substring(index, 5);
             if (ipv6.ToUpperInvariant() == "IPV6:")
             {
                 index += "IPv6:".Length;
                 if (!SkipIPv6Literal(email, ref index))
+                {
                     return false;
+                }
             }
             else
             {
                 if (!SkipIPv4Literal(email, ref index))
+                {
                     return false;
+                }
             }
 
             if (index >= email.Length || email[index++] != ']')
+            {
                 return false;
+            }
 
             return index == email.Length;
         }

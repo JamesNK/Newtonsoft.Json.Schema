@@ -209,4 +209,5 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
         }
     }
 }
+
 #endif

@@ -49,7 +49,7 @@ namespace Newtonsoft.Json.Schema.Tests
                 AddSchema(resolver, "integer.json", "http://localhost:1234/integer.json");
                 AddSchema(resolver, "folder/folderInteger.json", "http://localhost:1234/folder/folderInteger.json");
                 AddSchema(resolver, "subSchemas.json", "http://localhost:1234/subSchemas.json");
-                
+
                 _resolver = resolver;
             }
 
@@ -132,7 +132,9 @@ namespace Newtonsoft.Json.Schema.Tests
         public IList<SchemaSpecTest> GetSpecTestDetails()
         {
             if (_specTests != null)
+            {
                 return _specTests;
+            }
 
             _specTests = new List<SchemaSpecTest>();
 
@@ -184,7 +186,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Uri fromUri = new Uri(fromPath);
             Uri toUri = new Uri(toPath);
 
-            if (fromUri.Scheme != toUri.Scheme) { return toPath; } // path can't be made relative.
+            if (fromUri.Scheme != toUri.Scheme)
+            {
+                return toPath;
+            } // path can't be made relative.
 
             Uri relativeUri = fromUri.MakeRelativeUri(toUri);
             String relativePath = Uri.UnescapeDataString(relativeUri.ToString());
@@ -198,4 +203,5 @@ namespace Newtonsoft.Json.Schema.Tests
         }
     }
 }
+
 #endif

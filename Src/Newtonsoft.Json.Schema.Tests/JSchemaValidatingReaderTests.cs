@@ -1340,7 +1340,6 @@ namespace Newtonsoft.Json.Schema.Tests
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.EndArray, reader.TokenType);
-
         }
 
         [Test]

@@ -34,7 +34,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation.Samples.Generation
 
         [Test]
         public void Example()
-        { 
+        {
             #region Usage
             JSchemaGenerator generator = new JSchemaGenerator();
 

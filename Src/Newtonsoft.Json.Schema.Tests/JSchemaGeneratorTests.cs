@@ -37,6 +37,7 @@ using StringAssert = NUnit.Framework.StringAssert;
 using Newtonsoft.Json.Utilities.LinqBridge;
 #else
 using System.Linq;
+
 #endif
 
 namespace Newtonsoft.Json.Schema.Tests
@@ -149,8 +150,10 @@ namespace Newtonsoft.Json.Schema.Tests
         public class EnumWithAttributeTestClass
         {
             public StringComparison EnumProperty1 { get; set; }
+
             [JSchemaGenerationProvider(typeof(StringEnumGenerationProvider))]
             public StringComparison EnumProperty2 { get; set; }
+
             [JSchemaGenerationProvider(typeof(StringEnumGenerationProvider))]
             public StringComparison? EnumProperty3 { get; set; }
         }
@@ -281,7 +284,9 @@ namespace Newtonsoft.Json.Schema.Tests
             [MinLength(5)]
             [MaxLength(10)]
             public IDictionary<string, int> Dictionary1 { get; set; }
+
             public IDictionary<string, int> Dictionary2 { get; set; }
+
             [MinLength(5)]
             [MaxLength(10)]
             public IDictionary<string, int> Dictionary3 { get; set; }
@@ -316,7 +321,9 @@ namespace Newtonsoft.Json.Schema.Tests
             [MinLength(5)]
             [MaxLength(10)]
             public IList<int> List1 { get; set; }
+
             public IList<int> List2 { get; set; }
+
             [MinLength(5)]
             [MaxLength(10)]
             public IList<int> List3 { get; set; }
@@ -374,7 +381,9 @@ namespace Newtonsoft.Json.Schema.Tests
             [MinLength(5)]
             [MaxLength(10)]
             public string String1 { get; set; }
+
             public string String2 { get; set; }
+
             [MinLength(5)]
             [MaxLength(10)]
             public string String3 { get; set; }
@@ -407,33 +416,43 @@ namespace Newtonsoft.Json.Schema.Tests
             [RegularExpression("[A-Z]")]
             [Required]
             public string String1 { get; set; }
+
             [DataType(DataType.Date)]
             [Required]
             public string String2 { get; set; }
+
             [Url]
             [Required]
             public string String3 { get; set; }
+
             [DataType(DataType.DateTime)]
             [Required]
             public string String4 { get; set; }
+
             [DataType(DataType.Time)]
             [Required]
             public string String5 { get; set; }
+
             [DataType(DataType.EmailAddress)]
             [Required]
             public string String6 { get; set; }
+
             [DataType(DataType.Url)]
             [Required]
             public string String7 { get; set; }
+
             [DataType(DataType.PhoneNumber)]
             [Required]
             public string String8 { get; set; }
+
             [Phone]
             [Required]
             public string String9 { get; set; }
+
             [EmailAddress]
             [Required]
             public string String10 { get; set; }
+
             [StringLength(50)]
             [Required]
             public string String11 { get; set; }
@@ -474,8 +493,10 @@ namespace Newtonsoft.Json.Schema.Tests
         {
             [System.ComponentModel.DataAnnotations.RangeAttribute(5, 10)]
             public int IntegerProperty { get; set; }
+
             [System.ComponentModel.DataAnnotations.RangeAttribute(5.5, 10.5)]
             public decimal DecimalProperty { get; set; }
+
             [System.ComponentModel.DataAnnotations.RangeAttribute(0.5, 1.5)]
             public double DoubleProperty { get; set; }
         }
@@ -508,9 +529,12 @@ namespace Newtonsoft.Json.Schema.Tests
         {
             [EnumDataType(typeof(StringComparison))]
             public string String1 { get; set; }
+
             public string String2 { get; set; }
+
             [EnumDataType(typeof(StringComparison))]
             public int Integer1 { get; set; }
+
             public int Integer2 { get; set; }
         }
 
@@ -847,7 +871,9 @@ namespace Newtonsoft.Json.Schema.Tests
             protected override JsonContract CreateContract(Type objectType)
             {
                 if (objectType == typeof(DirectoryInfo))
+                {
                     return base.CreateObjectContract(objectType);
+                }
 
                 return base.CreateContract(objectType);
             }

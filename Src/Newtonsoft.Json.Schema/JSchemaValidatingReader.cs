@@ -110,10 +110,7 @@ namespace Newtonsoft.Json.Schema
         public JSchema Schema
         {
             get { return _validator.Schema; }
-            set
-            {
-                _validator.Schema = value;
-            }
+            set { _validator.Schema = value; }
         }
 
         /// <summary>
@@ -246,7 +243,9 @@ namespace Newtonsoft.Json.Schema
         public override bool Read()
         {
             if (!_reader.Read())
+            {
                 return false;
+            }
 
             ValidateCurrentToken();
             return true;
@@ -257,7 +256,9 @@ namespace Newtonsoft.Json.Schema
             JsonToken token = _reader.TokenType;
 
             if (token == JsonToken.Comment)
+            {
                 return;
+            }
 
             object value = _reader.Value;
             if (token == JsonToken.Date)

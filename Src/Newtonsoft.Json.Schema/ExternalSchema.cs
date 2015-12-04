@@ -41,9 +41,13 @@ namespace Newtonsoft.Json.Schema
         public ExternalSchema(Uri uri, JSchema schema)
         {
             if (uri == null)
+            {
                 throw new ArgumentNullException("uri");
+            }
             if (schema == null)
+            {
                 throw new ArgumentNullException("schema");
+            }
 
             _uri = uri;
             _schema = schema;
@@ -56,7 +60,9 @@ namespace Newtonsoft.Json.Schema
         public ExternalSchema(JSchema schema)
         {
             if (schema == null)
+            {
                 throw new ArgumentNullException("schema");
+            }
 
             _uri = schema.Id ?? new Uri(string.Empty, UriKind.RelativeOrAbsolute);
             _schema = schema;

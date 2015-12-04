@@ -37,7 +37,9 @@ namespace Newtonsoft.Json.Schema
             SchemaReference schemaReference = new SchemaReference();
             schemaReference.BaseUri = baseUri;
             if (fragment != null)
+            {
                 schemaReference.SubschemaId = new Uri(fragment, UriKind.RelativeOrAbsolute);
+            }
 
             return schemaReference;
         }
@@ -59,7 +61,9 @@ namespace Newtonsoft.Json.Schema
             }
 
             if (!baseUri.IsAbsoluteUri)
+            {
                 throw new NotSupportedException("Relative URIs are not supported.");
+            }
 
             uri = RemoveFragment(uri, out fragment);
 
@@ -102,7 +106,9 @@ namespace Newtonsoft.Json.Schema
         public virtual JSchema GetSubschema(SchemaReference reference, JSchema rootSchema)
         {
             if (reference.SubschemaId == null)
+            {
                 return rootSchema;
+            }
 
             Uri rootSchemaId = reference.BaseUri;
             Uri subschemaId = reference.SubschemaId;

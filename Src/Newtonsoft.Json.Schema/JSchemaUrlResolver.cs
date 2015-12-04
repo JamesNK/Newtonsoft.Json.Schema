@@ -65,7 +65,9 @@ namespace Newtonsoft.Json.Schema
         public override Stream GetSchemaResource(ResolveSchemaContext context, SchemaReference reference)
         {
             if (!reference.BaseUri.IsAbsoluteUri)
+            {
                 return null;
+            }
 
 #if !PORTABLE
             int? timeout = Timeout;

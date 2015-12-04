@@ -677,9 +677,9 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
                 { "file2", file }
             };
             schema.Items.Add(new JSchema
-                {
-                    Type = JSchemaType.Integer | JSchemaType.Null
-                });
+            {
+                Type = JSchemaType.Integer | JSchemaType.Null
+            });
             schema.Items.Add(file);
             schema.ItemsPositionValidation = true;
             schema.Not = file;
@@ -691,15 +691,15 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             schema.AllOf.Add(file);
             schema.AnyOf.Add(file);
             schema.AnyOf.Add(new JSchema
-                {
-                    Type = JSchemaType.Integer | JSchemaType.Null
-                });
+            {
+                Type = JSchemaType.Integer | JSchemaType.Null
+            });
             schema.AnyOf.Add(schema);
             schema.OneOf.Add(file);
             schema.OneOf.Add(new JSchema
-                {
-                    Type = JSchemaType.Integer | JSchemaType.Null
-                });
+            {
+                Type = JSchemaType.Integer | JSchemaType.Null
+            });
             schema.OneOf.Add(schema);
             schema.Not = file;
 

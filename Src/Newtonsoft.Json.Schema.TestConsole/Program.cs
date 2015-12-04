@@ -21,7 +21,7 @@ namespace Newtonsoft.Json.Schema.TestConsole
         {
             Console.WriteLine("Json.NET Schema Test Console");
 
-            string jsonNetVersion = FileVersionInfo.GetVersionInfo(typeof (JsonConvert).Assembly.Location).FileVersion;
+            string jsonNetVersion = FileVersionInfo.GetVersionInfo(typeof(JsonConvert).Assembly.Location).FileVersion;
             string schemaVersion = FileVersionInfo.GetVersionInfo(typeof(JSchema).Assembly.Location).FileVersion;
             Console.WriteLine("Json.NET Version: " + jsonNetVersion);
             Console.WriteLine("Json.NET Schema Version: " + schemaVersion);

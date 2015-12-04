@@ -24,7 +24,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 }
 
                 if (pattern == null)
+                {
                     throw new InvalidOperationException("Cannot get pattern regex, pattern has not been set.");
+                }
 
                 try
                 {

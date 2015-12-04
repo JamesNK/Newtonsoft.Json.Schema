@@ -72,7 +72,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                             RaiseError($"Array item count {itemCount} is less than minimum count of {Schema.MinimumItems}.", ErrorType.MinimumItems, Schema, itemCount, null);
                         }
 
-                    return true;
+                        return true;
                     default:
                         throw new InvalidOperationException("Unexpected token when evaluating array: " + token);
                 }

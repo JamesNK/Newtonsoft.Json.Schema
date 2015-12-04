@@ -12,8 +12,10 @@ using Newtonsoft.Json.Schema.Infrastructure.Licensing;
 #elif NET40
 [assembly: AssemblyTitle("Json.NET Schema Tests .NET 4.0")]
 #else
+
 [assembly: AssemblyTitle("Json.NET Schema Tests")]
 #endif
+
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Newtonsoft")]
@@ -21,11 +23,8 @@ using Newtonsoft.Json.Schema.Infrastructure.Licensing;
 [assembly: AssemblyCopyright("Copyright © Newtonsoft 2014")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
-
 [assembly: ComVisible(false)]
 [assembly: Guid("a5bb3fb0-90f1-4f9c-a930-dcfed8b8de5d")]
-
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.1.18123")]
-
 [assembly: ReleaseDate("2014-12-27")]

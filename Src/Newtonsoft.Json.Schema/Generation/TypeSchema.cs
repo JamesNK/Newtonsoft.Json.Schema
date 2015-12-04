@@ -45,20 +45,30 @@ namespace Newtonsoft.Json.Schema.Generation
         public bool Equals(TypeSchemaKey other)
         {
             if (other == null)
+            {
                 return false;
+            }
 
             if (Type != other.Type)
+            {
                 return false;
+            }
             if (Required != other.Required)
+            {
                 return false;
+            }
             //if (Pattern != other.Pattern)
             //    return false;
             //if (Format != other.Format)
             //    return false;
             if (MinLength != other.MinLength)
+            {
                 return false;
+            }
             if (MaxLength != other.MaxLength)
+            {
                 return false;
+            }
             //if (MinValue != other.MinValue)
             //    return false;
             //if (MaxValue != other.MaxValue)
@@ -80,16 +90,22 @@ namespace Newtonsoft.Json.Schema.Generation
             int hashCode = 0;
 
             if (Type != null)
+            {
                 hashCode ^= Type.GetHashCode();
+            }
             hashCode ^= Required.GetHashCode();
             //if (Pattern != null)
             //    hashCode ^= Pattern.GetHashCode();
             //if (Format != null)
             //    hashCode ^= Format.GetHashCode();
             if (MinLength != null)
+            {
                 hashCode ^= MinLength.GetHashCode();
+            }
             if (MaxLength != null)
+            {
                 hashCode ^= MaxLength.GetHashCode();
+            }
             //if (MinValue != null)
             //    hashCode ^= MinValue.GetHashCode();
             //if (MaxValue != null)

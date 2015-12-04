@@ -30,6 +30,7 @@ using System.Collections;
 using Newtonsoft.Json.Utilities.LinqBridge;
 #else
 using System.Linq;
+
 #endif
 
 namespace Newtonsoft.Json.Schema.Tests
@@ -108,7 +109,9 @@ namespace Newtonsoft.Json.Schema.Tests
         private static string EscapeText(string t)
         {
             if (t == null)
+            {
                 return null;
+            }
 
             return @"@""" + t.Replace(@"""", @"""""") + @"""";
         }
@@ -124,7 +127,9 @@ namespace Newtonsoft.Json.Schema.Tests
         public static string Normalize(string s)
         {
             if (s != null)
+            {
                 s = Regex.Replace(s, "\r\n");
+            }
 
             return s;
         }
@@ -156,7 +161,9 @@ namespace Newtonsoft.Json.Schema.Tests
                     }
 
                     if (!match)
+                    {
                         throw new Exception("Unexpected exception message." + Environment.NewLine + "Expected one of: " + string.Join(Environment.NewLine, possibleMessages) + Environment.NewLine + "Got: " + ex.Message + Environment.NewLine + Environment.NewLine + ex);
+                    }
                 }
             }
             catch (Exception ex)

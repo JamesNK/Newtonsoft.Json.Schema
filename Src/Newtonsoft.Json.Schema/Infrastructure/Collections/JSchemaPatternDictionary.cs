@@ -94,12 +94,12 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Collections
         public void CopyTo(KeyValuePair<string, JSchema>[] array, int arrayIndex)
         {
             KeyValuePair<string, PatternSchema>[] tempArray = new KeyValuePair<string, PatternSchema>[array.Length];
-            ((IDictionary<string, PatternSchema>) _inner).CopyTo(tempArray, arrayIndex);
+            ((IDictionary<string, PatternSchema>)_inner).CopyTo(tempArray, arrayIndex);
 
             for (int i = 0; i < tempArray.Length; i++)
             {
                 KeyValuePair<string, PatternSchema> item = tempArray[i];
-                array[i] = new KeyValuePair<string, JSchema>(item.Key, item.Value.Schema); 
+                array[i] = new KeyValuePair<string, JSchema>(item.Key, item.Value.Schema);
             }
         }
 
@@ -126,7 +126,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Collections
 
         public bool IsReadOnly
         {
-            get { return ((IDictionary<string, PatternSchema>) _inner).IsReadOnly; }
+            get { return ((IDictionary<string, PatternSchema>)_inner).IsReadOnly; }
         }
 
         public bool ContainsKey(string key)

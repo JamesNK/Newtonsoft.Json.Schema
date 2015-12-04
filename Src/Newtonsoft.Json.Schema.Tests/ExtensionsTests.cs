@@ -25,6 +25,7 @@ using System.IO;
 using Newtonsoft.Json.Schema.Generation;
 #if !(NETFX_CORE || ASPNETCORE50)
 using System.Data;
+
 #endif
 
 namespace Newtonsoft.Json.Schema.Tests
@@ -42,10 +43,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader("18446744073709551600")));
             reader.Schema = s;
-            reader.ValidationEventHandler += (sender, args) =>
-            {
-                error = args.ValidationError;
-            };
+            reader.ValidationEventHandler += (sender, args) => { error = args.ValidationError; };
 
             Assert.IsTrue(reader.Read());
             Assert.IsNull(error);
@@ -66,7 +64,7 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(1, validationErrors.Count);
             Assert.AreEqual("#/properties/additionalItems", validationErrors[0].SchemaId.ToString());
             Assert.AreEqual(2, validationErrors[0].ChildErrors.Count);
-            
+
             Assert.AreEqual("#", validationErrors[0].ChildErrors[0].SchemaId.ToString());
             Assert.AreEqual("#/properties/additionalItems/anyOf/0", validationErrors[0].ChildErrors[1].SchemaId.ToString());
         }
@@ -200,7 +198,9 @@ namespace Newtonsoft.Json.Schema.Tests
             token.Validate(typeSchema, (sender, args) => { errors.Add(args.Message); });
 
             if (errors.Count > 0)
+            {
                 Assert.Fail("Schema generated for type '{0}' is not valid." + Environment.NewLine + string.Join(Environment.NewLine, errors.ToArray()), typeof(T));
+            }
         }
 
         [Test]

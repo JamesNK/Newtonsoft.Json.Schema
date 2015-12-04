@@ -49,7 +49,9 @@ namespace Newtonsoft.Json.Schema
             set
             {
                 if (_writer.WriteState != WriteState.Start)
+                {
                     throw new InvalidOperationException("Cannot change schema while validating JSON.");
+                }
 
                 _validator.Schema = value;
             }
@@ -258,9 +260,13 @@ namespace Newtonsoft.Json.Schema
             base.WriteValue(value);
 
             if (value != null)
+            {
                 ValidateCurrentToken(JsonToken.String, value, _writer.Top);
+            }
             else
+            {
                 ValidateCurrentToken(JsonToken.Null, null, _writer.Top);
+            }
         }
 
         /// <summary>

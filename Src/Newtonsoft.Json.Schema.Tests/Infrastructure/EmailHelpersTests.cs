@@ -96,21 +96,27 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         public void TestValidAddresses()
         {
             for (int i = 0; i < ValidAddresses.Length; i++)
+            {
                 Assert.IsTrue(EmailHelpers.Validate(ValidAddresses[i]), "Valid Address #{0}", i);
+            }
         }
 
         [Test]
         public void TestInvalidAddresses()
         {
             for (int i = 0; i < InvalidAddresses.Length; i++)
+            {
                 Assert.IsFalse(EmailHelpers.Validate(InvalidAddresses[i]), "Invalid Address #{0}", i);
+            }
         }
 
         [Test]
         public void TestValidInternationalAddresses()
         {
             for (int i = 0; i < ValidInternationalAddresses.Length; i++)
+            {
                 Assert.IsTrue(EmailHelpers.Validate(ValidInternationalAddresses[i], true), "Valid International Address #{0}", i);
+            }
         }
     }
 }

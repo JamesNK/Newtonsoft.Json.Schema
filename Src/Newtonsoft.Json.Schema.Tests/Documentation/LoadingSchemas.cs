@@ -42,7 +42,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
         [Test]
         public void ParseString()
         {
-#region ParseString
+            #region ParseString
             string schemaJson = @"{
               'description': 'A person',
               'type': 'object',
@@ -68,7 +68,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
         [Test]
         public void LoadFile()
         {
-#region LoadFile
+            #region LoadFile
             using (StreamReader file = File.OpenText(@"c:\person.json"))
             using (JsonTextReader reader = new JsonTextReader(file))
             {
@@ -94,7 +94,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
         [Test]
         public void JSchemaUrlResolverTest()
         {
-#region JSchemaUrlResolver
+            #region JSchemaUrlResolver
             // resolver will fetch 'http://schema.org/address.json' as the parent schema is loaded
             JSchemaUrlResolver resolver = new JSchemaUrlResolver();
 
@@ -164,7 +164,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
         [Test]
         public void JSchemaPreloadedResolver()
         {
-#region JSchemaPreloadedResolver
+            #region JSchemaPreloadedResolver
             string addressSchemaJson = @"{
               'type': 'object',
               'properties': {

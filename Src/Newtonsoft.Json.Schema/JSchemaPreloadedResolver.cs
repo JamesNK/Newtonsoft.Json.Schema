@@ -59,10 +59,14 @@ namespace Newtonsoft.Json.Schema
         {
             byte[] data;
             if (_preloadedData.TryGetValue(reference.BaseUri, out data))
+            {
                 return new MemoryStream(data);
+            }
 
             if (_resolver != null)
+            {
                 return _resolver.GetSchemaResource(context, reference);
+            }
 
             return null;
         }
@@ -75,10 +79,14 @@ namespace Newtonsoft.Json.Schema
         public void Add(Uri uri, byte[] value)
         {
             if (uri == null)
+            {
                 throw new ArgumentNullException("uri");
+            }
 
             if (value == null)
+            {
                 throw new ArgumentNullException("value");
+            }
 
             _preloadedData[uri] = value;
         }

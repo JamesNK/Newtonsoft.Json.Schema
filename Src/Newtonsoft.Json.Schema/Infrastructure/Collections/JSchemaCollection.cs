@@ -68,7 +68,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Collections
 
         public List<JSchema> GetInnerList()
         {
-            return (List<JSchema>) Items;
+            return (List<JSchema>)Items;
         }
     }
 }

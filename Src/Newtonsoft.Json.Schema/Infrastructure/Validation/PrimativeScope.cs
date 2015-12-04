@@ -30,13 +30,17 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 case JsonToken.Integer:
                 {
                     if (!ValidateInteger(Schema, value))
+                    {
                         return true;
+                    }
                     break;
                 }
                 case JsonToken.Float:
                 {
                     if (!ValidateNumber(Schema, Convert.ToDouble(value, CultureInfo.InvariantCulture)))
+                    {
                         return true;
+                    }
                     break;
                 }
                 case JsonToken.String:
@@ -45,30 +49,40 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     string s = (uri != null) ? uri.OriginalString : value.ToString();
 
                     if (!ValidateString(Schema, s))
+                    {
                         return true;
+                    }
                     break;
                 }
                 case JsonToken.Boolean:
                 {
                     if (!ValidateBoolean(Schema, value))
+                    {
                         return true;
+                    }
                     break;
                 }
                 case JsonToken.Null:
                 {
                     if (!ValidateNull(Schema, value))
+                    {
                         return true;
+                    }
                     break;
                 }
                 case JsonToken.Bytes:
                 {
                     byte[] data = value as byte[];
                     if (data == null)
+                    {
                         data = ((Guid)value).ToByteArray();
+                    }
 
                     string s = Convert.ToBase64String(data);
                     if (!ValidateString(Schema, s))
+                    {
                         return true;
+                    }
                     break;
                 }
                 case JsonToken.Undefined:
@@ -105,7 +119,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
         private bool ValidateInteger(JSchema schema, object value)
         {
             if (!TestType(schema, JSchemaType.Integer, value))
+            {
                 return false;
+            }
 
             if (schema.Maximum != null)
             {
@@ -117,9 +133,13 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 #endif
 
                 if (JValue.Compare(JTokenType.Integer, v, schema.Maximum) > 0)
+                {
                     RaiseError($"Integer {value} exceeds maximum value of {schema.Maximum}.", ErrorType.Maximum, schema, value, null);
+                }
                 if (schema.ExclusiveMaximum && JValue.Compare(JTokenType.Integer, v, schema.Maximum) == 0)
+                {
                     RaiseError($"Integer {value} equals maximum value of {schema.Maximum} and exclusive maximum is true.", ErrorType.Maximum, schema, value, null);
+                }
             }
 
             if (schema.Minimum != null)
@@ -130,11 +150,15 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 #else
                 v = value;
 #endif
-                
+
                 if (JValue.Compare(JTokenType.Integer, v, schema.Minimum) < 0)
+                {
                     RaiseError($"Integer {value} is less than minimum value of {schema.Minimum}.", ErrorType.Minimum, schema, value, null);
+                }
                 if (schema.ExclusiveMinimum && JValue.Compare(JTokenType.Integer, v, schema.Minimum) == 0)
+                {
                     RaiseError($"Integer {value} equals minimum value of {schema.Minimum} and exclusive minimum is true.", ErrorType.Minimum, schema, value, null);
+                }
             }
 
             if (schema.MultipleOf != null)
@@ -150,16 +174,24 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     BigInteger i = (BigInteger)value;
                     bool divisibleNonInteger = !Math.Abs(multipleOf - Math.Truncate(multipleOf)).Equals(0);
                     if (divisibleNonInteger)
+                    {
                         notDivisible = i != 0;
+                    }
                     else
+                    {
                         notDivisible = i % new BigInteger(multipleOf) != 0;
+                    }
                 }
                 else
 #endif
-                notDivisible = !MathHelpers.IsZero(Convert.ToInt64(value, CultureInfo.InvariantCulture) % schema.MultipleOf.Value);
+                {
+                    notDivisible = !MathHelpers.IsZero(Convert.ToInt64(value, CultureInfo.InvariantCulture) % schema.MultipleOf.Value);
+                }
 
                 if (notDivisible)
+                {
                     RaiseError($"Integer {JsonConvert.ToString(value)} is not a multiple of {schema.MultipleOf}.", ErrorType.MultipleOf, schema, value, null);
+                }
             }
 
             return true;
@@ -168,7 +200,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
         private bool ValidateString(JSchema schema, string value)
         {
             if (!TestType(schema, JSchemaType.String, value))
+            {
                 return false;
+            }
 
             if (schema.MaximumLength != null || schema.MinimumLength != null)
             {
@@ -177,10 +211,14 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 int textLength = stringInfo.LengthInTextElements;
 
                 if (schema.MaximumLength != null && textLength > schema.MaximumLength)
+                {
                     RaiseError($"String '{value}' exceeds maximum length of {schema.MaximumLength}.", ErrorType.MaximumLength, schema, value, null);
+                }
 
                 if (schema.MinimumLength != null && textLength < schema.MinimumLength)
+                {
                     RaiseError($"String '{value}' is less than minimum length of {schema.MinimumLength}.", ErrorType.MinimumLength, schema, value, null);
+                }
             }
 
             if (schema.Pattern != null)
@@ -191,7 +229,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 if (schema.TryGetPatternRegex(out regex, out errorMessage))
                 {
                     if (!regex.IsMatch(value))
+                    {
                         RaiseError($"String '{value}' does not match regex pattern '{schema.Pattern}'.", ErrorType.Pattern, schema, value, null);
+                    }
                 }
                 else
                 {
@@ -204,7 +244,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 bool valid = ValidateFormat(schema.Format, value);
 
                 if (!valid)
+                {
                     RaiseError($"String '{value}' does not validate against format '{schema.Format}'.", ErrorType.Format, schema, value, null);
+                }
             }
 
             return true;
@@ -229,7 +271,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 {
                     string[] parts = value.Split('.');
                     if (parts.Length != 4)
+                    {
                         return false;
+                    }
 
                     for (int i = 0; i < parts.Length; i++)
                     {
@@ -296,22 +340,32 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
         private bool ValidateNumber(JSchema schema, double value)
         {
             if (!TestType(schema, JSchemaType.Number, value))
+            {
                 return false;
+            }
 
             if (schema.Maximum != null)
             {
                 if (value > schema.Maximum)
+                {
                     RaiseError($"Float {JsonConvert.ToString(value)} exceeds maximum value of {schema.Maximum}.", ErrorType.Maximum, schema, value, null);
+                }
                 if (schema.ExclusiveMaximum && value == schema.Maximum)
+                {
                     RaiseError($"Float {JsonConvert.ToString(value)} equals maximum value of {schema.Maximum} and exclusive maximum is true.", ErrorType.Maximum, schema, value, null);
+                }
             }
 
             if (schema.Minimum != null)
             {
                 if (value < schema.Minimum)
+                {
                     RaiseError($"Float {JsonConvert.ToString(value)} is less than minimum value of {schema.Minimum}.", ErrorType.Minimum, schema, value, null);
+                }
                 if (schema.ExclusiveMinimum && value == schema.Minimum)
+                {
                     RaiseError($"Float {JsonConvert.ToString(value)} equals minimum value of {schema.Minimum} and exclusive minimum is true.", ErrorType.Minimum, schema, value, null);
+                }
             }
 
             if (schema.MultipleOf != null)
@@ -319,7 +373,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 double remainder = MathHelpers.FloatingPointRemainder(value, schema.MultipleOf.Value);
 
                 if (!MathHelpers.IsZero(remainder))
+                {
                     RaiseError($"Float {JsonConvert.ToString(value)} is not a multiple of {schema.MultipleOf}.", ErrorType.MultipleOf, schema, value, null);
+                }
             }
 
             return true;

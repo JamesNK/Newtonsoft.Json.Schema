@@ -516,7 +516,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
             if (reader.TokenType == JsonToken.Boolean)
             {
-                schema.AllowAdditionalItems = (bool) reader.Value;
+                schema.AllowAdditionalItems = (bool)reader.Value;
             }
             else
             {
@@ -530,7 +530,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
             if (reader.TokenType == JsonToken.Boolean)
             {
-                schema.AllowAdditionalProperties = (bool) reader.Value;
+                schema.AllowAdditionalProperties = (bool)reader.Value;
             }
             else
             {
@@ -589,7 +589,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             EnsureToken(reader, name, JsonToken.StartArray);
 
             if (values == null)
+            {
                 values = new List<JToken>();
+            }
 
             while (reader.Read())
             {
@@ -664,7 +666,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                         else
                         {
                             EnsureVersion(SchemaVersion.Draft3, SchemaVersion.Draft3);
-                            
+
                             dependencies[name] = new List<string>
                             {
                                 (string)reader.Value
@@ -757,7 +759,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                                 {
                                     if (typeSchemas != null)
                                     {
-                                        typeSchemas.Add(new JSchema {Type = t});
+                                        typeSchemas.Add(new JSchema { Type = t });
                                     }
                                     else
                                     {
@@ -911,7 +913,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 // resolver returned no data
                 return null;
             }
-            
+
             JSchemaReaderSettings settings = new JSchemaReaderSettings
             {
                 BaseUri = schemaReference.BaseUri,
@@ -1008,7 +1010,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                     object typeResult = ReadType(reader, schema, name);
                     if (typeResult is JSchemaType)
                     {
-                        schema.Type = (JSchemaType) typeResult;
+                        schema.Type = (JSchemaType)typeResult;
                     }
                     else
                     {
@@ -1073,7 +1075,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                     break;
                 case Constants.PropertyNames.PatternProperties:
                     ReadProperties(reader, schema.PatternProperties);
-                    
+
                     if (_validationErrors != null)
                     {
                         foreach (PatternSchema patternProperty in schema.GetPatternSchemas())
@@ -1195,7 +1197,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                         {
                             ValidationError error = ValidationError.CreateValidationError($"Could not parse regex pattern '{schema.Pattern}'. Regex parser error: {errorMessage}", ErrorType.Pattern, schema, null, schema.Pattern, null, schema, schema.Path);
                             _validationErrors.Add(error);
-                        }                        
+                        }
                     }
                     break;
                 case Constants.PropertyNames.Enum:

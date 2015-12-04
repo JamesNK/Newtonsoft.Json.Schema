@@ -32,14 +32,11 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             JSchemaUrlResolver resolver = new JSchemaUrlResolver();
             resolver.SetDownloader(new MockDownloader());
 
-            ExceptionAssert.Throws<JSchemaReaderException>(() =>
-            {
-                JSchema.Parse(@"{
+            ExceptionAssert.Throws<JSchemaReaderException>(() => { JSchema.Parse(@"{
     'allOf': [
         {'$ref':'http://google.com#'}
     ]
-}", resolver);
-            },
+}", resolver); },
                 "Error when resolving schema reference 'http://google.com/#'. Path 'allOf[0]', line 3, position 9.");
         }
 #endif

@@ -136,7 +136,9 @@ namespace Newtonsoft.Json.Schema
             get
             {
                 if (_properties == null)
+                {
                     _properties = new JSchemaDictionary(this);
+                }
 
                 return _properties;
             }
@@ -151,7 +153,9 @@ namespace Newtonsoft.Json.Schema
             get
             {
                 if (_items == null)
+                {
                     _items = new JSchemaCollection(this);
+                }
 
                 return _items;
             }
@@ -185,7 +189,9 @@ namespace Newtonsoft.Json.Schema
             get
             {
                 if (_required == null)
+                {
                     _required = new List<string>();
+                }
 
                 return _required;
             }
@@ -200,7 +206,9 @@ namespace Newtonsoft.Json.Schema
             get
             {
                 if (_allOf == null)
+                {
                     _allOf = new JSchemaCollection(this);
+                }
 
                 return _allOf;
             }
@@ -215,7 +223,9 @@ namespace Newtonsoft.Json.Schema
             get
             {
                 if (_anyOf == null)
+                {
                     _anyOf = new JSchemaCollection(this);
+                }
 
                 return _anyOf;
             }
@@ -230,7 +240,9 @@ namespace Newtonsoft.Json.Schema
             get
             {
                 if (_oneOf == null)
+                {
                     _oneOf = new JSchemaCollection(this);
+                }
 
                 return _oneOf;
             }
@@ -271,7 +283,9 @@ namespace Newtonsoft.Json.Schema
             get
             {
                 if (_enum == null)
+                {
                     _enum = new List<JToken>();
+                }
 
                 return _enum;
             }
@@ -352,7 +366,9 @@ namespace Newtonsoft.Json.Schema
             get
             {
                 if (_extensionData == null)
+                {
                     _extensionData = new Dictionary<string, JToken>(StringComparer.Ordinal);
+                }
 
                 return _extensionData;
             }
@@ -390,7 +406,9 @@ namespace Newtonsoft.Json.Schema
         {
             JSchemaAnnotation annotation = t.Annotation<JSchemaAnnotation>();
             if (annotation != null)
+            {
                 return annotation.Schema;
+            }
 
             throw new JSchemaException("Cannot convert JToken to JSchema. No schema is associated with this token.");
         }
@@ -492,7 +510,9 @@ namespace Newtonsoft.Json.Schema
             get
             {
                 if (_dependencies == null)
+                {
                     _dependencies = new JSchemaDependencyDictionary(this);
+                }
 
                 return _dependencies;
             }

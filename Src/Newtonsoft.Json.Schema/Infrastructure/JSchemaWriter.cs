@@ -121,9 +121,13 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
                         JToken value = property.Value;
                         if (value != null)
+                        {
                             WriteToken(context, writer, value);
+                        }
                         else
+                        {
                             writer.WriteNull();
+                        }
                     }
 
                     writer.WriteEndObject();
@@ -205,7 +209,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             }
 
             if (schema.Type != null)
+            {
                 WriteType(Constants.PropertyNames.Type, _writer, schema.Type.Value);
+            }
 
             if (schema.Default != null)
             {
@@ -364,12 +370,18 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         {
             IList<JSchemaType> types;
             if (Enum.IsDefined(typeof(JSchemaType), type))
+            {
                 types = new List<JSchemaType> { type };
+            }
             else
+            {
                 types = EnumUtils.GetFlagsValues(type).Where(v => v != JSchemaType.None).ToList();
+            }
 
             if (types.Count == 0)
+            {
                 return;
+            }
 
             writer.WritePropertyName(propertyName);
 

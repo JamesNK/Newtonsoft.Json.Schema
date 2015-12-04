@@ -3,6 +3,7 @@
 // License: https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md
 #endregion
 
+
 #if PORTABLE
 using System;
 using System.Threading;
