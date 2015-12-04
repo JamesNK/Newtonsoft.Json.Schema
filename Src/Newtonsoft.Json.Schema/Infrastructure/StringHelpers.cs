@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Newtonsoft.Json.Schema.Infrastructure;
 
 namespace Newtonsoft.Json.Schema.Infrastructure
 {
@@ -68,18 +69,22 @@ namespace System.Runtime.CompilerServices
 
     internal class FormattableString : IFormattable
     {
-        private readonly string s;
-        private readonly object[] args;
+        private readonly string _format;
+        private readonly object[] _args;
 
-        public FormattableString(string s, object[] args)
+        public FormattableString(string format, object[] args)
         {
-            this.s = s;
-            this.args = args;
+            _format = format;
+            _args = args;
         }
 
         public string ToString(string ignored, IFormatProvider formatProvider)
         {
-            return string.Format(formatProvider, s, args);
+            if (_args.IsNullOrEmpty())
+            {
+                return _format;
+            }
+            return string.Format(formatProvider, _format, _args);
         }
     }
 }
