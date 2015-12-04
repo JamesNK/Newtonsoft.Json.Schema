@@ -2285,5 +2285,101 @@ namespace Newtonsoft.Json.Schema.Tests
             public DateTime DueDate { get; set; }
             public DateTime DateCompleted { get; set; }
         }
+
+        [Test]
+        public void ValidateUndefinedWithNoType()
+        {
+            string schemaJson = @"{
+
+""$schema"": ""http://json-schema.org/draft-04/schema#"",
+""title"": ""car"",
+""description"": ""Attributes of car"",
+""type"": ""object"",
+""required"": [ ""model"", ""color"" ],
+""properties"": {
+      
+      
+	""model"": {""type"": ""string""},
+	""firstRegistration"": {""format"": ""date-time""},
+	""model"": { ""type"": ""string""},
+	""power"": {""allOf"":
+        	[
+		{""type"": ""number""},
+		{""maxLength"": 4}
+		]
+	}
+}
+}";
+
+            string json = @"{
+	model: ""volkswagen"",
+	color: ""blue"",
+   firstRegistration:,
+	power: 999
+}";
+
+            JSchema schema = JSchema.Parse(schemaJson);
+
+            List<ValidationError> errors = new List<ValidationError>();
+
+            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            reader.ValidationEventHandler += (o, e) => errors.Add(e.ValidationError);
+            reader.Schema = schema;
+
+            while (reader.Read())
+            {
+            }
+
+            Assert.AreEqual(0, errors.Count);
+        }
+
+        [Test]
+        public void ValidateUndefinedWithType()
+        {
+            string schemaJson = @"{
+
+""$schema"": ""http://json-schema.org/draft-04/schema#"",
+""title"": ""car"",
+""description"": ""Attributes of car"",
+""type"": ""object"",
+""required"": [ ""model"", ""color"" ],
+""properties"": {
+      
+      
+	""model"": {""type"": ""string""},
+	""firstRegistration"": {""format"": ""date-time"",""type"": ""string""},
+	""model"": { ""type"": ""string""},
+	""power"": {""allOf"":
+        	[
+		{""type"": ""number""},
+		{""maxLength"": 4}
+		]
+	}
+}
+}";
+
+            string json = @"{
+	model: ""volkswagen"",
+	color: ""blue"",
+   firstRegistration:,
+	power: 999
+}";
+
+            JSchema schema = JSchema.Parse(schemaJson);
+
+            List<ValidationError> errors = new List<ValidationError>();
+
+            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            reader.ValidationEventHandler += (o, e) => errors.Add(e.ValidationError);
+            reader.Schema = schema;
+
+            while (reader.Read())
+            {
+            }
+
+            Assert.AreEqual(1, errors.Count);
+            Assert.AreEqual("Invalid type. Expected String but got Undefined.", errors[0].Message);
+            Assert.AreEqual(null, errors[0].Value);
+        }
     }
 }

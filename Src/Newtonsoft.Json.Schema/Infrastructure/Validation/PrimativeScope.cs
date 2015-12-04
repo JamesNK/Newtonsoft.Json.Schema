@@ -73,7 +73,12 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 }
                 case JsonToken.Undefined:
                 {
-                    RaiseError($"Invalid type. Expected {Schema.Type.Value.GetDisplayText()} but got {token}.", ErrorType.Type, Schema, value, null);
+                    JSchemaType schemaType = Schema.Type.GetValueOrDefault(JSchemaType.None);
+
+                    if (schemaType != JSchemaType.None)
+                    {
+                        RaiseError($"Invalid type. Expected {schemaType.GetDisplayText()} but got {token}.", ErrorType.Type, Schema, value, null);
+                    }
                     break;
                 }
                 default:
