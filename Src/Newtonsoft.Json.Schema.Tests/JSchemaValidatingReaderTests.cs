@@ -2383,7 +2383,7 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual("Invalid type. Expected String but got Undefined.", errors[0].Message);
             Assert.AreEqual(null, errors[0].Value);
             Assert.AreEqual("Invalid type. Expected String but got Constructor.", errors[1].Message);
-            Assert.AreEqual(null, errors[1].Value);
+            Assert.AreEqual("Date", errors[1].Value);
         }
 
         [Test]
