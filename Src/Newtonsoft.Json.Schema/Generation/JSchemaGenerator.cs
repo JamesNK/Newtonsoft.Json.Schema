@@ -22,7 +22,7 @@ namespace Newtonsoft.Json.Schema.Generation
     public class JSchemaGenerator
     {
         private IContractResolver _contractResolver;
-        internal IList<JSchemaGenerationProvider> _generationProviders;
+        internal List<JSchemaGenerationProvider> _generationProviders;
 
         /// <summary>
         /// Gets or sets how IDs are generated for schemas with no ID.

@@ -2,9 +2,11 @@
 <Topics>
   <Topic id="Introduction" visible="True" isDefault="true" />
   <Topic id="LoadingSchemas" visible="True" title="Loading Schemas" />
-  <Topic id="ValidatingJson" visible="True" title="Validating JSON" />
+  <Topic id="ValidatingJson" visible="True" isExpanded="true" title="Validating JSON">
+    <Topic id="CustomJsonValidators" visible="True" title="Custom JSON validation rules" />
+  </Topic>
   <Topic id="GeneratingSchemas" visible="True" title="Generating Schemas" />
-  <Topic id="Performance" visible="True" isSelected="true" title="Performance Tips" />
+  <Topic id="Performance" visible="True" title="Performance Tips" />
   <Topic id="Samples" visible="True" isExpanded="true" title="Samples">
     <Topic id="231aab62-1033-489c-826f-66d6b4e25ecd" visible="True" noFile="true" isExpanded="true" title="Load JSON Schemas">
       <Topic id="JsonSchemaParse" visible="True" title="Parse JSON Schema from JSON" />
@@ -20,6 +22,7 @@
       <Topic id="JsonValidatingReaderAndSerializer" visible="True" title="Validate JSON with JSchemaValidatingReader" />
       <Topic id="JsonValidatingWriterAndSerializer" visible="True" title="Validate JSON with JSchemaValidatingWriter" />
       <Topic id="JTokenIsValidWithValidationErrors" visible="True" title="Detailed validation error information" />
+      <Topic id="CustomJsonValidator" visible="True" isSelected="true" title="Creating custom JSON validation rules with JsonValidator" />
     </Topic>
     <Topic id="14690d92-d0f9-4083-a409-a0fc9f571e9f" visible="True" noFile="true" isExpanded="true" title="Create JSON Schemas">
       <Topic id="CreateJsonSchemaManually" visible="True" title="Create JSON Schema manually" />

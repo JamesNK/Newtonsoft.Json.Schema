@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<topic id="CustomJsonValidators" revisionNumber="1">
+  <developerConceptualDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <introduction>
+      <para>Json.NET Schema lets you extend JSON Schema with your own custom validation rules using <codeEntityReference>T:Newtonsoft.Json.Schema.JsonValidator</codeEntityReference>.</para>
+    </introduction>
+
+<section>
+  <title>Creating custom rules</title>
+<content>
+<para>Custom rules are created by implementing a <codeEntityReference>T:Newtonsoft.Json.Schema.JsonValidator</codeEntityReference> and its two abstract methods.</para>
+
+<list class="bullet">
+  <listItem><para><codeEntityReference>M:Newtonsoft.Json.Schema.JsonValidator.Validate(Newtonsoft.Json.Linq.JToken,Newtonsoft.Json.Schema.JsonValidatorContext)</codeEntityReference> is called when validating the schema against JSON. It tests the JSON being validated by the schema and raises validation errors.</para></listItem>
+  <listItem><para><codeEntityReference>M:Newtonsoft.Json.Schema.JsonValidator.CanValidate(Newtonsoft.Json.Schema.JSchema)</codeEntityReference> is called when loading a <codeEntityReference>T:Newtonsoft.Json.Schema.JSchema</codeEntityReference> and determines whether the validator will run when the schema is validated.</para></listItem>
+</list>
+
+<code lang="cs" source="..\Src\Newtonsoft.Json.Schema.Tests\Documentation\Samples\Validate\CustomJsonValidator.cs" region="Types" title="A simple JsonValidator for validating culture names" />
+</content>
+</section>
+
+<section>
+  <title>Using custom rules</title>
+<content>
+<para>Custom rules must be specified when loading the schema that will use them. Add custom <codeEntityReference>T:Newtonsoft.Json.Schema.JsonValidator</codeEntityReference> instances to the <codeEntityReference>P:Newtonsoft.Json.Schema.JSchemaReaderSettings.Validators</codeEntityReference> collection on <codeEntityReference>T:Newtonsoft.Json.Schema.JSchemaReaderSettings</codeEntityReference> and then load the schema using <codeEntityReference>M:Newtonsoft.Json.Schema.JSchema.Parse(System.String,Newtonsoft.Json.Schema.JSchemaReaderSettings)</codeEntityReference>.</para>
+<para>Once the <codeEntityReference>T:Newtonsoft.Json.Schema.JSchema</codeEntityReference> has been loaded validate JSON as usual. Custom validation rules will be executed along-side normal JSON Schema validation.</para>
+
+<code lang="cs" source="..\Src\Newtonsoft.Json.Schema.Tests\Documentation\Samples\Validate\CustomJsonValidator.cs" region="Usage" title="Loading and validating a JSchema with a custom JsonValidator" />
+</content>
+</section>
+
+
+    <relatedTopics>
+      <codeEntityReference>T:Newtonsoft.Json.Schema.JsonValidator</codeEntityReference>
+      <codeEntityReference>T:Newtonsoft.Json.Schema.JSchemaReaderSettings</codeEntityReference>
+      <codeEntityReference>M:Newtonsoft.Json.Schema.JSchema.Parse(System.String,Newtonsoft.Json.Schema.JSchemaReaderSettings)</codeEntityReference>
+    </relatedTopics>
+
+  </developerConceptualDocument>
+</topic>

@@ -18,9 +18,28 @@
 
 <code lang="cs" source="..\Src\Newtonsoft.Json.Schema.Tests\Documentation\GeneratingSchemas.cs" region="IContractResolver" title="Generate a JSON Schema using an IContractResolver" />
 
-<codeEntityReference>T:Newtonsoft.Json.Schema.SchemaIdGenerationHandling</codeEntityReference> is used to control whether types with no ID defined have one infered from their type name.
+<codeEntityReference>T:Newtonsoft.Json.Schema.Generation.SchemaIdGenerationHandling</codeEntityReference> is used to control whether types with no ID defined have one infered from their type name.
 
 <code lang="cs" source="..\Src\Newtonsoft.Json.Schema.Tests\Documentation\GeneratingSchemas.cs" region="SchemaIdGenerationHandling" title="Generate a JSON Schema using SchemaIdGenerationHandling" />
+
+</content>
+</section>
+
+
+<section>
+  <title>JSchemaGenerator Settings</title>
+<content>
+<para>There are many settings on <codeEntityReference>T:Newtonsoft.Json.Schema.Generation.JSchemaGenerator</codeEntityReference> for controlling how schemas are generated from your .NET types.</para>
+
+<list class="bullet">
+  <listItem><para><codeEntityReference>P:Newtonsoft.Json.Schema.Generation.JSchemaGenerator.SchemaIdGenerationHandling</codeEntityReference> - Controls how schema IDs are generated.</para></listItem>
+  <listItem><para><codeEntityReference>P:Newtonsoft.Json.Schema.Generation.JSchemaGenerator.SchemaPropertyOrderHandling</codeEntityReference> - Controls the order of object's properties in generated schemas.</para></listItem>
+  <listItem><para><codeEntityReference>P:Newtonsoft.Json.Schema.Generation.JSchemaGenerator.SchemaLocationHandling</codeEntityReference> - Controls where generated sub-schemas are located.</para></listItem>
+  <listItem><para><codeEntityReference>P:Newtonsoft.Json.Schema.Generation.JSchemaGenerator.SchemaReferenceHandling</codeEntityReference> - Controls what types schema's can be generated as a reference.</para></listItem>
+  <listItem><para><codeEntityReference>P:Newtonsoft.Json.Schema.Generation.JSchemaGenerator.DefaultRequired</codeEntityReference> - Controls the default required state of object's properties.</para></listItem>
+  <listItem><para><codeEntityReference>P:Newtonsoft.Json.Schema.Generation.JSchemaGenerator.GenerationProviders</codeEntityReference> - A collection of <codeEntityReference>T:Newtonsoft.Json.Schema.Generation.JSchemaGenerationProvider</codeEntityReference> instances.</para></listItem>
+  <listItem><para><codeEntityReference>P:Newtonsoft.Json.Schema.Generation.JSchemaGenerator.ContractResolver</codeEntityReference> - The contract resolver used when generating schemas.</para></listItem>
+</list>
 
 </content>
 </section>
@@ -110,7 +129,7 @@
 
     <relatedTopics>
       <codeEntityReference>T:Newtonsoft.Json.Schema.Generation.JSchemaGenerator</codeEntityReference>
-      <codeEntityReference>T:Newtonsoft.Json.Schema.JSchemaUndefinedIdHandling</codeEntityReference>
+      <codeEntityReference>T:Newtonsoft.Json.Schema.Generation.SchemaIdGenerationHandling</codeEntityReference>
       <codeEntityReference>T:Newtonsoft.Json.Schema.Generation.JSchemaGenerationProvider</codeEntityReference>
     </relatedTopics>
 
