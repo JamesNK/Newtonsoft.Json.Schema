@@ -8,7 +8,7 @@
 <section>
   <title>Creating custom rules</title>
 <content>
-<para>Custom rules are created by implementing a <codeEntityReference>T:Newtonsoft.Json.Schema.JsonValidator</codeEntityReference> and its two abstract methods.</para>
+<para>Custom validation rules are created by implementing a <codeEntityReference>T:Newtonsoft.Json.Schema.JsonValidator</codeEntityReference> and its two abstract methods.</para>
 
 <list class="bullet">
   <listItem><para><codeEntityReference>M:Newtonsoft.Json.Schema.JsonValidator.Validate(Newtonsoft.Json.Linq.JToken,Newtonsoft.Json.Schema.JsonValidatorContext)</codeEntityReference> is called when validating the schema against JSON. It tests the JSON being validated by the schema and raises validation errors.</para></listItem>

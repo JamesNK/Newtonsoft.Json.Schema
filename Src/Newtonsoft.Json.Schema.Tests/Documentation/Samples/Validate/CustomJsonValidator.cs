@@ -32,6 +32,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation.Samples.Validate
                 Validators = new List<JsonValidator> { new CultureFormatValidator() }
             };
 
+            // the culture validator will be used to validate the array items
             JSchema schema = JSchema.Parse(@"{
               'type': 'array',
               'items': {
