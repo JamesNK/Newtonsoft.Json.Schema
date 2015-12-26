@@ -2067,6 +2067,36 @@ namespace Newtonsoft.Json.Schema.Tests
         }
 
         [Test]
+        public void ReadAsDouble()
+        {
+            JSchema s = new JSchemaGenerator().Generate(typeof(double));
+
+            JsonReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(@"1.0")))
+            {
+                Schema = s
+            };
+            double? d = reader.ReadAsDouble();
+
+            Assert.AreEqual(1d, d);
+        }
+
+        [Test]
+        public void ReadAsDoubleFailure()
+        {
+            ExceptionAssert.Throws<JSchemaException>(() =>
+            {
+                JSchema s = new JSchemaGenerator().Generate(typeof(double));
+                s.Maximum = 2;
+
+                JsonReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(@"5.0")))
+                {
+                    Schema = s
+                };
+                reader.ReadAsDouble();
+            }, "Float 5.0 exceeds maximum value of 2. Path '', line 1, position 3.");
+        }
+
+        [Test]
         public void ReadAsDecimal()
         {
             JSchema s = new JSchemaGenerator().Generate(typeof(decimal));

@@ -197,6 +197,18 @@ namespace Newtonsoft.Json.Schema
         }
 
         /// <summary>
+        /// Reads the next JSON token from the stream as a <see cref="Nullable{Double}"/>.
+        /// </summary>
+        /// <returns>A <see cref="Nullable{Decimal}"/>.</returns>
+        public override double? ReadAsDouble()
+        {
+            double? d = _reader.ReadAsDouble();
+
+            ValidateCurrentToken();
+            return d;
+        }
+
+        /// <summary>
         /// Reads the next JSON token from the stream as a <see cref="String"/>.
         /// </summary>
         /// <returns>A <see cref="String"/>. This method will return <c>null</c> at the end of an array.</returns>
