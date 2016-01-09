@@ -171,6 +171,18 @@ namespace Newtonsoft.Json.Schema
         }
 
         /// <summary>
+        /// Reads the next JSON token from the stream as a <see cref="Nullable{Boolean}"/>.
+        /// </summary>
+        /// <returns>A <see cref="Nullable{Boolean}"/>.</returns>
+        public override bool? ReadAsBoolean()
+        {
+            bool? b = _reader.ReadAsBoolean();
+
+            ValidateCurrentToken();
+            return b;
+        }
+
+        /// <summary>
         /// Reads the next JSON token from the stream as a <see cref="Byte"/>[].
         /// </summary>
         /// <returns>

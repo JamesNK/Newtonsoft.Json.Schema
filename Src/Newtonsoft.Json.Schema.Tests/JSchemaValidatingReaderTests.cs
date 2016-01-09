@@ -2037,6 +2037,36 @@ namespace Newtonsoft.Json.Schema.Tests
         }
 
         [Test]
+        public void ReadAsBoolean_Failure()
+        {
+            ExceptionAssert.Throws<JSchemaException>(() =>
+            {
+                JSchema s = new JSchemaGenerator().Generate(typeof(bool));
+                s.Enum.Add(new JValue(false));
+
+                JsonReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(@"true")))
+                {
+                    Schema = s
+                };
+                reader.ReadAsBoolean();
+            }, "Value true is not defined in enum. Path '', line 1, position 4.");
+        }
+
+        [Test]
+        public void ReadAsBoolean()
+        {
+            JSchema s = new JSchemaGenerator().Generate(typeof (bool));
+
+            JsonReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(@"true")))
+            {
+                Schema = s
+            };
+            bool? b = reader.ReadAsBoolean();
+
+            Assert.AreEqual(true, b);
+        }
+
+        [Test]
         public void ReadAsInt32()
         {
             JSchema s = new JSchemaGenerator().Generate(typeof(int));
