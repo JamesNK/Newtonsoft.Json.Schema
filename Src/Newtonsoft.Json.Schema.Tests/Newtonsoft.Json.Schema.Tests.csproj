@@ -83,6 +83,7 @@
     <Compile Include="Infrastructure\SerializationTests.cs" />
     <Compile Include="Issues\Issue10Tests.cs" />
     <Compile Include="Issues\Issue14Tests.cs" />
+    <Compile Include="Issues\Issue32Tests.cs" />
     <Compile Include="Issues\Issue28Tests.cs" />
     <Compile Include="Issues\Issue03Tests.cs" />
     <Compile Include="JSchemaTests.cs" />
