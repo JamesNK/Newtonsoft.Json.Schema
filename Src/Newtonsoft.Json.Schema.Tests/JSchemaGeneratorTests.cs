@@ -278,6 +278,52 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual("OrdinalIgnoreCase", (string)propertySchema.Enum[5]);
         }
 
+        [Test]
+        public void When_using_multiple_generation_providers()
+        {
+            var generator = new JSchemaGenerator();
+            generator.GenerationProviders.Add(new StringEnumGenerationProvider());
+            generator.GenerationProviders.Add(new DateTimeGenerationProvider());
+
+            var schema = generator.Generate(typeof(TestMutliGenerationProviderClass));
+
+            var dateProp = schema.Properties["DateOfBirth"];
+            Assert.AreEqual("date-time", dateProp.Format);
+
+            var enumProp = schema.Properties["Role"];
+            Assert.AreEqual("Restricted", (string)enumProp.Enum[0]);
+            Assert.AreEqual("Normal", (string)enumProp.Enum[1]);
+            Assert.AreEqual("Super", (string)enumProp.Enum[2]);
+        }
+
+        public class DateTimeGenerationProvider : JSchemaGenerationProvider
+        {
+            public override JSchema GetSchema(JSchemaTypeGenerationContext context)
+            {
+                if (context.ObjectType != typeof(DateTime))
+                    return null;
+
+                var generator = new JSchemaGenerator();
+                var schema = generator.Generate(context.ObjectType);
+                schema.Format = "date-time";
+
+                return schema;
+            }
+        }
+
+        public class TestMutliGenerationProviderClass
+        {
+            public Roles Role { get; set; }
+            public DateTime DateOfBirth { get; set; }
+        }
+
+        public enum Roles
+        {
+            Restricted,
+            Normal,
+            Super
+        }
+
 #if !(NET40 || NET35)
         public class DictionaryWithMinAndMaxLength
         {
