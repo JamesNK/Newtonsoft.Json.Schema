@@ -30,11 +30,6 @@ namespace Newtonsoft.Json.Schema.Generation
             bool isNullable = ReflectionUtils.IsNullableType(context.ObjectType);
             Type t = isNullable ? Nullable.GetUnderlyingType(context.ObjectType) : context.ObjectType;
 
-            if (!t.IsEnum())
-            {
-                return null;
-            }
-
             JSchema schema = new JSchema
             {
                 Type = JSchemaType.String
@@ -55,6 +50,19 @@ namespace Newtonsoft.Json.Schema.Generation
             }
 
             return schema;
+        }
+
+        /// <summary>
+        /// Determines whether this instance can generate a <see cref="JSchema"/> for the specified object type.
+        /// </summary>
+        /// <param name="context">The <see cref="Type"/> and associated information.</param>
+        /// <returns><c>true</c> if this instance can convert the specified object type; otherwise, <c>false</c>.</returns>
+        public override bool CanGenerateSchema(JSchemaTypeGenerationContext context)
+        {
+            bool isNullable = ReflectionUtils.IsNullableType(context.ObjectType);
+            Type t = isNullable ? Nullable.GetUnderlyingType(context.ObjectType) : context.ObjectType;
+
+            return t.IsEnum();
         }
     }
 }

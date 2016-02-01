@@ -145,6 +145,7 @@ namespace Newtonsoft.Json.Schema.Tests
         public class EnumTestClass
         {
             public StringComparison EnumProperty { get; set; }
+            public int IntProperty { get; set; }
         }
 
         public class EnumWithAttributeTestClass
@@ -258,24 +259,49 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(5, (int)schema.Enum[5]);
         }
 
+        public class IntegerGenerationProvider : JSchemaGenerationProvider
+        {
+            public override JSchema GetSchema(JSchemaTypeGenerationContext context)
+            {
+                return new JSchema
+                {
+                    Type = JSchemaType.Integer,
+                    Maximum = int.MaxValue,
+                    Minimum = int.MinValue
+                };
+            }
+
+            public override bool CanGenerateSchema(JSchemaTypeGenerationContext context)
+            {
+                return context.ObjectType == typeof (int);
+            }
+        }
+
         [Test]
         public void ProvidersCollection()
         {
             JSchemaGenerator generator = new JSchemaGenerator();
             generator.GenerationProviders.Add(new StringEnumGenerationProvider());
+            generator.GenerationProviders.Add(new IntegerGenerationProvider());
 
             JSchema schema = generator.Generate(typeof(EnumTestClass));
 
-            JSchema propertySchema = schema.Properties["EnumProperty"];
+            JSchema enumPropertySchema = schema.Properties["EnumProperty"];
 
-            Assert.AreEqual(JSchemaType.String, propertySchema.Type);
-            Assert.AreEqual(6, propertySchema.Enum.Count);
-            Assert.AreEqual("CurrentCulture", (string)propertySchema.Enum[0]);
-            Assert.AreEqual("CurrentCultureIgnoreCase", (string)propertySchema.Enum[1]);
-            Assert.AreEqual("InvariantCulture", (string)propertySchema.Enum[2]);
-            Assert.AreEqual("InvariantCultureIgnoreCase", (string)propertySchema.Enum[3]);
-            Assert.AreEqual("Ordinal", (string)propertySchema.Enum[4]);
-            Assert.AreEqual("OrdinalIgnoreCase", (string)propertySchema.Enum[5]);
+            Assert.AreEqual(JSchemaType.String, enumPropertySchema.Type);
+            Assert.AreEqual(6, enumPropertySchema.Enum.Count);
+            Assert.AreEqual("CurrentCulture", (string)enumPropertySchema.Enum[0]);
+            Assert.AreEqual("CurrentCultureIgnoreCase", (string)enumPropertySchema.Enum[1]);
+            Assert.AreEqual("InvariantCulture", (string)enumPropertySchema.Enum[2]);
+            Assert.AreEqual("InvariantCultureIgnoreCase", (string)enumPropertySchema.Enum[3]);
+            Assert.AreEqual("Ordinal", (string)enumPropertySchema.Enum[4]);
+            Assert.AreEqual("OrdinalIgnoreCase", (string)enumPropertySchema.Enum[5]);
+
+            JSchema integerPropertySchema = schema.Properties["IntProperty"];
+
+            Assert.AreEqual(JSchemaType.Integer, integerPropertySchema.Type);
+            Assert.AreEqual(int.MaxValue, Convert.ToInt32(integerPropertySchema.Maximum));
+            Assert.AreEqual(int.MinValue, Convert.ToInt32(integerPropertySchema.Minimum));
         }
 
 #if !(NET40 || NET35)

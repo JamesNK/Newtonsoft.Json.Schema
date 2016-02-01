@@ -217,7 +217,11 @@ namespace Newtonsoft.Json.Schema.Generation
 
                 foreach (JSchemaGenerationProvider generationProvider in _generator._generationProviders)
                 {
-                    schema = generationProvider.GetSchema(context);
+                    if (generationProvider.CanGenerateSchema(context))
+                    {
+                        schema = generationProvider.GetSchema(context);
+                        break;
+                    }
                 }
             }
 
