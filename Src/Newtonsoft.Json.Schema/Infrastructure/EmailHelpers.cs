@@ -59,6 +59,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         private static bool SkipSubDomain(string text, ref int index, bool allowInternational)
         {
+            int startIndex = index;
+
             if (!IsDomain(text[index], allowInternational) || text[index] == '-')
             {
                 return false;
@@ -71,7 +73,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 index++;
             }
 
-            return true;
+            return (index - startIndex) < 64 && text[index - 1] != '-';
         }
 
         private static bool SkipDomain(string text, ref int index, bool allowInternational)
@@ -163,7 +165,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
                 while (index < text.Length && text[index] >= '0' && text[index] <= '9')
                 {
-                    value = (value * 10) + (text[index] - '0');
+                    value = (value*10) + (text[index] - '0');
                     index++;
                 }
 
@@ -310,7 +312,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 throw new ArgumentNullException("email");
             }
 
-            if (email.Length == 0)
+            if (email.Length == 0 || email.Length >= 255)
             {
                 return false;
             }
@@ -320,17 +322,27 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 return false;
             }
 
-            while (index < email.Length && email[index] == '.')
+            while (email[index] == '.')
             {
                 index++;
 
-                if (!SkipWord(email, ref index, allowInternational) || index >= email.Length)
+                if (index >= email.Length)
+                {
+                    return false;
+                }
+
+                if (!SkipWord(email, ref index, allowInternational))
+                {
+                    return false;
+                }
+
+                if (index >= email.Length)
                 {
                     return false;
                 }
             }
 
-            if (index + 1 >= email.Length || email[index++] != '@')
+            if (index + 1 >= email.Length || index > 64 || email[index++] != '@')
             {
                 return false;
             }
@@ -355,7 +367,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 return false;
             }
 
-            var ipv6 = email.Substring(index, 5);
+            string ipv6 = email.Substring(index, 5);
             if (ipv6.ToUpperInvariant() == "IPV6:")
             {
                 index += "IPv6:".Length;
