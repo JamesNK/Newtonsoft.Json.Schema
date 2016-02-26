@@ -36,6 +36,22 @@
         
       </content>
     </section>
+    <section>
+      <title>Benchmarks</title>
+      <content>
+        <para>Json.NET Schema validation is significantly faster than Json.NET's obsolete <legacyBold>JsonSchema</legacyBold>.</para>
+        <para>It is more than twice as fast as the .NET Framework's <legacyBold>XmlSchema</legacyBold> when validating equivalent XML with an XML Schema.</para>
+  <mediaLink>
+      <image class="image" xlink:href="performance" mimeType="image/png" width="650" height="356" />
+      <summary>Json.NET Schema Performance</summary>
+  </mediaLink>
+        <para>The source code for this benchmark can be found in <legacyBold>PerformanceComparisonTests.cs</legacyBold> on <externalLink>
+<linkText>GitHub</linkText>
+<linkUri>https://github.com/JamesNK/Newtonsoft.Json.Schema</linkUri>
+<linkTarget>_blank</linkTarget>
+</externalLink>.</para>
+      </content>
+    </section>
     <relatedTopics>
       <codeEntityReference>T:Newtonsoft.Json.Schema.JSchema</codeEntityReference>
       <codeEntityReference>T:Newtonsoft.Json.Schema.JSchemaValidatingReader</codeEntityReference>
