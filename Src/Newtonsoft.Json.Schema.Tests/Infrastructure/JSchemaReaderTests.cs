@@ -28,6 +28,19 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
     public class JSchemaReaderTests : TestFixtureBase
     {
         [Test]
+        public void AdditionalContent()
+        {
+            ExceptionAssert.Throws<JsonReaderException>(
+                () =>
+                {
+                    JSchema.Parse(@"{
+  ""id"": ""test""
+}sdfsdf");
+                },
+                "Additional text encountered after finished reading JSON content: s. Path '', line 3, position 1.");
+        }
+
+        [Test]
         public void ReadEscapedReference()
         {
             JSchema schema = JSchema.Parse(@"{
@@ -2062,63 +2075,62 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         public void InvalidPattern()
         {
             string schemaJson = @"{
-    ""id"": ""http://goshes.com/format/schema#"",
-    ""$schema"": ""http://json-schema.org/draft-04/schema#"",
-    ""description"": ""Schema for goshes format"",
-    ""type"": ""array"",
-      ""items"":{
-        ""oneOf"":[
-          {""$ref"": ""#/definitions/SceneInformationInput""}
-        ]
-      },
-
-
-    ""definitions"": {
-
-        ""SceneInformationInput"": {
-
-          ""properties"":{
-                  ""inputId"":{
-                    ""type"":""string"",
-                    ""pattern"": ""^SceneInformationInput$""
-                  },
-                  ""data"":{""$ref"":""#/definitions/SceneInformationData""}
-
-           },
-
-           ""required"":[""inputId"", ""data""],
-
-                  ""additionalProperties"": false
-        } ,
-
-        ""Date"" : {
-           ""type"": ""object"",
-           ""properties"":{
-                ""name"":{
-                   ""type"":""string"",
-                   ""pattern"":""^[0-2][0-9]{3}-((0[1-9])|(1[0-2]))-(([0-2][0-9])|3[0-1]T[0)$""
-                }
-           }
+  ""id"": ""http://goshes.com/format/schema#"",
+  ""$schema"": ""http://json-schema.org/draft-04/schema#"",
+  ""description"": ""Schema for goshes format"",
+  ""type"": ""array"",
+  ""items"": {
+    ""oneOf"": [
+      {
+        ""$ref"": ""#/definitions/SceneInformationInput""
+      }
+    ]
+  },
+  ""definitions"": {
+    ""SceneInformationInput"": {
+      ""properties"": {
+        ""inputId"": {
+          ""type"": ""string"",
+          ""pattern"": ""^SceneInformationInput$""
         },
-
-        ""SceneInformationData"":{
-                ""type"": ""object"",
-            ""properties"":{
-
-                ""name"":{
-                   ""type"":""string""
-                },
-                ""author"":{
-                        ""type"" : ""string""
-                },
-                ""createDate"":{ ""$ref"" : ""#/definitions/Date"" }
-                }
-            },
-
-                ""required"" : [""name"", ""author""]
+        ""data"": {
+          ""$ref"": ""#/definitions/SceneInformationData""
         }
-
-    }
+      },
+      ""required"": [
+        ""inputId"",
+        ""data""
+      ],
+      ""additionalProperties"": false
+    },
+    ""Date"": {
+      ""type"": ""object"",
+      ""properties"": {
+        ""name"": {
+          ""type"": ""string"",
+          ""pattern"": ""^[0-2][0-9]{3}-((0[1-9])|(1[0-2]))-(([0-2][0-9])|3[0-1]T[0)$""
+        }
+      }
+    },
+    ""SceneInformationData"": {
+      ""type"": ""object"",
+      ""properties"": {
+        ""name"": {
+          ""type"": ""string""
+        },
+        ""author"": {
+          ""type"": ""string""
+        },
+        ""createDate"": {
+          ""$ref"": ""#/definitions/Date""
+        }
+      }
+    },
+    ""required"": [
+      ""name"",
+      ""author""
+    ]
+  }
 }";
 
             List<ValidationError> errors = new List<ValidationError>();

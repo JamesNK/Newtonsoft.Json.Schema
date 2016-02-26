@@ -683,7 +683,12 @@ namespace Newtonsoft.Json.Schema
 
             using (JsonReader reader = new JsonTextReader(new StringReader(json)))
             {
-                return Load(reader, settings);
+                JSchema s = Load(reader, settings);
+
+                // read to make sure there isn't additional content
+                reader.Read();
+
+                return s;
             }
         }
 
