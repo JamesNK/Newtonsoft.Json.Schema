@@ -13,13 +13,18 @@
         <requireLicenseAcceptance>true</requireLicenseAcceptance>
         <tags>json schema jsonschema</tags>
         <dependencies>
-            <group>
+            <group targetFramework=".NETFramework3.5">
                 <dependency id="Newtonsoft.Json" version="9.0.1-beta1" />
             </group>
-            <group targetFramework=".NETFramework4.5" />
-            <group targetFramework=".NETFramework4.0" />
-            <group targetFramework=".NETFramework3.5" />
-            <group targetFramework=".NETPortable4.5-Profile259" />
+            <group targetFramework=".NETFramework4.0">
+                <dependency id="Newtonsoft.Json" version="9.0.1-beta1" />
+            </group>
+            <group targetFramework=".NETFramework4.5">
+                <dependency id="Newtonsoft.Json" version="9.0.1-beta1" />
+            </group>
+            <group targetFramework=".NETPortable4.5-Profile259">
+                <dependency id="Newtonsoft.Json" version="9.0.1-beta1" />
+            </group>
             <group targetFramework=".NETStandard1.3">
                 <dependency id="Microsoft.CSharp" version="4.0.1-rc2-24027" />
                 <dependency id="System.Collections" version="4.0.11-rc2-24027" />
@@ -36,6 +41,7 @@
                 <dependency id="System.Security.Cryptography.Csp" version="4.0.0-rc2-24027" />
                 <dependency id="System.Text.Encoding" version="4.0.11-rc2-24027" />
                 <dependency id="System.Text.RegularExpressions" version="4.0.12-rc2-24027" />
+                <dependency id="Newtonsoft.Json" version="9.0.1-beta1" />
             </group>
         </dependencies>
     </metadata>
