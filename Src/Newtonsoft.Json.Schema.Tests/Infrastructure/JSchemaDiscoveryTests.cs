@@ -11,7 +11,13 @@ using System.Text;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema.Infrastructure;
 using Newtonsoft.Json.Schema.Infrastructure.Discovery;
+#if DNXCORE50
+using Xunit;
+using Test = Xunit.FactAttribute;
+using Assert = Newtonsoft.Json.Schema.Tests.XUnitAssert;
+#else
 using NUnit.Framework;
+#endif
 
 namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 {

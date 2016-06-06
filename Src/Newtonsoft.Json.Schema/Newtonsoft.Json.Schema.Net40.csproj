@@ -36,10 +36,6 @@
     <DocumentationFile>bin\Release\Net40\Newtonsoft.Json.Schema.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Newtonsoft.Json.Unsigned.8.0.2\lib\net40\Newtonsoft.Json.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
@@ -137,7 +133,7 @@
     <Compile Include="ValidationError.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <None Include="Newtonsoft.Json.Schema.Net40.project.json" />
     <EmbeddedResource Include="Resources\schema-draft-v3.json" />
     <EmbeddedResource Include="Resources\schema-draft-v4.json" />
   </ItemGroup>

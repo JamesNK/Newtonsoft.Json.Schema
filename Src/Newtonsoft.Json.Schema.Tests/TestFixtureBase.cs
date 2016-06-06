@@ -17,9 +17,9 @@ using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using TestFixture = Microsoft.VisualStudio.TestPlatform.UnitTestFramework.TestClassAttribute;
 using TestMethod = Microsoft.VisualStudio.TestPlatform.UnitTestFramework.TestMethodAttribute;
 using SetUp = Microsoft.VisualStudio.TestPlatform.UnitTestFramework.TestInitializeAttribute;
-#elif ASPNETCORE50
+#elif DNXCORE50
 using Xunit;
-using Assert = Newtonsoft.Json.Tests.XUnitAssert;
+using Assert = Newtonsoft.Json.Schema.Tests.XUnitAssert;
 using XAssert = Xunit.Assert;
 #else
 using NUnit.Framework;
@@ -38,13 +38,13 @@ namespace Newtonsoft.Json.Schema.Tests
     [TestFixture]
     public abstract class TestFixtureBase
     {
+#if DNXCORE50
+        protected TestFixtureBase()
+#else
         [SetUp]
         protected void TestSetup()
+#endif
         {
-            //CultureInfo turkey = CultureInfo.CreateSpecificCulture("tr");
-            //Thread.CurrentThread.CurrentCulture = turkey;
-            //Thread.CurrentThread.CurrentUICulture = turkey;
-
             LicenseHelpers.ResetCounts(null);
         }
 
@@ -78,7 +78,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         public static void Contains(IList collection, object value, string message)
         {
-#if !(NETFX_CORE || ASPNETCORE50)
+#if !(NETFX_CORE || DNXCORE50)
             Assert.Contains(value, collection, message);
 #else
             if (!collection.Cast<object>().Any(i => i.Equals(value)))
@@ -86,6 +86,118 @@ namespace Newtonsoft.Json.Schema.Tests
 #endif
         }
     }
+
+#if DNXCORE50
+    public class TestFixtureAttribute : Attribute
+    {
+        // xunit doesn't need a test fixture attribute
+        // this exists so the project compiles
+    }
+
+    public class XUnitAssert
+    {
+        public static void IsInstanceOf(Type expectedType, object o)
+        {
+            XAssert.IsType(expectedType, o);
+        }
+
+        public static void AreEqual(double expected, double actual, double r)
+        {
+            XAssert.Equal(expected, actual, 5); // hack
+        }
+
+        public static void AreEqual(object expected, object actual, string message = null)
+        {
+            XAssert.Equal(expected, actual);
+        }
+
+        public static void AreEqual<T>(T expected, T actual, string message = null)
+        {
+            XAssert.Equal(expected, actual);
+        }
+
+        public static void AreNotEqual(object expected, object actual, string message = null)
+        {
+            XAssert.NotEqual(expected, actual);
+        }
+
+        public static void AreNotEqual<T>(T expected, T actual, string message = null)
+        {
+            XAssert.NotEqual(expected, actual);
+        }
+
+        public static void Fail(string message = null, params object[] args)
+        {
+            if (message != null)
+            {
+                message = string.Format(CultureInfo.InvariantCulture, message, args);
+            }
+
+            XAssert.True(false, message);
+        }
+
+        public static void Pass()
+        {
+        }
+
+        public static void IsTrue(bool condition, string message = null, params object[] args)
+        {
+            XAssert.True(condition);
+        }
+
+        public static void IsFalse(bool condition, string message = null, params object[] args)
+        {
+            XAssert.False(condition);
+        }
+
+        public static void IsNull(object o)
+        {
+            XAssert.Null(o);
+        }
+
+        public static void IsNotNull(object o)
+        {
+            XAssert.NotNull(o);
+        }
+
+        public static void AreNotSame(object expected, object actual)
+        {
+            XAssert.NotSame(expected, actual);
+        }
+
+        public static void AreSame(object expected, object actual)
+        {
+            XAssert.Same(expected, actual);
+        }
+    }
+
+    public class CollectionAssert
+    {
+        public static void AreEquivalent<T>(IEnumerable<T> expected, IEnumerable<T> actual)
+        {
+            XAssert.Equal(expected, actual);
+        }
+
+        public static void AreEqual<T>(IEnumerable<T> expected, IEnumerable<T> actual)
+        {
+            XAssert.Equal(expected, actual);
+        }
+
+        public static void Contains<T>(IEnumerable<T> values, T expected)
+        {
+            XAssert.Contains(expected, values);
+        }
+    }
+#endif
+
+#if DNXCORE50
+    public static class Console
+    {
+        public static void WriteLine(params object[] args)
+        {
+        }
+    }
+#endif
 
     public static class StringAssert
     {

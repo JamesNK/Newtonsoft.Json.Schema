@@ -1,8 +1,8 @@
 ﻿properties { 
-  $zipFileName = "JsonSchema20r2.zip"
+  $zipFileName = "JsonSchema20r3.zip"
   $majorVersion = "2.0"
-  $majorWithReleaseVersion = "2.0.2"
-  $nugetPrelease = $null
+  $majorWithReleaseVersion = "2.0.3"
+  $nugetPrerelease = "beta1"
   $version = GetVersion $majorWithReleaseVersion
   $packageId = "Newtonsoft.Json.Schema"
   $signAssemblies = $false
@@ -11,6 +11,7 @@
   $buildNuGet = $true
   $treatWarningsAsErrors = $false
   $workingName = if ($workingName) {$workingName} else {"Working"}
+  $netCliVersion = "1.0.0-preview1-002702"
   
   $baseDir  = resolve-path ..
   $buildDir = "$baseDir\Build"
@@ -21,10 +22,11 @@
   $workingDir = "$baseDir\$workingName"
   $workingSourceDir = "$workingDir\Src"
   $builds = @(
-    @{Name = "Newtonsoft.Json.Schema"; TestsName = "Newtonsoft.Json.Schema.Tests"; TestsFunction = "NUnitTests"; Constants=$null; FinalDir="Net45"; NuGetDir = "net45"; Framework="net-4.0"; Sign=$true},
-    @{Name = "Newtonsoft.Json.Schema.Net35"; TestsName = "Newtonsoft.Json.Schema.Net35.Tests"; TestsFunction = "NUnitTests"; Constants="NET35"; FinalDir="Net35"; NuGetDir = "net35"; Framework="net-2.0"; Sign=$true},
-    @{Name = "Newtonsoft.Json.Schema.Net40"; TestsName = "Newtonsoft.Json.Schema.Net40.Tests"; TestsFunction = "NUnitTests"; Constants="NET40"; FinalDir="Net40"; NuGetDir = "net40"; Framework="net-4.0"; Sign=$true},
-    @{Name = "Newtonsoft.Json.Schema.Portable"; TestsName = "Newtonsoft.Json.Schema.Tests.Portable"; TestsFunction = "NUnitTests"; Constants="PORTABLE"; FinalDir="Portable"; NuGetDir = "portable-net45+wp80+win8+wpa81+dnxcore50"; Framework="net-4.0"; Sign=$true}
+    @{Name = "Newtonsoft.Json.Schema.Dotnet"; TestsName = "Newtonsoft.Json.Schema.Tests.Dotnet"; BuildFunction = "NetCliBuild"; TestsFunction = "NetCliTests"; Constants="dotnet"; FinalDir="netstandard1.0"; NuGetDir = "netstandard1.0"; Framework=$null}
+    @{Name = "Newtonsoft.Json.Schema"; TestsName = "Newtonsoft.Json.Schema.Tests"; BuildFunction = "MSBuildBuild"; TestsFunction = "NUnitTests"; Constants=$null; FinalDir="Net45"; NuGetDir = "net45"; Framework="net-4.0"; Sign=$true},
+    @{Name = "Newtonsoft.Json.Schema.Net35"; TestsName = "Newtonsoft.Json.Schema.Net35.Tests"; BuildFunction = "MSBuildBuild"; TestsFunction = "NUnitTests"; Constants="NET35"; FinalDir="Net35"; NuGetDir = "net35"; Framework="net-2.0"; Sign=$true},
+    @{Name = "Newtonsoft.Json.Schema.Net40"; TestsName = "Newtonsoft.Json.Schema.Net40.Tests"; BuildFunction = "MSBuildBuild"; TestsFunction = "NUnitTests"; Constants="NET40"; FinalDir="Net40"; NuGetDir = "net40"; Framework="net-4.0"; Sign=$true},
+    @{Name = "Newtonsoft.Json.Schema.Portable"; TestsName = "Newtonsoft.Json.Schema.Tests.Portable"; BuildFunction = "MSBuildBuild"; TestsFunction = "NUnitTests"; Constants="PORTABLE"; FinalDir="Portable"; NuGetDir = "portable-net45+wp80+win8+wpa81"; Framework="net-4.0"; Sign=$true}
   )
 }
 
@@ -48,9 +50,8 @@ task Clean {
 
 # Build each solution, optionally signed
 task Build -depends Clean {
-
   Write-Host "Copying source to working source directory $workingSourceDir"
-  robocopy $sourceDir $workingSourceDir /MIR /NP /XD bin obj TestResults AppPackages $packageDirs /XF *.suo *.user | Out-Default
+  robocopy $sourceDir $workingSourceDir /MIR /NP /XD bin obj TestResults AppPackages .vs artifacts DTAR_08E86330_4835_4B5C_9E5A_61F37AE1A077_DTAR /XF *.suo *.user *.lock.json | Out-Default
 
   Write-Host -ForegroundColor Green "Updating assembly version"
   Write-Host
@@ -59,7 +60,7 @@ task Build -depends Clean {
   Write-Host -ForegroundColor Green "Signed $signAssemblies"
   if ($signAssemblies)
   {
-    $files = Get-ChildItem -Path $workingSourceDir -Include @("*.csproj","*.config") -Recurse
+    $files = Get-ChildItem -Path $workingSourceDir -Include @("project.json", "*.project.json") -Recurse
     $count = $files.Count
 
     Write-Host "Found $count files to update"
@@ -74,24 +75,18 @@ task Build -depends Clean {
     }
   }
 
+  Update-Project $workingSourceDir\Newtonsoft.Json.Schema\project.json $signAssemblies $true $true
+
   foreach ($build in $builds)
   {
     $name = $build.Name
     if ($name -ne $null)
     {
-      $finalDir = $build.FinalDir
-      $sign = ($build.Sign -and $signAssemblies)
-
       Write-Host -ForegroundColor Green "Building " $name
+      Write-Host -ForegroundColor Green "Signed " $signAssemblies
+      Write-Host -ForegroundColor Green "Key " $signKeyPath
 
-      Write-Host
-      Write-Host "Restoring"
-      [Environment]::SetEnvironmentVariable("EnableNuGetPackageRestore", "true", "Process")
-      exec { .\Tools\NuGet\NuGet.exe restore "$workingSourceDir\$name.sln" "-NoCache" | Out-Default } "Error restoring $name"
-
-      Write-Host
-      Write-Host "Building"
-      exec { msbuild "/t:Clean;Rebuild" /p:Configuration=Release "/p:Platform=Any CPU" /p:OutputPath=bin\Release\$finalDir\ /p:AssemblyOriginatorKeyFile=$signKeyPath "/p:SignAssembly=$sign" "/p:TreatWarningsAsErrors=$treatWarningsAsErrors" "/p:VisualStudioVersion=12.0" (GetConstants $build.Constants $sign) "$workingSourceDir\$name.sln" | Out-Default } "Error building $name"
+      & $build.BuildFunction $build
     }
   }
 }
@@ -111,9 +106,9 @@ task Package -depends Build {
   if ($buildNuGet)
   {
     $nugetVersion = $majorWithReleaseVersion
-    if ($nugetPrelease -ne $null)
+    if ($nugetPrerelease -ne $null)
     {
-      $nugetVersion = $nugetVersion + "-" + $nugetPrelease
+      $nugetVersion = $nugetVersion + "-" + $nugetPrerelease
     }
 
     New-Item -Path $workingDir\NuGet -ItemType Directory
@@ -174,10 +169,7 @@ task Package -depends Build {
   Copy-Item -Path $docDir\readme.txt -Destination $workingDir\Package\
   Copy-Item -Path $docDir\license.txt -Destination $workingDir\Package\
 
-  # exclude package directories but keep packages\repositories.config
-  $packageDirs = gci $workingSourceDir\packages | where {$_.PsIsContainer} | Select -ExpandProperty Name
-
-  robocopy $workingSourceDir $workingDir\Package\Source\Src /MIR /NP /XD bin obj TestResults AppPackages $packageDirs /XF *.suo *.user | Out-Default
+  robocopy $workingSourceDir $workingDir\Package\Source\Src /MIR /NP /XD bin obj TestResults AppPackages DTAR_08E86330_4835_4B5C_9E5A_61F37AE1A077_DTAR /XF *.suo *.user | Out-Default
   robocopy $buildDir $workingDir\Package\Source\Build /MIR /NP /XF runbuild.txt | Out-Default
   robocopy $docDir $workingDir\Package\Source\Doc /MIR /NP | Out-Default
   robocopy $toolsDir $workingDir\Package\Source\Tools /MIR /NP | Out-Default
@@ -201,46 +193,71 @@ task Test -depends Deploy {
   }
 }
 
-function CoreClrTests($build)
+function MSBuildBuild($build)
 {
-  $name = $build.TestsName
+  $name = $build.Name
+  $finalDir = $build.FinalDir
 
-  Write-Host -ForegroundColor Green "Ensuring latest CoreCLR is installed for $name"
   Write-Host
-  exec { & $toolsDir\Kvm\kvm.ps1 upgrade -r CoreCLR -NoNative | Out-Default }
+  Write-Host "Restoring $workingSourceDir\$name.sln" -ForegroundColor Green
+  [Environment]::SetEnvironmentVariable("EnableNuGetPackageRestore", "true", "Process")
+  exec { .\Tools\NuGet\NuGet.exe update -self }
+  exec { .\Tools\NuGet\NuGet.exe restore "$workingSourceDir\$name.sln" -verbosity detailed -configfile $workingSourceDir\nuget.config | Out-Default } "Error restoring $name"
+
+  $constants = GetConstants $build.Constants $signAssemblies
+
+  Write-Host
+  Write-Host "Building $workingSourceDir\$name.sln" -ForegroundColor Green
+  Write-Host "Constants: $constants" -ForegroundColor Green
+  exec { msbuild "/t:Clean;Rebuild" /p:Configuration=Release "/p:CopyNuGetImplementations=true" "/p:Platform=Any CPU" "/p:PlatformTarget=AnyCPU" /p:OutputPath=bin\Release\$finalDir\ /p:AssemblyOriginatorKeyFile=$signKeyPath "/p:SignAssembly=$signAssemblies" "/p:TreatWarningsAsErrors=$treatWarningsAsErrors" "/p:VisualStudioVersion=14.0" /p:DefineConstants=`"$constants`" "$workingSourceDir\$name.sln" | Out-Default } "Error building $name"
+}
+
+function NetCliBuild($build)
+{
+  $name = $build.Name
+  $projectPath = "$workingSourceDir\Newtonsoft.Json.Schema\project.json"
+
+  exec { .\Tools\Dotnet\install.ps1 -Version $netCliVersion | Out-Default }
+  exec { dotnet --version | Out-Default }
 
   Write-Host -ForegroundColor Green "Restoring packages for $name"
   Write-Host
-  exec { kpm restore "$workingSourceDir\Newtonsoft.Json.Schema.Tests\project.json" | Out-Default }
+  exec { dotnet restore $projectPath | Out-Default }
+
+  Write-Host -ForegroundColor Green "Building $projectPath"
+  exec { dotnet build $projectPath -f netstandard1.3 -c Release -o bin\Release\netstandard1.3 | Out-Default }
+}
+
+function NetCliTests($build)
+{
+  if ($signAssemblies -ne $true) {
+    Write-Host -ForegroundColor Yellow "Skipping .NET CLI tests because not signed build. Json.NET and Json.NET Unsigned can't co-exist"
+    return
+  }
+
+  $name = $build.TestsName
+
+  Update-Project $workingSourceDir\Newtonsoft.Json.Schema.Tests\project.json $signAssemblies $false $false
+
+  exec { .\Tools\Dotnet\install.ps1 -Version $netCliVersion | Out-Default }
+  exec { dotnet --version | Out-Default }
+
+  Write-Host -ForegroundColor Green "Restoring packages for $name"
+  Write-Host
+  exec { dotnet restore "$workingSourceDir\Newtonsoft.Json.Schema.Tests\project.json" | Out-Default }
 
   Write-Host -ForegroundColor Green "Ensuring test project builds for $name"
   Write-Host
+
   try
   {
     Set-Location "$workingSourceDir\Newtonsoft.Json.Schema.Tests"
-    k --configuration Release test -parallel none | Tee-Object -file "$workingDir\$name.txt"
+    exec { dotnet test "$workingSourceDir\Newtonsoft.Json.Schema.Tests\project.json" -f netcoreapp1.0 -c Release -parallel none | Out-Default }
   }
   finally
   {
     Set-Location $baseDir
   }
-}
-
-function WinRTTests($build)
-{
-  $name = $build.TestsName
-  $finalDir = $build.FinalDir
-
-  $testCmd = "C:\Program Files (x86)\Microsoft Visual Studio 12.0\Common7\IDE\CommonExtensions\Microsoft\TestWindow\vstest.console.exe"
-  $outDir = "$workingDir\Deployed\Bin\$finalDir"
-
-  Write-Host -ForegroundColor Green "Packaging test assembly $name to deployed directory"
-  Write-Host
-  exec { msbuild "$workingSourceDir\Newtonsoft.Json.Schema.Tests\$name.csproj" /p:OutDir=$outDir | Out-Default }
-
-  Write-Host -ForegroundColor Green "Running MSTest tests " $name
-  Write-Host
-  exec { &($testCmd) $outDir\$name\AppPackages\$($name)_1.0.0.0_AnyCPU_Debug_Test\$($name)_1.0.0.0_AnyCPU_Debug.appx /InIsolation | Tee-Object -file "$workingDir\$name.txt" } "Error running $name tests"
 }
 
 function NUnitTests($build)
@@ -251,7 +268,7 @@ function NUnitTests($build)
 
   Write-Host -ForegroundColor Green "Copying test assembly $name to deployed directory"
   Write-Host
-  robocopy "$workingSourceDir\Newtonsoft.Json.Schema.Tests\bin\Release\$finalDir" $workingDir\Deployed\Bin\$finalDir /MIR /NP /XO | Out-Default
+  robocopy "$workingSourceDir\Newtonsoft.Json.Schema.Tests\bin\Release\$finalDir" $workingDir\Deployed\Bin\$finalDir /MIR /NFL /NDL /NJS /NC /NS /NP /XO | Out-Default
 
   Copy-Item -Path "$workingSourceDir\Newtonsoft.Json.Schema.Tests\bin\Release\$finalDir\Newtonsoft.Json.Schema.Tests.dll" -Destination $workingDir\Deployed\Bin\$finalDir\
 
@@ -260,11 +277,22 @@ function NUnitTests($build)
   exec { .\Tools\NUnit\nunit-console.exe "$workingDir\Deployed\Bin\$finalDir\Newtonsoft.Json.Schema.Tests.dll" /framework=$framework /xml:$workingDir\$name.xml | Out-Default } "Error running $name tests"
 }
 
+function GetNuGetVersion()
+{
+  $nugetVersion = $majorWithReleaseVersion
+  if ($nugetPrerelease -ne $null)
+  {
+    $nugetVersion = $nugetVersion + "-" + $nugetPrerelease
+  }
+
+  return $nugetVersion
+}
+
 function GetConstants($constants, $includeSigned)
 {
   $signed = switch($includeSigned) { $true { ";SIGNED" } default { "" } }
 
-  return "/p:DefineConstants=`"CODE_ANALYSIS;TRACE;$constants$signed`""
+  return "CODE_ANALYSIS;TRACE;$constants$signed"
 }
 
 function GetVersion($majorVersion)
@@ -323,4 +351,26 @@ function Edit-XmlNodes {
             }
         }
     }
+}
+
+function Update-Project {
+  param (
+    [string] $projectPath,
+    [string] $sign,
+    [bool] $xmlDoc,
+    [bool] $warningsAsErrors
+  )
+
+  $file = switch($sign) { $true { $signKeyPath } default { $null } }
+
+  $json = (Get-Content $projectPath) -join "`n" | ConvertFrom-Json
+  $options = $json.buildOptions
+  Add-Member -InputObject $options -MemberType NoteProperty -Name "warningsAsErrors" -Value $warningsAsErrors -Force
+  Add-Member -InputObject $options -MemberType NoteProperty -Name "xmlDoc" -Value $xmlDoc -Force
+  Add-Member -InputObject $options -MemberType NoteProperty -Name "keyFile" -Value $file -Force
+  Add-Member -InputObject $options -MemberType NoteProperty -Name "define" -Value ((GetConstants "dotnet" $sign) -split ";") -Force
+
+  $json.version = GetNuGetVersion
+
+  ConvertTo-Json $json -Depth 10 | Set-Content $projectPath
 }

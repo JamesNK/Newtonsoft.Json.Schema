@@ -5,7 +5,13 @@
 
 using System;
 using Newtonsoft.Json.Linq;
+#if DNXCORE50
+using Xunit;
+using Test = Xunit.FactAttribute;
+using Assert = Newtonsoft.Json.Schema.Tests.XUnitAssert;
+#else
 using NUnit.Framework;
+#endif
 
 namespace Newtonsoft.Json.Schema.Tests.Documentation.Samples.Load
 {

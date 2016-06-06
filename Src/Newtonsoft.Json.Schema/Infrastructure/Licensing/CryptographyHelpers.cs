@@ -6,9 +6,8 @@
 using System;
 using System.Reflection;
 using System.Linq;
-#if !PORTABLE
+#if !PORTABLE || NETSTANDARD1_3
 using System.Security.Cryptography;
-
 #endif
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Licensing
@@ -22,7 +21,12 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Licensing
         {
             bool valid;
 
-#if PORTABLE
+#if (NETSTANDARD1_3)
+            RSACryptoServiceProvider rsaCryptoServiceProvider = new RSACryptoServiceProvider();
+            rsaCryptoServiceProvider.ImportCspBlob(Convert.FromBase64String(PublicKeyCsp));
+
+            valid = rsaCryptoServiceProvider.VerifyData(data, SHA1.Create(), signature);
+#elif (PORTABLE && !NETSTANDARD1_3)
             try
             {
                 Type rsaCryptoServiceProviderType = Type.GetType("System.Security.Cryptography.RSACryptoServiceProvider");

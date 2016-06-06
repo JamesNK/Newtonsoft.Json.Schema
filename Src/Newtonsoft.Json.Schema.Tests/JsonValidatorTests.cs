@@ -5,13 +5,21 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Newtonsoft.Json.Linq;
+#if DNXCORE50
+using Xunit;
+using Test = Xunit.FactAttribute;
+using Assert = Newtonsoft.Json.Schema.Tests.XUnitAssert;
+#else
 using NUnit.Framework;
+#endif
 
 namespace Newtonsoft.Json.Schema.Tests
 {
-    public class JsonValidatorTests
+    [TestFixture]
+    public class JsonValidatorTests : TestFixtureBase
     {
         [Test]
         public void ValidateComplexType()

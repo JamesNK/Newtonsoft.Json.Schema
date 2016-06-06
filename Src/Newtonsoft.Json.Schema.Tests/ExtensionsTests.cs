@@ -8,14 +8,10 @@ using System;
 using System.Collections.Generic;
 using Newtonsoft.Json.Schema.Infrastructure.Licensing;
 using Newtonsoft.Json.Schema.Tests.TestObjects;
-#if NETFX_CORE
-using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-using TestFixture = Microsoft.VisualStudio.TestPlatform.UnitTestFramework.TestClassAttribute;
-using Test = Microsoft.VisualStudio.TestPlatform.UnitTestFramework.TestMethodAttribute;
-#elif ASPNETCORE50
+#if DNXCORE50
 using Xunit;
 using Test = Xunit.FactAttribute;
-using Assert = Newtonsoft.Json.Tests.XUnitAssert;
+using Assert = Newtonsoft.Json.Schema.Tests.XUnitAssert;
 #else
 using NUnit.Framework;
 #endif
@@ -23,7 +19,7 @@ using Newtonsoft.Json.Schema;
 using Newtonsoft.Json.Linq;
 using System.IO;
 using Newtonsoft.Json.Schema.Generation;
-#if !(NETFX_CORE || ASPNETCORE50)
+#if !(NETFX_CORE || DNXCORE50)
 using System.Data;
 
 #endif
@@ -219,7 +215,7 @@ namespace Newtonsoft.Json.Schema.Tests
 #if !NET20
             GenerateSchemaAndSerializeFromType(new NullableDateTimeTestClass());
 #endif
-#if !(NETFX_CORE || PORTABLE || ASPNETCORE50 || PORTABLE40)
+#if !(NETFX_CORE || PORTABLE || DNXCORE50 || PORTABLE40)
             GenerateSchemaAndSerializeFromType(new DataSet());
 #endif
             GenerateSchemaAndSerializeFromType(new object());
@@ -227,7 +223,7 @@ namespace Newtonsoft.Json.Schema.Tests
             GenerateSchemaAndSerializeFromType("Hi");
             GenerateSchemaAndSerializeFromType(new DateTime(2000, 12, 29, 23, 59, 0, DateTimeKind.Utc));
             GenerateSchemaAndSerializeFromType(TimeSpan.FromTicks(1000000));
-#if !(NETFX_CORE || PORTABLE || ASPNETCORE50 || PORTABLE40)
+#if !(NETFX_CORE || PORTABLE || DNXCORE50 || PORTABLE40)
             GenerateSchemaAndSerializeFromType(DBNull.Value);
 #endif
             GenerateSchemaAndSerializeFromType(new JsonPropertyWithHandlingValues());

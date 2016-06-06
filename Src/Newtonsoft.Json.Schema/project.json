@@ -1,0 +1,101 @@
+﻿{
+  "version": "1.0.0-*",
+  "title": "Json.NET Schema",
+  "description": "Json.NET Schema is a complete and easy-to-use JSON Schema framework for .NET",
+  "language": "en-US",
+  "authors": [ "Newtonsoft" ],
+  "packOptions": {
+    "projectUrl": "http://www.newtonsoft.com/jsonschema",
+    "tags": [ "json" ],
+    "licenseUrl": "https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md",
+    "iconUrl": "http://www.newtonsoft.com/content/images/nugeticon.png",
+    "repository": {
+      "type": "git",
+      "url": "git://github.com/JamesNK/Newtonsoft.Json.Schema"
+    }
+  },
+  "buildOptions": {
+    "embed": [ "Resources/*.json" ]
+  },
+  "dependencies": {
+    "Newtonsoft.Json.Unsigned": "9.0.1-*"
+  },
+  "frameworks": {
+    "net45": {
+      "frameworkAssemblies": {
+        "System.Data": "",
+        "System.Numerics": "",
+        "System.Runtime.Serialization": "",
+        "System.Xml": "",
+        "System.Xml.Linq": ""
+      }
+    },
+    "net40": {
+      "frameworkAssemblies": {
+        "System.Data": "",
+        "System.Numerics": "",
+        "System.Runtime.Serialization": "",
+        "System.Xml": "",
+        "System.Xml.Linq": ""
+      }
+    },
+    "net35": {
+      "frameworkAssemblies": {
+        "System.Core": "",
+        "System.Data": "",
+        "System.Runtime.Serialization": "",
+        "System.Xml": "",
+        "System.Xml.Linq": ""
+      }
+    },
+    ".NETPortable,Version=v4.5,Profile=Profile259": {
+      "buildOptions": {
+        "define": [
+          "PORTABLE"
+        ]
+      },
+      "frameworkAssemblies": {
+        "Microsoft.CSharp": "",
+        "System": "",
+        "System.Collections": "",
+        "System.Core": "",
+        "System.Diagnostics.Debug": "",
+        "System.Diagnostics.Tools": "",
+        "System.Globalization": "",
+        "System.IO": "",
+        "System.Linq": "",
+        "System.Net.Primitives": "",
+        "System.Net.Requests": "",
+        "System.Resources.ResourceManager": "",
+        "System.Runtime": "",
+        "System.Text.Encoding": "",
+        "System.Text.RegularExpressions": ""
+      }
+    },
+    "netstandard1.3": {
+      "buildOptions": {
+        "define": [
+          "NETSTANDARD1_3",
+          "PORTABLE"
+        ]
+      },
+      "dependencies": {
+        "Microsoft.CSharp": "4.0.1-rc2-24027",
+        "System.Collections": "4.0.11-rc2-24027",
+        "System.Diagnostics.Debug": "4.0.11-rc2-24027",
+        "System.Diagnostics.Tools": "4.0.1-rc2-24027",
+        "System.Globalization": "4.0.11-rc2-24027",
+        "System.IO": "4.1.0-rc2-24027",
+        "System.IO.FileSystem": "4.0.1-rc2-24027",
+        "System.Linq": "4.1.0-rc2-24027",
+        "System.Net.Primitives": "4.0.11-rc2-24027",
+        "System.Net.Requests": "4.0.11-rc2-24027",
+        "System.Resources.ResourceManager": "4.0.1-rc2-24027",
+        "System.Runtime": "4.1.0-rc2-24027",
+        "System.Security.Cryptography.Csp": "4.0.0-rc2-24027",
+        "System.Text.Encoding": "4.0.11-rc2-24027",
+        "System.Text.RegularExpressions": "4.0.12-rc2-24027"
+      }
+    }
+  }
+}

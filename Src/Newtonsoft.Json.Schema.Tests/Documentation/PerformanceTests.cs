@@ -5,7 +5,7 @@
 
 using System.IO;
 using Newtonsoft.Json.Schema.Tests;
-#if !(NET35 || NET20 || PORTABLE || ASPNETCORE50)
+#if !(NET35 || NET20 || PORTABLE || DNXCORE50)
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -15,14 +15,10 @@ using System.Runtime.Serialization;
 using System.Text;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
-#if NETFX_CORE
-using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-using TestFixture = Microsoft.VisualStudio.TestPlatform.UnitTestFramework.TestClassAttribute;
-using Test = Microsoft.VisualStudio.TestPlatform.UnitTestFramework.TestMethodAttribute;
-#elif ASPNETCORE50
+#if DNXCORE50
 using Xunit;
 using Test = Xunit.FactAttribute;
-using Assert = Newtonsoft.Json.Tests.XUnitAssert;
+using Assert = Newtonsoft.Json.Schema.Tests.XUnitAssert;
 #else
 using NUnit.Framework;
 #endif
@@ -42,7 +38,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
         [Test]
         public void ValidateStream()
         {
-            #region ValidateStream
+#region ValidateStream
             string schemaJson = @"{
               'description': 'A person',
               'type': 'object',
@@ -69,7 +65,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
                 {
                 }
             }
-            #endregion
+#endregion
         }
     }
 }

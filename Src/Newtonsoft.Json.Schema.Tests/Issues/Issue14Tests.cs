@@ -9,7 +9,13 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Newtonsoft.Json.Linq;
+#if DNXCORE50
+using Xunit;
+using Test = Xunit.FactAttribute;
+using Assert = Newtonsoft.Json.Schema.Tests.XUnitAssert;
+#else
 using NUnit.Framework;
+#endif
 
 namespace Newtonsoft.Json.Schema.Tests.Issues
 {

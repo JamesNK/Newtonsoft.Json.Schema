@@ -36,9 +36,6 @@
     <DocumentationFile>bin\Release\Net35\Newtonsoft.Json.Schema.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\packages\Newtonsoft.Json.Unsigned.8.0.2\lib\net35\Newtonsoft.Json.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
@@ -134,11 +131,11 @@
     <Compile Include="ValidationError.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config">
-      <SubType>Designer</SubType>
-    </None>
     <EmbeddedResource Include="Resources\schema-draft-v3.json" />
     <EmbeddedResource Include="Resources\schema-draft-v4.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Newtonsoft.Json.Schema.Net35.project.json" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

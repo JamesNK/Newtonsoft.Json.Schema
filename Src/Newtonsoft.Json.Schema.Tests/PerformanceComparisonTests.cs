@@ -1,4 +1,10 @@
-﻿using System;
+﻿#region License
+// Copyright (c) Newtonsoft. All Rights Reserved.
+// License: https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md
+#endregion
+
+#if !DNXCORE50
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -7,7 +13,13 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Schema;
 using Newtonsoft.Json.Linq;
+#if DNXCORE50
+using Xunit;
+using Test = Xunit.FactAttribute;
+using Assert = Newtonsoft.Json.Schema.Tests.XUnitAssert;
+#else
 using NUnit.Framework;
+#endif
 
 #pragma warning disable 0618
 namespace Newtonsoft.Json.Schema.Tests
@@ -327,3 +339,4 @@ namespace Newtonsoft.Json.Schema.Tests
     }
 }
 #pragma warning restore 0618
+#endif

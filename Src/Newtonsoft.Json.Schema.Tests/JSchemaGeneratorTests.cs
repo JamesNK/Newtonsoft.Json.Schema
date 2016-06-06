@@ -17,14 +17,10 @@ using Newtonsoft.Json.Schema.Tests.TestObjects;
 using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json.Schema.Tests;
 using Newtonsoft.Json.Utilities;
-#if NETFX_CORE
-using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-using TestFixture = Microsoft.VisualStudio.TestPlatform.UnitTestFramework.TestClassAttribute;
-using Test = Microsoft.VisualStudio.TestPlatform.UnitTestFramework.TestMethodAttribute;
-#elif ASPNETCORE50
+#if DNXCORE50
 using Xunit;
 using Test = Xunit.FactAttribute;
-using Assert = Newtonsoft.Json.Tests.XUnitAssert;
+using Assert = Newtonsoft.Json.Schema.Tests.XUnitAssert;
 #else
 using NUnit.Framework;
 #endif
@@ -32,7 +28,6 @@ using Newtonsoft.Json.Schema;
 using System.IO;
 using Newtonsoft.Json.Linq;
 using System.Text;
-using StringAssert = NUnit.Framework.StringAssert;
 #if NET20
 using Newtonsoft.Json.Utilities.LinqBridge;
 #else
@@ -868,6 +863,7 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsTrue(v.IsValid(schema));
         }
 
+#if !DNXCORE50
         [Test]
         public void GenerateSchemaForISerializable()
         {
@@ -925,7 +921,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             generator.ContractResolver = new CustomDirectoryInfoMapper
             {
-#if !(NETFX_CORE || PORTABLE || PORTABLE40 || ASPNETCORE50)
+#if !(NETFX_CORE || PORTABLE || PORTABLE40 || DNXCORE50)
                 IgnoreSerializableAttribute = true
 #endif
             };
@@ -1010,7 +1006,7 @@ namespace Newtonsoft.Json.Schema.Tests
             serializer.Converters.Add(new IsoDateTimeConverter());
             serializer.ContractResolver = new CustomDirectoryInfoMapper
             {
-#if !(NETFX_CORE || PORTABLE || PORTABLE40 || ASPNETCORE50)
+#if !(NETFX_CORE || PORTABLE || PORTABLE40 || DNXCORE50)
                 IgnoreSerializableInterface = true
 #endif
             };
@@ -1021,6 +1017,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             Assert.AreEqual(0, errors.Count);
         }
+#endif
 
         [Test]
         public void GenerateSchemaCamelCase()
@@ -1029,7 +1026,7 @@ namespace Newtonsoft.Json.Schema.Tests
             generator.SchemaIdGenerationHandling = SchemaIdGenerationHandling.TypeName;
             generator.ContractResolver = new CamelCasePropertyNamesContractResolver()
             {
-#if !(NETFX_CORE || PORTABLE || ASPNETCORE50 || PORTABLE40)
+#if !(NETFX_CORE || PORTABLE || DNXCORE50 || PORTABLE40)
                 IgnoreSerializableAttribute = true
 #endif
             };
@@ -1076,7 +1073,7 @@ namespace Newtonsoft.Json.Schema.Tests
 }", json);
         }
 
-#if !PORTABLE40
+#if !(PORTABLE40 || DNXCORE50)
         [Test]
         public void GenerateSchemaSerializable()
         {
@@ -1462,7 +1459,7 @@ namespace Newtonsoft.Json.Schema.Tests
             public SortTypeFlagAsString y;
         }
 
-#if !ASPNETCORE50
+#if !DNXCORE50
         [Test]
         public void GenerateSchemaWithStringEnum()
         {

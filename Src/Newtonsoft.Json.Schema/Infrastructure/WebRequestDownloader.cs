@@ -17,6 +17,13 @@ namespace Newtonsoft.Json.Schema.Infrastructure
     {
         public Stream GetStream(Uri uri, ICredentials credentials, int? timeout, int? byteLimit)
         {
+#if (!PORTABLE || NETSTANDARD1_3)
+            if (uri.Scheme == "file")
+            {
+                return File.OpenRead(uri.AbsolutePath);
+            }
+#endif
+
             WebRequest request = WebRequest.Create(uri);
 #if !PORTABLE
             if (timeout != null)

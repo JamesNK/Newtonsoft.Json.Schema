@@ -7,7 +7,7 @@ using System.ComponentModel.DataAnnotations;
 using System.IO;
 using Newtonsoft.Json.Schema.Generation;
 using Newtonsoft.Json.Schema.Tests;
-#if !(NET35 || NET20 || PORTABLE || ASPNETCORE50)
+#if !(NET35 || NET20 || PORTABLE || DNXCORE50)
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -17,14 +17,10 @@ using System.Runtime.Serialization;
 using System.Text;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
-#if NETFX_CORE
-using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-using TestFixture = Microsoft.VisualStudio.TestPlatform.UnitTestFramework.TestClassAttribute;
-using Test = Microsoft.VisualStudio.TestPlatform.UnitTestFramework.TestMethodAttribute;
-#elif ASPNETCORE50
+#if DNXCORE50
 using Xunit;
 using Test = Xunit.FactAttribute;
-using Assert = Newtonsoft.Json.Tests.XUnitAssert;
+using Assert = Newtonsoft.Json.Schema.Tests.XUnitAssert;
 #else
 using NUnit.Framework;
 #endif
@@ -41,18 +37,18 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
     [TestFixture]
     public class GeneratingSchemas : TestFixtureBase
     {
-        #region PersonClass
+#region PersonClass
         public class Person
         {
             public string Name { get; set; }
             public int Age { get; set; }
         }
-        #endregion
+#endregion
 
         [Test]
         public void BasicGeneration()
         {
-            #region BasicGeneration
+#region BasicGeneration
             JSchemaGenerator generator = new JSchemaGenerator();
 
             JSchema schema = generator.Generate(typeof(Person));
@@ -66,7 +62,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
             //  },
             //  "required": [ "Name", "Age" ]
             //}
-            #endregion
+#endregion
 
             Assert.AreEqual(JSchemaType.Object, schema.Type);
         }
@@ -74,7 +70,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
         [Test]
         public void IContractResolver()
         {
-            #region IContractResolver
+#region IContractResolver
             JSchemaGenerator generator = new JSchemaGenerator();
 
             // change contract resolver so property names are camel case
@@ -91,7 +87,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
             //  },
             //  "required": [ "name", "age" ]
             //}
-            #endregion
+#endregion
 
             Assert.AreEqual(JSchemaType.Object, schema.Type);
             Assert.AreEqual(true, schema.Properties.ContainsKey("name"));
@@ -100,7 +96,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
         [Test]
         public void SchemaIdGenerationHandlingTest()
         {
-            #region SchemaIdGenerationHandling
+#region SchemaIdGenerationHandling
             JSchemaGenerator generator = new JSchemaGenerator();
 
             // types with no defined ID have their type name as the ID
@@ -118,7 +114,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
             //  },
             //  "required": [ "name", "age" ]
             //}
-            #endregion
+#endregion
 
             Assert.AreEqual(JSchemaType.Object, schema.Type);
             Assert.AreEqual("Person", schema.Id.OriginalString);
@@ -126,7 +122,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
 
 #if !NET40
 
-        #region BuildingClass
+#region BuildingClass
         public class Building
         {
             [Required]
@@ -148,12 +144,12 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
             Commercial,
             Industrial
         }
-        #endregion
+#endregion
 
         [Test]
         public void DataAnnotations()
         {
-            #region DataAnnotations
+#region DataAnnotations
             JSchemaGenerator generator = new JSchemaGenerator();
 
             JSchema schema = generator.Generate(typeof(Building));
@@ -183,7 +179,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
             //    "Zone"
             //  ]
             //}
-            #endregion
+#endregion
 
             Assert.AreEqual(JSchemaType.Object, schema.Type);
         }
@@ -197,7 +193,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
         [Test]
         public void JSchemaGenerationProvider()
         {
-            #region JSchemaGenerationProvider
+#region JSchemaGenerationProvider
             JSchemaGenerator generator = new JSchemaGenerator();
 
             JSchema schema = generator.Generate(typeof(BuildingReport));
@@ -233,7 +229,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
             //  },
             //  "required": [ "Date", "Zone" ]
             //}
-            #endregion
+#endregion
 
             Assert.AreEqual(JSchemaType.Object, schema.Type);
         }

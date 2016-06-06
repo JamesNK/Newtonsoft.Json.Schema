@@ -8,7 +8,13 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using Newtonsoft.Json.Linq;
+#if DNXCORE50
+using Xunit;
+using Test = Xunit.FactAttribute;
+using Assert = Newtonsoft.Json.Schema.Tests.XUnitAssert;
+#else
 using NUnit.Framework;
+#endif
 
 namespace Newtonsoft.Json.Schema.Tests.Documentation.Samples.Validate
 {
@@ -79,7 +85,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation.Samples.Validate
                     try
                     {
                         // test whether the string is a known culture, e.g. en-US, fr-FR
-                        CultureInfo.GetCultureInfo(s);
+                        new CultureInfo(s);
                     }
                     catch (CultureNotFoundException)
                     {

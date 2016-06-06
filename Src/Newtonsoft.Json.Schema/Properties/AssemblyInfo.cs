@@ -8,7 +8,9 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using Newtonsoft.Json.Schema.Infrastructure.Licensing;
 
-#if PORTABLE
+#if NETSTANDARD1_3
+[assembly: AssemblyTitle("Json.NET Schema .NET Standard 1.3")]
+#elif PORTABLE
 [assembly: AssemblyTitle("Json.NET Schema Portable")]
 #elif NET35
 [assembly: AssemblyTitle("Json.NET Schema .NET 3.5")]

@@ -5,7 +5,7 @@
 
 using System.IO;
 using Newtonsoft.Json.Schema.Tests;
-#if !(NET35 || NET20 || PORTABLE || ASPNETCORE50)
+#if !(NET35 || NET20 || PORTABLE || DNXCORE50)
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -15,14 +15,10 @@ using System.Runtime.Serialization;
 using System.Text;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
-#if NETFX_CORE
-using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-using TestFixture = Microsoft.VisualStudio.TestPlatform.UnitTestFramework.TestClassAttribute;
-using Test = Microsoft.VisualStudio.TestPlatform.UnitTestFramework.TestMethodAttribute;
-#elif ASPNETCORE50
+#if DNXCORE50
 using Xunit;
 using Test = Xunit.FactAttribute;
-using Assert = Newtonsoft.Json.Tests.XUnitAssert;
+using Assert = Newtonsoft.Json.Schema.Tests.XUnitAssert;
 #else
 using NUnit.Framework;
 #endif
@@ -42,7 +38,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
         [Test]
         public void IsValidBasic()
         {
-            #region IsValidBasic
+#region IsValidBasic
             string schemaJson = @"{
               'description': 'A person',
               'type': 'object',
@@ -64,7 +60,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
 
             bool valid = person.IsValid(schema);
             // true
-            #endregion
+#endregion
 
             Assert.IsTrue(valid);
         }
@@ -84,7 +80,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
               }
             }";
 
-            #region IsValidMessages
+#region IsValidMessages
             JSchema schema = JSchema.Parse(schemaJson);
 
             JObject person = JObject.Parse(@"{
@@ -96,7 +92,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
             bool valid = person.IsValid(schema, out messages);
             // Invalid type. Expected String but got Null. Line 2, position 21.
             // Invalid type. Expected String but got Number. Line 3, position 51.
-            #endregion
+#endregion
 
             Assert.IsFalse(valid);
         }
@@ -104,7 +100,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
         [Test]
         public void IsValidValidationError()
         {
-            #region IsValidValidationError
+#region IsValidValidationError
             string schemaJson = @"{
               'description': 'Collection of non-primary colors',
               'type': 'array',
@@ -140,7 +136,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
             // SchemaId - #/items/0
             //   Message - String 'Black' does not match regex pattern '^#[A-Fa-f0-9]{6}$'. Path '[3]', line 5, position 22.
             //   SchemaId - #/definitions/hexColor
-            #endregion
+#endregion
 
             Assert.IsFalse(valid);
         }
@@ -150,7 +146,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
         {
             string schemaJson = "{}";
 
-            #region JSchemaValidatingReader
+#region JSchemaValidatingReader
             string json = @"{
               'name': 'James',
               'hobbies': ['.NET', 'Blogging', 'Reading', 'Xbox', 'LOLCATS']
@@ -166,7 +162,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
 
             JsonSerializer serializer = new JsonSerializer();
             Person p = serializer.Deserialize<Person>(validatingReader);
-            #endregion
+#endregion
 
             Assert.AreEqual(0, messages.Count);
         }
@@ -182,7 +178,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
         {
             string schemaJson = "{}";
 
-            #region JSchemaValidatingWriter
+#region JSchemaValidatingWriter
             Person person = new Person
             {
                 Name = "James",
@@ -203,7 +199,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
 
             JsonSerializer serializer = new JsonSerializer();
             serializer.Serialize(validatingWriter, person);
-            #endregion
+#endregion
 
             Assert.AreEqual(0, messages.Count);
         }

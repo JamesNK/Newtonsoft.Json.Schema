@@ -3,24 +3,21 @@
 // License: https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md
 #endregion
 
-#if NETFX_CORE
-using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-using TestFixture = Microsoft.VisualStudio.TestPlatform.UnitTestFramework.TestClassAttribute;
-using Test = Microsoft.VisualStudio.TestPlatform.UnitTestFramework.TestMethodAttribute;
-#elif ASPNETCORE50
+#if DNXCORE50
 using Xunit;
 using Test = Xunit.FactAttribute;
-using Assert = Newtonsoft.Json.Tests.XUnitAssert;
+using Assert = Newtonsoft.Json.Schema.Tests.XUnitAssert;
 #else
+using NUnit.Framework;
 #endif
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Reflection;
 using Newtonsoft.Json.Utilities;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema.Infrastructure;
-using NUnit.Framework;
 
 namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 {
@@ -70,13 +67,12 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             Assert.AreEqual(nested, schema.Properties["ref_parent"].Items[0]);
         }
 
+
         public static JSchema OpenSchemaFile(string name, JSchemaResolver resolver, Uri baseUri = null)
         {
-            string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            string path = TestHelpers.ResolveFilePath(name);
 
-            string path = Path.Combine(baseDirectory, name);
-
-            using (JsonReader reader = new JsonTextReader(new StreamReader(path)))
+            using (JsonReader reader = new JsonTextReader(File.OpenText(path)))
             {
                 JSchema schema = JSchema.Load(reader, new JSchemaReaderSettings
                 {
@@ -260,13 +256,15 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             new JValue("j").IsValid(s, out errors);
 
             Assert.AreEqual(1, errors.Count);
-            Assert.AreEqual(@"Could not validate string with regex pattern '^[01][0-9]:[\d$'. There was an error parsing the regex: parsing ""^[01][0-9]:[\d$"" - Unterminated [] set.", errors[0].Message);
+            Assert.IsTrue(
+                errors[0].Message == @"Could not validate string with regex pattern '^[01][0-9]:[\d$'. There was an error parsing the regex: parsing ""^[01][0-9]:[\d$"" - Unterminated [] set." ||
+                errors[0].Message == @"Could not validate string with regex pattern '^[01][0-9]:[\d$'. There was an error parsing the regex: parsing '^[01][0-9]:[\d$' - Unterminated [] set.");
         }
 
         [Test]
         public void ReadAllResourceSchemas()
         {
-            string schemaDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"resources\schemas");
+            string schemaDir = TestHelpers.ResolveFilePath(@"resources\schemas");
 
             string[] schemaFilePaths = Directory.GetFiles(schemaDir, "*.json");
 
@@ -672,6 +670,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             Assert.AreEqual(JSchemaType.Integer, schema.Items[0].Type);
         }
 
+#if !DNXCORE50
         [Test]
         [Ignore]
         public void ReferenceToNestedSchemaWithIdInResolvedSchema_ExtensionData()
@@ -704,6 +703,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 
             Assert.AreEqual(nested, schema.Items[0]);
         }
+#endif
 
         [Test]
         public void ReferenceToNestedSchemaWithIdInResolvedSchema_Root()
@@ -1014,7 +1014,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 
             JSchema fileFormatSchema = cleanSchema.AdditionalProperties.AnyOf[0];
 
-            Assert.NotNull(fileFormatSchema.BaseUri);
+            Assert.IsNotNull(fileFormatSchema.BaseUri);
             Assert.AreEqual(true, fileFormatSchema.Properties.ContainsKey("files"));
         }
 
@@ -2142,7 +2142,9 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 
             Assert.AreEqual(1, errors.Count);
 
-            Assert.AreEqual(@"Could not parse regex pattern '^[0-2][0-9]{3}-((0[1-9])|(1[0-2]))-(([0-2][0-9])|3[0-1]T[0)$'. Regex parser error: parsing ""^[0-2][0-9]{3}-((0[1-9])|(1[0-2]))-(([0-2][0-9])|3[0-1]T[0)$"" - Unterminated [] set.", errors[0].Message);
+            Assert.IsTrue(
+                errors[0].Message == @"Could not parse regex pattern '^[0-2][0-9]{3}-((0[1-9])|(1[0-2]))-(([0-2][0-9])|3[0-1]T[0)$'. Regex parser error: parsing ""^[0-2][0-9]{3}-((0[1-9])|(1[0-2]))-(([0-2][0-9])|3[0-1]T[0)$"" - Unterminated [] set." ||
+                errors[0].Message == @"Could not parse regex pattern '^[0-2][0-9]{3}-((0[1-9])|(1[0-2]))-(([0-2][0-9])|3[0-1]T[0)$'. Regex parser error: parsing '^[0-2][0-9]{3}-((0[1-9])|(1[0-2]))-(([0-2][0-9])|3[0-1]T[0)$' - Unterminated [] set.");
             Assert.AreEqual(ErrorType.Pattern, errors[0].ErrorType);
             Assert.AreEqual("http://goshes.com/format/schema#/definitions/Date/properties/name", errors[0].SchemaId.OriginalString);
             Assert.AreEqual(s.Items[0].OneOf[0].Properties["data"].Properties["createDate"].Properties["name"], errors[0].Schema);
@@ -2178,7 +2180,9 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 
             Assert.AreEqual(1, errors.Count);
 
-            Assert.AreEqual(@"Could not parse regex pattern '[]'. Regex parser error: parsing ""[]"" - Unterminated [] set.", errors[0].Message);
+            Assert.IsTrue(
+                errors[0].Message == @"Could not parse regex pattern '[]'. Regex parser error: parsing ""[]"" - Unterminated [] set." ||
+                errors[0].Message == @"Could not parse regex pattern '[]'. Regex parser error: parsing '[]' - Unterminated [] set.");
             Assert.AreEqual(ErrorType.Pattern, errors[0].ErrorType);
             Assert.AreEqual("#/properties/authors/items/0", errors[0].SchemaId.OriginalString);
             Assert.AreEqual(s.Properties["authors"].Items[0], errors[0].Schema);
@@ -2226,7 +2230,9 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 
             Assert.AreEqual(1, errors.Count);
 
-            Assert.AreEqual(@"Could not parse regex pattern '[]'. Regex parser error: parsing ""[]"" - Unterminated [] set.", errors[0].Message);
+            Assert.IsTrue(
+                errors[0].Message == @"Could not parse regex pattern '[]'. Regex parser error: parsing ""[]"" - Unterminated [] set." ||
+                errors[0].Message == @"Could not parse regex pattern '[]'. Regex parser error: parsing '[]' - Unterminated [] set.");
             Assert.AreEqual(ErrorType.Pattern, errors[0].ErrorType);
             Assert.AreEqual("http://test/#/properties/name", errors[0].SchemaId.OriginalString);
             Assert.AreEqual(s.Properties["authors"].Properties["name"], errors[0].Schema);
@@ -2280,7 +2286,9 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 
             Assert.AreEqual(2, errors.Count);
 
-            Assert.AreEqual(@"Could not parse regex pattern '[]'. Regex parser error: parsing ""[]"" - Unterminated [] set.", errors[0].Message);
+            Assert.IsTrue(
+                errors[0].Message == @"Could not parse regex pattern '[]'. Regex parser error: parsing ""[]"" - Unterminated [] set." ||
+                errors[0].Message == @"Could not parse regex pattern '[]'. Regex parser error: parsing '[]' - Unterminated [] set.");
             Assert.AreEqual(ErrorType.Pattern, errors[0].ErrorType);
             Assert.AreEqual("http://test/#/definitions/authors/items/0", errors[0].SchemaId.OriginalString);
             Assert.AreEqual(s.Properties["authors"].Items[0], errors[0].Schema);
@@ -2789,7 +2797,9 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             JSchema.Parse(schemaJson, settings);
 
             Assert.AreEqual(1, errors.Count);
-            Assert.AreEqual(@"Could not parse regex pattern '[]'. Regex parser error: parsing ""[]"" - Unterminated [] set.", errors[0].Message);
+            Assert.IsTrue(
+                errors[0].Message == @"Could not parse regex pattern '[]'. Regex parser error: parsing ""[]"" - Unterminated [] set." ||
+                errors[0].Message == @"Could not parse regex pattern '[]'. Regex parser error: parsing '[]' - Unterminated [] set.");
             Assert.AreEqual(new Uri("#/properties/paises", UriKind.Relative), errors[0].SchemaId);
             Assert.AreEqual(ErrorType.PatternProperties, errors[0].ErrorType);
         }

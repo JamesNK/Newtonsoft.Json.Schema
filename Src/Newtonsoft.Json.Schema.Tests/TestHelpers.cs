@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using Newtonsoft.Json.Schema.Infrastructure;
 
@@ -16,7 +17,22 @@ namespace Newtonsoft.Json.Schema.Tests
     {
         public static Stream OpenResource(string name)
         {
-            return typeof(TestHelpers).Assembly.GetManifestResourceStream("Newtonsoft.Json.Schema.Tests.Resources." + name);
+            Assembly assembly;
+#if !DNXCORE50
+            assembly = typeof(TestHelpers).Assembly;
+#else
+            assembly = typeof(TestHelpers).GetTypeInfo().Assembly;
+#endif
+
+            name = "Newtonsoft.Json.Schema.Tests.Resources." + name;
+
+            Stream stream = assembly.GetManifestResourceStream(name);
+            if (stream == null)
+            {
+                throw new InvalidOperationException("Could not find resource with name: " + name);
+            }
+
+            return stream;
         }
 
         public static Stream OpenFile(string name)
@@ -28,9 +44,13 @@ namespace Newtonsoft.Json.Schema.Tests
 
         public static string ResolveFilePath(string name)
         {
+#if !DNXCORE50
             string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-
             string path = Path.Combine(baseDirectory, name);
+#else
+            string path = Path.GetFullPath(name);
+#endif
+
             return path;
         }
 

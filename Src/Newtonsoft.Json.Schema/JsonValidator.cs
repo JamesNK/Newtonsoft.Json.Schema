@@ -49,7 +49,7 @@ namespace Newtonsoft.Json.Schema
         /// <param name="value">The JSON value when the error occurred.</param>
         public void RaiseError(string message, object value)
         {
-            _scope.RaiseError(new FormattableString(message, null), ErrorType.Validator, _schema, value, null);
+            _scope.RaiseError(new System.Runtime.CompilerServices.FormattableString(message, null), ErrorType.Validator, _schema, value, null);
         }
     }
 

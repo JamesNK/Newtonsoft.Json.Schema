@@ -10,18 +10,14 @@ using System.IO;
 using Newtonsoft.Json.Utilities.LinqBridge;
 #endif
 using Newtonsoft.Json.Schema.Infrastructure;
-#if !(NET20 || NET35 || PORTABLE || ASPNETCORE50)
+#if !(NET20 || NET35 || PORTABLE || DNXCORE50)
 using System.Numerics;
 #endif
 using System.Text;
-#if NETFX_CORE
-using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-using TestFixture = Microsoft.VisualStudio.TestPlatform.UnitTestFramework.TestClassAttribute;
-using Test = Microsoft.VisualStudio.TestPlatform.UnitTestFramework.TestMethodAttribute;
-#elif ASPNETCORE50
+#if DNXCORE50
 using Xunit;
 using Test = Xunit.FactAttribute;
-using Assert = Newtonsoft.Json.Tests.XUnitAssert;
+using Assert = Newtonsoft.Json.Schema.Tests.XUnitAssert;
 #else
 using NUnit.Framework;
 #endif
@@ -133,7 +129,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             Assert.AreEqual(2, errors.Count);
             Assert.AreEqual("Invalid type. Expected Boolean but got Integer. Path 'testProp', line 1, position 13.", errors[0].Message);
-            Assert.AreEqual(5, errors[0].ValidationError.Value);
+            Assert.AreEqual(5L, errors[0].ValidationError.Value);
             Assert.AreEqual("Invalid type. Expected Integer but got Boolean. Path 'testProp2', line 1, position 30.", errors[1].Message);
             Assert.AreEqual(true, errors[1].ValidationError.Value);
         }
@@ -208,7 +204,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             Assert.IsNotNull(validationEventArgs);
             StringAssert.AreEqual(@"Invalid type. Expected Boolean but got Integer. Path '', line 1, position 1.", validationEventArgs.Message);
-            Assert.AreEqual(1, validationEventArgs.ValidationError.Value);
+            Assert.AreEqual(1L, validationEventArgs.ValidationError.Value);
         }
 
         [Test]
@@ -511,13 +507,13 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.Integer, reader.TokenType);
             Assert.AreEqual("Integer 10 exceeds maximum value of 5. Path '', line 1, position 2.", validationEventArgs.Message);
-            Assert.AreEqual(10, validationEventArgs.ValidationError.Value);
+            Assert.AreEqual(10L, validationEventArgs.ValidationError.Value);
             Assert.AreEqual("", validationEventArgs.Path);
 
             Assert.IsNotNull(validationEventArgs);
         }
 
-#if !(NET20 || NET35 || PORTABLE || ASPNETCORE50 || PORTABLE40)
+#if !(NET20 || NET35 || PORTABLE || DNXCORE50 || PORTABLE40)
         [Test]
         public void IntegerGreaterThanMaximumValue_BigInteger()
         {
@@ -600,7 +596,7 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.Integer, reader.TokenType);
             Assert.AreEqual("Integer 1 is less than minimum value of 5. Path '', line 1, position 1.", validationEventArgs.Message);
-            Assert.AreEqual(1, validationEventArgs.ValidationError.Value);
+            Assert.AreEqual(1L, validationEventArgs.ValidationError.Value);
             Assert.AreEqual("#", validationEventArgs.ValidationError.SchemaId.ToString());
             Assert.AreEqual(ErrorType.Minimum, validationEventArgs.ValidationError.ErrorType);
 
@@ -641,7 +637,7 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(JsonToken.Integer, reader.TokenType);
             Assert.AreEqual(@"Value 3 is not defined in enum. Path '[2]', line 1, position 6.", validationEventArgs.Message);
             Assert.AreEqual("[2]", validationEventArgs.Path);
-            Assert.AreEqual(3, validationEventArgs.ValidationError.Value);
+            Assert.AreEqual(3L, validationEventArgs.ValidationError.Value);
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.EndArray, reader.TokenType);
@@ -780,7 +776,7 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsNotNull(validationEventArgs);
         }
 
-#if !(NET20 || NET35 || PORTABLE || ASPNETCORE50 || PORTABLE40)
+#if !(NET20 || NET35 || PORTABLE || DNXCORE50 || PORTABLE40)
         [Test]
         public void BigIntegerDivisibleBy_Success()
         {
@@ -941,7 +937,7 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(JsonToken.Integer, reader.TokenType);
             Assert.IsNotNull(a);
             StringAssert.AreEqual("Invalid type. Expected String but got Integer. Path '[2]', line 4, position 3.", a.Message);
-            Assert.AreEqual(1, a.ValidationError.Value);
+            Assert.AreEqual(1L, a.ValidationError.Value);
             a = null;
 
             Assert.IsTrue(reader.Read());
@@ -994,7 +990,7 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(JsonToken.Integer, reader.TokenType);
             Assert.IsNotNull(a);
             StringAssert.AreEqual("Invalid type. Expected String but got Integer. Path '[2]', line 4, position 3.", a.Message);
-            Assert.AreEqual(1, a.ValidationError.Value);
+            Assert.AreEqual(1L, a.ValidationError.Value);
             a = null;
 
             Assert.IsTrue(reader.Read());
@@ -1048,7 +1044,7 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(JsonToken.Integer, reader.TokenType);
             Assert.IsNotNull(a);
             StringAssert.AreEqual("Invalid type. Expected String but got Integer. Path '[2]', line 4, position 3.", a.Message);
-            Assert.AreEqual(1, a.ValidationError.Value);
+            Assert.AreEqual(1L, a.ValidationError.Value);
             a = null;
 
             Assert.IsTrue(reader.Read());
@@ -1098,7 +1094,7 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(JsonToken.Integer, reader.TokenType);
             Assert.IsNotNull(a);
             StringAssert.AreEqual("Invalid type. Expected String but got Integer. Path '[2]', line 4, position 3.", a.Message);
-            Assert.AreEqual(1, a.ValidationError.Value);
+            Assert.AreEqual(1L, a.ValidationError.Value);
             a = null;
 
             Assert.IsTrue(reader.Read());
@@ -1670,7 +1666,7 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.Integer, reader.TokenType);
             Assert.AreEqual("Invalid type. Expected String but got Integer. Path '[0]', line 1, position 2.", validationEventArgs.Message);
-            Assert.AreEqual(1, validationEventArgs.ValidationError.Value);
+            Assert.AreEqual(1L, validationEventArgs.ValidationError.Value);
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.String, reader.TokenType);
@@ -1680,7 +1676,7 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.Integer, reader.TokenType);
             Assert.AreEqual("Index 3 has not been defined and the schema does not allow additional items. Path '[2]', line 1, position 13.", validationEventArgs.Message);
-            Assert.AreEqual(1234, validationEventArgs.ValidationError.Value);
+            Assert.AreEqual(1234L, validationEventArgs.ValidationError.Value);
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.EndArray, reader.TokenType);
@@ -1737,7 +1733,7 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.Integer, reader.TokenType);
             Assert.AreEqual("Invalid type. Expected String but got Integer. Path 'ho', line 4, position 9.", validationEventArgs.Message);
-            Assert.AreEqual(1, validationEventArgs.ValidationError.Value);
+            Assert.AreEqual(1L, validationEventArgs.ValidationError.Value);
             Assert.AreEqual("#/patternProperties/ho", validationEventArgs.ValidationError.SchemaId.ToString());
 
             Assert.IsTrue(reader.Read());
@@ -2312,11 +2308,14 @@ namespace Newtonsoft.Json.Schema.Tests
             }
 
             Assert.AreEqual(1, errors.Count);
-            Assert.AreEqual(@"Could not test property names with regex pattern '[]'. There was an error parsing the regex: parsing ""[]"" - Unterminated [] set.", errors[0].Message);
+            Assert.IsTrue(
+                errors[0].Message == @"Could not test property names with regex pattern '[]'. There was an error parsing the regex: parsing ""[]"" - Unterminated [] set." ||
+                errors[0].Message == @"Could not test property names with regex pattern '[]'. There was an error parsing the regex: parsing '[]' - Unterminated [] set.", errors[0].Message);
             Assert.AreEqual(new Uri("#/properties/paises", UriKind.Relative), errors[0].SchemaId);
             Assert.AreEqual(ErrorType.PatternProperties, errors[0].ErrorType);
         }
 
+#if !DNXCORE50
         [Test]
         [Ignore]
         public void DateFormat()
@@ -2338,6 +2337,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             Assert.AreEqual(0, errors.Count);
         }
+#endif
 
         public class Homework
         {

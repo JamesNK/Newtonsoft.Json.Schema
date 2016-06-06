@@ -5,7 +5,7 @@
 
 using System.IO;
 using Newtonsoft.Json.Schema.Tests;
-#if !(NET35 || NET20 || PORTABLE || ASPNETCORE50)
+#if !(NET35 || NET20 || PORTABLE || DNXCORE50)
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -15,14 +15,10 @@ using System.Runtime.Serialization;
 using System.Text;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
-#if NETFX_CORE
-using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-using TestFixture = Microsoft.VisualStudio.TestPlatform.UnitTestFramework.TestClassAttribute;
-using Test = Microsoft.VisualStudio.TestPlatform.UnitTestFramework.TestMethodAttribute;
-#elif ASPNETCORE50
+#if DNXCORE50
 using Xunit;
 using Test = Xunit.FactAttribute;
-using Assert = Newtonsoft.Json.Tests.XUnitAssert;
+using Assert = Newtonsoft.Json.Schema.Tests.XUnitAssert;
 #else
 using NUnit.Framework;
 #endif
@@ -42,7 +38,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
         [Test]
         public void ParseString()
         {
-            #region ParseString
+#region ParseString
             string schemaJson = @"{
               'description': 'A person',
               'type': 'object',
@@ -59,7 +55,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
             JSchema schema = JSchema.Parse(schemaJson);
 
             // validate JSON
-            #endregion
+#endregion
 
             Assert.AreEqual(JSchemaType.Object, schema.Type);
             Assert.AreEqual(JSchemaType.String | JSchemaType.Null, schema.Properties["name"].Type);
@@ -68,7 +64,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
         [Test]
         public void LoadFile()
         {
-            #region LoadFile
+#region LoadFile
             using (StreamReader file = File.OpenText(@"c:\person.json"))
             using (JsonTextReader reader = new JsonTextReader(file))
             {
@@ -76,7 +72,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
 
                 // validate JSON
             }
-            #endregion
+#endregion
         }
 
         public class JSchemaUrlResolver : JSchemaPreloadedResolver
@@ -94,7 +90,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
         [Test]
         public void JSchemaUrlResolverTest()
         {
-            #region JSchemaUrlResolver
+#region JSchemaUrlResolver
             // resolver will fetch 'http://schema.org/address.json' as the parent schema is loaded
             JSchemaUrlResolver resolver = new JSchemaUrlResolver();
 
@@ -122,13 +118,13 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
 
             IList<string> errorMessages;
             bool isValid = json.IsValid(schema, out errorMessages);
-            #endregion
+#endregion
         }
 
         [Test]
         public void JSchemaUrlResolverRelativeTest()
         {
-            #region JSchemaUrlResolver_Relative
+#region JSchemaUrlResolver_Relative
             // person.json, has a relative external schema reference 'address.json'
             // --------
             // {
@@ -158,13 +154,13 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
 
                 // validate JSON
             }
-            #endregion
+#endregion
         }
 
         [Test]
         public void JSchemaPreloadedResolver()
         {
-            #region JSchemaPreloadedResolver
+#region JSchemaPreloadedResolver
             string addressSchemaJson = @"{
               'type': 'object',
               'properties': {
@@ -203,7 +199,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
 
             IList<string> errorMessages;
             bool isValid = json.IsValid(schema, out errorMessages);
-            #endregion
+#endregion
         }
     }
 }

@@ -7,7 +7,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+#if DNXCORE50
+using Xunit;
+using Test = Xunit.FactAttribute;
+using Assert = Newtonsoft.Json.Schema.Tests.XUnitAssert;
+#else
 using NUnit.Framework;
+#endif
 
 namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 {

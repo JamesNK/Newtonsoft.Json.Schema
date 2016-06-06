@@ -11,7 +11,13 @@ using System.Linq;
 using System.Numerics;
 #endif
 using System.Text;
+#if DNXCORE50
+using Xunit;
+using Test = Xunit.FactAttribute;
+using Assert = Newtonsoft.Json.Schema.Tests.XUnitAssert;
+#else
 using NUnit.Framework;
+#endif
 
 namespace Newtonsoft.Json.Schema.Tests
 {
@@ -294,19 +300,19 @@ namespace Newtonsoft.Json.Schema.Tests
             validatingWriter.WriteValue(1.1m);
             Assert.IsNotNull(a);
             StringAssert.AreEqual("Invalid type. Expected Integer but got Number. Path '[15]'.", a.Message);
-            Assert.AreEqual(1.1d, a.ValidationError.Value);
+            Assert.AreEqual(1.1d, (double)a.ValidationError.Value, 0.0001);
             a = null;
 
             validatingWriter.WriteValue(1.1d);
             Assert.IsNotNull(a);
             StringAssert.AreEqual("Invalid type. Expected Integer but got Number. Path '[16]'.", a.Message);
-            Assert.AreEqual(1.1d, a.ValidationError.Value);
+            Assert.AreEqual(1.1d, (double)a.ValidationError.Value, 0.0001);
             a = null;
 
             validatingWriter.WriteValue(1.1f);
             Assert.IsNotNull(a);
             StringAssert.AreEqual("Invalid type. Expected Integer but got Number. Path '[17]'.", a.Message);
-            Assert.AreEqual(1.1f, a.ValidationError.Value);
+            Assert.AreEqual(1.1d, (double)a.ValidationError.Value, 0.0001);
             a = null;
 
             validatingWriter.WriteValue(new Uri("http://test.test"));
@@ -464,19 +470,19 @@ namespace Newtonsoft.Json.Schema.Tests
             validatingWriter.WriteValue((object)1.1m);
             Assert.IsNotNull(a);
             StringAssert.AreEqual("Invalid type. Expected Integer but got Number. Path '[15]'.", a.Message);
-            Assert.AreEqual(1.1d, a.ValidationError.Value);
+            Assert.AreEqual(1.1d, (double)a.ValidationError.Value, 0.0001);
             a = null;
 
             validatingWriter.WriteValue((object)1.1d);
             Assert.IsNotNull(a);
             StringAssert.AreEqual("Invalid type. Expected Integer but got Number. Path '[16]'.", a.Message);
-            Assert.AreEqual(1.1d, a.ValidationError.Value);
+            Assert.AreEqual(1.1d, (double)a.ValidationError.Value, 0.0001);
             a = null;
 
             validatingWriter.WriteValue((object)1.1f);
             Assert.IsNotNull(a);
             StringAssert.AreEqual("Invalid type. Expected Integer but got Number. Path '[17]'.", a.Message);
-            Assert.AreEqual(1.1f, a.ValidationError.Value);
+            Assert.AreEqual(1.1d, (double)a.ValidationError.Value, 0.0001);
             a = null;
 
             validatingWriter.WriteValue((object)new Uri("http://test.test"));

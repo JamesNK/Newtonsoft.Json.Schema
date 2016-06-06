@@ -59,6 +59,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
 namespace System.Runtime.CompilerServices
 {
+#if !NETSTANDARD1_3
     internal static class FormattableStringFactory
     {
         public static FormattableString Create(string s, params object[] args)
@@ -66,6 +67,7 @@ namespace System.Runtime.CompilerServices
             return new FormattableString(s, args);
         }
     }
+#endif
 
     internal class FormattableString : IFormattable
     {
