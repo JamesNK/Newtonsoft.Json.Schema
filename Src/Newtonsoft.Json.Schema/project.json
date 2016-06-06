@@ -6,7 +6,7 @@
   "authors": [ "Newtonsoft" ],
   "packOptions": {
     "projectUrl": "http://www.newtonsoft.com/jsonschema",
-    "tags": [ "json" ],
+    "tags": [ "json", "schema", "jsonschema" ],
     "licenseUrl": "https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md",
     "iconUrl": "http://www.newtonsoft.com/content/images/nugeticon.png",
     "repository": {
