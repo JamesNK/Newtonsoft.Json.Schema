@@ -2,7 +2,7 @@
   $zipFileName = "JsonSchema20r3.zip"
   $majorVersion = "2.0"
   $majorWithReleaseVersion = "2.0.3"
-  $nugetPrerelease = "beta1"
+  $nugetPrerelease = $null
   $version = GetVersion $majorWithReleaseVersion
   $packageId = "Newtonsoft.Json.Schema"
   $signAssemblies = $false
@@ -11,7 +11,7 @@
   $buildNuGet = $true
   $treatWarningsAsErrors = $false
   $workingName = if ($workingName) {$workingName} else {"Working"}
-  $netCliVersion = "1.0.0-preview1-002702"
+  $netCliVersion = "1.0.0-preview3-003171"
   
   $baseDir  = resolve-path ..
   $buildDir = "$baseDir\Build"
@@ -60,7 +60,7 @@ task Build -depends Clean {
   Write-Host -ForegroundColor Green "Signed $signAssemblies"
   if ($signAssemblies)
   {
-    $files = Get-ChildItem -Path $workingSourceDir -Include @("project.json", "*.project.json") -Recurse
+    $files = Get-ChildItem -Path $workingSourceDir -Include @("project.json", "*.project.json", "*.nuspec") -Recurse
     $count = $files.Count
 
     Write-Host "Found $count files to update"
