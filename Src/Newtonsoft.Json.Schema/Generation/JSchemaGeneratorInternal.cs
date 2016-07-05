@@ -36,10 +36,10 @@ namespace Newtonsoft.Json.Schema.Generation
                 if (_typeSchemas.Count > 1)
                 {
                     JToken definitions;
-                    if (!schema.ExtensionData.TryGetValue("definitions", out definitions))
+                    if (!schema.ExtensionData.TryGetValue(Constants.PropertyNames.Definitions, out definitions))
                     {
                         definitions = new JObject();
-                        schema.ExtensionData["definitions"] = definitions;
+                        schema.ExtensionData[Constants.PropertyNames.Definitions] = definitions;
                     }
 
                     foreach (TypeSchema t in _typeSchemas)

@@ -263,10 +263,33 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                     }
                     else
                     {
-                        resolvedSchema = false;
+                        // special case
+                        // look in the root schema's definitions for a definition with the same property name and id as reference
+                        JToken definitions;
+                        if (schema.ExtensionData.TryGetValue(Constants.PropertyNames.Definitions, out definitions))
+                        {
+                            JObject o = definitions[resolvedReference.OriginalString] as JObject;
+                            if (o != null && (string)o["id"] == resolvedReference.OriginalString)
+                            {
+                                JSchema inlineSchema = schemaReader.ReadInlineSchema(setSchema, o);
+
+                                discovery.Discover(inlineSchema, rootSchemaId, Constants.PropertyNames.Definitions + "/" + resolvedReference.OriginalString);
+
+                                resolvedSchema = true;
+                            }
+                            else
+                            {
+                                resolvedSchema = false;
+                            }
+                        }
+                        else
+                        {
+                            resolvedSchema = false;
+                        }
                     }
                 }
             }
+
             return resolvedSchema;
         }
 

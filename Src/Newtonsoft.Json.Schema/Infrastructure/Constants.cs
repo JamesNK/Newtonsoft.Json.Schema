@@ -60,6 +60,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
             public const string Ref = "$ref";
             public const string Schema = "$schema";
+
+            public const string Definitions = "definitions";
         }
 
         public static class Formats
