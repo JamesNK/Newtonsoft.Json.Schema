@@ -6,6 +6,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Collections
@@ -46,6 +47,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Collections
     internal class JSchemaPatternDictionary : IDictionary<string, JSchema>
     {
         private readonly Dictionary<string, PatternSchema> _inner;
+        private ValuesCollection _values;
 
         public JSchemaPatternDictionary()
         {
@@ -169,12 +171,78 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Collections
 
         public ICollection<string> Keys
         {
-            get { throw new NotSupportedException(); }
+            get { return _inner.Keys; }
         }
 
         public ICollection<JSchema> Values
         {
-            get { throw new NotSupportedException(); }
+            get
+            {
+                if (_values == null)
+                {
+                    _values = new ValuesCollection(_inner.Values);
+                }
+
+                return _values;
+            }
+        }
+    }
+
+    internal class ValuesCollection : ICollection<JSchema>
+    {
+        private readonly ICollection<PatternSchema> _inner;
+
+        public ValuesCollection(ICollection<PatternSchema> inner)
+        {
+            _inner = inner;
+        }
+
+        public IEnumerator<JSchema> GetEnumerator()
+        {
+            foreach (PatternSchema patternSchema in _inner)
+            {
+                yield return patternSchema.Schema;
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        public void Add(JSchema item)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Clear()
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Contains(JSchema item)
+        {
+            return _inner.Any(p => p.Schema == item);
+        }
+
+        public void CopyTo(JSchema[] array, int arrayIndex)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Remove(JSchema item)
+        {
+            throw new NotImplementedException();
+        }
+
+        public int Count
+        {
+            get { return _inner.Count; }
+        }
+
+        public bool IsReadOnly
+        {
+            get { return _inner.IsReadOnly; }
         }
     }
 }

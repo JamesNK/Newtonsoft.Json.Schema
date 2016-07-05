@@ -156,5 +156,30 @@ namespace Newtonsoft.Json.Schema.Tests
 
             Assert.AreEqual(3, s.KnownSchemas.Count);
         }
+
+        [Test]
+        public void PatternPropertiesValues()
+        {
+            JSchema s = new JSchema();
+
+            ICollection<JSchema> patternPropertiesSchemas = s.PatternProperties.Values;
+
+            Assert.AreEqual(0, patternPropertiesSchemas.Count);
+
+            JSchema patternSchema = new JSchema
+            {
+                Id = new Uri("test", UriKind.RelativeOrAbsolute)
+            };
+
+            s.PatternProperties["\n+"] = patternSchema;
+
+            Assert.AreEqual(1, patternPropertiesSchemas.Count);
+
+            Assert.AreEqual(patternSchema, patternPropertiesSchemas.ElementAt(0));
+
+            s.PatternProperties.Clear();
+
+            Assert.AreEqual(0, patternPropertiesSchemas.Count);
+        }
     }
 }
