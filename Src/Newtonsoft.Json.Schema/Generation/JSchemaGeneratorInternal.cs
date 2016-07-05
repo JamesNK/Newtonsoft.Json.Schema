@@ -375,6 +375,11 @@ namespace Newtonsoft.Json.Schema.Generation
                             && contract.NonNullableUnderlyingType.IsEnum()
                             && ReflectionUtils.GetAttribute<FlagsAttribute>(contract.NonNullableUnderlyingType) == null)
                         {
+                            if ((schema.Type & JSchemaType.Null) == JSchemaType.Null)
+                            {
+                                schema.Enum.Add(JValue.CreateNull());
+                            }
+
                             IList<EnumValue<long>> enumValues = EnumUtils.GetNamesAndValues<long>(contract.NonNullableUnderlyingType);
                             foreach (EnumValue<long> enumValue in enumValues)
                             {

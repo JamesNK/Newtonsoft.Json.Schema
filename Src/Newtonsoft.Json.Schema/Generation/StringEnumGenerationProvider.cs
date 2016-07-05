@@ -35,9 +35,10 @@ namespace Newtonsoft.Json.Schema.Generation
                 Type = JSchemaType.String
             };
 
-            if (isNullable && context.Required != Required.Always)
+            if (isNullable && context.Required != Required.Always && context.Required != Required.DisallowNull)
             {
                 schema.Type |= JSchemaType.Null;
+                schema.Enum.Add(JValue.CreateNull());
             }
 
             string[] names = Enum.GetNames(t);

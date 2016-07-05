@@ -40,6 +40,121 @@ namespace Newtonsoft.Json.Schema.Tests
     [TestFixture]
     public class JSchemaGeneratorTests : TestFixtureBase
     {
+        public class TestClass
+        {
+            public int Counter { get; set; }
+            public TestEnum? TestProperty { get; set; }
+        }
+
+        public enum TestEnum
+        {
+            none, one, two
+        }
+
+        [Test]
+        public void NullableEnumProperty_AllowNull()
+        {
+            JSchemaGenerator generator = new JSchemaGenerator
+            {
+                DefaultRequired = Required.AllowNull
+            };
+            JSchema schema = generator.Generate(typeof(TestClass));
+
+            Assert.AreEqual(JSchemaType.Object, schema.Type);
+            Assert.AreEqual(2, schema.Properties.Count);
+            Assert.AreEqual(JSchemaType.Integer | JSchemaType.Null, schema.Properties["TestProperty"].Type);
+            Assert.AreEqual(4, schema.Properties["TestProperty"].Enum.Count);
+            Assert.AreEqual(null, ((JValue)schema.Properties["TestProperty"].Enum[0]).Value);
+            Assert.AreEqual(0, (int)schema.Properties["TestProperty"].Enum[1]);
+            Assert.AreEqual(1, (int)schema.Properties["TestProperty"].Enum[2]);
+            Assert.AreEqual(2, (int)schema.Properties["TestProperty"].Enum[3]);
+
+            TestClass testObject = new TestClass();
+            JObject jObject = JObject.FromObject(testObject);
+            jObject.Validate(schema);
+        }
+
+        [Test]
+        public void NullableEnumProperty_DisallowNull()
+        {
+            JSchemaGenerator generator = new JSchemaGenerator
+            {
+                DefaultRequired = Required.DisallowNull
+            };
+            JSchema schema = generator.Generate(typeof(TestClass));
+
+            Assert.AreEqual(JSchemaType.Object, schema.Type);
+            Assert.AreEqual(2, schema.Properties.Count);
+            Assert.AreEqual(JSchemaType.Integer, schema.Properties["TestProperty"].Type);
+            Assert.AreEqual(3, schema.Properties["TestProperty"].Enum.Count);
+            Assert.AreEqual(0, (int)schema.Properties["TestProperty"].Enum[0]);
+            Assert.AreEqual(1, (int)schema.Properties["TestProperty"].Enum[1]);
+            Assert.AreEqual(2, (int)schema.Properties["TestProperty"].Enum[2]);
+
+            TestClass testObject = new TestClass
+            {
+                TestProperty = TestEnum.none
+            };
+            JObject jObject = JObject.FromObject(testObject);
+            jObject.Validate(schema);
+        }
+
+        [Test]
+        public void NullableEnumProperty_AllowNull_StringEnumGenerationProvider()
+        {
+            JSchemaGenerator generator = new JSchemaGenerator
+            {
+                DefaultRequired = Required.AllowNull,
+                GenerationProviders = { new StringEnumGenerationProvider() }
+            };
+            JSchema schema = generator.Generate(typeof(TestClass));
+
+            Assert.AreEqual(JSchemaType.Object, schema.Type);
+            Assert.AreEqual(2, schema.Properties.Count);
+            Assert.AreEqual(JSchemaType.String | JSchemaType.Null, schema.Properties["TestProperty"].Type);
+            Assert.AreEqual(4, schema.Properties["TestProperty"].Enum.Count);
+            Assert.AreEqual(null, ((JValue)schema.Properties["TestProperty"].Enum[0]).Value);
+            Assert.AreEqual("none", (string)schema.Properties["TestProperty"].Enum[1]);
+            Assert.AreEqual("one", (string)schema.Properties["TestProperty"].Enum[2]);
+            Assert.AreEqual("two", (string)schema.Properties["TestProperty"].Enum[3]);
+
+            TestClass testObject = new TestClass();
+            JObject jObject = JObject.FromObject(testObject, new JsonSerializer
+            {
+                Converters = { new StringEnumConverter() }
+            });
+            jObject.Validate(schema);
+        }
+
+        [Test]
+        public void NullableEnumProperty_DisallowNull_StringEnumGenerationProvider()
+        {
+            JSchemaGenerator generator = new JSchemaGenerator
+            {
+                DefaultRequired = Required.DisallowNull,
+                GenerationProviders = { new StringEnumGenerationProvider() }
+            };
+            JSchema schema = generator.Generate(typeof(TestClass));
+
+            Assert.AreEqual(JSchemaType.Object, schema.Type);
+            Assert.AreEqual(2, schema.Properties.Count);
+            Assert.AreEqual(JSchemaType.String, schema.Properties["TestProperty"].Type);
+            Assert.AreEqual(3, schema.Properties["TestProperty"].Enum.Count);
+            Assert.AreEqual("none", (string)schema.Properties["TestProperty"].Enum[0]);
+            Assert.AreEqual("one", (string)schema.Properties["TestProperty"].Enum[1]);
+            Assert.AreEqual("two", (string)schema.Properties["TestProperty"].Enum[2]);
+
+            TestClass testObject = new TestClass
+            {
+                TestProperty = TestEnum.none
+            };
+            JObject jObject = JObject.FromObject(testObject, new JsonSerializer
+            {
+                Converters = { new StringEnumConverter() }
+            });
+            jObject.Validate(schema);
+        }
+
 #if !(NET40 || NET35)
         public class Account
         {
@@ -180,7 +295,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             JSchema enumProp3 = schema.Properties["EnumProperty3"];
             Assert.AreEqual(JSchemaType.String | JSchemaType.Null, enumProp3.Type);
-            Assert.AreEqual(6, enumProp3.Enum.Count);
+            Assert.AreEqual(7, enumProp3.Enum.Count);
         }
 
         [Test]
@@ -216,10 +331,11 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchema schema = generator.Generate(typeof(EnumWithAttribute?), true);
 
             Assert.AreEqual(JSchemaType.String | JSchemaType.Null, schema.Type);
-            Assert.AreEqual(3, schema.Enum.Count);
-            Assert.AreEqual("One", (string)schema.Enum[0]);
-            Assert.AreEqual("Two", (string)schema.Enum[1]);
-            Assert.AreEqual("Three", (string)schema.Enum[2]);
+            Assert.AreEqual(4, schema.Enum.Count);
+            Assert.AreEqual(null, ((JValue)schema.Enum[0]).Value);
+            Assert.AreEqual("One", (string)schema.Enum[1]);
+            Assert.AreEqual("Two", (string)schema.Enum[2]);
+            Assert.AreEqual("Three", (string)schema.Enum[3]);
         }
 
         [Test]
@@ -245,13 +361,14 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchema schema = generator.Generate(typeof(StringComparison?), true);
 
             Assert.AreEqual(JSchemaType.Integer | JSchemaType.Null, schema.Type);
-            Assert.AreEqual(6, schema.Enum.Count);
-            Assert.AreEqual(0, (int)schema.Enum[0]);
-            Assert.AreEqual(1, (int)schema.Enum[1]);
-            Assert.AreEqual(2, (int)schema.Enum[2]);
-            Assert.AreEqual(3, (int)schema.Enum[3]);
-            Assert.AreEqual(4, (int)schema.Enum[4]);
-            Assert.AreEqual(5, (int)schema.Enum[5]);
+            Assert.AreEqual(7, schema.Enum.Count);
+            Assert.AreEqual(null, ((JValue)schema.Enum[0]).Value);
+            Assert.AreEqual(0, (int)schema.Enum[1]);
+            Assert.AreEqual(1, (int)schema.Enum[2]);
+            Assert.AreEqual(2, (int)schema.Enum[3]);
+            Assert.AreEqual(3, (int)schema.Enum[4]);
+            Assert.AreEqual(4, (int)schema.Enum[5]);
+            Assert.AreEqual(5, (int)schema.Enum[6]);
         }
 
         public class IntegerGenerationProvider : JSchemaGenerationProvider
