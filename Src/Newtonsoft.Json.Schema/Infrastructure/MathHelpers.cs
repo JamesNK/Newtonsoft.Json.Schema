@@ -9,9 +9,24 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 {
     internal static class MathHelpers
     {
-        public static double FloatingPointRemainder(double dividend, double divisor)
+        public static bool IsMultiple(double value, double multipleOf)
         {
-            return dividend - Math.Floor(dividend / divisor) * divisor;
+            const double epsilon = 2.2204460492503131e-016;
+            const double tolerance = epsilon * 300;
+
+            double remainder = value % multipleOf;
+            double absRemainder = Math.Abs(remainder);
+
+            if (absRemainder < tolerance)
+            {
+                return true;
+            }
+            if (Math.Abs(multipleOf) - absRemainder < tolerance)
+            {
+                return true;
+            }
+
+            return false;
         }
 
         public static bool IsZero(double value)

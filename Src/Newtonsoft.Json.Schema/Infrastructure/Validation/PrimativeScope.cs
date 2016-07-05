@@ -172,7 +172,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     // not that this will lose any decimal point on MultipleOf
                     // so manually raise an error if MultipleOf is not an integer and value is not zero
                     BigInteger i = (BigInteger)value;
-                    bool divisibleNonInteger = !Math.Abs(multipleOf - Math.Truncate(multipleOf)).Equals(0);
+                    bool divisibleNonInteger = !MathHelpers.IsZero(Math.Abs(multipleOf - Math.Truncate(multipleOf)));
                     if (divisibleNonInteger)
                     {
                         notDivisible = i != 0;
@@ -370,9 +370,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
             if (schema.MultipleOf != null)
             {
-                double remainder = MathHelpers.FloatingPointRemainder(value, schema.MultipleOf.Value);
-
-                if (!MathHelpers.IsZero(remainder))
+                if (!MathHelpers.IsMultiple(value, schema.MultipleOf.Value))
                 {
                     RaiseError($"Float {JsonConvert.ToString(value)} is not a multiple of {schema.MultipleOf}.", ErrorType.MultipleOf, schema, value, null);
                 }

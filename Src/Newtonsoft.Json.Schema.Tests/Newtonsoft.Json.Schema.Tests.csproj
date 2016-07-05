@@ -66,6 +66,7 @@
     <Compile Include="Documentation\Samples\Validate\JTokenIsValidWithMessages.cs" />
     <Compile Include="Documentation\Samples\Validate\JTokenValidateWithEvent.cs" />
     <Compile Include="Infrastructure\CryptographyHelpersTests.cs" />
+    <Compile Include="Infrastructure\MathHelpersTests.cs" />
     <Compile Include="Infrastructure\EmailHelpersTests.cs" />
     <Compile Include="Infrastructure\EnumHelpersTests.cs" />
     <Compile Include="Infrastructure\JSchemaDiscoveryTests.cs" />
