@@ -52,6 +52,7 @@ task Clean {
 task Build -depends Clean {
   Write-Host "Copying source to working source directory $workingSourceDir"
   robocopy $sourceDir $workingSourceDir /MIR /NP /XD bin obj TestResults AppPackages .vs artifacts DTAR_08E86330_4835_4B5C_9E5A_61F37AE1A077_DTAR /XF *.suo *.user *.lock.json | Out-Default
+  robocopy $buildDir $workingDir\NuGet Newtonsoft.Json.Schema.nuspec
 
   Write-Host -ForegroundColor Green "Updating assembly version"
   Write-Host
@@ -60,7 +61,7 @@ task Build -depends Clean {
   Write-Host -ForegroundColor Green "Signed $signAssemblies"
   if ($signAssemblies)
   {
-    $files = Get-ChildItem -Path $workingSourceDir -Include @("project.json", "*.project.json", "*.nuspec") -Recurse
+    $files = Get-ChildItem -Path $workingDir -Include @("project.json", "*.project.json", "*.nuspec") -Recurse
     $count = $files.Count
 
     Write-Host "Found $count files to update"
@@ -111,10 +112,7 @@ task Package -depends Build {
       $nugetVersion = $nugetVersion + "-" + $nugetPrerelease
     }
 
-    New-Item -Path $workingDir\NuGet -ItemType Directory
-
     $nuspecPath = "$workingDir\NuGet\Newtonsoft.Json.Schema.nuspec"
-    Copy-Item -Path "$buildDir\Newtonsoft.Json.Schema.nuspec" -Destination $nuspecPath -recurse
 
     Write-Host "Updating nuspec file at $nuspecPath" -ForegroundColor Green
     Write-Host
