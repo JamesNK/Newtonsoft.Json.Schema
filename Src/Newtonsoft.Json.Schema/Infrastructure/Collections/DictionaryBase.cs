@@ -74,12 +74,12 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Collections
         {
             if (key == null)
             {
-                throw new ArgumentNullException("key");
+                throw new ArgumentNullException(nameof(key));
             }
 
             if (!(key is TKey))
             {
-                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "Keys is of type {0}.", typeof(TKey)), "key");
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "Keys is of type {0}.", typeof(TKey)), nameof(key));
             }
         }
 
@@ -95,7 +95,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Collections
 #endif
                     )
                 {
-                    throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "Value is of type {0}.", typeof(TValue)), "value");
+                    throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "Value is of type {0}.", typeof(TValue)), nameof(value));
                 }
             }
         }

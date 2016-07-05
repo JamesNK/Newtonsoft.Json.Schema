@@ -85,8 +85,8 @@ namespace Newtonsoft.Json.Schema
         /// <param name="validationEventHandler">The validation event handler.</param>
         public static void Validate(this JToken source, JSchema schema, SchemaValidationEventHandler validationEventHandler)
         {
-            ValidationUtils.ArgumentNotNull(source, "source");
-            ValidationUtils.ArgumentNotNull(schema, "schema");
+            ValidationUtils.ArgumentNotNull(source, nameof(source));
+            ValidationUtils.ArgumentNotNull(schema, nameof(schema));
 
             using (JSchemaValidatingReader reader = new JSchemaValidatingReader(source.CreateReader()))
             {

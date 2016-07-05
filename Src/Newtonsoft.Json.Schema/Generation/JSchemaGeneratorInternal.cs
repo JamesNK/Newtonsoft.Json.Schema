@@ -175,7 +175,7 @@ namespace Newtonsoft.Json.Schema.Generation
 
         private JSchema GenerateInternal(Type type, Required? valueRequired, JsonProperty memberProperty, JsonContainerContract container)
         {
-            ValidationUtils.ArgumentNotNull(type, "type");
+            ValidationUtils.ArgumentNotNull(type, nameof(type));
 
             Type nonNullableType = ReflectionUtils.IsNullableType(type) ? Nullable.GetUnderlyingType(type) : type;
 
@@ -283,7 +283,7 @@ namespace Newtonsoft.Json.Schema.Generation
                     resolvedRequired = Required.DisallowNull;
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException("valueRequired");
+                    throw new ArgumentOutOfRangeException(nameof(valueRequired));
             }
 
             TypeSchemaKey key = new TypeSchemaKey(contract.UnderlyingType, resolvedRequired, minLength, maxLength);

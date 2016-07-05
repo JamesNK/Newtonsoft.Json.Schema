@@ -18,7 +18,7 @@ namespace Newtonsoft.Json.Schema
 
         internal SchemaValidationEventArgs(ValidationError validationError)
         {
-            ValidationUtils.ArgumentNotNull(validationError, "validationError");
+            ValidationUtils.ArgumentNotNull(validationError, nameof(validationError));
             _validationError = validationError;
             _message = validationError.BuildExtendedMessage();
         }

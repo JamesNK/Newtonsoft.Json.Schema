@@ -153,7 +153,7 @@ namespace Newtonsoft.Json.Schema
         /// <param name="reader">The <see cref="JsonReader"/> to read from while validating.</param>
         public JSchemaValidatingReader(JsonReader reader)
         {
-            ValidationUtils.ArgumentNotNull(reader, "reader");
+            ValidationUtils.ArgumentNotNull(reader, nameof(reader));
             _reader = reader;
             _validator = new ReaderValidator(this);
         }

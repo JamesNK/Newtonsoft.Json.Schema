@@ -99,7 +99,7 @@ namespace Newtonsoft.Json.Schema.Generation
         /// <returns>A <see cref="JSchema"/> generated from the specified type.</returns>
         public JSchema Generate(Type type)
         {
-            ValidationUtils.ArgumentNotNull(type, "type");
+            ValidationUtils.ArgumentNotNull(type, nameof(type));
 
             return Generate(type, false);
         }
@@ -112,7 +112,7 @@ namespace Newtonsoft.Json.Schema.Generation
         /// <returns>A <see cref="JSchema"/> generated from the specified type.</returns>
         public JSchema Generate(Type type, bool rootSchemaNullable)
         {
-            ValidationUtils.ArgumentNotNull(type, "type");
+            ValidationUtils.ArgumentNotNull(type, nameof(type));
 
             LicenseHelpers.IncrementAndCheckGenerationCount();
 

@@ -64,7 +64,7 @@ namespace Newtonsoft.Json.Schema
         /// <param name="writer">The <see cref="JsonWriter"/> to write to while validating.</param>
         public JSchemaValidatingWriter(JsonWriter writer)
         {
-            ValidationUtils.ArgumentNotNull(writer, "writer");
+            ValidationUtils.ArgumentNotNull(writer, nameof(writer));
             _writer = writer;
             _validator = new WriterValidator(this);
         }

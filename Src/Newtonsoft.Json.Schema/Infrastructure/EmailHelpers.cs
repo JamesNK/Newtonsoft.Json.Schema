@@ -309,7 +309,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
             if (email == null)
             {
-                throw new ArgumentNullException("email");
+                throw new ArgumentNullException(nameof(email));
             }
 
             if (email.Length == 0 || email.Length >= 255)

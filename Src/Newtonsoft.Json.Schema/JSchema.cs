@@ -429,8 +429,8 @@ namespace Newtonsoft.Json.Schema
         /// <param name="settings">The settings used to write the schema.</param>
         public void WriteTo(JsonWriter writer, JSchemaWriterSettings settings)
         {
-            ValidationUtils.ArgumentNotNull(writer, "writer");
-            ValidationUtils.ArgumentNotNull(settings, "settings");
+            ValidationUtils.ArgumentNotNull(writer, nameof(writer));
+            ValidationUtils.ArgumentNotNull(settings, nameof(settings));
 
             WriteToInternal(writer, settings);
         }
@@ -602,7 +602,7 @@ namespace Newtonsoft.Json.Schema
         /// <returns>The <see cref="JSchema"/> object representing the JSON Schema.</returns>
         public static JSchema Load(JsonReader reader)
         {
-            ValidationUtils.ArgumentNotNull(reader, "reader");
+            ValidationUtils.ArgumentNotNull(reader, nameof(reader));
 
             return Load(reader, new JSchemaReaderSettings());
         }
@@ -615,8 +615,8 @@ namespace Newtonsoft.Json.Schema
         /// <returns>The <see cref="JSchema"/> object representing the JSON Schema.</returns>
         public static JSchema Load(JsonReader reader, JSchemaResolver resolver)
         {
-            ValidationUtils.ArgumentNotNull(reader, "reader");
-            ValidationUtils.ArgumentNotNull(resolver, "resolver");
+            ValidationUtils.ArgumentNotNull(reader, nameof(reader));
+            ValidationUtils.ArgumentNotNull(resolver, nameof(resolver));
 
             return Load(reader, new JSchemaReaderSettings
             {
@@ -632,8 +632,8 @@ namespace Newtonsoft.Json.Schema
         /// <returns>The <see cref="JSchema"/> object representing the JSON Schema.</returns>
         public static JSchema Load(JsonReader reader, JSchemaReaderSettings settings)
         {
-            ValidationUtils.ArgumentNotNull(reader, "reader");
-            ValidationUtils.ArgumentNotNull(settings, "settings");
+            ValidationUtils.ArgumentNotNull(reader, nameof(reader));
+            ValidationUtils.ArgumentNotNull(settings, nameof(settings));
 
             JSchemaReader schemaReader = new JSchemaReader(settings);
             JSchema schema = schemaReader.ReadRoot(reader);
@@ -648,7 +648,7 @@ namespace Newtonsoft.Json.Schema
         /// <returns>A <see cref="JSchema"/> populated from the string that contains JSON.</returns>
         public static JSchema Parse(string json)
         {
-            ValidationUtils.ArgumentNotNull(json, "json");
+            ValidationUtils.ArgumentNotNull(json, nameof(json));
 
             return Parse(json, new JSchemaReaderSettings());
         }
@@ -661,8 +661,8 @@ namespace Newtonsoft.Json.Schema
         /// <returns>A <see cref="JSchema"/> populated from the string that contains JSON.</returns>
         public static JSchema Parse(string json, JSchemaResolver resolver)
         {
-            ValidationUtils.ArgumentNotNull(json, "json");
-            ValidationUtils.ArgumentNotNull(resolver, "resolver");
+            ValidationUtils.ArgumentNotNull(json, nameof(json));
+            ValidationUtils.ArgumentNotNull(resolver, nameof(resolver));
 
             return Parse(json, new JSchemaReaderSettings
             {
@@ -678,8 +678,8 @@ namespace Newtonsoft.Json.Schema
         /// <returns>A <see cref="JSchema"/> populated from the string that contains JSON.</returns>
         public static JSchema Parse(string json, JSchemaReaderSettings settings)
         {
-            ValidationUtils.ArgumentNotNull(json, "json");
-            ValidationUtils.ArgumentNotNull(settings, "settings");
+            ValidationUtils.ArgumentNotNull(json, nameof(json));
+            ValidationUtils.ArgumentNotNull(settings, nameof(settings));
 
             using (JsonReader reader = new JsonTextReader(new StringReader(json)))
             {

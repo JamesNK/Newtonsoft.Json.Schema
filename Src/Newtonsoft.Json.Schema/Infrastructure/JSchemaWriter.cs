@@ -27,7 +27,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         public JSchemaWriter(JsonWriter writer, JSchemaWriterSettings settings)
         {
-            ValidationUtils.ArgumentNotNull(writer, "writer");
+            ValidationUtils.ArgumentNotNull(writer, nameof(writer));
 
             _writer = writer;
             _knownSchemas = new List<KnownSchema>();
@@ -167,7 +167,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         public void WriteSchema(JSchema schema)
         {
-            ValidationUtils.ArgumentNotNull(schema, "schema");
+            ValidationUtils.ArgumentNotNull(schema, nameof(schema));
 
             _knownSchemas.Clear();
 

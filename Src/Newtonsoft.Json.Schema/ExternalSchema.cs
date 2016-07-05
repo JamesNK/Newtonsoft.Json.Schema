@@ -42,11 +42,11 @@ namespace Newtonsoft.Json.Schema
         {
             if (uri == null)
             {
-                throw new ArgumentNullException("uri");
+                throw new ArgumentNullException(nameof(uri));
             }
             if (schema == null)
             {
-                throw new ArgumentNullException("schema");
+                throw new ArgumentNullException(nameof(schema));
             }
 
             _uri = uri;
@@ -61,7 +61,7 @@ namespace Newtonsoft.Json.Schema
         {
             if (schema == null)
             {
-                throw new ArgumentNullException("schema");
+                throw new ArgumentNullException(nameof(schema));
             }
 
             _uri = schema.Id ?? new Uri(string.Empty, UriKind.RelativeOrAbsolute);
