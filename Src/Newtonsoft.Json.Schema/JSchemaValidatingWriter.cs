@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-#if !(NET20 || NET35 || PORTABLE || PORTABLE40)
+#if !(NET20 || NET35 || PORTABLE || PORTABLE40) || NETSTANDARD1_3
 using System.Numerics;
 #endif
 using Newtonsoft.Json.Schema.Infrastructure.Validation;
@@ -234,7 +234,7 @@ namespace Newtonsoft.Json.Schema
         /// <param name="value">The <see cref="Object"/> value to write.</param>
         public override void WriteValue(object value)
         {
-#if !(NET20 || NET35 || PORTABLE || PORTABLE40)
+#if !(NET20 || NET35 || PORTABLE || PORTABLE40) || NETSTANDARD1_3
             if (value is BigInteger)
             {
                 _writer.WriteValue(value);

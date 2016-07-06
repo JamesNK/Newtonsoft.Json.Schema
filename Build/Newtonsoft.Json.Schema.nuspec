@@ -38,6 +38,7 @@
                 <dependency id="System.Net.Requests" version="4.0.11" />
                 <dependency id="System.Resources.ResourceManager" version="4.0.1" />
                 <dependency id="System.Runtime" version="4.1.0" />
+                <dependency id="System.Runtime.Numerics" version="4.0.1" />
                 <dependency id="System.Security.Cryptography.Csp" version="4.0.0" />
                 <dependency id="System.Text.Encoding" version="4.0.11" />
                 <dependency id="System.Text.RegularExpressions" version="4.1.0" />

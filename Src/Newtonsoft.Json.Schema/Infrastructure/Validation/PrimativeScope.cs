@@ -6,7 +6,7 @@
 using System;
 using System.Globalization;
 using System.IO;
-#if !(NET35 || PORTABLE)
+#if !(NET35 || PORTABLE) || NETSTANDARD1_3
 using System.Numerics;
 #endif
 using System.Text.RegularExpressions;
@@ -126,7 +126,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             if (schema.Maximum != null)
             {
                 object v;
-#if !(NET20 || NET35 || PORTABLE)
+#if !(NET20 || NET35 || PORTABLE) || NETSTANDARD1_3
                 v = (value is BigInteger) ? (double)(BigInteger)value : value;
 #else
                 v = value;
@@ -145,7 +145,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             if (schema.Minimum != null)
             {
                 object v;
-#if !(NET20 || NET35 || PORTABLE)
+#if !(NET20 || NET35 || PORTABLE) || NETSTANDARD1_3
                 v = (value is BigInteger) ? (double)(BigInteger)value : value;
 #else
                 v = value;
@@ -163,32 +163,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
             if (schema.MultipleOf != null)
             {
-                bool notDivisible;
-#if !(NET20 || NET35 || PORTABLE)
-                if (value is BigInteger)
-                {
-                    double multipleOf = schema.MultipleOf.Value;
-
-                    // not that this will lose any decimal point on MultipleOf
-                    // so manually raise an error if MultipleOf is not an integer and value is not zero
-                    BigInteger i = (BigInteger)value;
-                    bool divisibleNonInteger = !MathHelpers.IsZero(Math.Abs(multipleOf - Math.Truncate(multipleOf)));
-                    if (divisibleNonInteger)
-                    {
-                        notDivisible = i != 0;
-                    }
-                    else
-                    {
-                        notDivisible = i % new BigInteger(multipleOf) != 0;
-                    }
-                }
-                else
-#endif
-                {
-                    notDivisible = !MathHelpers.IsZero(Convert.ToInt64(value, CultureInfo.InvariantCulture) % schema.MultipleOf.Value);
-                }
-
-                if (notDivisible)
+                if (!MathHelpers.IsIntegerMultiple(value, schema.MultipleOf.Value))
                 {
                     RaiseError($"Integer {JsonConvert.ToString(value)} is not a multiple of {schema.MultipleOf}.", ErrorType.MultipleOf, schema, value, null);
                 }
@@ -370,7 +345,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
             if (schema.MultipleOf != null)
             {
-                if (!MathHelpers.IsMultiple(value, schema.MultipleOf.Value))
+                if (!MathHelpers.IsDoubleMultiple(value, schema.MultipleOf.Value))
                 {
                     RaiseError($"Float {JsonConvert.ToString(value)} is not a multiple of {schema.MultipleOf}.", ErrorType.MultipleOf, schema, value, null);
                 }

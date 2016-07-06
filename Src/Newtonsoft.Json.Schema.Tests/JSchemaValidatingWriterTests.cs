@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-#if !(PORTABLE || NET35)
+#if !(PORTABLE || NET35) || DNXCORE50
 using System.Numerics;
 #endif
 using System.Text;
@@ -556,7 +556,7 @@ namespace Newtonsoft.Json.Schema.Tests
 ]", json);
         }
 
-#if !(PORTABLE || NET35)
+#if !(PORTABLE || NET35) || DNXCORE50
         [Test]
         public void WriteBigInteger()
         {

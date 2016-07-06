@@ -10,7 +10,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-#if !(NET20 || NET35 || PORTABLE || PORTABLE40)
+#if !(NET20 || NET35 || PORTABLE || PORTABLE40) || NETSTANDARD1_3
 using System.Numerics;
 #endif
 using Newtonsoft.Json.Linq;
@@ -400,7 +400,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         {
             EnsureToken(reader, name, JsonToken.Integer);
 
-#if !(NET20 || NET35 || PORTABLE || PORTABLE40)
+#if !(NET20 || NET35 || PORTABLE || PORTABLE40) || NETSTANDARD1_3
             if (reader.Value is BigInteger)
             {
                 BigInteger i = (BigInteger)reader.Value;
@@ -421,7 +421,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         {
             EnsureToken(reader, name, Constants.NumberTokens);
 
-#if !(NET20 || NET35 || PORTABLE || PORTABLE40)
+#if !(NET20 || NET35 || PORTABLE || PORTABLE40) || NETSTANDARD1_3
             if (reader.Value is BigInteger)
             {
                 BigInteger i = (BigInteger)reader.Value;

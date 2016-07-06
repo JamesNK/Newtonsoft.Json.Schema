@@ -10,7 +10,7 @@ using System.IO;
 using Newtonsoft.Json.Utilities.LinqBridge;
 #endif
 using Newtonsoft.Json.Schema.Infrastructure;
-#if !(NET20 || NET35 || PORTABLE || DNXCORE50)
+#if !(NET20 || NET35 || PORTABLE) || DNXCORE50
 using System.Numerics;
 #endif
 using System.Text;
@@ -513,7 +513,7 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsNotNull(validationEventArgs);
         }
 
-#if !(NET20 || NET35 || PORTABLE || DNXCORE50 || PORTABLE40)
+#if !(NET20 || NET35 || PORTABLE || PORTABLE40) || DNXCORE50
         [Test]
         public void IntegerGreaterThanMaximumValue_BigInteger()
         {
@@ -776,7 +776,7 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsNotNull(validationEventArgs);
         }
 
-#if !(NET20 || NET35 || PORTABLE || DNXCORE50 || PORTABLE40)
+#if !(NET20 || NET35 || PORTABLE || PORTABLE40) || DNXCORE50
         [Test]
         public void BigIntegerDivisibleBy_Success()
         {
