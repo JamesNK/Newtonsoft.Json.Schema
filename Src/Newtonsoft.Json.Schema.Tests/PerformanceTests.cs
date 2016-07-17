@@ -99,7 +99,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             using (var tester = new PerformanceTester("DeeplyNestedConditionalScopes"))
             {
-                for (int i = 1; i < 1; i++)
+                for (int i = 1; i < ValidationCount; i++)
                 {
                     ReaderValidation();
                 }
