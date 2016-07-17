@@ -19,7 +19,37 @@
                   "childComponents": [
                     {
                       "name": "Component5",
-                      "prop5": "Property5"
+                      "prop5": "Property5",
+                      "childComponents": [
+                        {
+                          "name": "Component6",
+                          "prop6": "Property6",
+                          "childComponents": [
+                            {
+                              "name": "Component7",
+                              "prop7": "Property7",
+                              "childComponents": [
+                                {
+                                  "name": "Component8",
+                                  "prop8": "Property8",
+                                  "childComponents": [
+                                    {
+                                      "name": "Component9",
+                                      "prop9": "Property9",
+                                      "childComponents": [
+                                        {
+                                          "name": "Component10",
+                                          "prop10": "Property10"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
                     }
                   ]
                 }

@@ -86,6 +86,39 @@ namespace Newtonsoft.Json.Schema.Tests
             }
         }
 
+        [Test]
+        public void DeeplyNestedConditionalScopes()
+        {
+            string schemaJson = TestHelpers.OpenFileText(@"resources\schemas\components-10definitions.schema.json");
+
+            string json = TestHelpers.OpenFileText(@"resources\json\components-5levels.json");
+
+            JSchema schema = JSchema.Parse(schemaJson);
+
+            ReaderValidation(json, schema);
+
+            using (var tester = new PerformanceTester("DeeplyNestedConditionalScopes"))
+            {
+                for (int i = 1; i < 1; i++)
+                {
+                    ReaderValidation();
+                }
+            }
+        }
+
+        private static void ReaderValidation(string json, JSchema schema)
+        {
+            List<ValidationError> errors = new List<ValidationError>();
+
+            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            reader.ValidationEventHandler += (o, e) => errors.Add(e.ValidationError);
+            reader.Schema = schema;
+
+            while (reader.Read())
+            {
+            }
+        }
+
         private void ReaderValidation()
         {
             JsonTextReader reader = new JsonTextReader(new StringReader(Json));
