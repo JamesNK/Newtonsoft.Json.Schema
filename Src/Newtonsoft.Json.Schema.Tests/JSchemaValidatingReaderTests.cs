@@ -776,7 +776,7 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsNotNull(validationEventArgs);
         }
 
-#if !(NET20 || NET35 || PORTABLE || PORTABLE40) || DNXCORE50
+#if !(NET20 || NET35 || PORTABLE || PORTABLE40)
         [Test]
         public void BigIntegerDivisibleBy_Success()
         {

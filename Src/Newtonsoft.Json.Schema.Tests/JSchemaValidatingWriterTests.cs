@@ -556,7 +556,7 @@ namespace Newtonsoft.Json.Schema.Tests
 ]", json);
         }
 
-#if !(PORTABLE || NET35) || DNXCORE50
+#if !(PORTABLE || NET35)
         [Test]
         public void WriteBigInteger()
         {
