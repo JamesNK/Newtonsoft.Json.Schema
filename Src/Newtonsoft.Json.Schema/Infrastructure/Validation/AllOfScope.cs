@@ -17,7 +17,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
         {
             if (depth == InitialDepth && JsonTokenHelpers.IsPrimitiveOrEndToken(token))
             {
-                if (!GetChildren().All(IsValidPredicate))
+                if (!GetChildrenAllValid())
                 {
                     List<int> invalidIndexes = new List<int>();
                     int index = 0;

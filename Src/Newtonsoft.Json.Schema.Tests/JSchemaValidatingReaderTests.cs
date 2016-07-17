@@ -2491,5 +2491,27 @@ namespace Newtonsoft.Json.Schema.Tests
 
             Assert.AreEqual(0, errors.Count);
         }
+
+        [Test]
+        public void DeeplyNestedConditionalScopes()
+        {
+            string schemaJson = TestHelpers.OpenFileText(@"resources\schemas\components-10definitions.schema.json");
+
+            string json = TestHelpers.OpenFileText(@"resources\json\components-5levels.json");
+
+            JSchema schema = JSchema.Parse(schemaJson);
+
+            List<ValidationError> errors = new List<ValidationError>();
+
+            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            reader.ValidationEventHandler += (o, e) => errors.Add(e.ValidationError);
+            reader.Schema = schema;
+
+            while (reader.Read())
+            {
+            }
+
+            Assert.AreEqual(0, errors.Count);
+        }
     }
 }

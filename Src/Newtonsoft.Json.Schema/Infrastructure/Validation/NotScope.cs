@@ -15,7 +15,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
         {
             if (depth == InitialDepth && JsonTokenHelpers.IsPrimitiveOrEndToken(token))
             {
-                if (GetChildren().Any(IsValidPredicate))
+                if (GetChildrenAnyValid())
                 {
                     RaiseError($"JSON is valid against schema from 'not'.", ErrorType.Not, ParentSchemaScope.Schema, null, ConditionalContext.Errors);
                 }

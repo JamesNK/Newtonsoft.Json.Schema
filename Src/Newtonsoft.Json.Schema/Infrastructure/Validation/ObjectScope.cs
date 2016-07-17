@@ -21,7 +21,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
         private List<string> _readProperties;
         private Dictionary<string, SchemaScope> _dependencyScopes;
 
-        public void Initialize(ContextBase context, Scope parent, int initialDepth, JSchema schema)
+        public void Initialize(ContextBase context, SchemaScope parent, int initialDepth, JSchema schema)
         {
             Initialize(context, parent, initialDepth, ScopeType.Object);
             InitializeSchema(schema);

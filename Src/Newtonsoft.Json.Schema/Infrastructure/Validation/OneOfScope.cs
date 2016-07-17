@@ -17,7 +17,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
         {
             if (depth == InitialDepth && JsonTokenHelpers.IsPrimitiveOrEndToken(token))
             {
-                int validCount = GetChildren().Count(IsValidPredicate);
+                int validCount = GetChildrenValidCount();
 
                 if (validCount != 1)
                 {

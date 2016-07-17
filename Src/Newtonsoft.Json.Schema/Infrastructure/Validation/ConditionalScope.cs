@@ -12,12 +12,18 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
     {
         protected ConditionalContext ConditionalContext;
         protected SchemaScope ParentSchemaScope;
-        protected static readonly Func<SchemaScope, bool> IsValidPredicate = IsValidPredicateInternal;
+        protected readonly List<SchemaScope> ChildScopes;
 
-        public void Initialize(ContextBase context, SchemaScope parent, int initialDepth, ScopeType type)
+        protected ConditionalScope()
+        {
+            ChildScopes = new List<SchemaScope>();
+        }
+
+        public override void Initialize(ContextBase context, SchemaScope parent, int initialDepth, ScopeType type)
         {
             base.Initialize(context, parent, initialDepth, type);
 
+            ChildScopes.Clear();
             ParentSchemaScope = parent;
             ConditionalContext = ConditionalContext.Create(context);
         }
@@ -26,39 +32,92 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
         {
             foreach (JSchema schema in schemas)
             {
-                SchemaScope.CreateTokenScope(token, schema, ConditionalContext, this, InitialDepth);
+                // check to see whether a scope with the same schema exists
+                SchemaScope childScope = GetExistingSchemaScope(schema);
+
+                if (childScope == null)
+                {
+                    childScope = SchemaScope.CreateTokenScope(token, schema, ConditionalContext, null, InitialDepth);
+                }
+
+                ChildScopes.Add(childScope);
             }
         }
 
-        protected IEnumerable<SchemaScope> GetChildren()
+        private SchemaScope GetExistingSchemaScope(JSchema schema)
         {
-            foreach (Scope scope in Context.Scopes)
+            for (int i = Context.Scopes.Count - 1; i >= 0; i--)
             {
-                SchemaScope schemaScope = scope as SchemaScope;
-                if (schemaScope != null)
+                SchemaScope scope = Context.Scopes[i] as SchemaScope;
+
+                if (scope != null)
                 {
-                    if (schemaScope.Parent == this)
+                    if (scope.InitialDepth == InitialDepth)
                     {
-                        yield return schemaScope;
+                        if (!scope.Complete && scope.InitialDepth == InitialDepth && scope.Schema == schema)
+                        {
+                            return scope;
+                        }
+                    }
+                    else if (scope.InitialDepth < InitialDepth)
+                    {
+                        break;
                     }
                 }
             }
+
+            return null;
         }
 
-        protected IEnumerable<SchemaScope> GetValidChildren()
+        protected List<SchemaScope> GetChildren()
         {
-            foreach (SchemaScope schemaScope in GetChildren())
+            return ChildScopes;
+        }
+
+        protected int GetChildrenValidCount()
+        {
+            int count = 0;
+            for (int i = 0; i < ChildScopes.Count; i++)
             {
+                SchemaScope schemaScope = ChildScopes[i];
+
                 if (schemaScope.IsValid)
                 {
-                    yield return schemaScope;
+                    count++;
                 }
             }
+
+            return count;
         }
 
-        protected static bool IsValidPredicateInternal(SchemaScope s)
+        protected bool GetChildrenAnyValid()
         {
-            return s.IsValid;
+            for (int i = 0; i < ChildScopes.Count; i++)
+            {
+                SchemaScope schemaScope = ChildScopes[i];
+
+                if (schemaScope.IsValid)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        protected bool GetChildrenAllValid()
+        {
+            for (int i = 0; i < ChildScopes.Count; i++)
+            {
+                SchemaScope schemaScope = ChildScopes[i];
+
+                if (!schemaScope.IsValid)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 }

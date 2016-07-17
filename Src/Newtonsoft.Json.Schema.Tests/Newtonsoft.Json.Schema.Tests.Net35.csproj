@@ -102,6 +102,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Newtonsoft.Json.Schema.Tests.Net35.project.json" />
+    <None Include="Resources\Json\components-5levels.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Resources\Json\swagger-petstore.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -121,6 +124,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Resources\Schemas\component.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Schemas\components-10definitions.schema.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Resources\Schemas\composer.json">

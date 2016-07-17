@@ -23,11 +23,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
     {
         public int InitialDepth;
         public ContextBase Context;
-        public Scope Parent;
+        public SchemaScope Parent;
         public ScopeType Type;
         public bool Complete;
 
-        protected void Initialize(ContextBase context, Scope parent, int initialDepth, ScopeType type)
+        public virtual void Initialize(ContextBase context, SchemaScope parent, int initialDepth, ScopeType type)
         {
             Context = context;
             Parent = parent;
@@ -41,7 +41,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             // mark all parent SchemaScopes as invalid
             Scope current = this;
             SchemaScope parentSchemaScope;
-            while ((parentSchemaScope = current.Parent as SchemaScope) != null)
+            while ((parentSchemaScope = current.Parent) != null)
             {
                 if (!parentSchemaScope.IsValid)
                 {

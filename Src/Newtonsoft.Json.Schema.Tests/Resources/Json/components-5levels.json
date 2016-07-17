@@ -1,0 +1,33 @@
+{
+  "name": "Component0",
+  "childComponents": [
+    {
+      "name": "Component1",
+      "prop1": "Property1",
+      "childComponents": [
+        {
+          "name": "Component2",
+          "prop2": "Property2",
+          "childComponents": [
+            {
+              "name": "Component3",
+              "prop3": "Property3",
+              "childComponents": [
+                {
+                  "name": "Component4",
+                  "prop4": "Property4",
+                  "childComponents": [
+                    {
+                      "name": "Component5",
+                      "prop5": "Property5"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

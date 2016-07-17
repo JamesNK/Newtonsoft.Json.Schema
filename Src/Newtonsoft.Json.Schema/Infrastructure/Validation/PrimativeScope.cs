@@ -17,7 +17,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 {
     internal class PrimativeScope : SchemaScope
     {
-        public void Initialize(ContextBase context, Scope parent, int initialDepth, JSchema schema)
+        public void Initialize(ContextBase context, SchemaScope parent, int initialDepth, JSchema schema)
         {
             Initialize(context, parent, initialDepth, ScopeType.Primitive);
             InitializeSchema(schema);

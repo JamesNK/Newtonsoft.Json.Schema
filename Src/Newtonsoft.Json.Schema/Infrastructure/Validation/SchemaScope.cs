@@ -24,7 +24,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             IsValid = true;
         }
 
-        public static SchemaScope CreateTokenScope(JsonToken token, JSchema schema, ContextBase context, Scope parent, int depth)
+        public static SchemaScope CreateTokenScope(JsonToken token, JSchema schema, ContextBase context, SchemaScope parent, int depth)
         {
             SchemaScope scope;
 

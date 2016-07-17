@@ -1,0 +1,239 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "title": "JSON schema",
+  "description": "JSON schema",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "pattern": "^Component0$"
+    },
+    "childComponents": {
+      "$ref": "#/definitions/_childComponents"
+    }
+  },
+  "required": [
+    "name"
+  ],
+  "additionalProperties": false,
+  "definitions": {
+    "_childComponents": {
+      "description": "A recursive array of child items",
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "$ref": "#/definitions/Component1"
+          },
+          {
+            "$ref": "#/definitions/Component2"
+          },
+          {
+            "$ref": "#/definitions/Component3"
+          },
+          {
+            "$ref": "#/definitions/Component4"
+          },
+          {
+            "$ref": "#/definitions/Component5"
+          },
+          {
+            "$ref": "#/definitions/Component6"
+          },
+          {
+            "$ref": "#/definitions/Component7"
+          },
+          {
+            "$ref": "#/definitions/Component8"
+          },
+          {
+            "$ref": "#/definitions/Component9"
+          },
+          {
+            "$ref": "#/definitions/Component10"
+          }
+        ]
+      }
+    },
+    "Component1": {
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^Component1$"
+        },
+        "prop1": {
+          "type": "string"
+        },
+        "childComponents": {
+          "$ref": "#/definitions/_childComponents"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false
+    },
+    "Component2": {
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^Component2$"
+        },
+        "prop2": {
+          "type": "string"
+        },
+        "childComponents": {
+          "$ref": "#/definitions/_childComponents"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false
+    },
+    "Component3": {
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^Component3$"
+        },
+        "prop3": {
+          "type": "string"
+        },
+        "childComponents": {
+          "$ref": "#/definitions/_childComponents"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false
+    },
+    "Component4": {
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^Component4$"
+        },
+        "prop4": {
+          "type": "string"
+        },
+        "childComponents": {
+          "$ref": "#/definitions/_childComponents"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false
+    },
+    "Component5": {
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^Component5$"
+        },
+        "prop5": {
+          "type": "string"
+        },
+        "childComponents": {
+          "$ref": "#/definitions/_childComponents"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false
+    },
+    "Component6": {
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^Component6$"
+        },
+        "prop6": {
+          "type": "string"
+        },
+        "childComponents": {
+          "$ref": "#/definitions/_childComponents"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false
+    },
+    "Component7": {
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^Component7$"
+        },
+        "prop7": {
+          "type": "string"
+        },
+        "childComponents": {
+          "$ref": "#/definitions/_childComponents"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false
+    },
+    "Component8": {
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^Component8$"
+        },
+        "prop8": {
+          "type": "string"
+        },
+        "childComponents": {
+          "$ref": "#/definitions/_childComponents"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false
+    },
+    "Component9": {
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^Component9$"
+        },
+        "prop9": {
+          "type": "string"
+        },
+        "childComponents": {
+          "$ref": "#/definitions/_childComponents"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false
+    },
+    "Component10": {
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^Component10$"
+        },
+        "prop10": {
+          "type": "string"
+        },
+        "childComponents": {
+          "$ref": "#/definitions/_childComponents"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false
+    }
+  }
+}
