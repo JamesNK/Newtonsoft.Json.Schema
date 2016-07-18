@@ -54,7 +54,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 {
                     if (scope.InitialDepth == InitialDepth)
                     {
-                        if (!scope.Complete && scope.InitialDepth == InitialDepth && scope.Schema == schema)
+                        if (!scope.Complete && scope.Schema == schema)
                         {
                             return scope;
                         }
@@ -67,11 +67,6 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             }
 
             return null;
-        }
-
-        protected List<SchemaScope> GetChildren()
-        {
-            return ChildScopes;
         }
 
         protected int GetChildrenValidCount()
