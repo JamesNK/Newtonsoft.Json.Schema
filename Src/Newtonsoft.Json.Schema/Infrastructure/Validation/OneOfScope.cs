@@ -23,7 +23,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 {
                     List<int> validIndexes = new List<int>();
                     int index = 0;
-                    foreach (SchemaScope schemaScope in GetChildren())
+                    foreach (SchemaScope schemaScope in ChildScopes)
                     {
                         if (schemaScope.IsValid)
                         {
@@ -40,7 +40,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     }
                     else
                     {
-                        message = $"JSON is valid against more than one schema from 'oneOf'. No valid schemas.";
+                        message = $"JSON is valid against no schemas from 'oneOf'.";
                     }
 
                     RaiseError(message, ErrorType.OneOf, ParentSchemaScope.Schema, null, ConditionalContext.Errors);

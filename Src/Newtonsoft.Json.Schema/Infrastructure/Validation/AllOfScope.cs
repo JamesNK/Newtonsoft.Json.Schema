@@ -21,7 +21,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 {
                     List<int> invalidIndexes = new List<int>();
                     int index = 0;
-                    foreach (SchemaScope schemaScope in GetChildren())
+                    foreach (SchemaScope schemaScope in ChildScopes)
                     {
                         if (!schemaScope.IsValid)
                         {

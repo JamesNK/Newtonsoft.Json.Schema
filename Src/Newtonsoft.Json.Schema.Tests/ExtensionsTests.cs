@@ -658,7 +658,7 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(1, errors.Count);
 
             ValidationError error = errors.Single();
-            StringAssert.AreEqual("JSON is valid against more than one schema from 'oneOf'. No valid schemas. Path '', line 1, position 9.", error.BuildExtendedMessage());
+            StringAssert.AreEqual("JSON is valid against no schemas from 'oneOf'. Path '', line 1, position 9.", error.BuildExtendedMessage());
             Assert.AreEqual(2, error.ChildErrors.Count);
             StringAssert.AreEqual(@"String 'foo foo' exceeds maximum length of 4. Path '', line 1, position 9.", error.ChildErrors[0].BuildExtendedMessage());
             StringAssert.AreEqual(@"Invalid type. Expected Object but got String. Path '', line 1, position 9.", error.ChildErrors[1].BuildExtendedMessage());
