@@ -29,7 +29,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 return true;
             }
 
-            return string.Equals(x.Fragment, y.Fragment, StringComparison.Ordinal);
+            return string.Equals(ResolveFragment(x), ResolveFragment(y), StringComparison.Ordinal);
         }
 
         public int GetHashCode(Uri obj)
@@ -40,6 +40,16 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             }
 
             return obj.GetHashCode() ^ obj.Fragment.GetHashCode();
+        }
+
+        private string ResolveFragment(Uri uri)
+        {
+            // an empty fragment '#' is the same as no fragment
+            string resolvedFragment = string.Equals(uri.Fragment, "#", StringComparison.Ordinal)
+                ? string.Empty
+                : uri.Fragment;
+
+            return resolvedFragment;
         }
     }
 }
