@@ -220,9 +220,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
 
                 Uri resolvedReference = ResolveSchemaId(rootSchemaId, reference);
 
-                // default Uri comparison ignores fragments
                 // use firstordefault to handle duplicates
-                KnownSchema knownSchema = discovery.KnownSchemas.FirstOrDefault(s => s.Id.OriginalString.TrimEnd('#') == resolvedReference.OriginalString.TrimEnd('#'));
+                KnownSchema knownSchema = discovery.KnownSchemas.FirstOrDefault(s => UriComparer.Instance.Equals(s.Id, resolvedReference));
 
                 if (knownSchema != null)
                 {
@@ -237,9 +236,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                         Uri path = new Uri(resolvedReference.OriginalString.Substring(0, hashIndex), UriKind.RelativeOrAbsolute);
                         Uri fragment = new Uri(resolvedReference.OriginalString.Substring(hashIndex), UriKind.RelativeOrAbsolute);
 
-                        // default Uri comparison ignores fragments
                         // there could be duplicated ids. use FirstOrDefault to get first schema with an id
-                        knownSchema = discovery.KnownSchemas.FirstOrDefault(s => s.Id.OriginalString.TrimEnd('#') == path.OriginalString);
+                        knownSchema = discovery.KnownSchemas.FirstOrDefault(s => UriComparer.Instance.Equals(s.Id, path));
 
                         if (knownSchema != null)
                         {
@@ -268,14 +266,24 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                         JToken definitions;
                         if (schema.ExtensionData.TryGetValue(Constants.PropertyNames.Definitions, out definitions))
                         {
-                            JObject o = definitions[resolvedReference.OriginalString] as JObject;
-                            if (o != null && (string)o["id"] == resolvedReference.OriginalString)
+                            JObject definitionsObject = definitions as JObject;
+                            if (definitionsObject != null)
                             {
-                                JSchema inlineSchema = schemaReader.ReadInlineSchema(setSchema, o);
+                                JProperty matchingProperty = definitionsObject.Properties().FirstOrDefault(p => TryCompare(p.Name, resolvedReference));
 
-                                discovery.Discover(inlineSchema, rootSchemaId, Constants.PropertyNames.Definitions + "/" + resolvedReference.OriginalString);
+                                JObject o = matchingProperty?.Value as JObject;
+                                if (o != null && TryCompare((string)o["id"], resolvedReference))
+                                {
+                                    JSchema inlineSchema = schemaReader.ReadInlineSchema(setSchema, o);
 
-                                resolvedSchema = true;
+                                    discovery.Discover(inlineSchema, rootSchemaId, Constants.PropertyNames.Definitions + "/" + resolvedReference.OriginalString);
+
+                                    resolvedSchema = true;
+                                }
+                                else
+                                {
+                                    resolvedSchema = false;
+                                }
                             }
                             else
                             {
@@ -291,6 +299,22 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             }
 
             return resolvedSchema;
+        }
+
+        private static bool TryCompare(string value, Uri resolvedReference)
+        {
+            if (value == null)
+            {
+                return false;
+            }
+
+            Uri definitionUri;
+            if (Uri.TryCreate(value, UriKind.RelativeOrAbsolute, out definitionUri))
+            {
+                return UriComparer.Instance.Equals(definitionUri, resolvedReference);
+            }
+
+            return false;
         }
 
         public static Uri ResolveSchemaId(Uri idScope, Uri schemaId)
