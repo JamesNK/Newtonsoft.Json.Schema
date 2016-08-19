@@ -1607,6 +1607,23 @@ namespace Newtonsoft.Json.Schema.Tests
 }", json);
         }
 #endif
+
+        [Test]
+        public void DefinitionsOrder()
+        {
+            JSchemaGenerator generator = new JSchemaGenerator();
+            JSchema schema = generator.Generate(typeof(BigItem));
+
+            List<JProperty> t = schema.ExtensionData["definitions"].Cast<JProperty>().ToList();
+            int index = 0;
+            Assert.AreEqual("B", t[index++].Name);
+            Assert.AreEqual("A", t[index++].Name);
+            Assert.AreEqual("Item", t[index++].Name);
+
+            string json = schema.ToString();
+
+            Console.WriteLine(json);
+        }
     }
 
     public class NullableInt32TestClass
@@ -1676,5 +1693,29 @@ namespace Newtonsoft.Json.Schema.Tests
 
     public class BulkInsertTask_DSL
     {
+    }
+
+    public class A
+    {
+        public string Value { get; set; }
+    }
+
+    public class B
+    {
+        public string ValueB { get; set; }
+    }
+
+    public class Item
+    {
+        public A ItemA { get; set; }
+        public B ItemB { get; set; }
+
+        public List<A> ItemAs { get; set; }
+        public List<B> ItemBs { get; set; }
+    }
+
+    public class BigItem
+    {
+        public Item SmallItem { get; set; }
     }
 }
