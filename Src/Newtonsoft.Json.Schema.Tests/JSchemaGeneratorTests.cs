@@ -1618,7 +1618,7 @@ namespace Newtonsoft.Json.Schema.Tests
             int index = 0;
             Assert.AreEqual("B", t[index++].Name);
             Assert.AreEqual("A", t[index++].Name);
-            Assert.AreEqual("Item", t[index++].Name);
+            Assert.AreEqual("Item", t[index].Name);
 
             string json = schema.ToString();
 
