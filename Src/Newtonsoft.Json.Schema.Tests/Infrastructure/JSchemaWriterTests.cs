@@ -709,7 +709,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             schema.OneOf.Add(schema);
             schema.Not = file;
 
-            JSchema file2 = (JSchema)schema.ExtensionData["definitions"]["file"];
+            JSchema file2 = (JSchema) schema.ExtensionData["definitions"]["file"];
 
             Assert.AreEqual(file, file2);
 
@@ -819,6 +819,99 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             StringAssert.AreEqual(@"{
   ""format"": ""a-format""
 }", json);
+        }
+
+        [Test]
+        public void WriteTo_CircularReference_ReferenceHandling_Never()
+        {
+            string json = @"{
+  ""description"":""CircularReference"",
+  ""type"":[""array""],
+  ""items"":{""$ref"":""#""}
+}";
+
+            JSchema schema = JSchema.Parse(json);
+
+            StringWriter writer = new StringWriter();
+            JsonTextWriter jsonWriter = new JsonTextWriter(writer);
+            jsonWriter.Formatting = Formatting.Indented;
+
+            ExceptionAssert.Throws<JSchemaException>(() =>
+            {
+                schema.WriteTo(jsonWriter, new JSchemaWriterSettings
+                {
+                    ReferenceHandling = JSchemaWriterReferenceHandling.Never
+                });
+            }, "Cannot write schema because the schema contains a circular reference and writing schema references has been turned off.");
+        }
+
+        [Test]
+        public void WriteTo_CircularReference_ReferenceHandling_Auto()
+        {
+            string json = @"{
+  ""description"":""CircularReference"",
+  ""type"":[""array""],
+  ""items"":{""$ref"":""#""}
+}";
+
+            JSchema schema = JSchema.Parse(json);
+
+            StringWriter writer = new StringWriter();
+            JsonTextWriter jsonWriter = new JsonTextWriter(writer);
+            jsonWriter.Formatting = Formatting.Indented;
+
+            schema.WriteTo(jsonWriter, new JSchemaWriterSettings
+            {
+                ReferenceHandling = JSchemaWriterReferenceHandling.Auto
+            });
+
+            StringAssert.AreEqual(@"{
+  ""description"": ""CircularReference"",
+  ""type"": ""array"",
+  ""items"": {
+    ""$ref"": ""#""
+  }
+}", writer.ToString());
+        }
+
+        [Test]
+        public void WriteTo_MultipleUsages_ReferenceHandling_Auto()
+        {
+            JSchema numberSchema = new JSchema
+            {
+                Type = JSchemaType.Number | JSchemaType.Integer
+            };
+            JSchema schema = new JSchema();
+            schema.Properties["prop1"] = numberSchema;
+            schema.Properties["prop2"] = numberSchema;
+
+            StringWriter writer = new StringWriter();
+            JsonTextWriter jsonWriter = new JsonTextWriter(writer);
+            jsonWriter.Formatting = Formatting.Indented;
+
+            schema.WriteTo(jsonWriter, new JSchemaWriterSettings
+            {
+                ReferenceHandling = JSchemaWriterReferenceHandling.Auto
+            });
+
+            Console.WriteLine(writer.ToString());
+
+            StringAssert.AreEqual(@"{
+  ""properties"": {
+    ""prop1"": {
+      ""type"": [
+        ""number"",
+        ""integer""
+      ]
+    },
+    ""prop2"": {
+      ""type"": [
+        ""number"",
+        ""integer""
+      ]
+    }
+  }
+}", writer.ToString());
         }
     }
 }

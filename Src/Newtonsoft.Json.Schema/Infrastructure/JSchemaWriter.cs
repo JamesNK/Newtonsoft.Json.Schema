@@ -18,7 +18,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure
     {
         private readonly JsonWriter _writer;
         private readonly List<KnownSchema> _knownSchemas;
+        private readonly List<JSchema> _schemaStack;
         private readonly IList<ExternalSchema> _externalSchemas;
+        private readonly JSchemaWriterReferenceHandling _referenceHandling;
 
         public JSchemaWriter(JsonWriter writer)
             : this(writer, null)
@@ -35,6 +37,12 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             if (settings != null)
             {
                 _externalSchemas = settings.ExternalSchemas;
+                _referenceHandling = settings.ReferenceHandling;
+            }
+
+            if (_referenceHandling != JSchemaWriterReferenceHandling.Always)
+            {
+                _schemaStack = new List<JSchema>();
             }
         }
 
@@ -51,7 +59,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 _writer.WritePropertyName(propertyName);
             }
 
-            if (knownSchema.State != KnownSchemaState.InlinePending)
+            if (ShouldWriteReference(knownSchema))
             {
                 KnownSchema currentKnownSchema = _knownSchemas.Single(s => s.Schema == context);
 
@@ -89,6 +97,33 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             knownSchema.State = KnownSchemaState.InlineWritten;
 
             WriteSchemaInternal(schema);
+        }
+
+        private bool ShouldWriteReference(KnownSchema knownSchema)
+        {
+            if (knownSchema.State != KnownSchemaState.InlinePending)
+            {
+                if (_referenceHandling == JSchemaWriterReferenceHandling.Always)
+                {
+                    return true;
+                }
+
+                bool isRecursive = _schemaStack.Contains(knownSchema.Schema);
+
+                if (isRecursive)
+                {
+                    if (_referenceHandling == JSchemaWriterReferenceHandling.Auto)
+                    {
+                        return true;
+                    }
+
+                    throw new JSchemaException("Cannot write schema because the schema contains a circular reference and writing schema references has been turned off.");
+                }
+
+                return false;
+            }
+
+            return false;
         }
 
         private void WriteReferenceObject(Uri reference)
@@ -193,6 +228,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         private void WriteSchemaInternal(JSchema schema)
         {
+            _schemaStack?.Add(schema);
+
             _writer.WriteStartObject();
 
             WritePropertyIfNotNull(_writer, Constants.PropertyNames.Id, schema.Id);
@@ -276,6 +313,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             WriteSchema(schema, schema.Not, Constants.PropertyNames.Not);
 
             _writer.WriteEndObject();
+
+            _schemaStack?.RemoveAt(_schemaStack.Count - 1);
         }
 
         private void WriteRequired(JSchema schema)
