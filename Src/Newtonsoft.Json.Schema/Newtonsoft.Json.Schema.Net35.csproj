@@ -88,6 +88,7 @@
     <Compile Include="JSchemaValidatingReader.cs" />
     <Compile Include="JSchemaValidatingWriter.cs" />
     <Compile Include="JSchemaValidationException.cs" />
+    <Compile Include="JSchemaWriterReferenceHandling.cs" />
     <Compile Include="JSchemaWriterSettings.cs" />
     <Compile Include="JSchemaPreloadedResolver.cs" />
     <Compile Include="JsonValidator.cs" />

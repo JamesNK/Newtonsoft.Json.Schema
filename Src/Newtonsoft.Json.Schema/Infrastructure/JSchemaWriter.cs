@@ -117,7 +117,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                         return true;
                     }
 
-                    throw new JSchemaException("Cannot write schema because the schema contains a circular reference and writing schema references has been turned off.");
+                    throw new JSchemaException("Error writing schema because writing schema references has been disabled and the schema contains a circular reference.");
                 }
 
                 return false;

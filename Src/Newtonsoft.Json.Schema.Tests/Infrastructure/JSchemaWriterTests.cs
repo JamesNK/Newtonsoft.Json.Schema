@@ -842,7 +842,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
                 {
                     ReferenceHandling = JSchemaWriterReferenceHandling.Never
                 });
-            }, "Cannot write schema because the schema contains a circular reference and writing schema references has been turned off.");
+            }, "Error writing schema because writing schema references has been disabled and the schema contains a circular reference.");
         }
 
         [Test]

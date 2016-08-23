@@ -7,13 +7,6 @@ using System.Collections.Generic;
 
 namespace Newtonsoft.Json.Schema
 {
-    public enum JSchemaWriterReferenceHandling
-    {
-        Always,
-        Never,
-        Auto
-    }
-
     /// <summary>
     /// Specifies the settings used when writing a <see cref="JSchema"/>.
     /// </summary>
@@ -25,6 +18,11 @@ namespace Newtonsoft.Json.Schema
         /// <value>The <see cref="ExternalSchema"/>s used when resolving the schema reference to write.</value>
         public IList<ExternalSchema> ExternalSchemas { get; set; }
 
+        /// <summary>
+        /// Gets or sets the <see cref="JSchemaWriterReferenceHandling"/> setting used when writing schema references.
+        /// This setting doesn't effect <see cref="ExternalSchemas"/> references.
+        /// </summary>
+        /// <value>The <see cref="JSchemaWriterReferenceHandling"/> setting used when writing schema references.</value>
         public JSchemaWriterReferenceHandling ReferenceHandling { get; set; }
 
         /// <summary>
