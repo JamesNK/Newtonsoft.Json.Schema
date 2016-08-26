@@ -74,7 +74,7 @@ namespace Newtonsoft.Json.Schema
                 }
             }
 
-            if (path == null && !lineInfo.HasLineInfo())
+            if (path == null && (lineInfo == null || !lineInfo.HasLineInfo()))
             {
                 return message;
             }

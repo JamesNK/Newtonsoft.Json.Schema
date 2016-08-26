@@ -732,37 +732,6 @@ namespace Newtonsoft.Json.Schema.Tests
         }
 
         [Test]
-        public void Generate_ContractResolveProperty()
-        {
-            JSchemaGenerator generator = new JSchemaGenerator();
-            JSchema schema = generator.Generate(typeof(DefaultValueAttributeTestClass));
-
-            string json = schema.ToString();
-
-            StringAssert.AreEqual(@"{
-  ""type"": ""object"",
-  ""additionalProperties"": false,
-  ""properties"": {
-    ""TestField1"": {
-      ""type"": ""integer"",
-      ""default"": 21
-    },
-    ""TestProperty1"": {
-      ""type"": [
-        ""string"",
-        ""null""
-      ],
-      ""default"": ""TestProperty1Value""
-    }
-  },
-  ""required"": [
-    ""TestField1"",
-    ""TestProperty1""
-  ]
-}", json);
-        }
-
-        [Test]
         public void Generate_DefaultValueAttributeTestClass()
         {
             JSchemaGenerator generator = new JSchemaGenerator();
