@@ -23,6 +23,39 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
     public class JSchemaWriterTests : TestFixtureBase
     {
         [Test]
+        public void WriteTo_Schema_Root()
+        {
+            JSchema s = new JSchema
+            {
+                SchemaVersion = new Uri("http://www.google.com")
+            };
+
+            string json = s.ToString();
+
+            StringAssert.AreEqual(@"{
+  ""$schema"": ""http://www.google.com""
+}", json);
+        }
+
+        [Test]
+        public void WriteTo_Schema_NonRoot()
+        {
+            JSchema s = new JSchema
+            {
+                Not = new JSchema
+                {
+                    SchemaVersion = new Uri("http://www.google.com")
+                }
+            };
+
+            string json = s.ToString();
+
+            StringAssert.AreEqual(@"{
+  ""not"": {}
+}", json);
+        }
+
+        [Test]
         public void WriteTo_MaximumLength_Large()
         {
             JSchema s = new JSchema

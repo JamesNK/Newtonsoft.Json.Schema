@@ -1237,20 +1237,15 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                             throw JSchemaReaderException.Create(reader, _baseUri, "Unexpected token encountered when reading value for '$schema'. Expected String, got {0}.".FormatWith(CultureInfo.InvariantCulture, reader.TokenType));
                         }
 
-                        _schemaVersionUri = ParseUri(reader, (string)reader.Value);
+                        schema.SchemaVersion = ParseUri(reader, (string)reader.Value);
 
-#if !PORTABLE
-                        string tempUriText = _schemaVersionUri.OriginalString.ToLower(CultureInfo.InvariantCulture);
-#else
-                        string tempUriText = _schemaVersionUri.OriginalString.ToLower();
-#endif
+                        _schemaVersionUri = schema.SchemaVersion;
 
-                        Uri tempUri = new Uri(tempUriText, UriKind.RelativeOrAbsolute);
-                        if (tempUri == Constants.SchemaVersions.Draft3)
+                        if (_schemaVersionUri == Constants.SchemaVersions.Draft3)
                         {
                             _schemaVersion = SchemaVersion.Draft3;
                         }
-                        else if (tempUri == Constants.SchemaVersions.Draft4)
+                        else if (_schemaVersionUri == Constants.SchemaVersions.Draft4)
                         {
                             _schemaVersion = SchemaVersion.Draft4;
                         }

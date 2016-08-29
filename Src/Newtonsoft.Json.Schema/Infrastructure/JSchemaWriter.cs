@@ -21,6 +21,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         private readonly List<JSchema> _schemaStack;
         private readonly IList<ExternalSchema> _externalSchemas;
         private readonly JSchemaWriterReferenceHandling _referenceHandling;
+        private JSchema _rootSchema;
 
         public JSchemaWriter(JsonWriter writer)
             : this(writer, null)
@@ -204,6 +205,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         {
             ValidationUtils.ArgumentNotNull(schema, nameof(schema));
 
+            _rootSchema = schema;
+
             _knownSchemas.Clear();
 
             JSchemaDiscovery discovery;
@@ -231,6 +234,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             _schemaStack?.Add(schema);
 
             _writer.WriteStartObject();
+
+            if (schema == _rootSchema)
+            {
+                WritePropertyIfNotNull(_writer, Constants.PropertyNames.Schema, schema.SchemaVersion);
+            }
 
             WritePropertyIfNotNull(_writer, Constants.PropertyNames.Id, schema.Id);
             WritePropertyIfNotNull(_writer, Constants.PropertyNames.Title, schema.Title);

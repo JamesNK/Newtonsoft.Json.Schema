@@ -100,6 +100,11 @@ namespace Newtonsoft.Json.Schema
         }
 
         /// <summary>
+        /// Gets or sets the $schema. This value will only be read from JSON and written to JSON if the <see cref="JSchema"/> is the root schema.
+        /// </summary>
+        public Uri SchemaVersion { get; set; }
+        
+        /// <summary>
         /// Gets or sets the schema ID.
         /// </summary>
         public Uri Id

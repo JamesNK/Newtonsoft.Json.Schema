@@ -1311,6 +1311,128 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         }
 
         [Test]
+        public void ValidateCustomSchema_ResolveError()
+        {
+            ExceptionAssert.Throws<JSchemaReaderException>(() =>
+            {
+                JSchemaReaderSettings settings = new JSchemaReaderSettings
+                {
+                    ValidateVersion = true
+                };
+
+                JSchema.Parse(@"{
+  ""$schema"": ""http://www.newtonsoft.com"",
+  ""properties"": {
+    ""test"": {
+      ""$ref"": ""#/definitions/hasAny""
+    }
+  },
+  ""definitions"": {
+    ""hasAny"": {
+      ""type"": ""any""
+    }
+  }
+}", settings);
+            }, "Could not resolve schema version identifier 'http://www.newtonsoft.com'. Path '$schema', line 2, position 40.");
+        }
+
+        [Test]
+        public void ValidateCustomSchema_Invalid()
+        {
+            ExceptionAssert.Throws<JSchemaReaderException>(() =>
+            {
+                JSchema s = new JSchema
+                {
+                    ExtensionData =
+                    {
+                        ["definitions"] = new JObject
+                        {
+                            ["schema"] = new JSchema
+                            {
+                                Properties =
+                                {
+                                    ["$schema"] = new JSchema(),
+                                    ["properties"] = new JSchema()
+                                },
+                                AllowAdditionalProperties = false
+                            }
+                        }
+                    }
+                };
+
+                JSchemaPreloadedResolver resolver = new JSchemaPreloadedResolver();
+                resolver.Add(new Uri("http://www.newtonsoft.com"), s.ToString());
+
+                JSchemaReaderSettings settings = new JSchemaReaderSettings
+                {
+                    ValidateVersion = true,
+                    Resolver = resolver
+                };
+
+                JSchema.Parse(@"{
+  ""$schema"": ""http://www.newtonsoft.com#/definitions/schema"",
+  ""properties"": {
+    ""test"": {
+      ""$ref"": ""#/definitions/hasAny""
+    }
+  },
+  ""definitions"": {
+    ""hasAny"": {
+      ""type"": ""any""
+    }
+  }
+}", settings);
+            }, "Validation error raised by version schema 'http://www.newtonsoft.com/#/definitions/schema': Property 'definitions' has not been defined and the schema does not allow additional properties. Path 'definitions', line 8, position 16.");
+        }
+
+        [Test]
+        public void ValidateCustomSchema_Valid()
+        {
+            JSchema s = new JSchema
+            {
+                ExtensionData =
+                {
+                    ["definitions"] = new JObject
+                    {
+                        ["schema"] = new JSchema
+                        {
+                            Properties =
+                            {
+                                ["$schema"] = new JSchema(),
+                                ["properties"] = new JSchema()
+                            },
+                            AllowAdditionalProperties = false
+                        },
+                        ["property"] = new JSchema
+                        {
+                            Type = JSchemaType.Object
+                        }
+                    }
+                }
+            };
+
+            JSchemaPreloadedResolver resolver = new JSchemaPreloadedResolver();
+            resolver.Add(new Uri("http://www.newtonsoft.com"), s.ToString());
+
+            JSchemaReaderSettings settings = new JSchemaReaderSettings
+            {
+                ValidateVersion = true,
+                Resolver = resolver
+            };
+
+            JSchema schema = JSchema.Parse(@"{
+  ""$schema"": ""http://www.newtonsoft.com#/definitions/schema"",
+  ""properties"": {
+    ""test"": {
+      ""$ref"": ""http://www.newtonsoft.com#/definitions/property""
+    }
+  }
+}", settings);
+
+            Assert.AreEqual(JSchemaType.Object, schema.Properties["test"].Type);
+        }
+
+        [Test]
         public void Any_Draft4()
         {
             ExceptionAssert.Throws<JSchemaReaderException>(
@@ -1960,6 +2082,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             Assert.AreEqual((JSchema)s.ExtensionData["definitions"]["rfType"], errors[0].Schema);
 
             string expected = @"{
+  ""$schema"": ""http://json-schema.org/draft-04/schema#"",
   ""id"": ""http://json-schema.org/draft-04/schema#"",
   ""definitions"": {
     ""positiveInteger"": {
