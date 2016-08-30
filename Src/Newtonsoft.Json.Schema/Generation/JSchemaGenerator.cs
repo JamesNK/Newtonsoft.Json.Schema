@@ -5,11 +5,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Globalization;
-using System.Linq;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Schema.Infrastructure;
 using Newtonsoft.Json.Schema.Infrastructure.Licensing;
 using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json.Utilities;
@@ -23,36 +18,46 @@ namespace Newtonsoft.Json.Schema.Generation
     {
         private IContractResolver _contractResolver;
         internal List<JSchemaGenerationProvider> _generationProviders;
+        private SchemaReferenceHandling _schemaReferenceHandling;
+        private Required _defaultRequired;
 
         /// <summary>
         /// Gets or sets how IDs are generated for schemas with no ID.
         /// </summary>
-        public SchemaIdGenerationHandling SchemaIdGenerationHandling { get; set; }
+        public virtual SchemaIdGenerationHandling SchemaIdGenerationHandling { get; set; }
 
         /// <summary>
         /// Gets or sets the schema property order.
         /// </summary>
-        public SchemaPropertyOrderHandling SchemaPropertyOrderHandling { get; set; }
+        public virtual SchemaPropertyOrderHandling SchemaPropertyOrderHandling { get; set; }
 
         /// <summary>
         /// Gets or sets the location of referenced schemas.
         /// </summary>
-        public SchemaLocationHandling SchemaLocationHandling { get; set; }
+        public virtual SchemaLocationHandling SchemaLocationHandling { get; set; }
 
         /// <summary>
         /// Gets or sets whether generated schemas can be referenced.
         /// </summary>
-        public SchemaReferenceHandling SchemaReferenceHandling { get; set; }
+        public virtual SchemaReferenceHandling SchemaReferenceHandling
+        {
+            get { return _schemaReferenceHandling; }
+            set { _schemaReferenceHandling = value; }
+        }
 
         /// <summary>
         /// Gets or sets the default required state of schemas.
         /// </summary>
-        public Required DefaultRequired { get; set; }
+        public virtual Required DefaultRequired
+        {
+            get { return _defaultRequired; }
+            set { _defaultRequired = value; }
+        }
 
         /// <summary>
         /// Gets a collection of <see cref="JSchemaGenerationProvider"/> instances that are used to customize <see cref="JSchema"/> generation.
         /// </summary>
-        public IList<JSchemaGenerationProvider> GenerationProviders
+        public virtual IList<JSchemaGenerationProvider> GenerationProviders
         {
             get
             {
@@ -69,7 +74,7 @@ namespace Newtonsoft.Json.Schema.Generation
         /// Gets or sets the contract resolver.
         /// </summary>
         /// <value>The contract resolver.</value>
-        public IContractResolver ContractResolver
+        public virtual IContractResolver ContractResolver
         {
             get
             {
@@ -88,8 +93,8 @@ namespace Newtonsoft.Json.Schema.Generation
         /// </summary>
         public JSchemaGenerator()
         {
-            SchemaReferenceHandling = SchemaReferenceHandling.Objects;
-            DefaultRequired = Required.AllowNull;
+            _schemaReferenceHandling = SchemaReferenceHandling.Objects;
+            _defaultRequired = Required.AllowNull;
         }
 
         /// <summary>
@@ -97,7 +102,7 @@ namespace Newtonsoft.Json.Schema.Generation
         /// </summary>
         /// <param name="type">The type to generate a <see cref="JSchema"/> from.</param>
         /// <returns>A <see cref="JSchema"/> generated from the specified type.</returns>
-        public JSchema Generate(Type type)
+        public virtual JSchema Generate(Type type)
         {
             ValidationUtils.ArgumentNotNull(type, nameof(type));
 
@@ -110,7 +115,7 @@ namespace Newtonsoft.Json.Schema.Generation
         /// <param name="type">The type to generate a <see cref="JSchema"/> from.</param>
         /// <param name="rootSchemaNullable">Specify whether the generated root <see cref="JSchema"/> will be nullable.</param>
         /// <returns>A <see cref="JSchema"/> generated from the specified type.</returns>
-        public JSchema Generate(Type type, bool rootSchemaNullable)
+        public virtual JSchema Generate(Type type, bool rootSchemaNullable)
         {
             ValidationUtils.ArgumentNotNull(type, nameof(type));
 

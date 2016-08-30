@@ -17,7 +17,10 @@ namespace Newtonsoft.Json.Schema.Generation
         private readonly Required _required;
         private readonly JsonProperty _memberProperty;
         private readonly JsonContainerContract _parentContract;
-        private readonly JSchemaGenerator _generator;
+        private readonly JSchemaGeneratorInternal _generatorInternal;
+
+        internal JSchemaGenerationProvider GenerationProvider;
+        private JSchemaGeneratorProxy _generatorProxy;
 
         /// <summary>
         /// The object type.
@@ -56,24 +59,29 @@ namespace Newtonsoft.Json.Schema.Generation
         /// </summary>
         public JSchemaGenerator Generator
         {
-            get { return _generator; }
+            get
+            {
+                if (_generatorProxy == null)
+                {
+                    _generatorProxy = new JSchemaGeneratorProxy(_generatorInternal, GenerationProvider);
+                }
+
+                return _generatorProxy;
+            }
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="JSchemaTypeGenerationContext"/> class.
-        /// </summary>
-        /// <param name="objectType">The object type.</param>
-        /// <param name="required">The required state.</param>
-        /// <param name="memberProperty">The member property.</param>
-        /// <param name="parentContract">The parent contract.</param>
-        /// <param name="generator">The current <see cref="JSchemaGenerator"/>.</param>
-        public JSchemaTypeGenerationContext(Type objectType, Required required, JsonProperty memberProperty, JsonContainerContract parentContract, JSchemaGenerator generator)
+        internal JSchemaTypeGenerationContext(
+            Type objectType,
+            Required required,
+            JsonProperty memberProperty,
+            JsonContainerContract parentContract,
+            JSchemaGeneratorInternal generatorInternal)
         {
             _objectType = objectType;
             _required = required;
             _memberProperty = memberProperty;
             _parentContract = parentContract;
-            _generator = generator;
+            _generatorInternal = generatorInternal;
         }
     }
 }

@@ -46,6 +46,7 @@
   <ItemGroup>
     <Compile Include="ErrorType.cs" />
     <Compile Include="ExternalSchema.cs" />
+    <Compile Include="Generation\JSchemaGeneratorProxy.cs" />
     <Compile Include="Infrastructure\CollectionHelpers.cs" />
     <Compile Include="JSchemaWriterReferenceHandling.cs" />
     <Compile Include="JsonValidator.cs" />

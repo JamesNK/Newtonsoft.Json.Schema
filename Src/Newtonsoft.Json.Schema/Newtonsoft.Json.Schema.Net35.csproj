@@ -47,6 +47,7 @@
     <Compile Include="ExternalSchema.cs" />
     <Compile Include="Generation\JSchemaGenerator.cs" />
     <Compile Include="Generation\JSchemaGeneratorInternal.cs" />
+    <Compile Include="Generation\JSchemaGeneratorProxy.cs" />
     <Compile Include="Generation\JSchemaTypeGenerationContext.cs" />
     <Compile Include="Generation\SchemaIdGenerationHandling.cs" />
     <Compile Include="Generation\SchemaLocationHandling.cs" />

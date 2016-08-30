@@ -18,7 +18,7 @@ namespace Newtonsoft.Json.Schema.Generation
 {
     internal class JSchemaGeneratorInternal
     {
-        private readonly JSchemaGenerator _generator;
+        internal readonly JSchemaGenerator _generator;
         private readonly List<TypeSchema> _typeSchemas;
 
         public JSchemaGeneratorInternal(JSchemaGenerator generator)
@@ -29,7 +29,7 @@ namespace Newtonsoft.Json.Schema.Generation
 
         public JSchema Generate(Type type, Required required)
         {
-            JSchema schema = GenerateInternal(type, required, null, null);
+            JSchema schema = GenerateInternal(type, required, null, null, null);
 
             if (_generator.SchemaLocationHandling == SchemaLocationHandling.Definitions)
             {
@@ -74,6 +74,13 @@ namespace Newtonsoft.Json.Schema.Generation
                     }
                 }
             }
+
+            return schema;
+        }
+
+        public JSchema GenerateSubschema(Type type, Required required, JSchemaGenerationProvider currentGenerationProvider)
+        {
+            JSchema schema = GenerateInternal(type, required, null, null, currentGenerationProvider);
 
             return schema;
         }
@@ -178,7 +185,7 @@ namespace Newtonsoft.Json.Schema.Generation
             return provider;
         }
 
-        private JSchema GenerateInternal(Type type, Required? valueRequired, JsonProperty memberProperty, JsonContainerContract container)
+        private JSchema GenerateInternal(Type type, Required? valueRequired, JsonProperty memberProperty, JsonContainerContract container, JSchemaGenerationProvider currentGenerationProvider)
         {
             ValidationUtils.ArgumentNotNull(type, nameof(type));
 
@@ -204,9 +211,10 @@ namespace Newtonsoft.Json.Schema.Generation
             JSchema schema = null;
 
             JSchemaGenerationProvider provider = ResolveTypeProvider(nonNullableType, memberProperty);
-            if (provider != null)
+            if (provider != null && provider != currentGenerationProvider)
             {
-                JSchemaTypeGenerationContext context = new JSchemaTypeGenerationContext(type, resolvedRequired, memberProperty, container, _generator);
+                JSchemaTypeGenerationContext context = new JSchemaTypeGenerationContext(type, resolvedRequired, memberProperty, container, this);
+                context.GenerationProvider = provider;
 
                 schema = provider.GetSchema(context);
 
@@ -218,12 +226,14 @@ namespace Newtonsoft.Json.Schema.Generation
 
             if (_generator._generationProviders != null)
             {
-                JSchemaTypeGenerationContext context = new JSchemaTypeGenerationContext(type, resolvedRequired, memberProperty, container, _generator);
+                JSchemaTypeGenerationContext context = new JSchemaTypeGenerationContext(type, resolvedRequired, memberProperty, container, this);
 
                 foreach (JSchemaGenerationProvider generationProvider in _generator._generationProviders)
                 {
-                    if (generationProvider.CanGenerateSchema(context))
+                    if (generationProvider != currentGenerationProvider && generationProvider.CanGenerateSchema(context))
                     {
+                        context.GenerationProvider = generationProvider;
+
                         schema = generationProvider.GetSchema(context);
                         break;
                     }
@@ -341,7 +351,7 @@ namespace Newtonsoft.Json.Schema.Generation
                         Type collectionItemType = ReflectionUtils.GetCollectionItemType(contract.NonNullableUnderlyingType);
                         if (collectionItemType != null)
                         {
-                            schema.Items.Add(GenerateInternal(collectionItemType, required, null, (JsonArrayContract)contract));
+                            schema.Items.Add(GenerateInternal(collectionItemType, required, null, (JsonArrayContract)contract, null));
                         }
                         break;
                     case JsonContractType.Primitive:
@@ -433,7 +443,7 @@ namespace Newtonsoft.Json.Schema.Generation
                             // can be converted to a string
                             if (keyContract.ContractType == JsonContractType.Primitive)
                             {
-                                schema.AdditionalProperties = GenerateInternal(valueType, Required.Default, null, (JsonDictionaryContract)contract);
+                                schema.AdditionalProperties = GenerateInternal(valueType, Required.Default, null, (JsonDictionaryContract)contract, null);
                             }
                         }
                         break;
@@ -496,7 +506,7 @@ namespace Newtonsoft.Json.Schema.Generation
                         required = Required.Always;
                     }
 
-                    JSchema propertySchema = GenerateInternal(property.PropertyType, required, property, contract);
+                    JSchema propertySchema = GenerateInternal(property.PropertyType, required, property, contract, null);
 
                     if (property.DefaultValue != null)
                     {
