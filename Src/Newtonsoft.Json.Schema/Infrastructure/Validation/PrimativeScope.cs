@@ -37,7 +37,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 }
                 case JsonToken.Float:
                 {
-                    if (!ValidateNumber(Schema, Convert.ToDouble(value, CultureInfo.InvariantCulture)))
+                    if (!ValidateNumber(Schema, value))
                     {
                         return true;
                     }
@@ -312,7 +312,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             }
         }
 
-        private bool ValidateNumber(JSchema schema, double value)
+        private bool ValidateNumber(JSchema schema, object value)
         {
             if (!TestType(schema, JSchemaType.Number, value))
             {
@@ -321,11 +321,13 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
             if (schema.Maximum != null)
             {
-                if (value > schema.Maximum)
+                double d = Convert.ToDouble(value, CultureInfo.InvariantCulture);
+
+                if (d > schema.Maximum)
                 {
                     RaiseError($"Float {JsonConvert.ToString(value)} exceeds maximum value of {schema.Maximum}.", ErrorType.Maximum, schema, value, null);
                 }
-                if (schema.ExclusiveMaximum && value == schema.Maximum)
+                if (schema.ExclusiveMaximum && d == schema.Maximum)
                 {
                     RaiseError($"Float {JsonConvert.ToString(value)} equals maximum value of {schema.Maximum} and exclusive maximum is true.", ErrorType.Maximum, schema, value, null);
                 }
@@ -333,11 +335,13 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
             if (schema.Minimum != null)
             {
-                if (value < schema.Minimum)
+                double d = Convert.ToDouble(value, CultureInfo.InvariantCulture);
+
+                if (d < schema.Minimum)
                 {
                     RaiseError($"Float {JsonConvert.ToString(value)} is less than minimum value of {schema.Minimum}.", ErrorType.Minimum, schema, value, null);
                 }
-                if (schema.ExclusiveMinimum && value == schema.Minimum)
+                if (schema.ExclusiveMinimum && d == schema.Minimum)
                 {
                     RaiseError($"Float {JsonConvert.ToString(value)} equals minimum value of {schema.Minimum} and exclusive minimum is true.", ErrorType.Minimum, schema, value, null);
                 }
@@ -345,7 +349,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
             if (schema.MultipleOf != null)
             {
-                if (!MathHelpers.IsDoubleMultiple(value, schema.MultipleOf.Value))
+                bool isMultiple = MathHelpers.IsDoubleMultiple(value, schema.MultipleOf.Value);
+
+                if (!isMultiple)
                 {
                     RaiseError($"Float {JsonConvert.ToString(value)} is not a multiple of {schema.MultipleOf}.", ErrorType.MultipleOf, schema, value, null);
                 }

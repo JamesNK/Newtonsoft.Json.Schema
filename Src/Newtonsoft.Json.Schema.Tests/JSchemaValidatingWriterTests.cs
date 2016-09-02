@@ -300,7 +300,7 @@ namespace Newtonsoft.Json.Schema.Tests
             validatingWriter.WriteValue(1.1m);
             Assert.IsNotNull(a);
             StringAssert.AreEqual("Invalid type. Expected Integer but got Number. Path '[15]'.", a.Message);
-            Assert.AreEqual(1.1d, (double)a.ValidationError.Value, 0.0001);
+            Assert.AreEqual(1.1m, (decimal)a.ValidationError.Value);
             a = null;
 
             validatingWriter.WriteValue(1.1d);
@@ -312,7 +312,7 @@ namespace Newtonsoft.Json.Schema.Tests
             validatingWriter.WriteValue(1.1f);
             Assert.IsNotNull(a);
             StringAssert.AreEqual("Invalid type. Expected Integer but got Number. Path '[17]'.", a.Message);
-            Assert.AreEqual(1.1d, (double)a.ValidationError.Value, 0.0001);
+            Assert.AreEqual(1.1f, (float)a.ValidationError.Value);
             a = null;
 
             validatingWriter.WriteValue(new Uri("http://test.test"));
@@ -470,7 +470,7 @@ namespace Newtonsoft.Json.Schema.Tests
             validatingWriter.WriteValue((object)1.1m);
             Assert.IsNotNull(a);
             StringAssert.AreEqual("Invalid type. Expected Integer but got Number. Path '[15]'.", a.Message);
-            Assert.AreEqual(1.1d, (double)a.ValidationError.Value, 0.0001);
+            Assert.AreEqual(1.1m, (decimal)a.ValidationError.Value);
             a = null;
 
             validatingWriter.WriteValue((object)1.1d);
@@ -482,7 +482,7 @@ namespace Newtonsoft.Json.Schema.Tests
             validatingWriter.WriteValue((object)1.1f);
             Assert.IsNotNull(a);
             StringAssert.AreEqual("Invalid type. Expected Integer but got Number. Path '[17]'.", a.Message);
-            Assert.AreEqual(1.1d, (double)a.ValidationError.Value, 0.0001);
+            Assert.AreEqual(1.1f, (float)a.ValidationError.Value);
             a = null;
 
             validatingWriter.WriteValue((object)new Uri("http://test.test"));
