@@ -1006,7 +1006,6 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(JSchemaType.Object, schema.Type);
             Assert.AreEqual(1d, schema.Properties[nameof(ObjectPropertyWithAttributes.Value)].Minimum);
             Assert.AreEqual(50d, schema.Properties[nameof(ObjectPropertyWithAttributes.Value)].Maximum);
-            Assert.AreEqual(0d, schema.Properties[nameof(ObjectPropertyWithAttributes.Value)].MinimumLength);
             Assert.AreEqual(20d, schema.Properties[nameof(ObjectPropertyWithAttributes.Value)].MaximumLength);
         }
 

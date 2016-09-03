@@ -53,8 +53,17 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 Attribute attribute = GetAttributeByName(property, StringLengthAttributeName);
                 if (attribute != null)
                 {
-                    ReflectionObject o = ReflectionObject.Create(attribute.GetType(), "MinimumLength", "MaximumLength");
+                    ReflectionObject o = ReflectionObject.Create(
+                        attribute.GetType(),
+#if !NET35
+                        "MinimumLength",
+#endif
+                        "MaximumLength");
+#if !NET35
                     minimumLength = (int)o.GetValue(attribute, "MinimumLength");
+#else
+                    minimumLength = 0;
+#endif
                     maximumLength = (int)o.GetValue(attribute, "MaximumLength");
                     return true;
                 }
