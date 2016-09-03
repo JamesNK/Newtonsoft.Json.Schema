@@ -974,6 +974,49 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(JSchemaType.Null, schema.Type);
         }
 
+        [Test]
+        public void GenerateSchemaForObject()
+        {
+            JSchemaGenerator generator = new JSchemaGenerator();
+
+            JSchema schema = generator.Generate(typeof(object));
+
+            Assert.AreEqual(JSchemaType.String | JSchemaType.Number | JSchemaType.Integer | JSchemaType.Boolean | JSchemaType.Object | JSchemaType.Array, schema.Type);
+        }
+
+        [Test]
+        public void GenerateSchemaForObject_RootNullable()
+        {
+            JSchemaGenerator generator = new JSchemaGenerator();
+
+            JSchema schema = generator.Generate(typeof(object), true);
+
+            Assert.AreEqual(null, schema.Type);
+        }
+
+        [Test]
+        public void GenerateSchemaForObjectPropertyWithAttributes()
+        {
+            JSchemaGenerator generator = new JSchemaGenerator();
+
+            JSchema schema = generator.Generate(typeof(ObjectPropertyWithAttributes));
+
+            Console.WriteLine(schema.ToString());
+
+            Assert.AreEqual(JSchemaType.Object, schema.Type);
+            Assert.AreEqual(1d, schema.Properties[nameof(ObjectPropertyWithAttributes.Value)].Minimum);
+            Assert.AreEqual(50d, schema.Properties[nameof(ObjectPropertyWithAttributes.Value)].Maximum);
+            Assert.AreEqual(0d, schema.Properties[nameof(ObjectPropertyWithAttributes.Value)].MinimumLength);
+            Assert.AreEqual(20d, schema.Properties[nameof(ObjectPropertyWithAttributes.Value)].MaximumLength);
+        }
+
+        public class ObjectPropertyWithAttributes
+        {
+            [System.ComponentModel.DataAnnotations.Range(1, 50)]
+            [StringLength(20)]
+            public object Value { get; set; }
+        }
+
         public class CustomDirectoryInfoMapper : DefaultContractResolver
         {
             protected override JsonContract CreateContract(Type objectType)
