@@ -36,6 +36,7 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Numerics" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
@@ -80,6 +81,7 @@
     <Compile Include="Issues\Issue16Tests.cs" />
     <Compile Include="Issues\Issue37Tests.cs" />
     <Compile Include="Issues\Issue36Tests.cs" />
+    <Compile Include="Issues\Issue47Tests.cs" />
     <Compile Include="Issues\Issue42Tests.cs" />
     <Compile Include="Issues\Issue40Tests.cs" />
     <Compile Include="Issues\Issue32Tests.cs" />

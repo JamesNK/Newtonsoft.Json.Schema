@@ -107,6 +107,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             { Types.Array, JSchemaType.Array }
         };
 
+        public const JSchemaType AnyType = JSchemaType.Array | JSchemaType.Object | JSchemaType.Boolean | JSchemaType.Integer | JSchemaType.Null | JSchemaType.Number | JSchemaType.String;
+
         public static class SchemaVersions
         {
             public static readonly Uri Draft3 = new Uri("http://json-schema.org/draft-03/schema#");

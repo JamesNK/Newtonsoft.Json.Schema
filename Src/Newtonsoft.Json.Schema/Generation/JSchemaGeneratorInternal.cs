@@ -271,6 +271,11 @@ namespace Newtonsoft.Json.Schema.Generation
             switch (contract.ContractType)
             {
                 case JsonContractType.Object:
+                    if (contract.NonNullableUnderlyingType == typeof(object))
+                    {
+                        return false;
+                    }
+
                     return (_generator.SchemaReferenceHandling & SchemaReferenceHandling.Objects) == SchemaReferenceHandling.Objects;
                 case JsonContractType.Array:
                     return (_generator.SchemaReferenceHandling & SchemaReferenceHandling.Arrays) == SchemaReferenceHandling.Arrays;
@@ -322,13 +327,20 @@ namespace Newtonsoft.Json.Schema.Generation
                 switch (contract.ContractType)
                 {
                     case JsonContractType.Object:
-                        if (schema.Id == null)
+                        if (contract.NonNullableUnderlyingType == typeof(object))
                         {
-                            schema.Id = GetTypeId(contract.NonNullableUnderlyingType, false);
+                            PopulatePrimativeSchema(schema, contract, memberProperty, valueRequired);
                         }
+                        else
+                        {
+                            if (schema.Id == null)
+                            {
+                                schema.Id = GetTypeId(contract.NonNullableUnderlyingType, false);
+                            }
 
-                        schema.Type = AddNullType(JSchemaType.Object, valueRequired);
-                        GenerateObjectSchema(schema, contract.NonNullableUnderlyingType, (JsonObjectContract)contract);
+                            schema.Type = AddNullType(JSchemaType.Object, valueRequired);
+                            GenerateObjectSchema(schema, contract.NonNullableUnderlyingType, (JsonObjectContract) contract);
+                        }
                         break;
                     case JsonContractType.Array:
                         if (schema.Id == null)
@@ -355,68 +367,7 @@ namespace Newtonsoft.Json.Schema.Generation
                         }
                         break;
                     case JsonContractType.Primitive:
-                        schema.Type = GetJSchemaType(contract.UnderlyingType, valueRequired);
-
-                        if (JSchemaTypeHelpers.HasFlag(schema.Type, JSchemaType.String))
-                        {
-                            int minimumLength;
-                            int maximumLength;
-                            if (DataAnnotationHelpers.GetStringLength(memberProperty, out minimumLength, out maximumLength))
-                            {
-                                schema.MinimumLength = minimumLength;
-                                schema.MaximumLength = maximumLength;
-                            }
-                            else
-                            {
-                                schema.MinimumLength = DataAnnotationHelpers.GetMinLength(memberProperty);
-                                schema.MaximumLength = DataAnnotationHelpers.GetMaxLength(memberProperty);
-                            }
-
-                            schema.Pattern = DataAnnotationHelpers.GetPattern(memberProperty);
-                            schema.Format = DataAnnotationHelpers.GetFormat(memberProperty);
-                        }
-                        if (JSchemaTypeHelpers.HasFlag(schema.Type, JSchemaType.Number) || JSchemaTypeHelpers.HasFlag(schema.Type, JSchemaType.Integer))
-                        {
-                            double minimum;
-                            double maximum;
-                            if (DataAnnotationHelpers.GetRange(memberProperty, out minimum, out maximum))
-                            {
-                                schema.Minimum = minimum;
-                                schema.Maximum = maximum;
-                            }
-                        }
-
-                        if (JSchemaTypeHelpers.HasFlag(schema.Type, JSchemaType.Integer)
-                            && contract.NonNullableUnderlyingType.IsEnum()
-                            && ReflectionUtils.GetAttribute<FlagsAttribute>(contract.NonNullableUnderlyingType) == null)
-                        {
-                            if ((schema.Type & JSchemaType.Null) == JSchemaType.Null)
-                            {
-                                schema.Enum.Add(JValue.CreateNull());
-                            }
-
-                            IList<EnumValue<long>> enumValues = EnumUtils.GetNamesAndValues<long>(contract.NonNullableUnderlyingType);
-                            foreach (EnumValue<long> enumValue in enumValues)
-                            {
-                                JToken value = JToken.FromObject(enumValue.Value);
-
-                                schema.Enum.Add(value);
-                            }
-                        }
-
-                        Type enumDataType = DataAnnotationHelpers.GetEnumDataType(memberProperty);
-                        if (enumDataType != null && CollectionUtils.IsNullOrEmpty(schema._enum))
-                        {
-                            IList<EnumValue<long>> enumValues = EnumUtils.GetNamesAndValues<long>(enumDataType);
-                            foreach (EnumValue<long> enumValue in enumValues)
-                            {
-                                JToken value = (JSchemaTypeHelpers.HasFlag(schema.Type, JSchemaType.String))
-                                    ? enumValue.Name
-                                    : JToken.FromObject(enumValue.Value);
-
-                                schema.Enum.Add(value);
-                            }
-                        }
+                        PopulatePrimativeSchema(schema, contract, memberProperty, valueRequired);
                         break;
                     case JsonContractType.String:
                         JSchemaType schemaType = (!ReflectionUtils.IsNullable(contract.UnderlyingType))
@@ -443,7 +394,7 @@ namespace Newtonsoft.Json.Schema.Generation
                             // can be converted to a string
                             if (keyContract.ContractType == JsonContractType.Primitive)
                             {
-                                schema.AdditionalProperties = GenerateInternal(valueType, Required.Default, null, (JsonDictionaryContract)contract, null);
+                                schema.AdditionalProperties = GenerateInternal(valueType, _generator.DefaultRequired, null, (JsonDictionaryContract)contract, null);
                             }
                         }
                         break;
@@ -462,6 +413,77 @@ namespace Newtonsoft.Json.Schema.Generation
                         break;
                     default:
                         throw new JSchemaException("Unexpected contract type: {0}".FormatWith(CultureInfo.InvariantCulture, contract));
+                }
+            }
+        }
+
+        private void PopulatePrimativeSchema(JSchema schema, JsonContract contract, JsonProperty memberProperty, Required valueRequired)
+        {
+            JSchemaType type = GetJSchemaType(contract.UnderlyingType, valueRequired);
+
+            if (type != Constants.AnyType)
+            {
+                schema.Type = GetJSchemaType(contract.UnderlyingType, valueRequired);
+            }
+
+            if (JSchemaTypeHelpers.HasFlag(schema.Type, JSchemaType.String))
+            {
+                int minimumLength;
+                int maximumLength;
+                if (DataAnnotationHelpers.GetStringLength(memberProperty, out minimumLength, out maximumLength))
+                {
+                    schema.MinimumLength = minimumLength;
+                    schema.MaximumLength = maximumLength;
+                }
+                else
+                {
+                    schema.MinimumLength = DataAnnotationHelpers.GetMinLength(memberProperty);
+                    schema.MaximumLength = DataAnnotationHelpers.GetMaxLength(memberProperty);
+                }
+
+                schema.Pattern = DataAnnotationHelpers.GetPattern(memberProperty);
+                schema.Format = DataAnnotationHelpers.GetFormat(memberProperty);
+            }
+            if (JSchemaTypeHelpers.HasFlag(type, JSchemaType.Number) || JSchemaTypeHelpers.HasFlag(type, JSchemaType.Integer))
+            {
+                double minimum;
+                double maximum;
+                if (DataAnnotationHelpers.GetRange(memberProperty, out minimum, out maximum))
+                {
+                    schema.Minimum = minimum;
+                    schema.Maximum = maximum;
+                }
+            }
+
+            if (JSchemaTypeHelpers.HasFlag(type, JSchemaType.Integer)
+                && contract.NonNullableUnderlyingType.IsEnum()
+                && ReflectionUtils.GetAttribute<FlagsAttribute>(contract.NonNullableUnderlyingType) == null)
+            {
+                if ((type & JSchemaType.Null) == JSchemaType.Null)
+                {
+                    schema.Enum.Add(JValue.CreateNull());
+                }
+
+                IList<EnumValue<long>> enumValues = EnumUtils.GetNamesAndValues<long>(contract.NonNullableUnderlyingType);
+                foreach (EnumValue<long> enumValue in enumValues)
+                {
+                    JToken value = JToken.FromObject(enumValue.Value);
+
+                    schema.Enum.Add(value);
+                }
+            }
+
+            Type enumDataType = DataAnnotationHelpers.GetEnumDataType(memberProperty);
+            if (enumDataType != null && CollectionUtils.IsNullOrEmpty(schema._enum))
+            {
+                IList<EnumValue<long>> enumValues = EnumUtils.GetNamesAndValues<long>(enumDataType);
+                foreach (EnumValue<long> enumValue in enumValues)
+                {
+                    JToken value = (JSchemaTypeHelpers.HasFlag(type, JSchemaType.String))
+                        ? enumValue.Name
+                        : JToken.FromObject(enumValue.Value);
+
+                    schema.Enum.Add(value);
                 }
             }
         }
@@ -592,7 +614,7 @@ namespace Newtonsoft.Json.Schema.Generation
             {
                 case PrimitiveTypeCode.Empty:
                 case PrimitiveTypeCode.Object:
-                    return schemaType | JSchemaType.String;
+                    return schemaType | JSchemaType.String | JSchemaType.Boolean | JSchemaType.Integer | JSchemaType.Number | JSchemaType.Object | JSchemaType.Array;
                 case PrimitiveTypeCode.DBNull:
                     return schemaType | JSchemaType.Null;
                 case PrimitiveTypeCode.Boolean:
