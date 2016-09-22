@@ -143,6 +143,7 @@
     <Compile Include="Issues\Issue37Tests.cs" />
     <Compile Include="Issues\Issue40Tests.cs" />
     <Compile Include="Issues\Issue42Tests.cs" />
+    <Compile Include="Issues\Issue47Tests.cs" />
     <Compile Include="JSchemaTests.cs" />
     <Compile Include="JSchemaValidatingWriterTests.cs" />
     <Compile Include="JSchemaSpecTests.cs" />
@@ -229,6 +230,15 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Resources\Schemas\contribute.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Schemas\Custom\Folder With Spaces\root.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Schemas\Custom\Folder With Spaces\sub4.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Schemas\Custom\Folder With Spaces\sub6.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Resources\Schemas\Custom\obj_branch.schema.json">

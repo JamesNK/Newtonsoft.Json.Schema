@@ -107,6 +107,25 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         }
 
         [Test]
+        public void BaseUri_WithSpaces()
+        {
+            string schemapath = @"resources\schemas\custom\folder with spaces\root.json";
+            string path = TestHelpers.ResolveFilePath(schemapath);
+
+            using (StreamReader file = File.OpenText(path))
+            using (JsonTextReader reader = new JsonTextReader(file))
+            {
+                JSchemaUrlResolver resolver = new JSchemaUrlResolver();
+
+                JSchema schema = JSchema.Load(reader, new JSchemaReaderSettings
+                {
+                    Resolver = resolver,
+                    BaseUri = new Uri(path)
+                });
+            }
+        }
+
+        [Test]
         public void GeoJson()
         {
             JSchemaPreloadedResolver resolver = new JSchemaPreloadedResolver();

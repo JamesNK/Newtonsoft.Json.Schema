@@ -20,7 +20,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 #if (!PORTABLE || NETSTANDARD1_3)
             if (uri.Scheme == "file")
             {
-                return File.OpenRead(uri.AbsolutePath);
+                return File.OpenRead(uri.LocalPath);
             }
 #endif
 
