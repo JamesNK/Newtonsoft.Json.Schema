@@ -22,6 +22,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
         private readonly object _publicValidator;
         private readonly ValidatorContext _context;
 
+        private bool _knownSchemasPopulated;
+
         public JTokenWriter TokenWriter;
         public JSchema Schema;
         public event SchemaValidationEventHandler ValidationEventHandler;
@@ -52,14 +54,19 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
         {
             // shared cache information that could be read/populated from multiple threads
             // lock to ensure that only one thread writes known schemas
-            if (Schema.KnownSchemas.Count == 0)
+            if (!_knownSchemasPopulated)
             {
                 lock (Schema.KnownSchemas)
                 {
-                    if (Schema.KnownSchemas.Count == 0)
+                    if (!_knownSchemasPopulated)
                     {
-                        JSchemaDiscovery discovery = new JSchemaDiscovery(Schema.KnownSchemas, KnownSchemaState.External);
-                        discovery.Discover(Schema, null);
+                        if (Schema.KnownSchemas.Count == 0)
+                        {
+                            JSchemaDiscovery discovery = new JSchemaDiscovery(Schema.KnownSchemas, KnownSchemaState.External);
+                            discovery.Discover(Schema, null);
+                        }
+
+                        _knownSchemasPopulated = true;
                     }
                 }
             }
@@ -79,12 +86,22 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
         private void PopulateSchemaId(ValidationError error)
         {
-            Uri schemaId = Schema.KnownSchemas.Single(s => s.Schema == error.Schema).Id;
+            Uri schemaId = null;
+            for (int i = 0; i < Schema.KnownSchemas.Count; i++)
+            {
+                KnownSchema s = Schema.KnownSchemas[i];
+                if (s.Schema == error.Schema)
+                {
+                    schemaId = s.Id;
+                    break;
+                }
+            }
 
             error.SchemaId = schemaId;
 
-            foreach (ValidationError validationError in error.ChildErrors)
+            for (int i = 0; i < error.ChildErrors.Count; i++)
             {
+                ValidationError validationError = error.ChildErrors[i];
                 PopulateSchemaId(validationError);
             }
         }
