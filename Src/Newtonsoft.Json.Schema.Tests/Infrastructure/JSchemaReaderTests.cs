@@ -178,7 +178,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             {
                 string prefix = new string(' ', depth);
 
-                Console.WriteLine(prefix + validationError.BuildExtendedMessage() + " - " + validationError.SchemaId + " - " + validationError.SchemaBaseUri);
+                Console.WriteLine(prefix + validationError.GetExtendedMessage() + " - " + validationError.SchemaId + " - " + validationError.SchemaBaseUri);
 
                 PrintErrorsRecursive(validationError.ChildErrors, depth + 2);
             }

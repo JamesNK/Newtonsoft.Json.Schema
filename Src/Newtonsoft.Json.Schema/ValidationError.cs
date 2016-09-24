@@ -6,6 +6,8 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Runtime.CompilerServices;
+using System.Text;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Utilities;
 
@@ -16,9 +18,10 @@ namespace Newtonsoft.Json.Schema
     /// </summary>
     public class ValidationError : IJsonLineInfo
     {
-        private IList<ValidationError> _childErrors;
+        internal IList<ValidationError> _childErrors;
         private IFormattable _formattable;
         private string _message;
+        private string _extendedMessage;
 
         /// <summary>
         /// Gets the message describing the error that occurred.
@@ -28,12 +31,7 @@ namespace Newtonsoft.Json.Schema
         {
             get
             {
-                if (_formattable != null)
-                {
-                    _message = _formattable.ToString(null, CultureInfo.InvariantCulture);
-                    _formattable = null;
-                }
-
+                EnsureMessages();
                 return _message;
             }
         }
@@ -103,7 +101,6 @@ namespace Newtonsoft.Json.Schema
 
                 return _childErrors;
             }
-            private set { _childErrors = value; }
         }
 
         bool IJsonLineInfo.HasLineInfo()
@@ -111,15 +108,50 @@ namespace Newtonsoft.Json.Schema
             return (LineNumber > 0 && LinePosition > 0);
         }
 
-        internal string BuildExtendedMessage()
+        private void EnsureMessages()
         {
-            return JSchemaException.FormatMessage(this, Path, Message);
+            if (_formattable != null)
+            {
+                BuildMessages();
+                _formattable = null;
+            }
+        }
+
+        private void BuildMessages()
+        {
+            FormattableString formattableString = (FormattableString) _formattable;
+
+            string format = formattableString.Format;
+            object[] args = formattableString.GetArguments();
+
+            StringBuilder sb = new StringBuilder(format.Length + (args.Length * 8));
+            if (args.Length > 0)
+            {
+                sb.AppendFormat(CultureInfo.InvariantCulture, format, args);
+            }
+            else
+            {
+                sb.Append(format);
+            }
+
+            _message = sb.ToString();
+            _extendedMessage = JSchemaException.FormatMessage(this, Path, sb);
+
+            _formattable = null;
+        }
+
+        internal string GetExtendedMessage()
+        {
+            EnsureMessages();
+            return _extendedMessage;
         }
 
         internal static ValidationError CreateValidationError(IFormattable message, ErrorType errorType, JSchema schema, Uri schemaId, object value, IList<ValidationError> childErrors, IJsonLineInfo lineInfo, string path)
         {
             ValidationError error = new ValidationError();
             error._formattable = message;
+            error._childErrors = childErrors;
+
             error.ErrorType = errorType;
             error.Path = path;
             if (lineInfo != null)
@@ -131,7 +163,6 @@ namespace Newtonsoft.Json.Schema
             error.SchemaId = schemaId;
             error.SchemaBaseUri = schema.BaseUri;
             error.Value = value;
-            error.ChildErrors = childErrors;
             return error;
         }
     }

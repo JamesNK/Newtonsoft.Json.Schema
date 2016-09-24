@@ -14,13 +14,11 @@ namespace Newtonsoft.Json.Schema
     public class SchemaValidationEventArgs : EventArgs
     {
         private readonly ValidationError _validationError;
-        private readonly string _message;
 
         internal SchemaValidationEventArgs(ValidationError validationError)
         {
             ValidationUtils.ArgumentNotNull(validationError, nameof(validationError));
             _validationError = validationError;
-            _message = validationError.BuildExtendedMessage();
         }
 
         /// <summary>
@@ -47,7 +45,7 @@ namespace Newtonsoft.Json.Schema
         /// <value>The text description.</value>
         public string Message
         {
-            get { return _message; }
+            get { return _validationError.GetExtendedMessage(); }
         }
     }
 }

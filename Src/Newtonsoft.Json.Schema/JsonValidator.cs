@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Schema.Infrastructure;
 using Newtonsoft.Json.Schema.Infrastructure.Validation;
 
 namespace Newtonsoft.Json.Schema
@@ -49,7 +50,7 @@ namespace Newtonsoft.Json.Schema
         /// <param name="value">The JSON value when the error occurred.</param>
         public void RaiseError(string message, object value)
         {
-            _scope.RaiseError(new System.Runtime.CompilerServices.FormattableString(message, null), ErrorType.Validator, _schema, value, null);
+            _scope.RaiseError(FormattableStringFactory.Create(message, CollectionHelpers.EmptyArray), ErrorType.Validator, _schema, value, null);
         }
     }
 

@@ -658,10 +658,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(1, errors.Count);
 
             ValidationError error = errors.Single();
-            StringAssert.AreEqual("JSON is valid against no schemas from 'oneOf'. Path '', line 1, position 9.", error.BuildExtendedMessage());
+            StringAssert.AreEqual("JSON is valid against no schemas from 'oneOf'. Path '', line 1, position 9.", error.GetExtendedMessage());
             Assert.AreEqual(2, error.ChildErrors.Count);
-            StringAssert.AreEqual(@"String 'foo foo' exceeds maximum length of 4. Path '', line 1, position 9.", error.ChildErrors[0].BuildExtendedMessage());
-            StringAssert.AreEqual(@"Invalid type. Expected Object but got String. Path '', line 1, position 9.", error.ChildErrors[1].BuildExtendedMessage());
+            StringAssert.AreEqual(@"String 'foo foo' exceeds maximum length of 4. Path '', line 1, position 9.", error.ChildErrors[0].GetExtendedMessage());
+            StringAssert.AreEqual(@"Invalid type. Expected Object but got String. Path '', line 1, position 9.", error.ChildErrors[1].GetExtendedMessage());
         }
 
         [Test]
@@ -749,9 +749,9 @@ namespace Newtonsoft.Json.Schema.Tests
             IList<ValidationError> errorMessages;
             Assert.IsFalse(json.IsValid(schema, out errorMessages));
             Assert.AreEqual(1, errorMessages.Count);
-            StringAssert.AreEqual(@"Dependencies for property 'bar' failed. Path '', line 1, position 1.", errorMessages[0].BuildExtendedMessage());
+            StringAssert.AreEqual(@"Dependencies for property 'bar' failed. Path '', line 1, position 1.", errorMessages[0].GetExtendedMessage());
             Assert.AreEqual(1, errorMessages[0].ChildErrors.Count);
-            StringAssert.AreEqual(@"Invalid type. Expected Integer but got String. Path 'foo', line 1, position 14.", errorMessages[0].ChildErrors[0].BuildExtendedMessage());
+            StringAssert.AreEqual(@"Invalid type. Expected Integer but got String. Path 'foo', line 1, position 14.", errorMessages[0].ChildErrors[0].GetExtendedMessage());
         }
 
         [Test]

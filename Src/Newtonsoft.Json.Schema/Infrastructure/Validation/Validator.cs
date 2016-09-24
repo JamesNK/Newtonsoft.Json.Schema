@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Text;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema.Infrastructure.Discovery;
 using Newtonsoft.Json.Schema.Infrastructure.Licensing;
@@ -99,10 +100,14 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
             error.SchemaId = schemaId;
 
-            for (int i = 0; i < error.ChildErrors.Count; i++)
+            // don't create child error list if there are none
+            if (error._childErrors != null)
             {
-                ValidationError validationError = error.ChildErrors[i];
-                PopulateSchemaId(validationError);
+                for (int i = 0; i < error.ChildErrors.Count; i++)
+                {
+                    ValidationError validationError = error.ChildErrors[i];
+                    PopulateSchemaId(validationError);
+                }
             }
         }
 

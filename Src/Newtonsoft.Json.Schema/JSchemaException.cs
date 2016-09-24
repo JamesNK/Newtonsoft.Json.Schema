@@ -8,6 +8,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Runtime.Serialization;
+using System.Text;
+using Newtonsoft.Json.Schema.Infrastructure;
 using Newtonsoft.Json.Utilities;
 
 namespace Newtonsoft.Json.Schema
@@ -64,39 +66,49 @@ namespace Newtonsoft.Json.Schema
 
         internal static string FormatMessage(IJsonLineInfo lineInfo, string path, string message)
         {
-            if (!message.EndsWith(Environment.NewLine, StringComparison.Ordinal))
-            {
-                message = message.Trim();
+            return FormatMessage(lineInfo, path, new StringBuilder(message));
+        }
 
-                if (!message.EndsWith('.'))
-                {
-                    message += ".";
-                }
+        internal static string FormatMessage(IJsonLineInfo lineInfo, string path, StringBuilder message)
+        {
+            message.TrimEnd();
+
+            if (message[message.Length - 1] != '.')
+            {
+                message.Append('.');
             }
 
             if (path == null && (lineInfo == null || !lineInfo.HasLineInfo()))
             {
-                return message;
+                return message.ToString();
             }
 
-            message += " ";
+            message.Append(' ');
 
             if (path != null)
             {
-                message += "Path '{0}'".FormatWith(CultureInfo.InvariantCulture, path);
+                message.Append("Path '");
+                message.Append(path);
+                message.Append('\'');
 
                 if (lineInfo != null && lineInfo.HasLineInfo())
                 {
-                    message += ", line {0}, position {1}".FormatWith(CultureInfo.InvariantCulture, lineInfo.LineNumber, lineInfo.LinePosition);
+                    message.Append(", line ");
+                    message.Append(lineInfo.LineNumber);
+                    message.Append(", position ");
+                    message.Append(lineInfo.LinePosition);
                 }
             }
             else
             {
-                message += "Line {0}, position {1}".FormatWith(CultureInfo.InvariantCulture, lineInfo.LineNumber, lineInfo.LinePosition);
+                message.Append("Line ");
+                message.Append(lineInfo.LineNumber);
+                message.Append(", position ");
+                message.Append(lineInfo.LinePosition);
             }
 
-            message += ".";
-            return message;
+            message.Append('.');
+            return message.ToString();
         }
     }
 }

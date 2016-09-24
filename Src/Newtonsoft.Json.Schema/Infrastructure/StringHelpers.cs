@@ -54,12 +54,36 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             }
 #endif
         }
+
+        public static StringBuilder TrimEnd(this StringBuilder sb)
+        {
+            if (sb == null || sb.Length == 0)
+            {
+                return sb;
+            }
+
+            int i = sb.Length - 1;
+            for (; i >= 0; i--)
+            {
+                if (!char.IsWhiteSpace(sb[i]))
+                {
+                    break;
+                }
+            }
+
+            if (i < sb.Length - 1)
+            {
+                sb.Length = i + 1;
+            }
+
+            return sb;
+        }
     }
 }
 
+#if !NETSTANDARD1_3
 namespace System.Runtime.CompilerServices
 {
-#if !NETSTANDARD1_3
     internal static class FormattableStringFactory
     {
         public static FormattableString Create(string s, params object[] args)
@@ -67,7 +91,6 @@ namespace System.Runtime.CompilerServices
             return new FormattableString(s, args);
         }
     }
-#endif
 
     internal class FormattableString : IFormattable
     {
@@ -80,6 +103,16 @@ namespace System.Runtime.CompilerServices
             _args = args;
         }
 
+        public string Format
+        {
+            get { return _format; }
+        }
+
+        public object[] GetArguments()
+        {
+            return _args;
+        }
+
         public string ToString(string ignored, IFormatProvider formatProvider)
         {
             if (_args.IsNullOrEmpty())
@@ -90,3 +123,4 @@ namespace System.Runtime.CompilerServices
         }
     }
 }
+#endif

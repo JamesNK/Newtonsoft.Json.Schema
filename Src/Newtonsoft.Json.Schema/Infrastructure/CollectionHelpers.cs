@@ -9,6 +9,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 {
     internal static class CollectionHelpers
     {
+        public static readonly object[] EmptyArray = new object[0];
+
         public static bool IsNullOrEmpty<T>(this List<T> values)
         {
             return (values == null || values.Count == 0);

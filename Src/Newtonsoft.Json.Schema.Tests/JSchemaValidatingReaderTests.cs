@@ -1509,12 +1509,12 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.String, reader.TokenType);
             Assert.AreEqual(2, errors.Count);
-            StringAssert.AreEqual(@"JSON does not match all schemas from 'allOf'. Invalid schema indexes: 0. Path '', line 1, position 46.", errors[0].BuildExtendedMessage());
+            StringAssert.AreEqual(@"JSON does not match all schemas from 'allOf'. Invalid schema indexes: 0. Path '', line 1, position 46.", errors[0].GetExtendedMessage());
             Assert.AreEqual(null, errors[0].Value);
             Assert.AreEqual(1, errors[0].ChildErrors.Count);
-            StringAssert.AreEqual(@"String 'The quick brown fox jumps over the lazy dog.' exceeds maximum length of 10. Path '', line 1, position 46.", errors[0].ChildErrors[0].BuildExtendedMessage());
+            StringAssert.AreEqual(@"String 'The quick brown fox jumps over the lazy dog.' exceeds maximum length of 10. Path '', line 1, position 46.", errors[0].ChildErrors[0].GetExtendedMessage());
             Assert.AreEqual("The quick brown fox jumps over the lazy dog.", errors[0].ChildErrors[0].Value);
-            Assert.AreEqual("String 'The quick brown fox jumps over the lazy dog.' exceeds maximum length of 9. Path '', line 1, position 46.", errors[1].BuildExtendedMessage());
+            Assert.AreEqual("String 'The quick brown fox jumps over the lazy dog.' exceeds maximum length of 9. Path '', line 1, position 46.", errors[1].GetExtendedMessage());
             Assert.AreEqual("The quick brown fox jumps over the lazy dog.", errors[1].Value);
 
             Assert.IsNotNull(validationEventArgs);
@@ -1631,14 +1631,14 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(JsonToken.EndObject, reader.TokenType);
 
             Assert.AreEqual(2, errors.Count);
-            StringAssert.AreEqual(@"JSON does not match all schemas from 'allOf'. Invalid schema indexes: 0. Path '', line 1, position 2.", errors[0].BuildExtendedMessage());
+            StringAssert.AreEqual(@"JSON does not match all schemas from 'allOf'. Invalid schema indexes: 0. Path '', line 1, position 2.", errors[0].GetExtendedMessage());
             Assert.AreEqual(null, errors[0].Value);
 
             Assert.AreEqual(1, errors[0].ChildErrors.Count);
-            StringAssert.AreEqual(@"Required properties are missing from object: firstproperty. Path '', line 1, position 2.", errors[0].ChildErrors[0].BuildExtendedMessage());
+            StringAssert.AreEqual(@"Required properties are missing from object: firstproperty. Path '', line 1, position 2.", errors[0].ChildErrors[0].GetExtendedMessage());
             Assert.AreEqual(new List<string> { "firstproperty" }, errors[0].ChildErrors[0].Value);
 
-            StringAssert.AreEqual("Required properties are missing from object: secondproperty. Path '', line 1, position 2.", errors[1].BuildExtendedMessage());
+            StringAssert.AreEqual("Required properties are missing from object: secondproperty. Path '', line 1, position 2.", errors[1].GetExtendedMessage());
             Assert.AreEqual(new List<string> { "secondproperty" }, errors[1].Value);
             Assert.AreEqual("second", errors[1].SchemaId.ToString());
         }
@@ -1830,7 +1830,7 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(JsonToken.PropertyName, reader.TokenType);
             Assert.AreEqual("firstproperty", reader.Value.ToString());
             StringAssert.AreEqual(@"firstproperty", errors[0].Path);
-            StringAssert.AreEqual(@"Property 'firstproperty' has not been defined and the schema does not allow additional properties. Path 'firstproperty', line 2, position 18.", errors[0].BuildExtendedMessage());
+            StringAssert.AreEqual(@"Property 'firstproperty' has not been defined and the schema does not allow additional properties. Path 'firstproperty', line 2, position 18.", errors[0].GetExtendedMessage());
             Assert.AreEqual("firstproperty", errors[0].Value);
 
             Assert.IsTrue(reader.Read());
@@ -1865,7 +1865,7 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual("aaa", reader.Value.ToString());
             Assert.AreEqual(2, errors.Count);
             StringAssert.AreEqual(@"thirdproperty.thirdproperty_firstproperty", errors[1].Path);
-            StringAssert.AreEqual(@"String 'aaa' does not match regex pattern 'hi'. Path 'thirdproperty.thirdproperty_firstproperty', line 5, position 39.", errors[1].BuildExtendedMessage());
+            StringAssert.AreEqual(@"String 'aaa' does not match regex pattern 'hi'. Path 'thirdproperty.thirdproperty_firstproperty', line 5, position 39.", errors[1].GetExtendedMessage());
             Assert.AreEqual("aaa", errors[1].Value);
 
             Assert.IsTrue(reader.Read());
@@ -1882,17 +1882,17 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(JsonToken.EndObject, reader.TokenType);
             Assert.AreEqual(3, errors.Count);
             StringAssert.AreEqual(@"thirdproperty", errors[2].Path);
-            StringAssert.AreEqual(@"JSON does not match all schemas from 'allOf'. Invalid schema indexes: 0. Path 'thirdproperty', line 7, position 3.", errors[2].BuildExtendedMessage());
+            StringAssert.AreEqual(@"JSON does not match all schemas from 'allOf'. Invalid schema indexes: 0. Path 'thirdproperty', line 7, position 3.", errors[2].GetExtendedMessage());
             Assert.AreEqual(null, errors[2].Value);
             Assert.AreEqual(4, errors[2].ChildErrors.Count);
             StringAssert.AreEqual(@"thirdproperty.thirdproperty_firstproperty", errors[2].ChildErrors[0].Path);
-            StringAssert.AreEqual(@"String 'aaa' is less than minimum length of 6. Path 'thirdproperty.thirdproperty_firstproperty', line 5, position 39.", errors[2].ChildErrors[0].BuildExtendedMessage());
+            StringAssert.AreEqual(@"String 'aaa' is less than minimum length of 6. Path 'thirdproperty.thirdproperty_firstproperty', line 5, position 39.", errors[2].ChildErrors[0].GetExtendedMessage());
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.EndObject, reader.TokenType);
             Assert.AreEqual(4, errors.Count);
             StringAssert.AreEqual(@"", errors[3].Path);
-            StringAssert.AreEqual(@"JSON does not match all schemas from 'allOf'. Invalid schema indexes: 0. Path '', line 8, position 1.", errors[3].BuildExtendedMessage());
+            StringAssert.AreEqual(@"JSON does not match all schemas from 'allOf'. Invalid schema indexes: 0. Path '', line 8, position 1.", errors[3].GetExtendedMessage());
             Assert.AreEqual(null, errors[3].Value);
             Assert.AreEqual(2, errors[3].ChildErrors.Count);
 
