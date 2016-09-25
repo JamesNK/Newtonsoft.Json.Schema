@@ -100,12 +100,13 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
             error.SchemaId = schemaId;
 
-            // don't create child error list if there are none
+            // property getter will lazy create a new list
+            // don't create child error list unneeded
             if (error._childErrors != null)
             {
-                for (int i = 0; i < error.ChildErrors.Count; i++)
+                for (int i = 0; i < error._childErrors.Count; i++)
                 {
-                    ValidationError validationError = error.ChildErrors[i];
+                    ValidationError validationError = error._childErrors[i];
                     PopulateSchemaId(validationError);
                 }
             }
