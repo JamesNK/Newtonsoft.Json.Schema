@@ -1635,6 +1635,44 @@ namespace Newtonsoft.Json.Schema.Tests
 
             Console.WriteLine(json);
         }
+
+        [Test]
+        public void GenerationProviderSettingPlusConverterAttribute()
+        {
+            JSchemaGenerator generator = new JSchemaGenerator();
+            generator.GenerationProviders.Add(new ClassWithConverterJSchemaGenerationProvider());
+            JSchema schema = generator.Generate(typeof(ClassWithConverter));
+
+            Assert.IsNotNull(schema.Properties["Provider"]);
+        }
+
+        [Test]
+        public void GenerationProviderSettingPlusDerivedConverterAttribute()
+        {
+            JSchemaGenerator generator = new JSchemaGenerator();
+            generator.GenerationProviders.Add(new ClassWithConverterJSchemaGenerationProvider());
+            JSchema schema = generator.Generate(typeof(DerivedFromAbstractClassWithConverter));
+
+            Assert.IsNotNull(schema.Properties["Provider"]);
+        }
+
+        [Test]
+        public void GenerationProviderAttributePlusConverterAttribute()
+        {
+            JSchemaGenerator generator = new JSchemaGenerator();
+            JSchema schema = generator.Generate(typeof(ClassWithConverterAndProvider));
+
+            Assert.IsNotNull(schema.Properties["Provider"]);
+        }
+
+        [Test]
+        public void GenerationProviderAttributeDerivedPlusConverterAttributeDerived()
+        {
+            JSchemaGenerator generator = new JSchemaGenerator();
+            JSchema schema = generator.Generate(typeof(DerivedFromAbstractClassWithConverterAndProvider));
+
+            Assert.IsNotNull(schema.Properties["Provider"]);
+        }
     }
 
     public class NullableInt32TestClass
@@ -1728,5 +1766,71 @@ namespace Newtonsoft.Json.Schema.Tests
     public class BigItem
     {
         public Item SmallItem { get; set; }
+    }
+
+    public class TestJsonConverter : JsonConverter
+    {
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool CanConvert(Type objectType)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class ClassWithConverterJSchemaGenerationProvider : JSchemaGenerationProvider
+    {
+        public override JSchema GetSchema(JSchemaTypeGenerationContext context)
+        {
+            return new JSchema
+            {
+                Properties =
+                {
+                    ["Provider"] = new JSchema()
+                }
+            };
+        }
+    }
+
+    [JsonConverter(typeof(TestJsonConverter))]
+    public class ClassWithConverter
+    {
+        public string Prop1 { get; set; }
+    }
+
+    [JsonConverter(typeof(TestJsonConverter))]
+    [JSchemaGenerationProvider(typeof(ClassWithConverterJSchemaGenerationProvider))]
+    public class ClassWithConverterAndProvider
+    {
+        public string Prop1 { get; set; }
+    }
+
+    [JsonConverter(typeof(TestJsonConverter))]
+    public abstract class AbstractClassWithConverter
+    {
+        public string Prop1 { get; set; }
+    }
+
+    public class DerivedFromAbstractClassWithConverter : AbstractClassWithConverter
+    {
+    }
+
+    [JsonConverter(typeof(TestJsonConverter))]
+    [JSchemaGenerationProvider(typeof(ClassWithConverterJSchemaGenerationProvider))]
+    public abstract class AbstractClassWithConverterAndProvider
+    {
+        public string Prop1 { get; set; }
+    }
+
+    public class DerivedFromAbstractClassWithConverterAndProvider : AbstractClassWithConverterAndProvider
+    {
     }
 }
