@@ -891,7 +891,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
             SchemaReference schemaReference = _resolver.ResolveSchemaReference(context);
 
-            if (schemaReference.BaseUri == _baseUri)
+            if (schemaReference.BaseUri == _baseUri && schemaReference.SubschemaId != null)
             {
                 // reference is to inside the current schema
                 // use normal schema resolution
