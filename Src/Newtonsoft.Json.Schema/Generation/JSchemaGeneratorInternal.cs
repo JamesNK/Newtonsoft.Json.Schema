@@ -316,7 +316,19 @@ namespace Newtonsoft.Json.Schema.Generation
             schema.Title = GetTitle(contract.NonNullableUnderlyingType);
             schema.Description = GetDescription(contract.NonNullableUnderlyingType);
 
-            JsonConverter converter = (contract.Converter != null && contract.Converter.CanWrite) ? contract.Converter : contract.InternalConverter;
+            JsonConverter converter;
+            if (contract.Converter != null && contract.Converter.CanWrite)
+            {
+                converter = contract.Converter;
+            }
+            else if (contract.InternalConverter != null && contract.InternalConverter.CanWrite)
+            {
+                converter = contract.InternalConverter;
+            }
+            else
+            {
+                converter = null;
+            }
 
             if (converter != null)
             {

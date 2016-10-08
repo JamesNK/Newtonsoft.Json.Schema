@@ -1637,6 +1637,16 @@ namespace Newtonsoft.Json.Schema.Tests
         }
 
         [Test]
+        public void NoWriteJsonConverter()
+        {
+            JSchemaGenerator generator = new JSchemaGenerator();
+            JSchema schema = generator.Generate(typeof(ClassWithNoWriteConverter));
+
+            Assert.AreEqual(JSchemaType.Object, schema.Type);
+            Assert.AreEqual(JSchemaType.String | JSchemaType.Null, schema.Properties["Prop1"].Type);
+        }
+
+        [Test]
         public void GenerationProviderSettingPlusConverterAttribute()
         {
             JSchemaGenerator generator = new JSchemaGenerator();
@@ -1786,6 +1796,29 @@ namespace Newtonsoft.Json.Schema.Tests
         }
     }
 
+    public class TestNoWriteJsonConverter : JsonConverter
+    {
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool CanConvert(Type objectType)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool CanWrite
+        {
+            get { return false; }
+        }
+    }
+
     public class ClassWithConverterJSchemaGenerationProvider : JSchemaGenerationProvider
     {
         public override JSchema GetSchema(JSchemaTypeGenerationContext context)
@@ -1802,6 +1835,12 @@ namespace Newtonsoft.Json.Schema.Tests
 
     [JsonConverter(typeof(TestJsonConverter))]
     public class ClassWithConverter
+    {
+        public string Prop1 { get; set; }
+    }
+
+    [JsonConverter(typeof(TestNoWriteJsonConverter))]
+    public class ClassWithNoWriteConverter
     {
         public string Prop1 { get; set; }
     }
