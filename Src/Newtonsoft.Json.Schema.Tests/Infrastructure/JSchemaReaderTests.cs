@@ -3012,5 +3012,59 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             ExceptionAssert.Throws<JSchemaReaderException>(() => { JSchema.Parse(schemaJson); }, "Error parsing integer for 'maxLength'. 9223372036854775808 cannot fit in an Int64. Path 'maxLength', line 3, position 34.");
         }
 #endif
+
+        [Test]
+        public void ResolvedSchemaSelfReferences()
+        {
+            string json = @"{
+  ""id"": ""TestSchema"",
+  ""$schema"": ""http://json-schema.org/draft-04/schema#"",
+  ""title"": ""TestSchema"",
+  ""description"": ""Test Schema for bug"",
+  ""type"": ""object"",
+  ""properties"": {
+    ""Field1"": {
+      ""description"": ""normal field"",
+      ""type"": ""string""
+    },
+    ""ReferenceArray"": {
+      ""type"": ""array"",
+      ""minimum"": 1,
+      ""items"": {
+        ""$ref"": ""testReferencedExternal.schema.json""
+      }
+    }
+  }
+}";
+
+            JSchemaPreloadedResolver resolver = new JSchemaPreloadedResolver();
+            resolver.Add(new Uri("testReferencedExternal.schema.json", UriKind.Relative), @"{
+    ""id"": ""TestSchemaReference"",
+    ""$schema"": ""http://json-schema.org/draft-04/schema#"",
+    ""title"": ""TestSchemaReference"",
+    ""description"": ""reference Test Schema for bug"",
+    ""type"": ""object"",
+    ""properties"": {
+        ""ReferencedField"": {
+            ""description"": ""normal field"",
+            ""type"": ""string""
+        },
+        ""SelfreferencedArray"": {
+            ""type"": ""array"",
+            ""minimum"": 1,
+            ""items"": {
+                ""$ref"": ""testReferencedExternal.schema.json""
+            }
+        }
+    }
+}");
+
+            JSchema s = JSchema.Parse(json, resolver);
+            JSchema referencedSchema = s.Properties["ReferenceArray"].Items[0];
+
+            Assert.AreEqual("TestSchemaReference", referencedSchema.Id.OriginalString);
+            
+            Assert.AreEqual(referencedSchema, referencedSchema.Properties["SelfreferencedArray"].Items[0]);
+        }
     }
 }
