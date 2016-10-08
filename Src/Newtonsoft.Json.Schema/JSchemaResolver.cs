@@ -60,14 +60,9 @@ namespace Newtonsoft.Json.Schema
                 return RemoveFragment(uri, out fragment);
             }
 
-            if (!baseUri.IsAbsoluteUri)
-            {
-                throw new NotSupportedException("Relative URIs are not supported.");
-            }
-
             uri = RemoveFragment(uri, out fragment);
 
-            uri = new Uri(baseUri, uri);
+            uri = SchemaDiscovery.ResolveSchemaId(baseUri, uri);
             return uri;
         }
 
