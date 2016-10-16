@@ -1713,9 +1713,9 @@ namespace Newtonsoft.Json.Schema.Tests
         {
             public override JSchema GetSchema(JSchemaTypeGenerationContext context)
             {
-                var schema = new JSchema();
-                var descendants = Assembly.GetExecutingAssembly().GetTypes().Where(item => !item.IsAbstract && typeof(BlockBase).IsAssignableFrom(item)).ToList();
-                foreach (var descendant in descendants)
+                JSchema schema = new JSchema();
+                Type[] descendants = { typeof(Block1), typeof(Block2) };
+                foreach (Type descendant in descendants)
                 {
                     // The line below never exits, because it's calling MySchemaGenerator.GetSchema again with the same parameter
                     var descendantSchema = context.Generator.Generate(descendant);
