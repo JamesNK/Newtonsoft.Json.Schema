@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema.Infrastructure;
@@ -61,11 +62,13 @@ namespace Newtonsoft.Json.Schema.Generation
                         }
                         else
                         {
-                            id = t.Key.Type.Name;
+                            string typeName = GetTypeName(t.Key.Type);
+
+                            id = typeName;
                             int i = 1;
                             while (definitions[id] != null)
                             {
-                                id = t.Key.Type.Name + "-" + i;
+                                id = typeName + "-" + i;
                                 i++;
                             }
                         }
@@ -76,6 +79,26 @@ namespace Newtonsoft.Json.Schema.Generation
             }
 
             return schema;
+        }
+
+        private string GetTypeName(Type type)
+        {
+#if (PORTABLE || NETSTANDARD1_3)
+            if (type.GetTypeInfo().IsGenericType)
+#else
+            if (type.IsGenericType)
+#endif
+            {
+#if (PORTABLE || NETSTANDARD1_3)
+                Type[] genericTypeArguments = type.GetTypeInfo().GenericTypeArguments;
+#else
+                Type[] genericTypeArguments = type.GetGenericArguments();
+#endif
+
+                return type.Name.Split('`')[0] + "<" + string.Join(", ", genericTypeArguments.Select(GetTypeName).ToArray()) + ">";
+            }
+
+            return type.Name;
         }
 
         public JSchema GenerateSubschema(Type type, Required required, JSchemaGenerationProvider currentGenerationProvider)
@@ -201,7 +224,7 @@ namespace Newtonsoft.Json.Schema.Generation
 
             if (ShouldReferenceType(contract))
             {
-                TypeSchema typeSchema = _typeSchemas.SingleOrDefault(s => s.Key.Equals(key));
+                TypeSchema typeSchema = GetCachedSchema(key);
                 if (typeSchema != null)
                 {
                     return typeSchema.Schema;
@@ -242,9 +265,20 @@ namespace Newtonsoft.Json.Schema.Generation
 
             if (schema != null)
             {
-                if (ShouldReferenceType(contract))
+                // check to see whether the generation provide had already generated the type recursively
+                // and reuse that cached schema rather than duplicate
+                TypeSchema typeSchema = GetCachedSchema(key);
+
+                if (typeSchema != null)
                 {
-                    _typeSchemas.Add(new TypeSchema(key, schema));
+                    schema = typeSchema.Schema;
+                }
+                else
+                {
+                    if (ShouldReferenceType(contract))
+                    {
+                        _typeSchemas.Add(new TypeSchema(key, schema));
+                    }
                 }
             }
             else
@@ -264,6 +298,11 @@ namespace Newtonsoft.Json.Schema.Generation
             }
 
             return schema;
+        }
+
+        private TypeSchema GetCachedSchema(TypeSchemaKey key)
+        {
+            return _typeSchemas.SingleOrDefault(s => s.Key.Equals(key));
         }
 
         private bool ShouldReferenceType(JsonContract contract)

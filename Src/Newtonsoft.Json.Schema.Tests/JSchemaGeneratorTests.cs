@@ -26,6 +26,7 @@ using NUnit.Framework;
 #endif
 using Newtonsoft.Json.Schema;
 using System.IO;
+using System.Reflection;
 using Newtonsoft.Json.Linq;
 using System.Text;
 #if NET20
@@ -1682,6 +1683,115 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchema schema = generator.Generate(typeof(DerivedFromAbstractClassWithConverterAndProvider));
 
             Assert.IsNotNull(schema.Properties["Provider"]);
+        }
+
+        internal class MyRootJsonClass
+        {
+            public Dictionary<string, BlockBase> Blocks { get; set; }
+        }
+
+        internal abstract class BlockBase
+        {
+            // Removed from sample: a hundred of other properties
+
+            public Dictionary<string, BlockBase> NestedBlocks { get; set; }
+        }
+
+        internal class Block1 : BlockBase
+        {
+
+        }
+
+        internal class Block2 : BlockBase
+        {
+
+        }
+
+        // Removed from sample: a hundred descendants of BlockBase
+
+        internal class MyJSchemaGenerationProvider : JSchemaGenerationProvider
+        {
+            public override JSchema GetSchema(JSchemaTypeGenerationContext context)
+            {
+                var schema = new JSchema();
+                var descendants = Assembly.GetExecutingAssembly().GetTypes().Where(item => !item.IsAbstract && typeof(BlockBase).IsAssignableFrom(item)).ToList();
+                foreach (var descendant in descendants)
+                {
+                    // The line below never exits, because it's calling MySchemaGenerator.GetSchema again with the same parameter
+                    var descendantSchema = context.Generator.Generate(descendant);
+                    schema.PatternProperties.Add(descendant.Name + ".*", descendantSchema);
+                }
+                schema.AllowAdditionalProperties = false;
+                schema.Type = JSchemaType.Object;
+                return schema;
+            }
+
+            public override bool CanGenerateSchema(JSchemaTypeGenerationContext context)
+            {
+                return context.ObjectType == typeof(Dictionary<string, BlockBase>);
+            }
+        }
+
+        [Test]
+        public void JSchemaGenerationProvider_SelfReferencingAbstractType()
+        {
+            JSchemaGenerator generator = new JSchemaGenerator();
+            generator.SchemaReferenceHandling = SchemaReferenceHandling.All;
+            generator.GenerationProviders.Add(new MyJSchemaGenerationProvider());
+
+            JSchema schema = generator.Generate(typeof(MyRootJsonClass));
+            string json = schema.ToString();
+
+            StringAssert.AreEqual(@"{
+  ""definitions"": {
+    ""Dictionary<String, BlockBase>"": {
+      ""type"": ""object"",
+      ""additionalProperties"": false,
+      ""patternProperties"": {
+        ""Block1.*"": {
+          ""type"": ""object"",
+          ""properties"": {
+            ""NestedBlocks"": {
+              ""$ref"": ""#/definitions/Dictionary<String, BlockBase>""
+            }
+          },
+          ""required"": [
+            ""NestedBlocks""
+          ]
+        },
+        ""Block2.*"": {
+          ""type"": ""object"",
+          ""properties"": {
+            ""NestedBlocks"": {
+              ""$ref"": ""#/definitions/Dictionary<String, BlockBase>""
+            }
+          },
+          ""required"": [
+            ""NestedBlocks""
+          ]
+        }
+      }
+    },
+    ""Block2"": {
+      ""$ref"": ""#/definitions/Dictionary<String, BlockBase>/patternProperties/Block2.*""
+    },
+    ""Block1"": {
+      ""$ref"": ""#/definitions/Dictionary<String, BlockBase>/patternProperties/Block1.*""
+    }
+  },
+  ""type"": ""object"",
+  ""properties"": {
+    ""Blocks"": {
+      ""$ref"": ""#/definitions/Dictionary<String, BlockBase>""
+    }
+  },
+  ""required"": [
+    ""Blocks""
+  ]
+}", json);
+
+            // check that generic definitions can be parsed
+            JSchema loadedSchema = JSchema.Parse(json);
         }
     }
 
