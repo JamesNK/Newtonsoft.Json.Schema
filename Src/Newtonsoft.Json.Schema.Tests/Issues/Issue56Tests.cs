@@ -71,16 +71,6 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
 
             JSchema s = JSchema.Parse(json);
 
-            StringWriter sb = new StringWriter();
-            JsonTextWriter writer = new JsonTextWriter(sb);
-            writer.Formatting = Formatting.Indented;
-            s.WriteTo(writer, new JSchemaWriterSettings
-            {
-                ReferenceHandling = JSchemaWriterReferenceHandling.Never
-            });
-
-            //Console.WriteLine(sb);
-
             JObject o = JObject.Parse(@"{
   ""data"": [
     null

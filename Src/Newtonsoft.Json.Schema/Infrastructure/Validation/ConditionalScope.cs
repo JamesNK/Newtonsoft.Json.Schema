@@ -70,7 +70,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                             if (i < currentScopeIndex)
                             {
                                 // existing schema is before conditional scope
-                                // move it so conditional scope is evaluated after existing scope
+                                // move it so conditional scope is evaluated after existing schema
                                 Context.Scopes.RemoveAt(i);
                                 Context.Scopes.Insert(currentScopeIndex, scope);
                             }
