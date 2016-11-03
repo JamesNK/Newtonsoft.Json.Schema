@@ -25,5 +25,10 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
             return false;
         }
+
+        internal override bool IsValid()
+        {
+            return GetChildrenAnyValid();
+        }
     }
 }

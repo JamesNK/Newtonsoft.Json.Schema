@@ -5,9 +5,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 {
+    [DebuggerDisplay("{DebuggerDisplay,nq}")]
     internal abstract class ConditionalScope : Scope
     {
         protected ConditionalContext ConditionalContext;
@@ -17,6 +19,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
         protected ConditionalScope()
         {
             ChildScopes = new List<SchemaScope>();
+        }
+
+        internal string DebuggerDisplay
+        {
+            get { return GetType().Name + " - IsValid=" + IsValid() + " - Complete=" + Complete; }
         }
 
         public override void Initialize(ContextBase context, SchemaScope parent, int initialDepth, ScopeType type)
@@ -44,6 +51,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             }
         }
 
+        internal abstract bool IsValid();
+
         private SchemaScope GetExistingSchemaScope(JSchema schema)
         {
             for (int i = Context.Scopes.Count - 1; i >= 0; i--)
@@ -56,6 +65,16 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     {
                         if (!scope.Complete && scope.Schema == schema)
                         {
+                            int currentScopeIndex = Context.Scopes.IndexOf(this);
+
+                            if (i < currentScopeIndex)
+                            {
+                                // existing schema is before conditional scope
+                                // move it so conditional scope is evaluated after existing scope
+                                Context.Scopes.RemoveAt(i);
+                                Context.Scopes.Insert(currentScopeIndex, scope);
+                            }
+
                             return scope;
                         }
                     }

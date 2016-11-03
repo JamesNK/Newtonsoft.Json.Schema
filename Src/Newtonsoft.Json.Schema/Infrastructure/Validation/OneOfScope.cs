@@ -51,5 +51,12 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
             return false;
         }
+
+        internal override bool IsValid()
+        {
+            int validCount = GetChildrenValidCount();
+
+            return validCount == 1;
+        }
     }
 }

@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -13,6 +14,7 @@ using Newtonsoft.Json.Utilities;
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 {
+    [DebuggerDisplay("{DebuggerDisplay,nq}")]
     internal abstract class SchemaScope : Scope
     {
         public JSchema Schema;
@@ -22,6 +24,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
         {
             Schema = schema;
             IsValid = true;
+        }
+
+        internal string DebuggerDisplay
+        {
+            get { return GetType().Name + " - IsValid=" + IsValid + " - Complete=" + Complete; }
         }
 
         public static SchemaScope CreateTokenScope(JsonToken token, JSchema schema, ContextBase context, SchemaScope parent, int depth)
