@@ -35,7 +35,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation.Samples.Create
                             Type = JSchemaType.Array,
                             Items = { new JSchema { Type = JSchemaType.String } }
                         }
-                    },
+                    }
                 }
             };
 

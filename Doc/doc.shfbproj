@@ -101,6 +101,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Content Include="icons\favicon.ico" />
+    <None Include="Samples\Create\CreateJsonSchemaWithReferences.aml" />
     <None Include="CustomJsonValidators.aml" />
     <None Include="Samples\Validate\CustomJsonValidator.aml" />
     <None Include="Samples\Validate\JTokenIsValidWithValidationErrors.aml" />

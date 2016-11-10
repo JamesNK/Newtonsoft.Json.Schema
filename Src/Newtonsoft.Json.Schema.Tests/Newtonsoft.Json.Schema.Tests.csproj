@@ -42,6 +42,7 @@
   <ItemGroup>
     <Compile Include="Documentation\GeneratingSchemas.cs" />
     <Compile Include="Documentation\LoadingSchemas.cs" />
+    <Compile Include="Documentation\Samples\Create\CreateJsonSchemaWithReferences.cs" />
     <Compile Include="Documentation\Samples\Generation\CreateCustomProvider.cs" />
     <Compile Include="Documentation\Samples\Generation\GenerateWithJsonNetAttributes.cs" />
     <Compile Include="Documentation\Samples\Generation\GenerateWithProvider.cs" />
