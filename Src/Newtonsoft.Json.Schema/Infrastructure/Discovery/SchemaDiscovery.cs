@@ -203,7 +203,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                         // schema is a reference schema and needs to be resolved
                         if (s.Reference != null)
                         {
-                            schemaReader.AddDeferedSchema(setSchema, s);
+                            schemaReader.AddDeferedSchema(null, setSchema, s);
                         }
                     }
                     else

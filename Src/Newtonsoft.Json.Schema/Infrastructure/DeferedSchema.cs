@@ -9,41 +9,87 @@ using System.Diagnostics;
 
 namespace Newtonsoft.Json.Schema.Infrastructure
 {
+    internal class SetSchema
+    {
+        private readonly Action<JSchema> _setAction;
+        private readonly JSchema _target;
+
+        public SetSchema(Action<JSchema> setAction, JSchema target)
+        {
+            _setAction = setAction;
+            _target = target;
+        }
+
+        public void Execute(JSchema schema)
+        {
+            if (_target != null)
+            {
+                _target.State = JSchemaState.Loading;
+            }
+
+            try
+            {
+                _setAction(schema);
+            }
+            finally
+            {
+                if (_target != null)
+                {
+                    _target.State = JSchemaState.Default;
+                }
+            }
+        }
+    }
+
     [DebuggerDisplay("Reference = {ResolvedReference}, Success = {Success}")]
     internal class DeferedSchema
     {
         public readonly Uri ResolvedReference;
         public readonly JSchema ReferenceSchema;
-        public readonly List<Action<JSchema>> SetSchemas;
+        public readonly List<SetSchema> SetSchemas;
 
         private bool _success;
+        private JSchema _resolvedSchema;
 
         public bool Success
         {
             get { return _success; }
         }
 
+        public JSchema ResolvedSchema
+        {
+            get { return _resolvedSchema; }
+        }
+
         public DeferedSchema(Uri resolvedReference, JSchema referenceSchema)
         {
-            SetSchemas = new List<Action<JSchema>>();
+            SetSchemas = new List<SetSchema>();
             ResolvedReference = resolvedReference;
             ReferenceSchema = referenceSchema;
         }
 
-        public void AddSchemaSet(Action<JSchema> setSchema)
+        public void AddSchemaSet(Action<JSchema> setSchema, JSchema target)
         {
-            SetSchemas.Add(setSchema);
+            SetSchemas.Add(new SetSchema(setSchema, target));
         }
 
         public void SetResolvedSchema(JSchema schema)
         {
-            foreach (Action<JSchema> setSchema in SetSchemas)
+            foreach (SetSchema setSchema in SetSchemas)
             {
-                setSchema(schema);
+                setSchema.Execute(schema);
             }
 
             // successful
-            _success = (schema.Reference == null);
+            if (schema.Reference == null)
+            {
+                _success = true;
+                _resolvedSchema = schema;
+            }
+            else
+            {
+                _success = false;
+            }
         }
     }
 }

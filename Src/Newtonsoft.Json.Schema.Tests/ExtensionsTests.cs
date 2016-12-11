@@ -789,6 +789,42 @@ namespace Newtonsoft.Json.Schema.Tests
         }
 
         [Test]
+        public void Format_Time_24Hour()
+        {
+            JSchema s = JSchema.Parse(@"{""format"": ""time""}");
+            JToken t = JToken.Parse("'18:50:00'");
+
+            Assert.IsTrue(t.IsValid(s));
+        }
+
+        [Test]
+        public void Format_Time_Milliseconds()
+        {
+            JSchema s = JSchema.Parse(@"{""format"": ""time""}");
+            JToken t = JToken.Parse("'11:50:00.123'");
+
+            Assert.IsTrue(t.IsValid(s));
+        }
+
+        [Test]
+        public void Format_Time_UTC()
+        {
+            JSchema s = JSchema.Parse(@"{""format"": ""time""}");
+            JToken t = JToken.Parse("'18:55:00Z'");
+
+            Assert.IsTrue(t.IsValid(s));
+        }
+
+        [Test]
+        public void Format_Time_TimeZoneOffset()
+        {
+            JSchema s = JSchema.Parse(@"{""format"": ""time""}");
+            JToken t = JToken.Parse("'18:55:00-04:00'");
+
+            Assert.IsTrue(t.IsValid(s));
+        }
+
+        [Test]
         public void Format_Hostname_InvalidCharacters()
         {
             JSchema s = JSchema.Parse(@"{""format"": ""hostname""}");

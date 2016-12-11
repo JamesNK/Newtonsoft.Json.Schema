@@ -281,7 +281,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 case Constants.Formats.Time:
                 {
                     DateTime temp;
-                    return DateTime.TryParseExact(value, "hh:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out temp);
+                    return DateTime.TryParseExact(value, "HH:mm:ss.FFFFFFFK", CultureInfo.InvariantCulture, DateTimeStyles.None, out temp);
                 }
                 case Constants.Formats.DateTime:
                 {

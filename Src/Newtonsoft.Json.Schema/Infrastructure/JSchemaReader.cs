@@ -34,6 +34,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         internal JSchemaDiscovery _schemaDiscovery;
         internal readonly Stack<JSchema> _schemaStack;
         private readonly List<DeferedSchema> _deferedSchemas;
+        private readonly List<DeferedSchema> _resolvedDeferedSchemas;
         private readonly JSchemaResolver _resolver;
         private readonly Uri _baseUri;
         private readonly bool _validateSchema;
@@ -58,6 +59,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         {
             Cache = new Dictionary<Uri, JSchema>(UriComparer.Instance);
             _deferedSchemas = new List<DeferedSchema>();
+            _resolvedDeferedSchemas = new List<DeferedSchema>();
             _schemaStack = new Stack<JSchema>();
 
             _resolver = settings.Resolver ?? JSchemaDummyResolver.Instance;
@@ -91,7 +93,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
             RootSchema = new JSchema();
 
-            LoadAndSetSchema(reader, s =>
+            LoadAndSetSchema(reader, null, s =>
             {
                 RootSchema = s;
 
@@ -188,7 +190,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
             reader.Read();
 
-            LoadAndSetSchema(reader, s =>
+            LoadAndSetSchema(reader, null, s =>
             {
                 setSchema(s);
                 inlineToken.RemoveAnnotations<JSchemaAnnotation>();
@@ -198,21 +200,21 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             return inlineToken.Annotation<JSchemaAnnotation>().Schema;
         }
 
-        internal void AddDeferedSchema(Action<JSchema> setSchema, JSchema referenceSchema)
+        internal bool AddDeferedSchema(JSchema target, Action<JSchema> setSchema, JSchema referenceSchema)
         {
             Uri resolvedReference = ResolveSchemaReference(referenceSchema);
 
-            AddDeferedSchema(resolvedReference, referenceSchema, setSchema);
+            return AddDeferedSchema(resolvedReference, referenceSchema, target, setSchema);
         }
 
-        private void ReadSchemaProperties(JsonReader reader, bool isRoot, JSchema schema)
+        private void ReadSchemaProperties(JsonReader reader, JSchema target, bool isRoot)
         {
             while (reader.Read())
             {
                 switch (reader.TokenType)
                 {
                     case JsonToken.PropertyName:
-                        ProcessSchemaName(ref reader, isRoot, schema, (string)reader.Value);
+                        ProcessSchemaName(ref reader, target, isRoot, (string)reader.Value);
                         break;
                     case JsonToken.Comment:
                         // nom, nom
@@ -238,8 +240,6 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
             if (_deferedSchemas.Count > 0)
             {
-                List<DeferedSchema> resolvedDeferedSchemas = new List<DeferedSchema>();
-
                 int initialCount = _deferedSchemas.Count;
 
                 int i = 0;
@@ -250,16 +250,16 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
                     ResolveDeferedSchema(deferedSchema);
 
-                    resolvedDeferedSchemas.Add(deferedSchema);
+                    _resolvedDeferedSchemas.Add(deferedSchema);
                     _deferedSchemas.Remove(deferedSchema);
 
                     if (!deferedSchema.Success && i >= initialCount)
                     {
                         // if schema resolved to another reference and that reference has already not be resolved then fail
                         // probably a circular reference
-                        for (int j = initialCount; j < resolvedDeferedSchemas.Count; j++)
+                        for (int j = initialCount; j < _resolvedDeferedSchemas.Count; j++)
                         {
-                            DeferedSchema resolvedSchema = resolvedDeferedSchemas[j];
+                            DeferedSchema resolvedSchema = _resolvedDeferedSchemas[j];
                             if (deferedSchema != resolvedSchema && deferedSchema.ResolvedReference.ToString() == resolvedSchema.ResolvedReference.ToString())
                             {
                                 throw JSchemaReaderException.Create(resolvedSchema.ReferenceSchema, _baseUri, resolvedSchema.ReferenceSchema.Path, "Could not resolve schema reference '{0}'.".FormatWith(CultureInfo.InvariantCulture, deferedSchema.ResolvedReference));
@@ -269,7 +269,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                     i++;
                 }
 
-                foreach (DeferedSchema resolvedDeferedSchema in resolvedDeferedSchemas)
+                foreach (DeferedSchema resolvedDeferedSchema in _resolvedDeferedSchemas)
                 {
                     if (!resolvedDeferedSchema.Success)
                     {
@@ -324,11 +324,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             throw JSchemaReaderException.Create(deferedSchema.ReferenceSchema, _baseUri, deferedSchema.ReferenceSchema.Path, "Could not resolve schema reference '{0}'.".FormatWith(CultureInfo.InvariantCulture, deferedSchema.ResolvedReference));
         }
 
-        private void ReadSchema(JsonReader reader, string name, Action<JSchema> setSchema)
+        private void ReadSchema(JsonReader reader, JSchema target, string name, Action<JSchema> setSchema)
         {
             EnsureToken(reader, name, JsonToken.StartObject);
 
-            LoadAndSetSchema(reader, setSchema);
+            LoadAndSetSchema(reader, target, setSchema);
         }
 
         private void EnsureRead(JsonReader reader, string name)
@@ -432,7 +432,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             return Convert.ToDouble(reader.Value, CultureInfo.InvariantCulture);
         }
 
-        private void ReadProperties(JsonReader reader, IDictionary<string, JSchema> properties)
+        private void ReadProperties(JsonReader reader, JSchema target, IDictionary<string, JSchema> properties)
         {
             EnsureToken(reader, Constants.PropertyNames.Properties, JsonToken.StartObject);
 
@@ -447,7 +447,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
                         // use last schema for duplicates
                         // will this cause issues with a previously deferred schemas?
-                        LoadAndSetSchema(reader, s => properties[name] = s);
+                        LoadAndSetSchema(reader, target, s => properties[name] = s);
                         break;
                     case JsonToken.Comment:
                         // nom, nom
@@ -478,67 +478,67 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             }
         }
 
-        private void ReadItems(JsonReader reader, JSchema schema)
+        private void ReadItems(JsonReader reader, JSchema target)
         {
             EnsureRead(reader, Constants.PropertyNames.Items);
-            if (schema._items == null)
+            if (target._items == null)
             {
-                schema._items = new JSchemaCollection(schema);
+                target._items = new JSchemaCollection(target);
             }
 
             switch (reader.TokenType)
             {
                 case JsonToken.StartObject:
-                    LoadAndSetSchema(reader, s => SetAtIndex(schema._items, 0, s));
-                    schema.ItemsPositionValidation = false;
+                    LoadAndSetSchema(reader, target, s => SetAtIndex(target._items, 0, s));
+                    target.ItemsPositionValidation = false;
                     break;
                 case JsonToken.StartArray:
-                    PopulateSchemaArray(reader, Constants.PropertyNames.Items, schema._items);
-                    schema.ItemsPositionValidation = true;
+                    PopulateSchemaArray(reader, target, Constants.PropertyNames.Items, target._items);
+                    target.ItemsPositionValidation = true;
                     break;
                 default:
                     throw JSchemaReaderException.Create(reader, _baseUri, "Expected array or JSON schema object for '{0}', got {1}.".FormatWith(CultureInfo.InvariantCulture, Constants.PropertyNames.Items, reader.TokenType));
             }
         }
 
-        private void ReadSchemaArray(JsonReader reader, JSchema schema, string name, out JSchemaCollection schemas)
+        private void ReadSchemaArray(JsonReader reader, JSchema target, string name, out JSchemaCollection schemas)
         {
             EnsureToken(reader, name, JsonToken.StartArray);
 
-            schemas = new JSchemaCollection(schema);
+            schemas = new JSchemaCollection(target);
 
-            PopulateSchemaArray(reader, name, schemas);
+            PopulateSchemaArray(reader, target, name, schemas);
         }
 
-        private void ReadAdditionalItems(JsonReader reader, JSchema schema)
+        private void ReadAdditionalItems(JsonReader reader, JSchema target)
         {
             EnsureRead(reader, Constants.PropertyNames.AdditionalItems);
 
             if (reader.TokenType == JsonToken.Boolean)
             {
-                schema.AllowAdditionalItems = (bool)reader.Value;
+                target.AllowAdditionalItems = (bool)reader.Value;
             }
             else
             {
-                LoadAndSetSchema(reader, s => schema.AdditionalItems = s);
+                LoadAndSetSchema(reader, target, s => target.AdditionalItems = s);
             }
         }
 
-        private void ReadAdditionalProperties(JsonReader reader, JSchema schema)
+        private void ReadAdditionalProperties(JsonReader reader, JSchema target)
         {
             EnsureRead(reader, Constants.PropertyNames.AdditionalProperties);
 
             if (reader.TokenType == JsonToken.Boolean)
             {
-                schema.AllowAdditionalProperties = (bool)reader.Value;
+                target.AllowAdditionalProperties = (bool)reader.Value;
             }
             else
             {
-                LoadAndSetSchema(reader, s => schema.AdditionalProperties = s);
+                LoadAndSetSchema(reader, target, s => target.AdditionalProperties = s);
             }
         }
 
-        private void ReadRequired(JsonReader reader, JSchema schema)
+        private void ReadRequired(JsonReader reader, JSchema target)
         {
             EnsureRead(reader, Constants.PropertyNames.Required);
 
@@ -549,7 +549,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                     throw JSchemaReaderException.Create(reader, _baseUri, "Unexpected token encountered when reading value for 'required'. Expected StartArray, got Boolean.");
                 }
 
-                schema.DeprecatedRequired = (bool)reader.Value;
+                target.DeprecatedRequired = (bool)reader.Value;
             }
             else
             {
@@ -558,26 +558,26 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                     throw JSchemaReaderException.Create(reader, _baseUri, "Unexpected token encountered when reading value for 'required'. Expected Boolean, got StartArray.");
                 }
 
-                ReadStringArray(reader, Constants.PropertyNames.Required, out schema._required);
+                ReadStringArray(reader, Constants.PropertyNames.Required, out target._required);
             }
         }
 
-        private void ReadExtends(JsonReader reader, JSchema schema)
+        private void ReadExtends(JsonReader reader, JSchema target)
         {
             EnsureRead(reader, Constants.PropertyNames.Extends);
-            if (schema._allOf == null)
+            if (target._allOf == null)
             {
-                schema._allOf = new JSchemaCollection(schema);
+                target._allOf = new JSchemaCollection(target);
             }
 
             switch (reader.TokenType)
             {
                 case JsonToken.StartObject:
-                    int index = schema._allOf.Count;
-                    LoadAndSetSchema(reader, s => SetAtIndex(schema._allOf, index, s));
+                    int index = target._allOf.Count;
+                    LoadAndSetSchema(reader, target, s => SetAtIndex(target._allOf, index, s));
                     break;
                 case JsonToken.StartArray:
-                    PopulateSchemaArray(reader, Constants.PropertyNames.Extends, schema._allOf);
+                    PopulateSchemaArray(reader, target, Constants.PropertyNames.Extends, target._allOf);
                     break;
                 default:
                     throw JSchemaReaderException.Create(reader, _baseUri, "Unexpected token when reading '{0}': {1}".FormatWith(CultureInfo.InvariantCulture, Constants.PropertyNames.Extends, reader.TokenType));
@@ -637,11 +637,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             throw JSchemaReaderException.Create(reader, _baseUri, "Unexpected end when reading '{0}'.".FormatWith(CultureInfo.InvariantCulture, name));
         }
 
-        private void ReadDependencies(JsonReader reader, JSchema schema)
+        private void ReadDependencies(JsonReader reader, JSchema target)
         {
             EnsureToken(reader, Constants.PropertyNames.Dependencies, JsonToken.StartObject);
 
-            JSchemaDependencyDictionary dependencies = new JSchemaDependencyDictionary(schema);
+            JSchemaDependencyDictionary dependencies = new JSchemaDependencyDictionary(target);
 
             while (reader.Read())
             {
@@ -655,7 +655,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                         // use last dependency when duplicates are defined
                         if (reader.TokenType == JsonToken.StartObject)
                         {
-                            LoadAndSetSchema(reader, s => dependencies[name] = s);
+                            LoadAndSetSchema(reader, target, s => dependencies[name] = s);
                         }
                         else if (reader.TokenType == JsonToken.StartArray)
                         {
@@ -677,7 +677,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                         // nom, nom
                         break;
                     case JsonToken.EndObject:
-                        schema._dependencies = dependencies;
+                        target._dependencies = dependencies;
                         return;
                     default:
                         throw JSchemaReaderException.Create(reader, _baseUri, "Unexpected token when reading dependencies: {0}".FormatWith(CultureInfo.InvariantCulture, reader.TokenType));
@@ -687,7 +687,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             throw JSchemaReaderException.Create(reader, _baseUri, "Unexpected end when reading dependencies.");
         }
 
-        private void PopulateSchemaArray(JsonReader reader, string name, IList<JSchema> schemas)
+        private void PopulateSchemaArray(JsonReader reader, JSchema target, string name, IList<JSchema> schemas)
         {
             while (reader.Read())
             {
@@ -695,7 +695,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 {
                     case JsonToken.StartObject:
                         int itemCount = schemas.Count;
-                        LoadAndSetSchema(reader, s => SetAtIndex(schemas, itemCount, s));
+                        LoadAndSetSchema(reader, target, s => SetAtIndex(schemas, itemCount, s));
                         break;
                     case JsonToken.Comment:
                         // nom nom nom
@@ -731,7 +731,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             return mappedType;
         }
 
-        private object ReadType(JsonReader reader, JSchema schema, string name)
+        private object ReadType(JsonReader reader, JSchema target, string name)
         {
             EnsureRead(reader, name);
 
@@ -794,7 +794,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                                 {
                                     if (typeSchemas == null)
                                     {
-                                        typeSchemas = new JSchemaCollection(schema);
+                                        typeSchemas = new JSchemaCollection(target);
                                         foreach (JSchemaType type in types)
                                         {
                                             typeSchemas.Add(new JSchema
@@ -806,7 +806,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                                     }
                                     int count = typeSchemas.Count;
                                     JSchemaCollection l = typeSchemas;
-                                    LoadAndSetSchema(reader, s => SetAtIndex(l, count, s));
+                                    LoadAndSetSchema(reader, target, s => SetAtIndex(l, count, s));
                                 }
                                 else
                                 {
@@ -823,61 +823,80 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             throw JSchemaReaderException.Create(reader, _baseUri, "Unexpected end when reading schema type.");
         }
 
-        private void LoadAndSetSchema(JsonReader reader, Action<JSchema> setSchema, bool isRoot = false)
+        private void LoadAndSetSchema(JsonReader reader, JSchema target, Action<JSchema> setSchema, bool isRoot = false)
         {
-            JSchema schema = new JSchema();
-            schema.State = JSchemaState.Loading;
-            schema.BaseUri = _baseUri;
+            JSchema loadingSchema = new JSchema();
+            loadingSchema.State = JSchemaState.Loading;
+            loadingSchema.BaseUri = _baseUri;
 
             IJsonLineInfo lineInfo = reader as IJsonLineInfo;
             if (lineInfo != null)
             {
-                schema.SetLineInfo(lineInfo);
+                loadingSchema.SetLineInfo(lineInfo);
             }
-            schema.Path = reader.Path;
+            loadingSchema.Path = reader.Path;
 
-            _schemaStack.Push(schema);
+            _schemaStack.Push(loadingSchema);
 
-            ReadSchemaProperties(reader, isRoot, schema);
-
-            if (schema.Reference != null)
+            try
             {
-                Uri resolvedReference = ResolveSchemaReference(schema);
+                ReadSchemaProperties(reader, loadingSchema, isRoot);
 
-                AddDeferedSchema(resolvedReference, schema, setSchema);
-            }
-            else
-            {
-                if (_validators != null)
+                if (loadingSchema.Reference != null)
                 {
-                    foreach (JsonValidator validator in _validators)
+                    Uri resolvedReference = ResolveSchemaReference(loadingSchema);
+
+                    if (AddDeferedSchema(resolvedReference, loadingSchema, target, setSchema))
                     {
-                        if (validator.CanValidate(schema))
+                        return;
+                    }
+                }
+                else
+                {
+                    if (_validators != null)
+                    {
+                        foreach (JsonValidator validator in _validators)
                         {
-                            schema.Validators.Add(validator);
+                            if (validator.CanValidate(loadingSchema))
+                            {
+                                loadingSchema.Validators.Add(validator);
+                            }
                         }
                     }
                 }
+
+                loadingSchema.State = JSchemaState.Default;
+
+                setSchema(loadingSchema);
             }
-
-            schema.State = JSchemaState.Default;
-
-            setSchema(schema);
-
-            _schemaStack.Pop();
+            finally
+            {
+                _schemaStack.Pop();
+            }
         }
 
-        private void AddDeferedSchema(Uri resolvedReference, JSchema referenceSchema, Action<JSchema> setSchema)
+        private bool AddDeferedSchema(Uri resolvedReference, JSchema referenceSchema, JSchema target, Action<JSchema> setSchema)
         {
-            DeferedSchema deferedSchema = _deferedSchemas.SingleOrDefault(d => UriComparer.Instance.Equals(d.ResolvedReference, resolvedReference));
+            DeferedSchema deferedSchema = _resolvedDeferedSchemas.SingleOrDefault(d => d.Success && UriComparer.Instance.Equals(d.ResolvedReference, resolvedReference));
 
-            if (deferedSchema == null)
+            if (deferedSchema != null)
             {
-                deferedSchema = new DeferedSchema(resolvedReference, referenceSchema);
-                _deferedSchemas.Add(deferedSchema);
+                setSchema(deferedSchema.ResolvedSchema);
+                return true;
             }
+            else
+            {
+                deferedSchema = _deferedSchemas.SingleOrDefault(d => UriComparer.Instance.Equals(d.ResolvedReference, resolvedReference));
 
-            deferedSchema.AddSchemaSet(setSchema);
+                if (deferedSchema == null)
+                {
+                    deferedSchema = new DeferedSchema(resolvedReference, referenceSchema);
+                    _deferedSchemas.Add(deferedSchema);
+                }
+
+                deferedSchema.AddSchemaSet(setSchema, target);
+                return false;
+            }
         }
 
         private JSchema ResolvedSchema(Uri schemaId, Uri resolvedSchemaId)
@@ -976,233 +995,233 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         }
 
         [SuppressMessage("Microsoft.Globalization", "CA1308:NormalizeStringsToUppercase")]
-        private void ProcessSchemaName(ref JsonReader reader, bool isRoot, JSchema schema, string name)
+        private void ProcessSchemaName(ref JsonReader reader, JSchema target, bool isRoot, string name)
         {
             switch (name)
             {
                 case Constants.PropertyNames.Id:
-                    schema.Id = ReadUri(reader, name);
+                    target.Id = ReadUri(reader, name);
                     break;
                 case Constants.PropertyNames.Ref:
-                    schema.Reference = ReadUri(reader, name);
+                    target.Reference = ReadUri(reader, name);
                     break;
                 case Constants.PropertyNames.Properties:
-                    schema._properties = new JSchemaDictionary(schema);
-                    ReadProperties(reader, schema._properties);
+                    target._properties = new JSchemaDictionary(target);
+                    ReadProperties(reader, target, target._properties);
 
                     // add schemas with deprecated required flag to new required array
-                    foreach (KeyValuePair<string, JSchema> schemaProperty in schema._properties)
+                    foreach (KeyValuePair<string, JSchema> schemaProperty in target._properties)
                     {
                         if (schemaProperty.Value.DeprecatedRequired)
                         {
-                            if (!schema.Required.Contains(schemaProperty.Key))
+                            if (!target.Required.Contains(schemaProperty.Key))
                             {
-                                schema.Required.Add(schemaProperty.Key);
+                                target.Required.Add(schemaProperty.Key);
                             }
                         }
                     }
                     break;
                 case Constants.PropertyNames.Items:
-                    ReadItems(reader, schema);
+                    ReadItems(reader, target);
                     break;
                 case Constants.PropertyNames.Type:
                 {
-                    object typeResult = ReadType(reader, schema, name);
+                    object typeResult = ReadType(reader, target, name);
                     if (typeResult is JSchemaType)
                     {
-                        schema.Type = (JSchemaType)typeResult;
+                        target.Type = (JSchemaType)typeResult;
                     }
                     else
                     {
-                        schema._anyOf = (JSchemaCollection)typeResult;
+                        target._anyOf = (JSchemaCollection)typeResult;
                     }
                     break;
                 }
                 case Constants.PropertyNames.AnyOf:
                     if (EnsureVersion(SchemaVersion.Draft4))
                     {
-                        ReadSchemaArray(reader, schema, name, out schema._anyOf);
+                        ReadSchemaArray(reader, target, name, out target._anyOf);
                     }
                     else
                     {
-                        ReadExtensionData(reader, schema, name);
+                        ReadExtensionData(reader, target, name);
                     }
                     break;
                 case Constants.PropertyNames.AllOf:
                     if (EnsureVersion(SchemaVersion.Draft4))
                     {
-                        ReadSchemaArray(reader, schema, name, out schema._allOf);
+                        ReadSchemaArray(reader, target, name, out target._allOf);
                     }
                     else
                     {
-                        ReadExtensionData(reader, schema, name);
+                        ReadExtensionData(reader, target, name);
                     }
                     break;
                 case Constants.PropertyNames.OneOf:
                     if (EnsureVersion(SchemaVersion.Draft4))
                     {
-                        ReadSchemaArray(reader, schema, name, out schema._oneOf);
+                        ReadSchemaArray(reader, target, name, out target._oneOf);
                     }
                     else
                     {
-                        ReadExtensionData(reader, schema, name);
+                        ReadExtensionData(reader, target, name);
                     }
                     break;
                 case Constants.PropertyNames.Not:
                     if (EnsureVersion(SchemaVersion.Draft4))
                     {
-                        ReadSchema(reader, name, s => schema.Not = s);
+                        ReadSchema(reader, target, name, s => target.Not = s);
                     }
                     else
                     {
-                        ReadExtensionData(reader, schema, name);
+                        ReadExtensionData(reader, target, name);
                     }
                     break;
                 case Constants.PropertyNames.Title:
-                    schema.Title = ReadString(reader, name);
+                    target.Title = ReadString(reader, name);
                     break;
                 case Constants.PropertyNames.Description:
-                    schema.Description = ReadString(reader, name);
+                    target.Description = ReadString(reader, name);
                     break;
                 case Constants.PropertyNames.Format:
-                    schema.Format = ReadString(reader, name);
+                    target.Format = ReadString(reader, name);
                     break;
                 case Constants.PropertyNames.AdditionalProperties:
-                    ReadAdditionalProperties(reader, schema);
+                    ReadAdditionalProperties(reader, target);
                     break;
                 case Constants.PropertyNames.AdditionalItems:
-                    ReadAdditionalItems(reader, schema);
+                    ReadAdditionalItems(reader, target);
                     break;
                 case Constants.PropertyNames.PatternProperties:
-                    ReadProperties(reader, schema.PatternProperties);
+                    ReadProperties(reader, target, target.PatternProperties);
 
                     if (_validationErrors != null)
                     {
-                        foreach (PatternSchema patternProperty in schema.GetPatternSchemas())
+                        foreach (PatternSchema patternProperty in target.GetPatternSchemas())
                         {
                             Regex patternRegex;
                             string errorMessage;
                             if (!patternProperty.TryGetPatternRegex(out patternRegex, out errorMessage))
                             {
-                                ValidationError error = ValidationError.CreateValidationError($"Could not parse regex pattern '{patternProperty.Pattern}'. Regex parser error: {errorMessage}", ErrorType.PatternProperties, schema, null, patternProperty.Pattern, null, schema, schema.Path);
+                                ValidationError error = ValidationError.CreateValidationError($"Could not parse regex pattern '{patternProperty.Pattern}'. Regex parser error: {errorMessage}", ErrorType.PatternProperties, target, null, patternProperty.Pattern, null, target, target.Path);
                                 _validationErrors.Add(error);
                             }
                         }
                     }
                     break;
                 case Constants.PropertyNames.Required:
-                    ReadRequired(reader, schema);
+                    ReadRequired(reader, target);
                     break;
                 case Constants.PropertyNames.Dependencies:
-                    ReadDependencies(reader, schema);
+                    ReadDependencies(reader, target);
                     break;
                 case Constants.PropertyNames.Minimum:
-                    schema.Minimum = ReadDouble(reader, name);
+                    target.Minimum = ReadDouble(reader, name);
                     break;
                 case Constants.PropertyNames.Maximum:
-                    schema.Maximum = ReadDouble(reader, name);
+                    target.Maximum = ReadDouble(reader, name);
                     break;
                 case Constants.PropertyNames.ExclusiveMinimum:
-                    schema.ExclusiveMinimum = ReadBoolean(reader, name);
+                    target.ExclusiveMinimum = ReadBoolean(reader, name);
                     break;
                 case Constants.PropertyNames.ExclusiveMaximum:
-                    schema.ExclusiveMaximum = ReadBoolean(reader, name);
+                    target.ExclusiveMaximum = ReadBoolean(reader, name);
                     break;
                 case Constants.PropertyNames.MaximumLength:
-                    schema.MaximumLength = ReadLong(reader, name);
+                    target.MaximumLength = ReadLong(reader, name);
                     break;
                 case Constants.PropertyNames.MinimumLength:
-                    schema.MinimumLength = ReadLong(reader, name);
+                    target.MinimumLength = ReadLong(reader, name);
                     break;
                 case Constants.PropertyNames.MaximumItems:
-                    schema.MaximumItems = ReadLong(reader, name);
+                    target.MaximumItems = ReadLong(reader, name);
                     break;
                 case Constants.PropertyNames.MinimumItems:
-                    schema.MinimumItems = ReadLong(reader, name);
+                    target.MinimumItems = ReadLong(reader, name);
                     break;
                 case Constants.PropertyNames.MaximumProperties:
                     if (EnsureVersion(SchemaVersion.Draft4))
                     {
-                        schema.MaximumProperties = ReadLong(reader, name);
+                        target.MaximumProperties = ReadLong(reader, name);
                     }
                     else
                     {
-                        ReadExtensionData(reader, schema, name);
+                        ReadExtensionData(reader, target, name);
                     }
                     break;
                 case Constants.PropertyNames.MinimumProperties:
                     if (EnsureVersion(SchemaVersion.Draft4))
                     {
-                        schema.MinimumProperties = ReadLong(reader, name);
+                        target.MinimumProperties = ReadLong(reader, name);
                     }
                     else
                     {
-                        ReadExtensionData(reader, schema, name);
+                        ReadExtensionData(reader, target, name);
                     }
                     break;
                 case Constants.PropertyNames.DivisibleBy:
                     if (EnsureVersion(SchemaVersion.Draft3, SchemaVersion.Draft3))
                     {
-                        schema.MultipleOf = ReadDouble(reader, name);
+                        target.MultipleOf = ReadDouble(reader, name);
                     }
                     else
                     {
-                        ReadExtensionData(reader, schema, name);
+                        ReadExtensionData(reader, target, name);
                     }
                     break;
                 case Constants.PropertyNames.MultipleOf:
                     if (EnsureVersion(SchemaVersion.Draft4))
                     {
-                        schema.MultipleOf = ReadDouble(reader, name);
+                        target.MultipleOf = ReadDouble(reader, name);
                     }
                     else
                     {
-                        ReadExtensionData(reader, schema, name);
+                        ReadExtensionData(reader, target, name);
                     }
                     break;
                 case Constants.PropertyNames.Disallow:
                 {
                     if (EnsureVersion(SchemaVersion.Draft3, SchemaVersion.Draft3))
                     {
-                        if (schema.Not == null)
+                        if (target.Not == null)
                         {
-                            schema.Not = new JSchema();
+                            target.Not = new JSchema();
                         }
 
-                        object disallowResult = ReadType(reader, schema, name);
+                        object disallowResult = ReadType(reader, target, name);
                         if (disallowResult is JSchemaType)
                         {
-                            JSchemaType type = schema.Not.Type ?? JSchemaType.None;
-                            schema.Not.Type = type | (JSchemaType)disallowResult;
+                            JSchemaType type = target.Not.Type ?? JSchemaType.None;
+                            target.Not.Type = type | (JSchemaType)disallowResult;
                         }
                         else
                         {
-                            schema.Not._anyOf = (JSchemaCollection)disallowResult;
+                            target.Not._anyOf = (JSchemaCollection)disallowResult;
                         }
                     }
                     else
                     {
-                        ReadExtensionData(reader, schema, name);
+                        ReadExtensionData(reader, target, name);
                     }
                     break;
                 }
                 case Constants.PropertyNames.Pattern:
-                    schema.Pattern = ReadString(reader, name);
+                    target.Pattern = ReadString(reader, name);
 
                     if (_validationErrors != null)
                     {
                         Regex patternRegex;
                         string errorMessage;
-                        if (!schema.TryGetPatternRegex(out patternRegex, out errorMessage))
+                        if (!target.TryGetPatternRegex(out patternRegex, out errorMessage))
                         {
-                            ValidationError error = ValidationError.CreateValidationError($"Could not parse regex pattern '{schema.Pattern}'. Regex parser error: {errorMessage}", ErrorType.Pattern, schema, null, schema.Pattern, null, schema, schema.Path);
+                            ValidationError error = ValidationError.CreateValidationError($"Could not parse regex pattern '{target.Pattern}'. Regex parser error: {errorMessage}", ErrorType.Pattern, target, null, target.Pattern, null, target, target.Path);
                             _validationErrors.Add(error);
                         }
                     }
                     break;
                 case Constants.PropertyNames.Enum:
-                    ReadTokenArray(reader, name, ref schema._enum);
-                    if (schema._enum.Count == 0)
+                    ReadTokenArray(reader, name, ref target._enum);
+                    if (target._enum.Count == 0)
                     {
                         throw JSchemaReaderException.Create(reader, _baseUri, "Enum array must have at least one value.");
                     }
@@ -1210,19 +1229,19 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 case Constants.PropertyNames.Extends:
                     if (EnsureVersion(SchemaVersion.Draft3, SchemaVersion.Draft3))
                     {
-                        ReadExtends(reader, schema);
+                        ReadExtends(reader, target);
                     }
                     else
                     {
-                        ReadExtensionData(reader, schema, name);
+                        ReadExtensionData(reader, target, name);
                     }
                     break;
                 case Constants.PropertyNames.UniqueItems:
-                    schema.UniqueItems = ReadBoolean(reader, name);
+                    target.UniqueItems = ReadBoolean(reader, name);
                     break;
                 case Constants.PropertyNames.Default:
                     EnsureRead(reader, Constants.PropertyNames.Default);
-                    schema.Default = JToken.ReadFrom(reader);
+                    target.Default = JToken.ReadFrom(reader);
                     break;
                 default:
                     if (isRoot && name == Constants.PropertyNames.Schema)
@@ -1237,9 +1256,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                             throw JSchemaReaderException.Create(reader, _baseUri, "Unexpected token encountered when reading value for '$schema'. Expected String, got {0}.".FormatWith(CultureInfo.InvariantCulture, reader.TokenType));
                         }
 
-                        schema.SchemaVersion = ParseUri(reader, (string)reader.Value);
+                        target.SchemaVersion = ParseUri(reader, (string)reader.Value);
 
-                        _schemaVersionUri = schema.SchemaVersion;
+                        _schemaVersionUri = target.SchemaVersion;
 
                         if (_schemaVersionUri == Constants.SchemaVersions.Draft3)
                         {
@@ -1286,13 +1305,13 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                     }
                     else
                     {
-                        ReadExtensionData(reader, schema, name);
+                        ReadExtensionData(reader, target, name);
                     }
                     break;
             }
         }
 
-        private void ReadExtensionData(JsonReader reader, JSchema schema, string name)
+        private void ReadExtensionData(JsonReader reader, JSchema target, string name)
         {
             if (!reader.Read())
             {
@@ -1312,7 +1331,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 t.AddAnnotation(new JTokenPathAnnotation(basePath));
             }
 
-            schema.ExtensionData[name] = t;
+            target.ExtensionData[name] = t;
         }
 
         private void RaiseSchemaValidationError(object sender, SchemaValidationEventArgs e)
