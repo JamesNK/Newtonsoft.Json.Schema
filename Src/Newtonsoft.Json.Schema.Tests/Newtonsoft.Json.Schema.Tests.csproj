@@ -82,6 +82,7 @@
     <Compile Include="Issues\Issue16Tests.cs" />
     <Compile Include="Issues\Issue37Tests.cs" />
     <Compile Include="Issues\Issue36Tests.cs" />
+    <Compile Include="Issues\Issue64Tests.cs" />
     <Compile Include="Issues\Issue63Tests.cs" />
     <Compile Include="Issues\Issue56Tests.cs" />
     <Compile Include="Issues\Issue47Tests.cs" />

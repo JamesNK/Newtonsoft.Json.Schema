@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Newtonsoft.Json.Linq;
@@ -134,15 +135,17 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                             current = null;
                         }
                     }
-                    else if (current is IDictionary)
+                    else if (current is IDictionary<string, JSchema>)
                     {
-                        IDictionary d = (IDictionary)current;
+                        IDictionary<string, JSchema> d = (IDictionary<string, JSchema>)current;
 
-                        current = d[unescapedPart];
+                        JSchema s;
+                        d.TryGetValue(unescapedPart, out s);
+                        current = s;
                     }
-                    else if (current is IList)
+                    else if (current is IList<JSchema>)
                     {
-                        IList l = (IList)current;
+                        IList<JSchema> l = (IList<JSchema>)current;
 
                         int index;
                         if (int.TryParse(unescapedPart, NumberStyles.None, CultureInfo.InvariantCulture, out index))
