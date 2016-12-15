@@ -1,6 +1,8 @@
 ﻿#region License
+
 // Copyright (c) Newtonsoft. All Rights Reserved.
 // License: https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md
+
 #endregion
 
 using System;
@@ -9,6 +11,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Utilities;
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
 {
@@ -89,7 +92,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                     {
                         JToken resolvedToken;
 
-                        JToken t = (JToken)current;
+                        JToken t = (JToken) current;
                         if (t is JObject)
                         {
                             resolvedToken = t[unescapedPart];
@@ -137,7 +140,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                     }
                     else if (current is IDictionary<string, JSchema>)
                     {
-                        IDictionary<string, JSchema> d = (IDictionary<string, JSchema>)current;
+                        IDictionary<string, JSchema> d = (IDictionary<string, JSchema>) current;
 
                         JSchema s;
                         d.TryGetValue(unescapedPart, out s);
@@ -145,7 +148,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                     }
                     else if (current is IList<JSchema>)
                     {
-                        IList<JSchema> l = (IList<JSchema>)current;
+                        IList<JSchema> l = (IList<JSchema>) current;
 
                         int index;
                         if (int.TryParse(unescapedPart, NumberStyles.None, CultureInfo.InvariantCulture, out index))
@@ -172,7 +175,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
 
                 if (current is JToken)
                 {
-                    JToken t = (JToken)current;
+                    JToken t = (JToken) current;
 
                     JSchemaAnnotation annotation = t.Annotation<JSchemaAnnotation>();
                     if (annotation != null)
@@ -275,7 +278,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                                 JProperty matchingProperty = definitionsObject.Properties().FirstOrDefault(p => TryCompare(p.Name, resolvedReference));
 
                                 JObject o = matchingProperty?.Value as JObject;
-                                if (o != null && TryCompare((string)o["id"], resolvedReference))
+                                if (o != null && TryCompare((string) o["id"], resolvedReference))
                                 {
                                     JSchema inlineSchema = schemaReader.ReadInlineSchema(setSchema, o);
 
@@ -341,7 +344,18 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                     resolvedId = idScope;
                 }
 
-                Uri newId = new Uri(resolvedId, schemaId);
+                Uri newId;
+
+                try
+                {
+                    newId = new Uri(resolvedId, schemaId);
+                }
+                catch (Exception ex)
+                {
+                    string errorMessage = "Invalid URI error while resolving schema ID. Scope URI: '{0}', schema URI: '{1}'".FormatWith(CultureInfo.InvariantCulture, idScope.OriginalString, schemaId.OriginalString);
+
+                    throw new JSchemaException(errorMessage, ex);
+                }
 
                 if (tempRoot != null)
                 {
