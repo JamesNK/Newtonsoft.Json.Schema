@@ -48,6 +48,8 @@
     <Compile Include="ExternalSchema.cs" />
     <Compile Include="Generation\JSchemaGeneratorProxy.cs" />
     <Compile Include="Infrastructure\CollectionHelpers.cs" />
+    <Compile Include="Infrastructure\DeferedSchemaCollection.cs" />
+    <Compile Include="Infrastructure\KnownSchemaCollection.cs" />
     <Compile Include="JSchemaWriterReferenceHandling.cs" />
     <Compile Include="JsonValidator.cs" />
     <Compile Include="Generation\JSchemaGeneratorInternal.cs" />

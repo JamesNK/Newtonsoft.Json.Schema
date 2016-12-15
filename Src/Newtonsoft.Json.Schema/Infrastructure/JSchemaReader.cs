@@ -35,8 +35,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         internal JSchemaDiscovery _schemaDiscovery;
         internal readonly Stack<JSchema> _schemaStack;
-        private readonly List<DeferedSchema> _deferedSchemas;
-        private readonly List<DeferedSchema> _resolvedDeferedSchemas;
+        private readonly DeferedSchemaCollection _deferedSchemas;
+        private readonly DeferedSchemaCollection _resolvedDeferedSchemas;
         private readonly JSchemaResolver _resolver;
         private readonly Uri _baseUri;
         private readonly bool _validateSchema;
@@ -60,8 +60,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         public JSchemaReader(JSchemaReaderSettings settings)
         {
             Cache = new Dictionary<Uri, JSchema>(UriComparer.Instance);
-            _deferedSchemas = new List<DeferedSchema>();
-            _resolvedDeferedSchemas = new List<DeferedSchema>();
+            _deferedSchemas = new DeferedSchemaCollection();
+            _resolvedDeferedSchemas = new DeferedSchemaCollection();
             _schemaStack = new Stack<JSchema>();
 
             _resolver = settings.Resolver ?? JSchemaDummyResolver.Instance;
@@ -242,9 +242,6 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
             if (_deferedSchemas.Count > 0)
             {
-                int initialCount = _deferedSchemas.Count;
-
-                int i = 0;
                 // note that defered schemas could be added while resolving
                 while (_deferedSchemas.Count > 0)
                 {
@@ -252,23 +249,21 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
                     ResolveDeferedSchema(deferedSchema);
 
-                    _resolvedDeferedSchemas.Add(deferedSchema);
-                    _deferedSchemas.Remove(deferedSchema);
-
-                    if (!deferedSchema.Success && i >= initialCount)
+                    DeferedSchema previouslyResolvedSchema;
+                    if (_resolvedDeferedSchemas.TryGetValue(deferedSchema.ResolvedReference, out previouslyResolvedSchema))
                     {
-                        // if schema resolved to another reference and that reference has already not be resolved then fail
-                        // probably a circular reference
-                        for (int j = initialCount; j < _resolvedDeferedSchemas.Count; j++)
+                        if (!deferedSchema.Success)
                         {
-                            DeferedSchema resolvedSchema = _resolvedDeferedSchemas[j];
-                            if (deferedSchema != resolvedSchema && deferedSchema.ResolvedReference.ToString() == resolvedSchema.ResolvedReference.ToString())
-                            {
-                                throw JSchemaReaderException.Create(resolvedSchema.ReferenceSchema, _baseUri, resolvedSchema.ReferenceSchema.Path, "Could not resolve schema reference '{0}'.".FormatWith(CultureInfo.InvariantCulture, deferedSchema.ResolvedReference));
-                            }
+                            throw JSchemaReaderException.Create(previouslyResolvedSchema.ReferenceSchema, _baseUri, previouslyResolvedSchema.ReferenceSchema.Path, "Could not resolve schema reference '{0}'.".FormatWith(CultureInfo.InvariantCulture, deferedSchema.ResolvedReference));
+                        }
+                        else
+                        {
+                            _resolvedDeferedSchemas.Remove(previouslyResolvedSchema);
                         }
                     }
-                    i++;
+
+                    _resolvedDeferedSchemas.Add(deferedSchema);
+                    _deferedSchemas.Remove(deferedSchema);
                 }
 
                 foreach (DeferedSchema resolvedDeferedSchema in _resolvedDeferedSchemas)
@@ -879,9 +874,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         private bool AddDeferedSchema(Uri resolvedReference, JSchema referenceSchema, JSchema target, Action<JSchema> setSchema)
         {
-            DeferedSchema deferedSchema = _resolvedDeferedSchemas.SingleOrDefault(d => UriComparer.Instance.Equals(d.ResolvedReference, resolvedReference));
+            DeferedSchema deferedSchema;
 
-            if (deferedSchema != null)
+            if (_resolvedDeferedSchemas.TryGetValue(resolvedReference, out deferedSchema) && deferedSchema.Success)
             {
                 if (deferedSchema.Success)
                 {
@@ -897,9 +892,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             }
             else
             {
-                deferedSchema = _deferedSchemas.SingleOrDefault(d => UriComparer.Instance.Equals(d.ResolvedReference, resolvedReference));
-
-                if (deferedSchema == null)
+                if (!_deferedSchemas.TryGetValue(resolvedReference, out deferedSchema))
                 {
                     deferedSchema = new DeferedSchema(resolvedReference, referenceSchema);
                     _deferedSchemas.Add(deferedSchema);

@@ -63,9 +63,11 @@
     <Compile Include="Infrastructure\Collections\JSchemaDictionary.cs" />
     <Compile Include="Infrastructure\Collections\JSchemaPatternDictionary.cs" />
     <Compile Include="Infrastructure\ColorHelpers.cs" />
+    <Compile Include="Infrastructure\DeferedSchemaCollection.cs" />
     <Compile Include="Infrastructure\EnumHelpers.cs" />
     <Compile Include="Infrastructure\JSchemaConverter.cs" />
     <Compile Include="Infrastructure\JTokenPathAnnotation.cs" />
+    <Compile Include="Infrastructure\KnownSchemaCollection.cs" />
     <Compile Include="Infrastructure\Licensing\CryptographyHelpers.cs" />
     <Compile Include="Infrastructure\DataAnnotationHelpers.cs" />
     <Compile Include="Infrastructure\EmailHelpers.cs" />

@@ -61,7 +61,7 @@ namespace Newtonsoft.Json.Schema
         internal string Path;
 
         internal event Action<JSchema> Changed;
-        internal readonly List<KnownSchema> KnownSchemas;
+        internal readonly KnownSchemaCollection KnownSchemas;
         internal JSchemaState State;
         private double? _multipleOf;
 
@@ -387,7 +387,7 @@ namespace Newtonsoft.Json.Schema
         {
             AllowAdditionalProperties = true;
             AllowAdditionalItems = true;
-            KnownSchemas = new List<KnownSchema>();
+            KnownSchemas = new KnownSchemaCollection();
         }
 
         /// <summary>

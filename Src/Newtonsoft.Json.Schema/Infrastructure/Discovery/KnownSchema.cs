@@ -4,6 +4,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
@@ -11,8 +12,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
     [DebuggerDisplay("{Id}")]
     internal class KnownSchema
     {
-        public Uri Id;
-        public JSchema Schema;
+        public readonly Uri Id;
+        public readonly JSchema Schema;
+
         public KnownSchemaState State;
 
         public KnownSchema(Uri id, JSchema schema, KnownSchemaState state)

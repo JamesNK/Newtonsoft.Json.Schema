@@ -17,7 +17,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
     internal class JSchemaWriter
     {
         private readonly JsonWriter _writer;
-        private readonly List<KnownSchema> _knownSchemas;
+        private readonly KnownSchemaCollection _knownSchemas;
         private readonly List<JSchema> _schemaStack;
         private readonly IList<ExternalSchema> _externalSchemas;
         private readonly JSchemaWriterReferenceHandling _referenceHandling;
@@ -33,7 +33,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             ValidationUtils.ArgumentNotNull(writer, nameof(writer));
 
             _writer = writer;
-            _knownSchemas = new List<KnownSchema>();
+            _knownSchemas = new KnownSchemaCollection();
 
             if (settings != null)
             {

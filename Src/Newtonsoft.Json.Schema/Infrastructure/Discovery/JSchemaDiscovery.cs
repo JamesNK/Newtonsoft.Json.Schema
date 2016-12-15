@@ -16,25 +16,25 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
     {
         private readonly KnownSchemaState _state;
         private readonly Stack<SchemaPath> _pathStack;
-        private readonly List<KnownSchema> _knownSchemas;
+        private readonly KnownSchemaCollection _knownSchemas;
 
         public List<ValidationError> ValidationErrors { get; set; }
 
-        public List<KnownSchema> KnownSchemas
+        public KnownSchemaCollection KnownSchemas
         {
             get { return _knownSchemas; }
         }
 
         public JSchemaDiscovery()
-            : this(new List<KnownSchema>(), KnownSchemaState.External)
+            : this(new KnownSchemaCollection(), KnownSchemaState.External)
         {
         }
 
-        public JSchemaDiscovery(List<KnownSchema> knownSchemas, KnownSchemaState state)
+        public JSchemaDiscovery(KnownSchemaCollection knownSchemas, KnownSchemaState state)
         {
             _state = state;
             _pathStack = new Stack<SchemaPath>();
-            _knownSchemas = knownSchemas ?? new List<KnownSchema>();
+            _knownSchemas = knownSchemas ?? new KnownSchemaCollection();
         }
 
         public void Discover(JSchema schema, Uri uri, string path = "#")
@@ -55,7 +55,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                 return;
             }
 
-            if (_knownSchemas.Any(s => s.Schema == schema))
+            if (_knownSchemas.Contains(schema))
             {
                 return;
             }
@@ -66,10 +66,10 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
 
             // check whether a schema with the resolved id is already known
             // this will be hit when a schema contains duplicate ids or references a schema with a duplicate id
-            bool existingSchema = _knownSchemas.Any(s => UriComparer.Instance.Equals(s.Id, schemaKnownId));
+            bool existingSchema = _knownSchemas.GetById(schemaKnownId) != null;
 
 #if DEBUG
-            if (_knownSchemas.Any(s => s.Schema == schema))
+            if (_knownSchemas.Contains(schema))
             {
                 throw new InvalidOperationException("Schema with id '{0}' already a known schema.".FormatWith(CultureInfo.InvariantCulture, schemaKnownId));
             }
