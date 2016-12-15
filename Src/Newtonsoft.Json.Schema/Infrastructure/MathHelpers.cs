@@ -154,6 +154,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         public static bool IsDoubleMultiple(decimal value, decimal multipleOf)
         {
+            if (multipleOf == 0)
+            {
+                return false;
+            }
+
             decimal remainder = value % multipleOf;
 
             return IsRemainderMultiple(remainder, multipleOf);

@@ -1,6 +1,8 @@
 ﻿#region License
+
 // Copyright (c) Newtonsoft. All Rights Reserved.
 // License: https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md
+
 #endregion
 
 using System;
@@ -51,7 +53,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         public Dictionary<Uri, JSchema> Cache { get; set; }
 
         public JSchemaReader(JSchemaResolver resolver)
-            : this(new JSchemaReaderSettings { Resolver = resolver })
+            : this(new JSchemaReaderSettings {Resolver = resolver})
         {
         }
 
@@ -214,7 +216,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 switch (reader.TokenType)
                 {
                     case JsonToken.PropertyName:
-                        ProcessSchemaName(ref reader, target, isRoot, (string)reader.Value);
+                        ProcessSchemaName(ref reader, target, isRoot, (string) reader.Value);
                         break;
                     case JsonToken.Comment:
                         // nom, nom
@@ -368,7 +370,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         private Uri ReadUri(JsonReader reader, string name)
         {
             EnsureToken(reader, name, JsonToken.String);
-            string id = (string)reader.Value;
+            string id = (string) reader.Value;
             return ParseUri(reader, id);
         }
 
@@ -387,13 +389,13 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         private string ReadString(JsonReader reader, string name)
         {
             EnsureToken(reader, name, JsonToken.String);
-            return (string)reader.Value;
+            return (string) reader.Value;
         }
 
         private bool ReadBoolean(JsonReader reader, string name)
         {
             EnsureToken(reader, name, JsonToken.Boolean);
-            return (bool)reader.Value;
+            return (bool) reader.Value;
         }
 
         private long ReadLong(JsonReader reader, string name)
@@ -403,14 +405,14 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 #if !(NET20 || NET35 || PORTABLE || PORTABLE40) || NETSTANDARD1_3
             if (reader.Value is BigInteger)
             {
-                BigInteger i = (BigInteger)reader.Value;
+                BigInteger i = (BigInteger) reader.Value;
 
                 if (i > long.MaxValue || i < long.MaxValue)
                 {
                     throw JSchemaReaderException.Create(reader, _baseUri, "Error parsing integer for '{0}'. {1} cannot fit in an Int64.".FormatWith(CultureInfo.InvariantCulture, name, i));
                 }
 
-                return (long)i;
+                return (long) i;
             }
 #endif
 
@@ -424,8 +426,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 #if !(NET20 || NET35 || PORTABLE || PORTABLE40) || NETSTANDARD1_3
             if (reader.Value is BigInteger)
             {
-                BigInteger i = (BigInteger)reader.Value;
-                return (double)i;
+                BigInteger i = (BigInteger) reader.Value;
+                return (double) i;
             }
 #endif
 
@@ -441,7 +443,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 switch (reader.TokenType)
                 {
                     case JsonToken.PropertyName:
-                        string name = (string)reader.Value;
+                        string name = (string) reader.Value;
 
                         EnsureToken(reader, name, JsonToken.StartObject);
 
@@ -516,7 +518,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
             if (reader.TokenType == JsonToken.Boolean)
             {
-                target.AllowAdditionalItems = (bool)reader.Value;
+                target.AllowAdditionalItems = (bool) reader.Value;
             }
             else
             {
@@ -530,7 +532,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
             if (reader.TokenType == JsonToken.Boolean)
             {
-                target.AllowAdditionalProperties = (bool)reader.Value;
+                target.AllowAdditionalProperties = (bool) reader.Value;
             }
             else
             {
@@ -549,7 +551,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                     throw JSchemaReaderException.Create(reader, _baseUri, "Unexpected token encountered when reading value for 'required'. Expected StartArray, got Boolean.");
                 }
 
-                target.DeprecatedRequired = (bool)reader.Value;
+                target.DeprecatedRequired = (bool) reader.Value;
             }
             else
             {
@@ -622,7 +624,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 switch (reader.TokenType)
                 {
                     case JsonToken.String:
-                        values.Add((string)reader.Value);
+                        values.Add((string) reader.Value);
                         break;
                     case JsonToken.Comment:
                         // nom nom nom
@@ -648,7 +650,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 switch (reader.TokenType)
                 {
                     case JsonToken.PropertyName:
-                        string name = (string)reader.Value;
+                        string name = (string) reader.Value;
 
                         EnsureToken(reader, name, Constants.DependencyTokens);
 
@@ -669,7 +671,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
                             dependencies[name] = new List<string>
                             {
-                                (string)reader.Value
+                                (string) reader.Value
                             };
                         }
                         break;
@@ -712,7 +714,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         internal JSchemaType? MapType(JsonReader reader)
         {
-            string typeName = (string)reader.Value;
+            string typeName = (string) reader.Value;
 
             JSchemaType mappedType;
             if (!Constants.JSchemaTypeMapping.TryGetValue(typeName, out mappedType))
@@ -759,7 +761,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                                 {
                                     if (typeSchemas != null)
                                     {
-                                        typeSchemas.Add(new JSchema { Type = t });
+                                        typeSchemas.Add(new JSchema {Type = t});
                                     }
                                     else
                                     {
@@ -1038,11 +1040,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                     object typeResult = ReadType(reader, target, name);
                     if (typeResult is JSchemaType)
                     {
-                        target.Type = (JSchemaType)typeResult;
+                        target.Type = (JSchemaType) typeResult;
                     }
                     else
                     {
-                        target._anyOf = (JSchemaCollection)typeResult;
+                        target._anyOf = (JSchemaCollection) typeResult;
                     }
                     break;
                 }
@@ -1181,7 +1183,14 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 case Constants.PropertyNames.MultipleOf:
                     if (EnsureVersion(SchemaVersion.Draft4))
                     {
-                        target.MultipleOf = ReadDouble(reader, name);
+                        try
+                        {
+                            target.MultipleOf = ReadDouble(reader, name);
+                        }
+                        catch (Exception ex)
+                        {
+                            throw JSchemaReaderException.Create(reader, _baseUri, "multipleOf must be greater than zero.", ex);
+                        }
                     }
                     else
                     {

@@ -63,6 +63,7 @@ namespace Newtonsoft.Json.Schema
         internal event Action<JSchema> Changed;
         internal readonly List<KnownSchema> KnownSchemas;
         internal JSchemaState State;
+        private double? _multipleOf;
 
         internal void OnChildChanged(JSchema changedSchema)
         {
@@ -477,7 +478,19 @@ namespace Newtonsoft.Json.Schema
         /// <summary>
         /// Gets or sets the multiple of.
         /// </summary>
-        public double? MultipleOf { get; set; }
+        public double? MultipleOf
+        {
+            get { return _multipleOf; }
+            set
+            {
+                if (value <= 0)
+                {
+                    throw new ArgumentException("MultipleOf must be greater than zero.", nameof(value));
+                }
+
+                _multipleOf = value;
+            }
+        }
 
         /// <summary>
         /// Gets or sets the pattern.
