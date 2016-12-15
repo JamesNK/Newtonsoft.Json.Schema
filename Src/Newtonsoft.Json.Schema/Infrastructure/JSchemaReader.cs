@@ -877,12 +877,21 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         private bool AddDeferedSchema(Uri resolvedReference, JSchema referenceSchema, JSchema target, Action<JSchema> setSchema)
         {
-            DeferedSchema deferedSchema = _resolvedDeferedSchemas.SingleOrDefault(d => d.Success && UriComparer.Instance.Equals(d.ResolvedReference, resolvedReference));
+            DeferedSchema deferedSchema = _resolvedDeferedSchemas.SingleOrDefault(d => UriComparer.Instance.Equals(d.ResolvedReference, resolvedReference));
 
             if (deferedSchema != null)
             {
-                setSchema(deferedSchema.ResolvedSchema);
-                return true;
+                if (deferedSchema.Success)
+                {
+                    // schema has already been successfully resolved
+                    setSchema(deferedSchema.ResolvedSchema);
+                    return true;
+                }
+                else
+                {
+                    deferedSchema.AddSchemaSet(setSchema, target);
+                    return false;
+                }
             }
             else
             {

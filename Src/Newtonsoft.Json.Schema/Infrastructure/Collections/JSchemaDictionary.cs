@@ -35,6 +35,16 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Collections
 
         protected override void AddItem(string key, JSchema value)
         {
+            if (key == null)
+            {
+                throw new ArgumentNullException(nameof(key));
+            }
+
+            if (value == null)
+            {
+                throw new ArgumentNullException(nameof(value));
+            }
+
             base.AddItem(key, value);
             value.Changed += OnChildChanged;
             OnChanged();
@@ -42,6 +52,16 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Collections
 
         protected override void SetItem(string key, JSchema value)
         {
+            if (key == null)
+            {
+                throw new ArgumentNullException(nameof(key));
+            }
+
+            if (value == null)
+            {
+                throw new ArgumentNullException(nameof(value));
+            }
+
             JSchema s;
             if (TryGetValue(key, out s))
             {
@@ -61,6 +81,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Collections
 
         protected override bool RemoveItem(string key)
         {
+            if (key == null)
+            {
+                throw new ArgumentNullException(nameof(key));
+            }
+
             JSchema s;
             if (!TryGetValue(key, out s))
             {

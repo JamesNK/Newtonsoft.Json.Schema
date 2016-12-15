@@ -94,6 +94,10 @@ namespace Newtonsoft.Json.Schema.Tests
 
             Assert.AreEqual(15, i);
 
+            s.PatternProperties.Remove("[abc]");
+
+            Assert.AreEqual(15, i);
+
             s.PatternProperties.Clear();
 
             Assert.AreEqual(15, i);
@@ -180,6 +184,126 @@ namespace Newtonsoft.Json.Schema.Tests
             s.PatternProperties.Clear();
 
             Assert.AreEqual(0, patternPropertiesSchemas.Count);
+        }
+
+        [Test]
+        public void Properties_Set_NullValue()
+        {
+            JSchema s = new JSchema();
+
+            ExceptionAssert.Throws<ArgumentNullException>(() =>
+            {
+                s.Properties["prop1"] = null;
+            }, @"Value cannot be null.
+Parameter name: value");
+        }
+
+        [Test]
+        public void Properties_Set_NullKey()
+        {
+            JSchema s = new JSchema();
+
+            ExceptionAssert.Throws<ArgumentNullException>(() =>
+            {
+                s.Properties[null] = new JSchema();
+            }, @"Value cannot be null.
+Parameter name: key");
+        }
+
+        [Test]
+        public void Properties_Add_NullValue()
+        {
+            JSchema s = new JSchema();
+
+            ExceptionAssert.Throws<ArgumentNullException>(() =>
+            {
+                s.Properties.Add("prop1", null);
+            }, @"Value cannot be null.
+Parameter name: value");
+        }
+
+        [Test]
+        public void Properties_Add_NullKey()
+        {
+            JSchema s = new JSchema();
+
+            ExceptionAssert.Throws<ArgumentNullException>(() =>
+            {
+                s.Properties.Add(null, new JSchema());
+            }, @"Value cannot be null.
+Parameter name: key");
+        }
+
+        [Test]
+        public void Properties_Remove_NullKey()
+        {
+            JSchema s = new JSchema();
+
+            ExceptionAssert.Throws<ArgumentNullException>(() =>
+            {
+                s.Properties.Remove(null);
+            }, @"Value cannot be null.
+Parameter name: key");
+        }
+
+        [Test]
+        public void PatternProperties_Set_NullValue()
+        {
+            JSchema s = new JSchema();
+
+            ExceptionAssert.Throws<ArgumentNullException>(() =>
+            {
+                s.PatternProperties["prop1"] = null;
+            }, @"Value cannot be null.
+Parameter name: value");
+        }
+
+        [Test]
+        public void PatternProperties_Set_NullKey()
+        {
+            JSchema s = new JSchema();
+
+            ExceptionAssert.Throws<ArgumentNullException>(() =>
+            {
+                s.PatternProperties[null] = new JSchema();
+            }, @"Value cannot be null.
+Parameter name: key");
+        }
+
+        [Test]
+        public void PatternProperties_Add_NullValue()
+        {
+            JSchema s = new JSchema();
+
+            ExceptionAssert.Throws<ArgumentNullException>(() =>
+            {
+                s.PatternProperties.Add("prop1", null);
+            }, @"Value cannot be null.
+Parameter name: value");
+        }
+
+        [Test]
+        public void PatternProperties_Add_NullKey()
+        {
+            JSchema s = new JSchema();
+
+            ExceptionAssert.Throws<ArgumentNullException>(() =>
+            {
+                s.PatternProperties.Add(null, new JSchema());
+            }, @"Value cannot be null.
+Parameter name: key");
+        }
+
+        [Test]
+        public void PatternProperties_Remove_NullKey()
+        {
+            JSchema s = new JSchema();
+
+            ExceptionAssert.Throws<ArgumentNullException>(() =>
+            {
+                s.PatternProperties.Remove(null);
+            }, @"Value cannot be null.
+Parameter name: key");
         }
     }
 }
