@@ -34,7 +34,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         private static readonly ThreadSafeStore<string, JSchema> SpecSchemaCache = new ThreadSafeStore<string, JSchema>(LoadResourceSchema);
 
         internal JSchemaDiscovery _schemaDiscovery;
-        internal readonly Stack<JSchema> _schemaStack;
+        internal readonly List<JSchema> _schemaStack;
         private readonly DeferedSchemaCollection _deferedSchemas;
         private readonly DeferedSchemaCollection _resolvedDeferedSchemas;
         private readonly JSchemaResolver _resolver;
@@ -62,7 +62,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             Cache = new Dictionary<Uri, JSchema>(UriComparer.Instance);
             _deferedSchemas = new DeferedSchemaCollection();
             _resolvedDeferedSchemas = new DeferedSchemaCollection();
-            _schemaStack = new Stack<JSchema>();
+            _schemaStack = new List<JSchema>();
 
             _resolver = settings.Resolver ?? JSchemaDummyResolver.Instance;
             _baseUri = settings.BaseUri;
@@ -833,7 +833,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             }
             loadingSchema.Path = reader.Path;
 
-            _schemaStack.Push(loadingSchema);
+            _schemaStack.Add(loadingSchema);
 
             try
             {
@@ -868,7 +868,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             }
             finally
             {
-                _schemaStack.Pop();
+                _schemaStack.RemoveAt(_schemaStack.Count - 1);
             }
         }
 
@@ -968,9 +968,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         private Uri ResolveSchemaReference(JSchema schema)
         {
             Uri resolvedReference = null;
-            foreach (JSchema s in _schemaStack.Reverse())
+            for (int i = 0; i < _schemaStack.Count; i++)
             {
-                Uri part = s.Id;
+                Uri part = _schemaStack[i].Id;
 
                 if (part != null)
                 {

@@ -31,7 +31,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
 
             if (parts.Length > 0 && (parts[0] == "#" || parts[0] == rootSchemaId + "#"))
             {
-                schemaReader._schemaStack.Push(schema);
+                schemaReader._schemaStack.Add(schema);
 
                 parts = parts.Skip(1).ToArray();
 
@@ -40,111 +40,24 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                 {
                     string unescapedPart = UnescapeReference(part);
 
-                    if (current is JSchema)
+                    JSchema s = current as JSchema;
+                    if (s != null)
                     {
-                        JSchema s = current as JSchema;
+                        schemaReader._schemaStack.Add(s);
 
-                        schemaReader._schemaStack.Push(s);
-
-                        switch (unescapedPart)
-                        {
-                            case Constants.PropertyNames.Properties:
-                                current = s._properties;
-                                break;
-                            case Constants.PropertyNames.Items:
-                                current = s._items;
-                                break;
-                            case Constants.PropertyNames.AdditionalProperties:
-                                current = s.AdditionalProperties;
-                                break;
-                            case Constants.PropertyNames.AdditionalItems:
-                                current = s.AdditionalItems;
-                                break;
-                            case Constants.PropertyNames.Not:
-                                current = s.Not;
-                                break;
-                            case Constants.PropertyNames.OneOf:
-                                current = s._oneOf;
-                                break;
-                            case Constants.PropertyNames.AllOf:
-                                current = s._allOf;
-                                break;
-                            case Constants.PropertyNames.AnyOf:
-                                current = s._anyOf;
-                                break;
-                            case Constants.PropertyNames.Enum:
-                                current = s._enum;
-                                break;
-                            case Constants.PropertyNames.PatternProperties:
-                                current = s._patternProperties;
-                                break;
-                            case Constants.PropertyNames.Dependencies:
-                                current = s._dependencies;
-                                break;
-                            default:
-                                JToken t;
-                                s.ExtensionData.TryGetValue(unescapedPart, out t);
-                                current = t;
-                                break;
-                        }
+                        current = GetCurrentFromSchema(s, unescapedPart);
                     }
                     else if (current is JToken)
                     {
-                        JToken resolvedToken;
-
-                        JToken t = (JToken) current;
-                        if (t is JObject)
-                        {
-                            resolvedToken = t[unescapedPart];
-                        }
-                        else if (t is JArray || t is JConstructor)
-                        {
-                            int index;
-                            if (int.TryParse(unescapedPart, NumberStyles.None, CultureInfo.InvariantCulture, out index))
-                            {
-                                if (index > t.Count() || index < 0)
-                                {
-                                    resolvedToken = null;
-                                }
-                                else
-                                {
-                                    resolvedToken = t[index];
-                                }
-                            }
-                            else
-                            {
-                                resolvedToken = null;
-                            }
-                        }
-                        else
-                        {
-                            resolvedToken = null;
-                        }
-
-                        if (resolvedToken != null)
-                        {
-                            JSchemaAnnotation annotation = resolvedToken.Annotation<JSchemaAnnotation>();
-                            if (annotation != null)
-                            {
-                                current = annotation.Schema;
-                            }
-                            else
-                            {
-                                current = resolvedToken;
-                            }
-                        }
-                        else
-                        {
-                            current = null;
-                        }
+                        current = GetCurrentFromToken((JToken) current, unescapedPart);
                     }
                     else if (current is IDictionary<string, JSchema>)
                     {
                         IDictionary<string, JSchema> d = (IDictionary<string, JSchema>) current;
 
-                        JSchema s;
-                        d.TryGetValue(unescapedPart, out s);
-                        current = s;
+                        JSchema temp;
+                        d.TryGetValue(unescapedPart, out temp);
+                        current = temp;
                     }
                     else if (current is IList<JSchema>)
                     {
@@ -173,10 +86,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                     }
                 }
 
-                if (current is JToken)
+                JToken t = current as JToken;
+                if (t != null)
                 {
-                    JToken t = (JToken) current;
-
                     JSchemaAnnotation annotation = t.Annotation<JSchemaAnnotation>();
                     if (annotation != null)
                     {
@@ -305,6 +217,87 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             }
 
             return resolvedSchema;
+        }
+
+        private static object GetCurrentFromSchema(JSchema s, string unescapedPart)
+        {
+            switch (unescapedPart)
+            {
+                case Constants.PropertyNames.Properties:
+                    return s._properties;
+                case Constants.PropertyNames.Items:
+                    return s._items;
+                case Constants.PropertyNames.AdditionalProperties:
+                    return s.AdditionalProperties;
+                case Constants.PropertyNames.AdditionalItems:
+                    return s.AdditionalItems;
+                case Constants.PropertyNames.Not:
+                    return s.Not;
+                case Constants.PropertyNames.OneOf:
+                    return s._oneOf;
+                case Constants.PropertyNames.AllOf:
+                    return s._allOf;
+                case Constants.PropertyNames.AnyOf:
+                    return s._anyOf;
+                case Constants.PropertyNames.Enum:
+                    return s._enum;
+                case Constants.PropertyNames.PatternProperties:
+                    return s._patternProperties;
+                case Constants.PropertyNames.Dependencies:
+                    return s._dependencies;
+                default:
+                    JToken temp;
+                    s.ExtensionData.TryGetValue(unescapedPart, out temp);
+                    return temp;
+            }
+        }
+
+        private static object GetCurrentFromToken(JToken t, string unescapedPart)
+        {
+            JToken resolvedToken;
+
+            if (t is JObject)
+            {
+                resolvedToken = t[unescapedPart];
+            }
+            else if (t is JArray || t is JConstructor)
+            {
+                int index;
+                if (int.TryParse(unescapedPart, NumberStyles.None, CultureInfo.InvariantCulture, out index))
+                {
+                    if (index > t.Count() || index < 0)
+                    {
+                        resolvedToken = null;
+                    }
+                    else
+                    {
+                        resolvedToken = t[index];
+                    }
+                }
+                else
+                {
+                    resolvedToken = null;
+                }
+            }
+            else
+            {
+                resolvedToken = null;
+            }
+
+            if (resolvedToken == null)
+            {
+                return null;
+            }
+
+            JSchemaAnnotation annotation = resolvedToken.Annotation<JSchemaAnnotation>();
+            if (annotation != null)
+            {
+                return annotation.Schema;
+            }
+            else
+            {
+                return resolvedToken;
+            }
         }
 
         private static bool TryCompare(string value, Uri resolvedReference)

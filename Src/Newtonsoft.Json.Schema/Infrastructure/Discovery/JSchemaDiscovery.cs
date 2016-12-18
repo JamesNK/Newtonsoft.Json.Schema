@@ -15,7 +15,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
     internal class JSchemaDiscovery
     {
         private readonly KnownSchemaState _state;
-        private readonly Stack<SchemaPath> _pathStack;
+        private readonly List<SchemaPath> _pathStack;
         private readonly KnownSchemaCollection _knownSchemas;
 
         public List<ValidationError> ValidationErrors { get; set; }
@@ -33,7 +33,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
         public JSchemaDiscovery(KnownSchemaCollection knownSchemas, KnownSchemaState state)
         {
             _state = state;
-            _pathStack = new Stack<SchemaPath>();
+            _pathStack = new List<SchemaPath>();
             _knownSchemas = knownSchemas ?? new KnownSchemaCollection();
         }
 
@@ -41,11 +41,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
         {
             Uri resolvedUri = uri ?? schema.Id ?? new Uri(string.Empty, UriKind.RelativeOrAbsolute);
 
-            _pathStack.Push(new SchemaPath(resolvedUri, string.Empty));
+            _pathStack.Add(new SchemaPath(resolvedUri, string.Empty));
 
             DiscoverInternal(schema, path);
 
-            _pathStack.Pop();
+            _pathStack.RemoveAt(_pathStack.Count - 1);
         }
 
         private void DiscoverInternal(JSchema schema, string latestPath)
@@ -88,7 +88,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                 }
             }
 
-            _pathStack.Push(new SchemaPath(newScopeId, scopePath));
+            _pathStack.Add(new SchemaPath(newScopeId, scopePath));
 
             // discover should happen in the same order as writer except extension data (e.g. definitions)
             if (schema._extensionData != null)
@@ -110,17 +110,17 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             DiscoverArraySchemas(Constants.PropertyNames.OneOf, schema._oneOf);
             DiscoverSchema(Constants.PropertyNames.Not, schema.Not);
 
-            _pathStack.Pop();
+            _pathStack.RemoveAt(_pathStack.Count - 1);
         }
 
         private Uri GetSchemaIdAndNewScopeId(JSchema schema, ref string latestPath, out Uri newScopeId)
         {
-            Uri currentScopeId = _pathStack.First().Id;
+            Uri currentScopeId = _pathStack[_pathStack.Count - 1].Id;
 
             string currentPath;
             if (schema.Id == null)
             {
-                currentPath = StringHelpers.Join("/", _pathStack.Where(p => p.Id == currentScopeId && !string.IsNullOrEmpty(p.Path)).Reverse().Select(p => p.Path));
+                currentPath = StringHelpers.Join("/", _pathStack.Where(p => p.Id == currentScopeId && !string.IsNullOrEmpty(p.Path)).Select(p => p.Path));
 
                 if (!string.IsNullOrEmpty(currentScopeId.OriginalString)
                     && !currentPath.StartsWith("#", StringComparison.Ordinal))
