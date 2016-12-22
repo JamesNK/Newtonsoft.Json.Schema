@@ -93,6 +93,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             Assert.AreEqual(true, MathHelpers.IsIntegerMultiple(new BigInteger(1.0E100), 1d));
             Assert.AreEqual(true, MathHelpers.IsIntegerMultiple(BigInteger.Parse("99999999999999999999999999999999999999999999999999"), 1d));
 
+            Assert.AreEqual(false, MathHelpers.IsIntegerMultiple(BigInteger.Parse("2000000000000000000000000000"), 0.01));
             Assert.AreEqual(false, MathHelpers.IsIntegerMultiple(BigInteger.Parse("79228162514264337593543950330"), Convert.ToDouble(decimal.MaxValue) + Math.PI));
             Assert.AreEqual(false, MathHelpers.IsIntegerMultiple(BigInteger.Parse("999999999999999999999999999999999999999999999999999999999"), 1.1d));
             Assert.AreEqual(false, MathHelpers.IsIntegerMultiple(new BigInteger(1), 0.0000007));

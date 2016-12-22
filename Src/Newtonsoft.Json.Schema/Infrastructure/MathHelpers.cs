@@ -21,8 +21,10 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         private static readonly decimal DecimalTolerance;
         private static readonly double DoubleTolerance;
 #if !(NET20 || NET35 || PORTABLE) || NETSTANDARD1_3
+        private static readonly BigInteger BigIntegerDecimalMaxValue;
+        private static readonly BigInteger BigIntegerDecimalMinValue;
+
         private static readonly BigInteger BigIntegerDoubleMaxValue;
-        private static readonly BigInteger BigIntegerDoubleMinValue;
 #endif
 
         static MathHelpers()
@@ -36,8 +38,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             DecimalDoubleMinValue = Convert.ToDouble(decimal.MinValue);
 
 #if !(NET20 || NET35 || PORTABLE) || NETSTANDARD1_3
-            BigIntegerDoubleMaxValue = new BigInteger(decimal.MaxValue);
-            BigIntegerDoubleMinValue = new BigInteger(decimal.MinValue);
+            BigIntegerDecimalMaxValue = new BigInteger(decimal.MaxValue);
+            BigIntegerDecimalMinValue = new BigInteger(decimal.MinValue);
+            BigIntegerDoubleMaxValue = new BigInteger(double.MaxValue);
 #endif
         }
 
@@ -46,23 +49,41 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             // use decimal math if multipleOf fits inside decimal
             if (FitsInDecimal(multipleOf))
             {
-#if !(NET20 || NET35 || PORTABLE) || NETSTANDARD1_3
+                double integerAsDouble;
                 bool integerIsInRange;
 
+#if !(NET20 || NET35 || PORTABLE) || NETSTANDARD1_3
                 if (integer is BigInteger)
                 {
                     BigInteger i = (BigInteger) integer;
-                    integerIsInRange = (i < BigIntegerDoubleMaxValue && i > BigIntegerDoubleMinValue);
+                    integerIsInRange = (i < BigIntegerDecimalMaxValue && i > BigIntegerDecimalMinValue);
+
+                    integerAsDouble = (double) i;
                 }
                 else
                 {
+                    integerAsDouble = Convert.ToDouble(integer, CultureInfo.InvariantCulture);
                     integerIsInRange = true;
                 }
+#else
+                integerAsDouble = Convert.ToDouble(integer, CultureInfo.InvariantCulture);
+                integerIsInRange = true;
+#endif
 
                 if (integerIsInRange)
-#endif
                 {
-                    return IsIntegerMultiple(integer, Convert.ToDecimal(multipleOf));
+                    decimal decimalMultipleOf = Convert.ToDecimal(multipleOf);
+                    if (decimalMultipleOf == 0)
+                    {
+                        return true;
+                    }
+
+                    // check that the division result doesn't exceed a decimal so there is no overflow while calculating remainder
+                    double division = integerAsDouble / multipleOf;
+                    if (FitsInDecimal(division))
+                    {
+                        return IsIntegerMultiple(integer, decimalMultipleOf);
+                    }
                 }
             }
 
@@ -104,11 +125,6 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         private static bool IsIntegerMultiple(object integer, decimal multipleOf)
         {
-            if (multipleOf == 0)
-            {
-                return true;
-            }
-
             bool isMultiple;
 #if !(NET20 || NET35 || PORTABLE) || NETSTANDARD1_3
             if (integer is BigInteger)
@@ -122,7 +138,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                     // biginteger only supports operations against other integers
                     // this will lose any decimal point on MultipleOf
                     // so raise an error if MultipleOf is not an integer and value is not zero
-                    isMultiple = IsRemainderMultiple((decimal)i % multipleOf, multipleOf);
+                    isMultiple = IsRemainderMultiple((decimal) i % multipleOf, multipleOf);
                 }
                 else
                 {
