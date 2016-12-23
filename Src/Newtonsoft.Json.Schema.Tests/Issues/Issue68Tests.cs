@@ -3,6 +3,7 @@
 // License: https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md
 #endregion
 
+#if !(NET20 || NET35 || PORTABLE) || DNXCORE50
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -102,3 +103,4 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
         }
     }
 }
+#endif
