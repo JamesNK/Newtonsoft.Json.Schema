@@ -173,7 +173,11 @@ namespace Newtonsoft.Json.Schema
         /// </summary>
         public override void Close()
         {
-            _writer.Close();
+            base.Close();
+            if (CloseOutput && _writer != null)
+            {
+                _writer.Close();
+            }
         }
 
         /// <summary>

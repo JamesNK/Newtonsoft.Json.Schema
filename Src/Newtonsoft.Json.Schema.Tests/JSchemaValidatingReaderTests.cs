@@ -2051,7 +2051,7 @@ namespace Newtonsoft.Json.Schema.Tests
         [Test]
         public void ReadAsBoolean()
         {
-            JSchema s = new JSchemaGenerator().Generate(typeof (bool));
+            JSchema s = new JSchemaGenerator().Generate(typeof(bool));
 
             JsonReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(@"true")))
             {
@@ -2512,6 +2512,32 @@ namespace Newtonsoft.Json.Schema.Tests
             }
 
             Assert.AreEqual(0, errors.Count);
+        }
+
+        [Test]
+        public void CloseAlsoClosesUnderlyingReader()
+        {
+            var underlyingReader = new JsonReaderStubWithIsClosed();
+            var validatingReader = new JSchemaValidatingReader(underlyingReader) { CloseInput = true };
+
+            validatingReader.Close();
+
+            Assert.IsTrue(underlyingReader.IsClosed);
+        }
+    }
+
+    public sealed class JsonReaderStubWithIsClosed : JsonReader
+    {
+        public bool IsClosed { get; private set; }
+
+        public override void Close()
+        {
+            IsClosed = true;
+        }
+
+        public override bool Read()
+        {
+            throw new NotSupportedException();
         }
     }
 }

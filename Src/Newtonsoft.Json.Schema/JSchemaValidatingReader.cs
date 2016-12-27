@@ -275,6 +275,19 @@ namespace Newtonsoft.Json.Schema
             return true;
         }
 
+        /// <summary>
+        /// Changes the reader's state to <see cref="JsonReader.State.Closed"/>.
+        /// If <see cref="JsonReader.CloseInput"/> is set to <c>true</c>, the underlying <see cref="JsonReader"/> is also closed.
+        /// </summary>
+        public override void Close()
+        {
+            base.Close();
+            if (CloseInput && _reader != null)
+            {
+                _reader.Close();
+            }
+        }
+
         private void ValidateCurrentToken()
         {
             JsonToken token = _reader.TokenType;

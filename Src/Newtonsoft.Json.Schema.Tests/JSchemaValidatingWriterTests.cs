@@ -654,5 +654,31 @@ namespace Newtonsoft.Json.Schema.Tests
 
             Assert.AreEqual(@"new Test(1,""e""/*comment!*/)", sw.ToString());
         }
+
+        [Test]
+        public void CloseAlsoClosesUnderlyingWriter()
+        {
+            var underlyingWriter = new JsonWriterStubWithIsClosed();
+            var validatingWriter = new JSchemaValidatingWriter(underlyingWriter) { CloseOutput = true };
+
+            validatingWriter.Close();
+
+            Assert.IsTrue(underlyingWriter.IsClosed);
+        }
+    }
+
+    public sealed class JsonWriterStubWithIsClosed : JsonWriter
+    {
+        public bool IsClosed { get; private set; }
+
+        public override void Close()
+        {
+            IsClosed = true;
+        }
+
+        public override void Flush()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
