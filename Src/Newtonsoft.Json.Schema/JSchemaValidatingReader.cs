@@ -282,9 +282,9 @@ namespace Newtonsoft.Json.Schema
         public override void Close()
         {
             base.Close();
-            if (CloseInput && _reader != null)
+            if (CloseInput)
             {
-                _reader.Close();
+                _reader?.Close();
             }
         }
 

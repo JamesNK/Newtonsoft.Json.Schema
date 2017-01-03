@@ -132,10 +132,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 SchemaScope.CreateTokenScope(token, Schema, _context, null, depth);
             }
 
-            if (TokenWriter != null)
-            {
-                TokenWriter.WriteToken(token, value);
-            }
+            TokenWriter?.WriteToken(token, value);
 
             for (int i = _scopes.Count - 1; i >= 0; i--)
             {

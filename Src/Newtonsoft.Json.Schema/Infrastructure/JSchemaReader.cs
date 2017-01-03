@@ -163,7 +163,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         {
             JTokenPathAnnotation pathAnnotation = inlineToken.Root.Annotation<JTokenPathAnnotation>();
             string path;
-            if (pathAnnotation != null && !string.IsNullOrEmpty(pathAnnotation.BasePath))
+            if (!string.IsNullOrEmpty(pathAnnotation?.BasePath))
             {
                 path = pathAnnotation.BasePath;
 
