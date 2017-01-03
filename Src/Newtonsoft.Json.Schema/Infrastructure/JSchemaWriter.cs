@@ -415,35 +415,40 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         private void WriteType(string propertyName, JsonWriter writer, JSchemaType type)
         {
-            IList<JSchemaType> types;
             if (Enum.IsDefined(typeof(JSchemaType), type))
             {
-                types = new List<JSchemaType> { type };
+                writer.WritePropertyName(propertyName);
+                writer.WriteValue(JSchemaTypeHelpers.MapType(type));
             }
             else
             {
-                types = EnumUtils.GetFlagsValues(type).Where(v => v != JSchemaType.None).ToList();
-            }
+                // Known to not need disposing.
+                var en = EnumUtils.GetFlagsValues(type).Where(v => v != JSchemaType.None).GetEnumerator();
+                if (!en.MoveNext())
+                {
+                    return;
+                }
 
-            if (types.Count == 0)
-            {
-                return;
-            }
+                writer.WritePropertyName(propertyName);
 
-            writer.WritePropertyName(propertyName);
+                var first = en.Current;
 
-            if (types.Count == 1)
-            {
-                writer.WriteValue(JSchemaTypeHelpers.MapType(types[0]));
-                return;
-            }
+                if (en.MoveNext())
+                {
+                    writer.WriteStartArray();
+                    writer.WriteValue(JSchemaTypeHelpers.MapType(first));
+                    do
+                    {
+                        writer.WriteValue(JSchemaTypeHelpers.MapType(en.Current));
+                    } while (en.MoveNext());
 
-            writer.WriteStartArray();
-            foreach (JSchemaType schemaType in types)
-            {
-                writer.WriteValue(JSchemaTypeHelpers.MapType(schemaType));
+                    writer.WriteEndArray();
+                }
+                else
+                {
+                    writer.WriteValue(JSchemaTypeHelpers.MapType(first));
+                }
             }
-            writer.WriteEndArray();
         }
 
         private void WritePropertyIfNotDefault<T>(JsonWriter writer, string propertyName, T value, T defaultValue = default(T))

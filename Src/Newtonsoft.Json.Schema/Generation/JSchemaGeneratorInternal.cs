@@ -46,9 +46,7 @@ namespace Newtonsoft.Json.Schema.Generation
                     // reverse schemas so schemas are added to definition in the order they were generated in
                     // means schemas with few/no references to other schemas are first
                     // avoids definitions that are just a reference to somewhere else
-                    List<TypeSchema> reversedTypeSchemas = Enumerable.Reverse(_typeSchemas).ToList();
-
-                    foreach (TypeSchema t in reversedTypeSchemas)
+                    foreach (TypeSchema t in Enumerable.Reverse(_typeSchemas))
                     {
                         if (t.Schema == schema)
                         {
@@ -95,7 +93,11 @@ namespace Newtonsoft.Json.Schema.Generation
                 Type[] genericTypeArguments = type.GetGenericArguments();
 #endif
 
-                return type.Name.Split('`')[0] + "<" + string.Join(", ", genericTypeArguments.Select(GetTypeName).ToArray()) + ">";
+                return type.Name.Split('`')[0] + "<" + string.Join(", ", genericTypeArguments.Select(GetTypeName)
+#if NET35
+                    .ToArray()
+#endif
+                    ) + ">";
             }
 
             return type.Name;
@@ -556,13 +558,12 @@ namespace Newtonsoft.Json.Schema.Generation
 
         private void GenerateObjectSchema(JSchema schema, Type type, JsonObjectContract contract)
         {
-            IList<JsonProperty> properties;
+            IEnumerable<JsonProperty> properties;
             if (_generator.SchemaPropertyOrderHandling == SchemaPropertyOrderHandling.Alphabetical)
             {
                 properties = contract.Properties
                     .OrderBy(p => p.Order ?? 0)
-                    .ThenBy(p => p.PropertyName)
-                    .ToList();
+                    .ThenBy(p => p.PropertyName);
             }
             else
             {

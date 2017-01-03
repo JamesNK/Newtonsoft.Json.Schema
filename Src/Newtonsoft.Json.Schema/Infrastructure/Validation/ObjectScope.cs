@@ -112,7 +112,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                                     {
                                         if (!requiredProperties.All(r => _readProperties.Contains(r)))
                                         {
-                                            List<string> missingRequiredProperties = requiredProperties.Where(r => !_readProperties.Contains(r)).ToList();
+                                            IEnumerable<string> missingRequiredProperties = requiredProperties.Where(r => !_readProperties.Contains(r));
                                             IFormattable message = $"Dependencies for property '{readProperty}' failed. Missing required keys: {StringHelpers.Join(", ", missingRequiredProperties)}.";
 
                                             RaiseError(message, ErrorType.Dependencies, Schema, readProperty, null);
