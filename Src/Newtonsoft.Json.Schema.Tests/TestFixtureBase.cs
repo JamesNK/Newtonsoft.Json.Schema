@@ -36,6 +36,8 @@ using System.Linq;
 namespace Newtonsoft.Json.Schema.Tests
 {
     [TestFixture]
+    [SetCulture("en-US")]
+    [SetUICulture("en-US")]
     public abstract class TestFixtureBase
     {
 #if DNXCORE50
