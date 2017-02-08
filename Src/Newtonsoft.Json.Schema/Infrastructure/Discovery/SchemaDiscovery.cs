@@ -33,12 +33,10 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             {
                 schemaReader._schemaStack.Add(schema);
 
-                parts = parts.Skip(1).ToArray();
-
                 object current = schema;
-                foreach (string part in parts)
+                for (int i = 1; i != parts.Length; ++i)
                 {
-                    string unescapedPart = UnescapeReference(part);
+                    string unescapedPart = UnescapeReference(parts[i]);
 
                     JSchema s = current as JSchema;
                     if (s != null)

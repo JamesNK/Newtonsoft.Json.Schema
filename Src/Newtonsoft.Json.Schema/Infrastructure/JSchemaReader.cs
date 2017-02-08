@@ -288,7 +288,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 // kind of hacky
                 if (deferedSchema.ReferenceSchema._extensionData != null)
                 {
-                    foreach (KeyValuePair<string, JToken> keyValuePair in deferedSchema.ReferenceSchema._extensionData.ToList())
+                    foreach (KeyValuePair<string, JToken> keyValuePair in deferedSchema.ReferenceSchema._extensionData)
                     {
                         s.ExtensionData[keyValuePair.Key] = keyValuePair.Value;
                     }
