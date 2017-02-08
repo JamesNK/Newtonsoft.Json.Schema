@@ -17,10 +17,10 @@ namespace Newtonsoft.Json.Schema
         /// </summary>
         /// <param name="license">The license text to register.</param>
         /// <remarks> 
-        /// The recommended way to register the license key is once during application starts up.
+        /// The recommended way to register the license key is to call <see cref="RegisterLicense"/> once during application start up.
         /// In ASP.NET web applications it can be placed in the <c>Startup.cs</c> or <c>Global.asax.cs</c>,
         /// in WPF applications it can be placed in the <c>Application.Startup</c> event,
-        /// in Console applications it can be placed in the <c>static void Main(string[] args)</c> event.
+        /// and in Console applications it can be placed in the <c>static void Main(string[] args)</c> event.
         /// </remarks>
         /// <example> 
         /// This sample shows how to register a Json.NET Schema license with the <see cref="RegisterLicense"/> method.
