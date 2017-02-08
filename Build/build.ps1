@@ -11,7 +11,7 @@
   $buildNuGet = $true
   $treatWarningsAsErrors = $false
   $workingName = if ($workingName) {$workingName} else {"Working"}
-  $netCliVersion = "1.0.0-preview3-003171"
+  $netCliVersion = "1.0.0-preview2-003121"
   $nugetUrl = "http://dist.nuget.org/win-x86-commandline/latest/nuget.exe"
   
   $baseDir  = resolve-path ..
@@ -228,14 +228,24 @@ function NetCliBuild($build)
   $projectPath = "$workingSourceDir\Newtonsoft.Json.Schema\project.json"
 
   exec { .\Tools\Dotnet\dotnet-install.ps1 -Version $netCliVersion | Out-Default }
-  exec { dotnet --version | Out-Default }
 
-  Write-Host -ForegroundColor Green "Restoring packages for $name"
-  Write-Host
-  exec { dotnet restore $projectPath | Out-Default }
+  try
+  {
+    Set-Location "$workingSourceDir\Newtonsoft.Json.Schema"
 
-  Write-Host -ForegroundColor Green "Building $projectPath"
-  exec { dotnet build $projectPath -f netstandard1.3 -c Release -o bin\Release\netstandard1.3 | Out-Default }
+    exec { dotnet --version | Out-Default }
+
+    Write-Host -ForegroundColor Green "Restoring packages for $name"
+    Write-Host
+    exec { dotnet restore $projectPath | Out-Default }
+
+    Write-Host -ForegroundColor Green "Building $projectPath"
+    exec { dotnet build $projectPath -f netstandard1.3 -c Release -o bin\Release\netstandard1.3 | Out-Default }
+  }
+  finally
+  {
+    Set-Location $baseDir
+  }
 }
 
 function NetCliTests($build)
@@ -250,18 +260,20 @@ function NetCliTests($build)
   Update-Project $workingSourceDir\Newtonsoft.Json.Schema.Tests\project.json $signAssemblies $false $false
 
   exec { .\Tools\Dotnet\dotnet-install.ps1 -Version $netCliVersion | Out-Default }
-  exec { dotnet --version | Out-Default }
-
-  Write-Host -ForegroundColor Green "Restoring packages for $name"
-  Write-Host
-  exec { dotnet restore "$workingSourceDir\Newtonsoft.Json.Schema.Tests\project.json" | Out-Default }
-
-  Write-Host -ForegroundColor Green "Ensuring test project builds for $name"
-  Write-Host
 
   try
   {
     Set-Location "$workingSourceDir\Newtonsoft.Json.Schema.Tests"
+
+    exec { dotnet --version | Out-Default }
+
+    Write-Host -ForegroundColor Green "Restoring packages for $name"
+    Write-Host
+    exec { dotnet restore "$workingSourceDir\Newtonsoft.Json.Schema.Tests\project.json" | Out-Default }
+
+    Write-Host -ForegroundColor Green "Ensuring test project builds for $name"
+    Write-Host
+
     exec { dotnet test "$workingSourceDir\Newtonsoft.Json.Schema.Tests\project.json" -f netcoreapp1.0 -c Release -parallel none | Out-Default }
   }
   finally
