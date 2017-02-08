@@ -63,12 +63,7 @@ namespace Newtonsoft.Json.Schema
                 return new MemoryStream(data);
             }
 
-            if (_resolver != null)
-            {
-                return _resolver.GetSchemaResource(context, reference);
-            }
-
-            return null;
+            return _resolver?.GetSchemaResource(context, reference);
         }
 
         /// <summary>

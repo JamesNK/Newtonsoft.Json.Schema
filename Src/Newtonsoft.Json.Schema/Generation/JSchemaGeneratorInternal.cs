@@ -112,7 +112,7 @@ namespace Newtonsoft.Json.Schema.Generation
         {
             JsonContainerAttribute containerAttribute = JsonTypeReflector.GetCachedAttribute<JsonContainerAttribute>(type);
 
-            if (containerAttribute != null && !string.IsNullOrEmpty(containerAttribute.Title))
+            if (!string.IsNullOrEmpty(containerAttribute?.Title))
             {
                 return containerAttribute.Title;
             }
@@ -124,20 +124,17 @@ namespace Newtonsoft.Json.Schema.Generation
         {
             JsonContainerAttribute containerAttribute = JsonTypeReflector.GetCachedAttribute<JsonContainerAttribute>(type);
 
-            if (containerAttribute != null && !string.IsNullOrEmpty(containerAttribute.Description))
+            if (!string.IsNullOrEmpty(containerAttribute?.Description))
             {
                 return containerAttribute.Description;
             }
 
 #if !(NETFX_CORE || PORTABLE40 || PORTABLE)
             DescriptionAttribute descriptionAttribute = ReflectionUtils.GetAttribute<DescriptionAttribute>(type);
-            if (descriptionAttribute != null)
-            {
-                return descriptionAttribute.Description;
-            }
-#endif
-
+            return descriptionAttribute?.Description;
+#else
             return null;
+#endif
         }
 
         private Uri GetTypeId(Type type, bool explicitOnly)
@@ -146,7 +143,7 @@ namespace Newtonsoft.Json.Schema.Generation
 
             Uri typeId;
 
-            if (containerAttribute != null && !string.IsNullOrEmpty(containerAttribute.Id))
+            if (!string.IsNullOrEmpty(containerAttribute?.Id))
             {
                 typeId = new Uri(containerAttribute.Id, UriKind.RelativeOrAbsolute);
             }
@@ -189,7 +186,7 @@ namespace Newtonsoft.Json.Schema.Generation
         {
             JSchemaGenerationProviderAttribute providerAttribute = null;
 
-            if (memberProperty != null && memberProperty.AttributeProvider != null)
+            if (memberProperty?.AttributeProvider != null)
             {
                 providerAttribute = (JSchemaGenerationProviderAttribute)memberProperty.AttributeProvider.GetAttributes(typeof(JSchemaGenerationProviderAttribute), true).SingleOrDefault();
             }
