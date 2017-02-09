@@ -14,4 +14,4 @@ FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more det
 
 ## Commercial License
 
-In addition to this license, Json.NET Schema is offered under a commerical license.
+In addition to this license, Json.NET Schema is offered under a commercial license.
