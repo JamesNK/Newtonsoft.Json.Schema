@@ -167,12 +167,15 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             {
                 path = pathAnnotation.BasePath;
 
-                if (!inlineToken.Path.StartsWith("[", StringComparison.Ordinal))
+                if (!string.IsNullOrEmpty(inlineToken.Path))
                 {
-                    path += ".";
-                }
+                    if (!inlineToken.Path.StartsWith("[", StringComparison.Ordinal))
+                    {
+                        path += ".";
+                    }
 
-                path += inlineToken.Path;
+                    path += inlineToken.Path;
+                }
             }
             else
             {

@@ -263,7 +263,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                 int index;
                 if (int.TryParse(unescapedPart, NumberStyles.None, CultureInfo.InvariantCulture, out index))
                 {
-                    if (index > t.Count() || index < 0)
+                    if (index >= t.Count() || index < 0)
                     {
                         resolvedToken = null;
                     }
