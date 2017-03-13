@@ -241,7 +241,7 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsNotNull(a);
             StringAssert.AreEqual("Invalid type. Expected Integer but got String. Path '[0]'.", a.Message);
             Assert.AreEqual("string", a.ValidationError.Value);
-            Assert.AreEqual("#/items/0", a.ValidationError.SchemaId.ToString());
+            Assert.AreEqual("#/items", a.ValidationError.SchemaId.ToString());
             a = null;
 
             validatingWriter.WriteValue((string)null);
@@ -411,7 +411,7 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsNotNull(a);
             StringAssert.AreEqual("Invalid type. Expected Integer but got String. Path '[0]'.", a.Message);
             Assert.AreEqual("string", a.ValidationError.Value);
-            Assert.AreEqual("#/items/0", a.ValidationError.SchemaId.ToString());
+            Assert.AreEqual("#/items", a.ValidationError.SchemaId.ToString());
             a = null;
 
             validatingWriter.WriteValue((object)null);

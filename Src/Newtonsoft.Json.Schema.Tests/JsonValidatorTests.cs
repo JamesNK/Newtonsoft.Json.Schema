@@ -149,11 +149,11 @@ namespace Newtonsoft.Json.Schema.Tests
 
             Assert.AreEqual(@"Invalid type. Expected String but got Integer.", errors[0].Message);
             Assert.AreEqual(ErrorType.Type, errors[0].ErrorType);
-            Assert.AreEqual("#/properties/values/items/0", errors[0].SchemaId.OriginalString);
+            Assert.AreEqual("#/properties/values/items", errors[0].SchemaId.OriginalString);
 
             Assert.AreEqual(@"String is not JSON: Unexpected character encountered while parsing value: b. Path 'prop1', line 1, position 9.", errors[1].Message);
             Assert.AreEqual(ErrorType.Validator, errors[1].ErrorType);
-            Assert.AreEqual("#/properties/values/items/0", errors[1].SchemaId.OriginalString);
+            Assert.AreEqual("#/properties/values/items", errors[1].SchemaId.OriginalString);
         }
 
         public class JsonFormatValidator : JsonValidator

@@ -104,7 +104,14 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             DiscoverDictionarySchemas(Constants.PropertyNames.Properties, schema._properties);
             DiscoverDictionarySchemas(Constants.PropertyNames.PatternProperties, schema._patternProperties);
             DiscoverDictionarySchemas(Constants.PropertyNames.Dependencies, schema._dependencies);
-            DiscoverArraySchemas(Constants.PropertyNames.Items, schema._items);
+            if (schema.ItemsPositionValidation)
+            {
+                DiscoverArraySchemas(Constants.PropertyNames.Items, schema._items);
+            }
+            else if (schema._items != null && schema._items.Count > 0)
+            {
+                DiscoverSchema(Constants.PropertyNames.Items, schema._items[0]);
+            }
             DiscoverArraySchemas(Constants.PropertyNames.AllOf, schema._allOf);
             DiscoverArraySchemas(Constants.PropertyNames.AnyOf, schema._anyOf);
             DiscoverArraySchemas(Constants.PropertyNames.OneOf, schema._oneOf);

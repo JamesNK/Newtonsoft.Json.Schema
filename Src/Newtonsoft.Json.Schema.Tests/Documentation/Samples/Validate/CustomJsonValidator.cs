@@ -66,11 +66,11 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation.Samples.Validate
 
             Assert.AreEqual(@"Text 'purple monkey dishwasher' is not a valid culture name.", errors[0].Message);
             Assert.AreEqual(ErrorType.Validator, errors[0].ErrorType);
-            Assert.AreEqual("#/items/0", errors[0].SchemaId.OriginalString);
+            Assert.AreEqual("#/items", errors[0].SchemaId.OriginalString);
 
             Assert.AreEqual(@"Invalid type. Expected String but got Integer.", errors[1].Message);
             Assert.AreEqual(ErrorType.Type, errors[1].ErrorType);
-            Assert.AreEqual("#/items/0", errors[1].SchemaId.OriginalString);
+            Assert.AreEqual("#/items", errors[1].SchemaId.OriginalString);
         }
 
         #region Types

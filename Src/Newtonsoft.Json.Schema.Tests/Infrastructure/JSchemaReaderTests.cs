@@ -2326,7 +2326,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
                 errors[0].Message == @"Could not parse regex pattern '[]'. Regex parser error: parsing ""[]"" - Unterminated [] set." ||
                 errors[0].Message == @"Could not parse regex pattern '[]'. Regex parser error: parsing '[]' - Unterminated [] set.");
             Assert.AreEqual(ErrorType.Pattern, errors[0].ErrorType);
-            Assert.AreEqual("#/properties/authors/items/0", errors[0].SchemaId.OriginalString);
+            Assert.AreEqual("#/properties/authors/items", errors[0].SchemaId.OriginalString);
             Assert.AreEqual(s.Properties["authors"].Items[0], errors[0].Schema);
         }
 
@@ -2432,7 +2432,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
                 errors[0].Message == @"Could not parse regex pattern '[]'. Regex parser error: parsing ""[]"" - Unterminated [] set." ||
                 errors[0].Message == @"Could not parse regex pattern '[]'. Regex parser error: parsing '[]' - Unterminated [] set.");
             Assert.AreEqual(ErrorType.Pattern, errors[0].ErrorType);
-            Assert.AreEqual("http://test/#/definitions/authors/items/0", errors[0].SchemaId.OriginalString);
+            Assert.AreEqual("http://test/#/definitions/authors/items", errors[0].SchemaId.OriginalString);
             Assert.AreEqual(s.Properties["authors"].Items[0], errors[0].Schema);
             Assert.AreEqual("http://test", errors[0].Schema.BaseUri.OriginalString);
 

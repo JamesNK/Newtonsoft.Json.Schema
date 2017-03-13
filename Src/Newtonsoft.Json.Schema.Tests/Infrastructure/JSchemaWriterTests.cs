@@ -455,7 +455,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             StringAssert.AreEqual(@"{
   ""id"": ""#root"",
   ""not"": {
-    ""$ref"": ""http://localhost/test#/items/0""
+    ""$ref"": ""http://localhost/test#/items""
   }
 }", json);
         }

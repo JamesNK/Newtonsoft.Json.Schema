@@ -825,6 +825,19 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         private void LoadAndSetSchema(JsonReader reader, JSchema target, Action<JSchema> setSchema, bool isRoot = false)
         {
+            // check whether a schema for this token has already been loaded
+            JTokenReader tokenReader = reader as JTokenReader;
+            if (tokenReader != null)
+            {
+                JSchemaAnnotation schemaAnnotication = tokenReader.CurrentToken.Annotation<JSchemaAnnotation>();
+                if (schemaAnnotication != null)
+                {
+                    setSchema(schemaAnnotication.Schema);
+                    tokenReader.Skip();
+                    return;
+                }
+            }
+
             JSchema loadingSchema = new JSchema();
             loadingSchema.State = JSchemaState.Loading;
             loadingSchema.BaseUri = _baseUri;
@@ -1333,10 +1346,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             }
 
             JToken t;
-            if (reader is JTokenReader)
+            JTokenReader tokenReader = reader as JTokenReader;
+            if (tokenReader != null)
             {
-                t = ((JTokenReader)reader).CurrentToken;
-                reader.Skip();
+                t = tokenReader.CurrentToken;
+                tokenReader.Skip();
             }
             else
             {
