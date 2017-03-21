@@ -172,7 +172,7 @@ task Package -depends Build {
   Copy-Item -Path $docDir\license.txt -Destination $workingDir\Package\
 
   robocopy $workingSourceDir $workingDir\Package\Source\Src /MIR /NP /XD bin obj TestResults AppPackages DTAR_08E86330_4835_4B5C_9E5A_61F37AE1A077_DTAR /XF *.suo *.user *.lock.json | Out-Default
-  robocopy $buildDir $workingDir\Package\Source\Build /MIR /NP /XF runbuild.txt | Out-Default
+  robocopy $buildDir $workingDir\Package\Source\Build /MIR /NP /XF runbuild.txt nuget.exe | Out-Default
   robocopy $docDir $workingDir\Package\Source\Doc /MIR /NP | Out-Default
   robocopy $toolsDir $workingDir\Package\Source\Tools /MIR /NP | Out-Default
   
