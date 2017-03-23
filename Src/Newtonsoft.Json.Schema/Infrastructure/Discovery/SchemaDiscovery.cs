@@ -73,6 +73,17 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                                 current = l[index];
                             }
                         }
+                        else if (!schema.ItemsPositionValidation)
+                        {
+                            if (l.Count > 0)
+                            {
+                                current = GetCurrentFromSchema(l[0], unescapedPart);
+                            }
+                            else
+                            {
+                                current = null;
+                            }
+                        }
                         else
                         {
                             current = null;

@@ -24,11 +24,10 @@ using NUnit.Framework;
 namespace Newtonsoft.Json.Schema.Tests.Issues
 {
     [TestFixture]
-    public class Issue99Tests : TestFixtureBase
+    public class Issue81Tests : TestFixtureBase
     {
         private string originalSchemaJson = @"{
   ""$schema"": ""http://json-schema.org/draft-04/schema#"",
-  ""id"": ""LocalSchema"",
   ""type"": ""object"",
   ""properties"": {
     ""arrayProp"": {
@@ -55,7 +54,6 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
 
         private string remoteReferenceJson = @"{
   ""$schema"": ""http://json-schema.org/draft-04/schema#"",
-  ""id"": ""RemoteSchema"",
   ""definitions"": {
     ""aProperty"": {
       ""type"": ""string""
@@ -65,7 +63,6 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
 
         private string dereferencedSchemaJson = @"{
   ""$schema"": ""http://json-schema.org/draft-04/schema#"",
-  ""id"": ""LocalSchema"",
   ""type"": ""object"",
   ""properties"": {
     ""arrayProp"": {
@@ -83,7 +80,7 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
       ""type"": ""object"",
       ""properties"": {
         ""referencingProp"": {
-          ""$ref"": ""LocalSchema#/properties/arrayProp/items/properties/referencedProp""
+          ""$ref"": ""#/properties/arrayProp/items/properties/referencedProp""
         }
       }
     }
@@ -104,7 +101,7 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
 
             JSchema schema2 = JSchema.Parse(json);
 
-            Assert.AreEqual(schema, schema2);
+            Assert.AreEqual(schema.ToString(), schema2.ToString());
         }
     }
 }
