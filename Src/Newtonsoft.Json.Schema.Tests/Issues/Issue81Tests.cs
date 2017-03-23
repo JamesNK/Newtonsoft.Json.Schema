@@ -87,14 +87,65 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
   }
 }";
 
-        [Test]
-        public void Test()
+        private string originalSchemaWithArrayJson = @"{
+  ""$schema"": ""http://json-schema.org/draft-04/schema#"",
+  ""type"": ""object"",
+  ""properties"": {
+    ""arrayProp"": {
+      ""type"": ""array"",
+      ""items"": [
         {
-            JSchemaPreloadedResolver resolver = new JSchemaPreloadedResolver();
-            Stream remoteReferenceStream = new MemoryStream(Encoding.UTF8.GetBytes(remoteReferenceJson));
-            resolver.Add(new Uri("http://localhost/remoteReference.json"), remoteReferenceStream);
+          ""type"": ""object"",
+          ""properties"": {
+            ""referencedProp"": {
+              ""$ref"": ""http://localhost/remoteReference.json#/definitions/aProperty""
+            }
+          }
+        }
+      ]
+    },
+    ""otherProp"": {
+      ""type"": ""object"",
+      ""properties"": {
+        ""referencingProp"": {
+          ""$ref"": ""http://localhost/remoteReference.json#/definitions/aProperty""
+        }
+      }
+    }
+  }
+}";
 
-            JSchema schema = JSchema.Parse(originalSchemaJson, resolver);
+        private string dereferencedSchemaWithArrayJson = @"{
+  ""$schema"": ""http://json-schema.org/draft-04/schema#"",
+  ""type"": ""object"",
+  ""properties"": {
+    ""arrayProp"": {
+      ""type"": ""array"",
+      ""items"": [
+        {
+          ""type"": ""object"",
+          ""properties"": {
+            ""referencedProp"": {
+              ""type"": ""string""
+            }
+          }
+        }
+      ]
+    },
+    ""otherProp"": {
+      ""type"": ""object"",
+      ""properties"": {
+        ""referencingProp"": {
+          ""$ref"": ""#/properties/arrayProp/items/0/properties/referencedProp""
+        }
+      }
+    }
+  }
+}";
+        [Test]
+        public void TestWithSingleItem()
+        {
+            JSchema schema = JSchema.Parse(originalSchemaJson, TestResolver);
             string json = schema.ToString();
 
             StringAssert.AreEqual(dereferencedSchemaJson, json);
@@ -102,6 +153,31 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
             JSchema schema2 = JSchema.Parse(json);
 
             Assert.AreEqual(schema.ToString(), schema2.ToString());
+        }
+
+        [Test]
+        public void TestWithArrayItems()
+        {
+            JSchema schema = JSchema.Parse(originalSchemaWithArrayJson, TestResolver);
+            string json = schema.ToString();
+
+            StringAssert.AreEqual(dereferencedSchemaWithArrayJson, json);
+
+            JSchema schema2 = JSchema.Parse(json);
+
+            Assert.AreEqual(schema.ToString(), schema2.ToString());
+        }
+
+        private JSchemaPreloadedResolver TestResolver
+        {
+            get
+            {
+                JSchemaPreloadedResolver resolver = new JSchemaPreloadedResolver();
+                Stream remoteReferenceStream = new MemoryStream(Encoding.UTF8.GetBytes(remoteReferenceJson));
+                resolver.Add(new Uri("http://localhost/remoteReference.json"), remoteReferenceStream);
+
+                return resolver;
+            }
         }
     }
 }

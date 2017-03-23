@@ -60,6 +60,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                     else if (current is IList<JSchema>)
                     {
                         IList<JSchema> l = (IList<JSchema>) current;
+                        JSchema parent = schemaReader._schemaStack.LastOrDefault();
 
                         int index;
                         if (int.TryParse(unescapedPart, NumberStyles.None, CultureInfo.InvariantCulture, out index))
@@ -73,7 +74,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                                 current = l[index];
                             }
                         }
-                        else if (!schema.ItemsPositionValidation)
+                        else if (parent != null && !parent.ItemsPositionValidation)
                         {
                             if (l.Count > 0)
                             {
