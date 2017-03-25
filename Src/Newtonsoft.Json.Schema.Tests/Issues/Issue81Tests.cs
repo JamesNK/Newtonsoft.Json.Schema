@@ -142,6 +142,7 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
     }
   }
 }";
+
         [Test]
         public void TestWithSingleItem()
         {

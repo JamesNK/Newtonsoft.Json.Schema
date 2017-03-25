@@ -33,6 +33,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             {
                 schemaReader._schemaStack.Add(schema);
 
+                JSchema parent = schema;
                 object current = schema;
                 for (int i = 1; i != parts.Length; ++i)
                 {
@@ -43,6 +44,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                     {
                         schemaReader._schemaStack.Add(s);
 
+                        parent = s;
                         current = GetCurrentFromSchema(s, unescapedPart);
                     }
                     else if (current is JToken)
@@ -60,21 +62,10 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                     else if (current is IList<JSchema>)
                     {
                         IList<JSchema> l = (IList<JSchema>) current;
-                        JSchema parent = schemaReader._schemaStack.LastOrDefault();
-
                         int index;
-                        if (int.TryParse(unescapedPart, NumberStyles.None, CultureInfo.InvariantCulture, out index))
-                        {
-                            if (index > l.Count || index < 0)
-                            {
-                                current = null;
-                            }
-                            else
-                            {
-                                current = l[index];
-                            }
-                        }
-                        else if (parent != null && !parent.ItemsPositionValidation)
+
+                        // if the schema collection is items then implicitly get first item if there is no position validation
+                        if (ReferenceEquals(parent._items, l) && !parent.ItemsPositionValidation)
                         {
                             if (l.Count > 0)
                             {
@@ -83,6 +74,17 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                             else
                             {
                                 current = null;
+                            }
+                        }
+                        else if (int.TryParse(unescapedPart, NumberStyles.None, CultureInfo.InvariantCulture, out index))
+                        {
+                            if (index > l.Count || index < 0)
+                            {
+                                current = null;
+                            }
+                            else
+                            {
+                                current = l[index];
                             }
                         }
                         else
