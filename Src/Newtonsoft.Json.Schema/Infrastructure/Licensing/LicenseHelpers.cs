@@ -137,10 +137,15 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Licensing
                 throw new JSchemaException("Specified license text is invalid.");
             }
 
-            MemoryStream ms = new MemoryStream(licenseData, 128, licenseData.Length - 128);
-            JsonSerializer serializer = new JsonSerializer();
+            LicenseDetails deserializedLicense;
 
-            LicenseDetails deserializedLicense = serializer.Deserialize<LicenseDetails>(new JsonTextReader(new StreamReader(ms)));
+            using (MemoryStream ms = new MemoryStream(licenseData, 128, licenseData.Length - 128))
+            using (JsonTextReader reader = new JsonTextReader(new StreamReader(ms)))
+            {
+                JsonSerializer serializer = new JsonSerializer();
+
+                deserializedLicense = serializer.Deserialize<LicenseDetails>(reader);
+            }
 
             byte[] data = deserializedLicense.GetSignificateData();
             byte[] signature = SubArray(licenseData, 0, 128);

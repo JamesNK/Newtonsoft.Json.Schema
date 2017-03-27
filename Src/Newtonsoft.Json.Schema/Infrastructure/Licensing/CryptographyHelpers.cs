@@ -23,10 +23,12 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Licensing
             bool valid;
 
 #if (NETSTANDARD1_3)
-            RSA rsa = RSA.Create();
-            rsa.ImportParameters(ToRSAParameters(Convert.FromBase64String(PublicKeyCsp), false));
+            using (RSA rsa = RSA.Create())
+            {
+                rsa.ImportParameters(ToRSAParameters(Convert.FromBase64String(PublicKeyCsp), false));
 
-            valid = rsa.VerifyData(data, signature, HashAlgorithmName.SHA1, RSASignaturePadding.Pkcs1);
+                valid = rsa.VerifyData(data, signature, HashAlgorithmName.SHA1, RSASignaturePadding.Pkcs1);
+            }
 #elif (PORTABLE && !NETSTANDARD1_3)
             try
             {
@@ -35,11 +37,13 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Licensing
                 MethodInfo verifyDataMethod = rsaCryptoServiceProviderType.GetTypeInfo().GetDeclaredMethod("VerifyData");
                 Type sha1CryptoServiceProviderType = Type.GetType("System.Security.Cryptography.SHA1CryptoServiceProvider");
 
-                object rsaCryptoServiceProvider = Activator.CreateInstance(rsaCryptoServiceProviderType);
+                using (IDisposable rsaCryptoServiceProvider = (IDisposable) Activator.CreateInstance(rsaCryptoServiceProviderType))
+                using (IDisposable sha1CryptoServiceProvider = (IDisposable) Activator.CreateInstance(sha1CryptoServiceProviderType))
+                {
+                    importCspBlobMethod.Invoke(rsaCryptoServiceProvider, new object[] { Convert.FromBase64String(PublicKeyCsp) });
 
-                importCspBlobMethod.Invoke(rsaCryptoServiceProvider, new object[] { Convert.FromBase64String(PublicKeyCsp) });
-
-                valid = (bool)verifyDataMethod.Invoke(rsaCryptoServiceProvider, new object[] { data, Activator.CreateInstance(sha1CryptoServiceProviderType), signature });
+                    valid = (bool) verifyDataMethod.Invoke(rsaCryptoServiceProvider, new object[] { data, sha1CryptoServiceProvider, signature });
+                }
             }
             catch (InvalidOperationException)
             {
@@ -62,13 +66,16 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Licensing
                 object dataBuffer = createFromByteArrayMethod.Invoke(null, new object[] { data });
                 object signatureBuffer = createFromByteArrayMethod.Invoke(null, new object[] { signature });
 
-                valid = (bool)verifySignatureMethod.Invoke(null, new object[] { publicKey, dataBuffer, signatureBuffer });
+                valid = (bool) verifySignatureMethod.Invoke(null, new object[] { publicKey, dataBuffer, signatureBuffer });
             }
 #else
-            RSACryptoServiceProvider rsaCryptoServiceProvider = new RSACryptoServiceProvider();
-            rsaCryptoServiceProvider.ImportCspBlob(Convert.FromBase64String(PublicKeyCsp));
+            using (RSACryptoServiceProvider rsaCryptoServiceProvider = new RSACryptoServiceProvider())
+            using (SHA1CryptoServiceProvider sha1CryptoServiceProvider = new SHA1CryptoServiceProvider())
+            {
+                rsaCryptoServiceProvider.ImportCspBlob(Convert.FromBase64String(PublicKeyCsp));
 
-            valid = rsaCryptoServiceProvider.VerifyData(data, new SHA1CryptoServiceProvider(), signature);
+                valid = rsaCryptoServiceProvider.VerifyData(data, sha1CryptoServiceProvider, signature);
+            }
 #endif
 
             return valid;
