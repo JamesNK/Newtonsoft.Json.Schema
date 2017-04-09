@@ -49,9 +49,9 @@ task Clean {
   
   if (Test-Path -path $workingDir)
   {
-    Write-Output "Deleting Working Directory"
+    Write-Host "Deleting existing working directory $workingDir"
     
-    del $workingDir -Recurse -Force
+    Execute-Command -command { del $workingDir -Recurse -Force }
   }
   
   Write-Host "Creating working directory $workingDir"
@@ -70,7 +70,7 @@ task Build -depends Clean {
 
   $script:msBuildPath = GetMsBuildPath
   Write-Host "MSBuild path $script:msBuildPath"
-  
+
   Write-Host "Copying source to working source directory $workingSourceDir"
   robocopy $sourceDir $workingSourceDir /MIR /NP /XD bin obj TestResults AppPackages .vs artifacts /XF *.suo *.user *.lock.json | Out-Default
   Copy-Item -Path $baseDir\LICENSE.md -Destination $workingDir\
@@ -141,7 +141,7 @@ task Package -depends Build {
   Copy-Item -Path $docDir\license.txt -Destination $workingDir\Package\
 
   robocopy $workingSourceDir $workingDir\Package\Source\Src /MIR /NFL /NDL /NJS /NC /NS /NP /XD bin obj TestResults AppPackages .vs artifacts /XF *.suo *.user *.lock.json | Out-Default
-  robocopy $buildDir $workingDir\Package\Source\Build /MIR /NFL /NDL /NJS /NC /NS /NP /XD Temp /XF runbuild.txt | Out-Default
+  robocopy $buildDir $workingDir\Package\Source\Build /MIR /NFL /NDL /NJS /NC /NS /NP /XD Temp | Out-Default
   robocopy $docDir $workingDir\Package\Source\Doc /MIR /NFL /NDL /NJS /NC /NS /NP | Out-Default
   robocopy $toolsDir $workingDir\Package\Source\Tools /MIR /NFL /NDL /NJS /NC /NS /NP | Out-Default
   
