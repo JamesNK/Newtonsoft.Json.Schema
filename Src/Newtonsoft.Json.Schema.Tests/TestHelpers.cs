@@ -45,8 +45,7 @@ namespace Newtonsoft.Json.Schema.Tests
         public static string ResolveFilePath(string name)
         {
 #if !DNXCORE50
-            string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-            string path = Path.Combine(baseDirectory, name);
+            string path = Path.Combine(NUnit.Framework.TestContext.CurrentContext.TestDirectory, name);
 #else
             string path = Path.GetFullPath(name);
 #endif

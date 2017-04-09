@@ -2317,7 +2317,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
 #if !DNXCORE50
         [Test]
-        [Ignore]
+        [Ignore("WIP")]
         public void DateFormat()
         {
             string schemaJson = "{\"type\":\"object\",\"properties\":{\"DueDate\":{\"required\":true,\"type\":\"string\",\"format\":\"date\"},\"DateCompleted\":{\"required\":true,\"type\":\"string\",\"format\":\"date-time\"}}}";

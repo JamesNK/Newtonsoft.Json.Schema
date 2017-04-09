@@ -61,6 +61,15 @@ namespace Newtonsoft.Json.Schema.Tests
         {
             return @"@""" + json.Replace(@"""", @"""""") + @"""";
         }
+
+        public static string ResolvePath(string path)
+        {
+#if !DNXCORE50
+            return Path.Combine(TestContext.CurrentContext.TestDirectory, path);
+#else
+            return path;
+#endif
+        }
     }
 
     public static class CustomAssert

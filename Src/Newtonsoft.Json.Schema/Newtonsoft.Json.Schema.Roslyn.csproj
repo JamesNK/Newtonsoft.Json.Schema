@@ -1,0 +1,55 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks Condition="'$(LibraryFrameworks)'==''">net45;net40;net35;netstandard1.3;portable-net45+win8+wpa81+wp8</TargetFrameworks>
+    <TargetFrameworks Condition="'$(LibraryFrameworks)'!=''">$(LibraryFrameworks)</TargetFrameworks>
+    <VersionPrefix>2.0.1</VersionPrefix>
+    <VersionSuffix></VersionSuffix>
+    <Authors>Newtonsoft</Authors>
+    <Company>Newtonsoft</Company>
+    <AssemblyTitle>Json.NET Schema</AssemblyTitle>
+    <Description>Json.NET Schema is a complete and easy-to-use JSON Schema framework for .NET</Description>
+    <Copyright>Copyright © Newtonsoft 2014</Copyright>
+    <Summary>Json.NET Schema is a complete and easy-to-use JSON Schema framework for .NET</Summary>
+    <NeutralLanguage>en-US</NeutralLanguage>
+    <PackageId>Newtonsoft.Json.Schema</PackageId>
+    <PackageTags>json;schema;jsonschema</PackageTags>
+    <PackageIconUrl>http://www.newtonsoft.com/content/images/nugeticon.png</PackageIconUrl>
+    <PackageProjectUrl>http://www.newtonsoft.com/jsonschema</PackageProjectUrl>
+    <PackageLicenseUrl>https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md</PackageLicenseUrl>
+    <RepositoryUrl>https://github.com/JamesNK/Newtonsoft.Json.Schema</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <RootNamespace>Newtonsoft.Json.Schema</RootNamespace>
+    <AssemblyName>Newtonsoft.Json.Schema</AssemblyName>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <NetStandardImplicitPackageVersion>1.6.1</NetStandardImplicitPackageVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json.Unsigned" Version="10.0.2" />
+    <EmbeddedResource Include="Resources\*.json" />
+    <None Include="..\..\LICENSE.md" Pack="true" PackagePath="LICENSE.md" />
+  </ItemGroup>
+  <PropertyGroup Condition="'$(TargetFramework)'=='net45'">
+    <DefineConstants>$(AdditionalConstants)</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)'=='net40'">
+    <DefineConstants>NET40;$(AdditionalConstants)</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)'=='net35'">
+    <DefineConstants>NET35;$(AdditionalConstants)</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.3'">
+    <PackageReference Include="System.Net.Requests" Version="4.3.0" />
+  </ItemGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.3'">
+    <DefineConstants>NETSTANDARD1_3;PORTABLE;$(AdditionalConstants)</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'portable-net45+win8+wpa81+wp8'">
+    <DefineConstants>PORTABLE;$(AdditionalConstants)</DefineConstants>
+    <TargetFrameworkIdentifier>.NETPortable</TargetFrameworkIdentifier>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Profile259</TargetFrameworkProfile>
+    <NugetTargetMoniker>.NETPortable,Version=v0.0,Profile=Profile259</NugetTargetMoniker>
+    <LanguageTargets>$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets</LanguageTargets>
+  </PropertyGroup>
+</Project>

@@ -125,9 +125,9 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(schemaSpecTest.IsValid, isValid, schemaSpecTest.TestCaseDescription + " - " + schemaSpecTest.TestDescription + " - errors: " + StringHelpers.Join(", ", errorMessages));
         }
 
-        private IList<SchemaSpecTest> _specTests;
+        private static IList<SchemaSpecTest> _specTests;
 
-        public IList<SchemaSpecTest> GetSpecTestDetails()
+        public static IList<SchemaSpecTest> GetSpecTestDetails()
         {
             if (_specTests != null)
             {
@@ -138,7 +138,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             // get test files location relative to the test project dll
             string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-            string baseTestPath = Path.Combine(baseDirectory, Path.Combine("Specs", "tests")) + @"\";
+            string baseTestPath = ResolvePath(Path.Combine("Specs", "tests")) + @"\";
 
             string[] testFiles = Directory.GetFiles(baseTestPath, "*.json", SearchOption.AllDirectories);
 

@@ -15,6 +15,7 @@ using Assert = Newtonsoft.Json.Schema.Tests.XUnitAssert;
 #else
 using NUnit.Framework;
 #endif
+using CultureNotFoundException = System.Exception;
 
 namespace Newtonsoft.Json.Schema.Tests.Documentation.Samples.Validate
 {

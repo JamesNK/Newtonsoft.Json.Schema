@@ -691,7 +691,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 
 #if !DNXCORE50
         [Test]
-        [Ignore]
+        [Ignore("WIP")]
         public void ReferenceToNestedSchemaWithIdInResolvedSchema_ExtensionData()
         {
             JSchema nested = new JSchema();
