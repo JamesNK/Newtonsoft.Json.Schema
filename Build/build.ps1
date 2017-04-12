@@ -30,7 +30,7 @@
   $nunitConsolePath = "$buildDir\Temp\NUnit.ConsoleRunner.$nunitConsoleVersion"
 
   $builds = @(
-    @{Framework = "netstandard1.3"; TestsFunction = "NetCliTests"; TestFramework = "netcoreapp1.1"; Enabled=$signAssemblies}
+    @{Framework = "netstandard1.3"; TestsFunction = "NetCliTests"; TestFramework = "netcoreapp1.1"; Enabled=$true}
     @{Framework = "net45"; TestsFunction = "NUnitTests"; NUnitFramework="net-4.0"; Enabled=$true},
     @{Framework = "net40"; TestsFunction = "NUnitTests"; NUnitFramework="net-4.0"; Enabled=$true},
     @{Framework = "net35"; TestsFunction = "NUnitTests"; NUnitFramework="net-2.0"; Enabled=$true},
@@ -60,7 +60,7 @@ task Clean {
 
 # Build each solution, optionally signed
 task Build -depends Clean {
-  $script:enabledBuilds = $builds | ? {$_.Enabled}
+  $script:enabledBuilds = $builds | ? {$_.Enabled} | ? {$signAssemblies -or $_.TestsFunction -ne "NetCliTests"}
   Write-Host -ForegroundColor Green "Found $($script:enabledBuilds.Length) enabled builds"
 
   mkdir "$buildDir\Temp" -Force
