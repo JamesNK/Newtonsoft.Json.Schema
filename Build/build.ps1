@@ -325,3 +325,25 @@ function Edit-XmlNodes {
         }
     }
 }
+
+function Execute-Command($command) {
+    $currentRetry = 0
+    $success = $false
+    do {
+        try
+        {
+            & $command
+            $success = $true
+        }
+        catch [System.Exception]
+        {
+            if ($currentRetry -gt 5) {
+                throw $_.Exception.ToString()
+            } else {
+                write-host "Retry $currentRetry"
+                Start-Sleep -s 1
+            }
+            $currentRetry = $currentRetry + 1
+        }
+    } while (!$success)
+}
