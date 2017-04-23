@@ -50,6 +50,15 @@ namespace Newtonsoft.Json.Schema.Tests
             [System.ComponentModel.Description("This is prop2!")]
             public string Prop2 { get; set; }
             public string Prop3 { get; set; }
+            [System.ComponentModel.Description("This is prop4!")]
+            public DescriptionChild Prop4 { get; set; }
+            public DescriptionChild Prop5 { get; set; }
+        }
+
+        [System.ComponentModel.Description("This is child!")]
+        public class DescriptionChild
+        {
+            
         }
 
         [Test]
@@ -62,7 +71,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             Assert.AreEqual(JSchemaType.Object, schema.Type);
             Assert.AreEqual("Title!", schema.Title);
-            Assert.AreEqual(3, schema.Properties.Count);
+            Assert.AreEqual(5, schema.Properties.Count);
 
             Assert.AreEqual(JSchemaType.String | JSchemaType.Null, schema.Properties["Prop1"].Type);
             Assert.AreEqual("This is prop1!", schema.Properties["Prop1"].Description);
@@ -72,6 +81,12 @@ namespace Newtonsoft.Json.Schema.Tests
 
             Assert.AreEqual(JSchemaType.String | JSchemaType.Null, schema.Properties["Prop3"].Type);
             Assert.AreEqual(null, schema.Properties["Prop3"].Description);
+
+            Assert.AreEqual(JSchemaType.Object | JSchemaType.Null, schema.Properties["Prop4"].Type);
+            Assert.AreEqual("This is prop4!", schema.Properties["Prop4"].Description);
+
+            Assert.AreEqual(JSchemaType.Object | JSchemaType.Null, schema.Properties["Prop5"].Type);
+            Assert.AreEqual("This is child!", schema.Properties["Prop5"].Description);
 
             DescriptionTestClass testObject = new DescriptionTestClass();
             JObject jObject = JObject.FromObject(testObject);

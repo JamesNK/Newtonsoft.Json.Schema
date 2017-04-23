@@ -113,13 +113,21 @@ namespace Newtonsoft.Json.Schema.Generation
         private TAttribute GetAttributeFromTypeOrProperty<TAttribute>(Type type, JsonProperty memberProperty)
             where TAttribute : Attribute
         {
-            TAttribute attribute = JsonTypeReflector.GetCachedAttribute<TAttribute>(type);
-            if (attribute == null && memberProperty != null)
+            TAttribute attribute = null;
+
+            // check for property attribute first
+            if (memberProperty != null)
             {
                 attribute = memberProperty.AttributeProvider
                     .GetAttributes(true)
                     .OfType<TAttribute>()
                     .FirstOrDefault();
+            }
+
+            // fall back to type attribute
+            if (attribute == null)
+            {
+                attribute = JsonTypeReflector.GetCachedAttribute<TAttribute>(type);
             }
 
             return attribute;
