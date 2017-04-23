@@ -28,6 +28,7 @@
     <Authors>Newtonsoft</Authors>
     <NeutralLanguage>en-US</NeutralLanguage>
     <Copyright>Copyright © Newtonsoft 2014</Copyright>
+    <RootNamespace>Newtonsoft.Json.Schema.Tests</RootNamespace>
     <AssemblyName>Newtonsoft.Json.Schema.Tests</AssemblyName>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <!-- Workaround for https://github.com/nunit/nunit3-vs-adapter/issues/296 -->

@@ -41,6 +41,43 @@ namespace Newtonsoft.Json.Schema.Tests
     [TestFixture]
     public class JSchemaGeneratorTests : TestFixtureBase
     {
+        public class FormatTestClass
+        {
+            public Uri UriProp { get; set; }
+            public Guid GuidProp { get; set; }
+            public DateTime DateTimeProp { get; set; }
+            public DateTimeOffset DateTimeOffsetProp { get; set; }
+        }
+
+        [Test]
+        public void GuidProperty()
+        {
+            JSchemaGenerator generator = new JSchemaGenerator
+            {
+                DefaultRequired = Required.AllowNull
+            };
+            JSchema schema = generator.Generate(typeof(FormatTestClass));
+
+            Assert.AreEqual(JSchemaType.Object, schema.Type);
+            Assert.AreEqual(4, schema.Properties.Count);
+
+            Assert.AreEqual(JSchemaType.String | JSchemaType.Null, schema.Properties["UriProp"].Type);
+            Assert.AreEqual("uri", schema.Properties["UriProp"].Format);
+
+            Assert.AreEqual(JSchemaType.String, schema.Properties["GuidProp"].Type);
+            Assert.AreEqual(null, schema.Properties["GuidProp"].Format);
+
+            Assert.AreEqual(JSchemaType.String, schema.Properties["DateTimeProp"].Type);
+            Assert.AreEqual("date-time", schema.Properties["DateTimeProp"].Format);
+
+            Assert.AreEqual(JSchemaType.String, schema.Properties["DateTimeOffsetProp"].Type);
+            Assert.AreEqual("date-time", schema.Properties["DateTimeOffsetProp"].Format);
+
+            FormatTestClass testObject = new FormatTestClass();
+            JObject jObject = JObject.FromObject(testObject);
+            jObject.Validate(schema);
+        }
+
         public class TestClass
         {
             public int Counter { get; set; }
@@ -784,10 +821,12 @@ namespace Newtonsoft.Json.Schema.Tests
       ]
     },
     ""BirthDate"": {
-      ""type"": ""string""
+      ""type"": ""string"",
+      ""format"": ""date-time""
     },
     ""LastModified"": {
-      ""type"": ""string""
+      ""type"": ""string"",
+      ""format"": ""date-time""
     }
   },
   ""required"": [
@@ -1041,110 +1080,6 @@ namespace Newtonsoft.Json.Schema.Tests
 
                 return c;
             }
-        }
-
-        [Test]
-        public void GenerateSchemaForDirectoryInfo()
-        {
-            JSchemaGenerator generator = new JSchemaGenerator();
-
-            generator.ContractResolver = new CustomDirectoryInfoMapper
-            {
-#if !(NETFX_CORE || PORTABLE || PORTABLE40 || DNXCORE50)
-                IgnoreSerializableAttribute = true
-#endif
-            };
-
-            JSchema schema = generator.Generate(typeof(DirectoryInfo), true);
-
-            string json = schema.ToString();
-
-            StringAssert.AreEqual(@"{
-  ""type"": [
-    ""object"",
-    ""null""
-  ],
-  ""additionalProperties"": false,
-  ""properties"": {
-    ""Name"": {
-      ""type"": [
-        ""string"",
-        ""null""
-      ]
-    },
-    ""Parent"": {
-      ""$ref"": ""#""
-    },
-    ""Exists"": {
-      ""type"": ""boolean""
-    },
-    ""FullName"": {
-      ""type"": [
-        ""string"",
-        ""null""
-      ]
-    },
-    ""Extension"": {
-      ""type"": [
-        ""string"",
-        ""null""
-      ]
-    },
-    ""CreationTime"": {
-      ""type"": ""string""
-    },
-    ""CreationTimeUtc"": {
-      ""type"": ""string""
-    },
-    ""LastAccessTime"": {
-      ""type"": ""string""
-    },
-    ""LastAccessTimeUtc"": {
-      ""type"": ""string""
-    },
-    ""LastWriteTime"": {
-      ""type"": ""string""
-    },
-    ""LastWriteTimeUtc"": {
-      ""type"": ""string""
-    },
-    ""Attributes"": {
-      ""type"": ""integer""
-    }
-  },
-  ""required"": [
-    ""Name"",
-    ""Parent"",
-    ""Exists"",
-    ""FullName"",
-    ""Extension"",
-    ""CreationTime"",
-    ""CreationTimeUtc"",
-    ""LastAccessTime"",
-    ""LastAccessTimeUtc"",
-    ""LastWriteTime"",
-    ""LastWriteTimeUtc"",
-    ""Attributes""
-  ]
-}", json);
-
-            DirectoryInfo temp = new DirectoryInfo(@"c:\temp");
-
-            JTokenWriter jsonWriter = new JTokenWriter();
-            JsonSerializer serializer = new JsonSerializer();
-            serializer.Converters.Add(new IsoDateTimeConverter());
-            serializer.ContractResolver = new CustomDirectoryInfoMapper
-            {
-#if !(NETFX_CORE || PORTABLE || PORTABLE40 || DNXCORE50)
-                IgnoreSerializableInterface = true
-#endif
-            };
-            serializer.Serialize(jsonWriter, temp);
-
-            List<string> errors = new List<string>();
-            jsonWriter.Token.Validate(schema, (sender, args) => errors.Add(args.Message));
-
-            Assert.AreEqual(0, errors.Count);
         }
 #endif
 

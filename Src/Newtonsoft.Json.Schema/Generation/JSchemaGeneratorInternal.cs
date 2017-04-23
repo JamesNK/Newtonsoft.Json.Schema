@@ -493,6 +493,20 @@ namespace Newtonsoft.Json.Schema.Generation
 
                 schema.Pattern = DataAnnotationHelpers.GetPattern(memberProperty);
                 schema.Format = DataAnnotationHelpers.GetFormat(memberProperty);
+
+                // no format specified, derive from type
+                if (schema.Format == null)
+                {
+                    if (contract.NonNullableUnderlyingType == typeof(DateTime)
+                        || contract.NonNullableUnderlyingType == typeof(DateTimeOffset))
+                    {
+                        schema.Format = Constants.Formats.DateTime;
+                    }
+                    else if (contract.NonNullableUnderlyingType == typeof(Uri))
+                    {
+                        schema.Format = Constants.Formats.Uri;
+                    }
+                }
             }
             if (JSchemaTypeHelpers.HasFlag(type, JSchemaType.Number) || JSchemaTypeHelpers.HasFlag(type, JSchemaType.Integer))
             {
