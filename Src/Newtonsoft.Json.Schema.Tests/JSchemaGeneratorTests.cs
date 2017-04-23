@@ -41,6 +41,44 @@ namespace Newtonsoft.Json.Schema.Tests
     [TestFixture]
     public class JSchemaGeneratorTests : TestFixtureBase
     {
+#if !PORTABLE
+        [JsonObject(Title = "Title!")]
+        public class DescriptionTestClass
+        {
+            [System.ComponentModel.Description("This is prop1!")]
+            public string Prop1 { get; set; }
+            [System.ComponentModel.Description("This is prop2!")]
+            public string Prop2 { get; set; }
+            public string Prop3 { get; set; }
+        }
+
+        [Test]
+        public void DescriptionTest()
+        {
+            JSchemaGenerator generator = new JSchemaGenerator();
+            JSchema schema = generator.Generate(typeof(DescriptionTestClass));
+
+            Console.WriteLine(schema.ToString());
+
+            Assert.AreEqual(JSchemaType.Object, schema.Type);
+            Assert.AreEqual("Title!", schema.Title);
+            Assert.AreEqual(3, schema.Properties.Count);
+
+            Assert.AreEqual(JSchemaType.String | JSchemaType.Null, schema.Properties["Prop1"].Type);
+            Assert.AreEqual("This is prop1!", schema.Properties["Prop1"].Description);
+
+            Assert.AreEqual(JSchemaType.String | JSchemaType.Null, schema.Properties["Prop2"].Type);
+            Assert.AreEqual("This is prop2!", schema.Properties["Prop2"].Description);
+
+            Assert.AreEqual(JSchemaType.String | JSchemaType.Null, schema.Properties["Prop3"].Type);
+            Assert.AreEqual(null, schema.Properties["Prop3"].Description);
+
+            DescriptionTestClass testObject = new DescriptionTestClass();
+            JObject jObject = JObject.FromObject(testObject);
+            jObject.Validate(schema);
+        }
+#endif
+
         public class FormatTestClass
         {
             public Uri UriProp { get; set; }
@@ -50,7 +88,7 @@ namespace Newtonsoft.Json.Schema.Tests
         }
 
         [Test]
-        public void GuidProperty()
+        public void DeriveFormatTest()
         {
             JSchemaGenerator generator = new JSchemaGenerator
             {
@@ -673,6 +711,8 @@ namespace Newtonsoft.Json.Schema.Tests
             [System.ComponentModel.DataAnnotations.RangeAttribute(5.5, 10.5)]
             public decimal DecimalProperty { get; set; }
 
+            public decimal DecimalPropertyNoAttribute { get; set; }
+
             [System.ComponentModel.DataAnnotations.RangeAttribute(0.5, 1.5)]
             public double DoubleProperty { get; set; }
         }
@@ -685,6 +725,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             JSchema integerProperty = schema.Properties["IntegerProperty"];
             JSchema decimalProperty = schema.Properties["DecimalProperty"];
+            JSchema decimalPropertyNoAttribute = schema.Properties["DecimalPropertyNoAttribute"];
             JSchema doubleProperty = schema.Properties["DoubleProperty"];
 
             Assert.AreEqual(JSchemaType.Integer, integerProperty.Type);
@@ -694,6 +735,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(JSchemaType.Number, decimalProperty.Type);
             Assert.AreEqual(5.5, decimalProperty.Minimum);
             Assert.AreEqual(10.5, decimalProperty.Maximum);
+
+            Assert.AreEqual(JSchemaType.Number, decimalPropertyNoAttribute.Type);
+            Assert.AreEqual(null, decimalPropertyNoAttribute.Minimum);
+            Assert.AreEqual(null, decimalPropertyNoAttribute.Maximum);
 
             Assert.AreEqual(JSchemaType.Number, doubleProperty.Type);
             Assert.AreEqual(0.5, doubleProperty.Minimum);

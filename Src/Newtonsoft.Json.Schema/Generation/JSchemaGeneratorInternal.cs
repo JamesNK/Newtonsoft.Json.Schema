@@ -110,9 +110,24 @@ namespace Newtonsoft.Json.Schema.Generation
             return schema;
         }
 
-        private string GetTitle(Type type)
+        private TAttribute GetAttributeFromTypeOrProperty<TAttribute>(Type type, JsonProperty memberProperty)
+            where TAttribute : Attribute
         {
-            JsonContainerAttribute containerAttribute = JsonTypeReflector.GetCachedAttribute<JsonContainerAttribute>(type);
+            TAttribute attribute = JsonTypeReflector.GetCachedAttribute<TAttribute>(type);
+            if (attribute == null && memberProperty != null)
+            {
+                attribute = memberProperty.AttributeProvider
+                    .GetAttributes(true)
+                    .OfType<TAttribute>()
+                    .FirstOrDefault();
+            }
+
+            return attribute;
+        }
+
+        private string GetTitle(Type type, JsonProperty memberProperty)
+        {
+            JsonContainerAttribute containerAttribute = GetAttributeFromTypeOrProperty<JsonContainerAttribute>(type, memberProperty);
 
             if (!string.IsNullOrEmpty(containerAttribute?.Title))
             {
@@ -122,17 +137,17 @@ namespace Newtonsoft.Json.Schema.Generation
             return null;
         }
 
-        private string GetDescription(Type type)
+        private string GetDescription(Type type, JsonProperty memberProperty)
         {
-            JsonContainerAttribute containerAttribute = JsonTypeReflector.GetCachedAttribute<JsonContainerAttribute>(type);
+            JsonContainerAttribute containerAttribute = GetAttributeFromTypeOrProperty<JsonContainerAttribute>(type, memberProperty);
 
             if (!string.IsNullOrEmpty(containerAttribute?.Description))
             {
                 return containerAttribute.Description;
             }
 
-#if !(NETFX_CORE || PORTABLE40 || PORTABLE)
-            DescriptionAttribute descriptionAttribute = ReflectionUtils.GetAttribute<DescriptionAttribute>(type);
+#if !(PORTABLE40 || PORTABLE)
+            DescriptionAttribute descriptionAttribute = GetAttributeFromTypeOrProperty<DescriptionAttribute>(type, memberProperty);
             return descriptionAttribute?.Description;
 #else
             return null;
@@ -324,10 +339,12 @@ namespace Newtonsoft.Json.Schema.Generation
             }
         }
 
-        private static TypeSchemaKey CreateKey(Required valueRequired, JsonProperty memberProperty, JsonContract contract)
+        private TypeSchemaKey CreateKey(Required valueRequired, JsonProperty memberProperty, JsonContract contract)
         {
             int? minLength = DataAnnotationHelpers.GetMinLength(memberProperty);
             int? maxLength = DataAnnotationHelpers.GetMaxLength(memberProperty);
+            string title = GetTitle(contract.NonNullableUnderlyingType, memberProperty);
+            string description = GetDescription(contract.NonNullableUnderlyingType, memberProperty);
 
             Required resolvedRequired;
             switch (valueRequired)
@@ -344,15 +361,15 @@ namespace Newtonsoft.Json.Schema.Generation
                     throw new ArgumentOutOfRangeException(nameof(valueRequired));
             }
 
-            TypeSchemaKey key = new TypeSchemaKey(contract.UnderlyingType, resolvedRequired, minLength, maxLength);
+            TypeSchemaKey key = new TypeSchemaKey(contract.UnderlyingType, resolvedRequired, minLength, maxLength, title, description);
 
             return key;
         }
 
         private void PopulateSchema(JSchema schema, JsonContract contract, JsonProperty memberProperty, Required valueRequired)
         {
-            schema.Title = GetTitle(contract.NonNullableUnderlyingType);
-            schema.Description = GetDescription(contract.NonNullableUnderlyingType);
+            schema.Title = GetTitle(contract.NonNullableUnderlyingType, memberProperty);
+            schema.Description = GetDescription(contract.NonNullableUnderlyingType, memberProperty);
 
             JsonConverter converter;
             if (contract.Converter != null && contract.Converter.CanWrite)
