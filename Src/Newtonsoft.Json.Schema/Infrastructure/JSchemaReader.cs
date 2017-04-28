@@ -289,7 +289,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             {
                 // additional json copied to referenced schema
                 // kind of hacky
-                if (deferedSchema.ReferenceSchema._extensionData != null)
+                if (s != deferedSchema.ReferenceSchema && deferedSchema.ReferenceSchema._extensionData != null)
                 {
                     foreach (KeyValuePair<string, JToken> keyValuePair in deferedSchema.ReferenceSchema._extensionData)
                     {
