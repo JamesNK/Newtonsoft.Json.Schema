@@ -10,7 +10,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Web.Script.Serialization;
 using Newtonsoft.Json.Schema.Tests;
 
 namespace Newtonsoft.Json.Schema.TestConsole

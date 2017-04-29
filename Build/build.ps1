@@ -8,7 +8,7 @@
   $signAssemblies = $false
   $signKeyPath = "C:\Development\Releases\newtonsoft.snk"
   $buildDocumentation = $false
-  $buildNuGet = $true
+  $buildNuGet = $false
   $treatWarningsAsErrors = $false
   $workingName = if ($workingName) {$workingName} else {"Working"}
   $netCliVersion = "1.0.0"
@@ -79,7 +79,7 @@ task Build -depends Clean {
   Write-Host
   Update-AssemblyInfoFiles $workingSourceDir ($majorVersion + '.0.0') $version
 
-  $xml = [xml](Get-Content "$workingSourceDir\Newtonsoft.Json.Schema\Newtonsoft.Json.Schema.Roslyn.csproj")
+  $xml = [xml](Get-Content "$workingSourceDir\Newtonsoft.Json.Schema\Newtonsoft.Json.Schema.csproj")
   Edit-XmlNodes -doc $xml -xpath "/Project/PropertyGroup/PackageId" -value $packageId
   Edit-XmlNodes -doc $xml -xpath "/Project/PropertyGroup/VersionPrefix" -value $majorWithReleaseVersion
   Edit-XmlNodes -doc $xml -xpath "/Project/PropertyGroup/VersionSuffix" -value $nugetPrerelease
@@ -87,7 +87,7 @@ task Build -depends Clean {
   {
     Edit-XmlNodes -doc $xml -xpath "/Project/ItemGroup/PackageReference[@Include = 'Newtonsoft.Json.Unsigned']/@Include" -value "Newtonsoft.Json"
   }
-  $xml.save("$workingSourceDir\Newtonsoft.Json.Schema\Newtonsoft.Json.Schema.Roslyn.csproj")
+  $xml.save("$workingSourceDir\Newtonsoft.Json.Schema\Newtonsoft.Json.Schema.csproj")
 
   NetCliBuild
 }
@@ -114,7 +114,7 @@ task Package -depends Build {
 
     $targetFrameworks = ($script:enabledBuilds | Select-Object @{Name="Framework";Expression={$_.Framework}} | select -expand Framework) -join ";"
 
-    exec { & $script:msBuildPath "/t:pack" "/p:IncludeSource=true" "/p:Configuration=Release" "/p:TargetFrameworks=`"$targetFrameworks`"" "$workingSourceDir\Newtonsoft.Json.Schema\Newtonsoft.Json.Schema.Roslyn.csproj" }
+    exec { & $script:msBuildPath "/t:pack" "/p:IncludeSource=true" "/p:Configuration=Release" "/p:TargetFrameworks=`"$targetFrameworks`"" "$workingSourceDir\Newtonsoft.Json.Schema\Newtonsoft.Json.Schema.csproj" }
 
     mkdir $workingDir\NuGet
     move -Path $workingSourceDir\Newtonsoft.Json.Schema\bin\Release\*.nupkg -Destination $workingDir\NuGet
@@ -164,7 +164,7 @@ task Test -depends Deploy {
 
 function NetCliBuild()
 {
-  $projectPath = "$workingSourceDir\Newtonsoft.Json.Schema.Roslyn.sln"
+  $projectPath = "$workingSourceDir\Newtonsoft.Json.Schema.sln"
   $libraryFrameworks = ($script:enabledBuilds | Select-Object @{Name="Framework";Expression={$_.Framework}} | select -expand Framework) -join ";"
   $testFrameworks = ($script:enabledBuilds | Select-Object @{Name="Resolved";Expression={if ($_.TestFramework -ne $null) { $_.TestFramework } else { $_.Framework }}} | select -expand Resolved) -join ";"
 
@@ -209,7 +209,7 @@ function GetMsBuildPath()
 
 function NetCliTests($build)
 {
-  $projectPath = "$workingSourceDir\Newtonsoft.Json.Schema.Tests\Newtonsoft.Json.Schema.Tests.Roslyn.csproj"
+  $projectPath = "$workingSourceDir\Newtonsoft.Json.Schema.Tests\Newtonsoft.Json.Schema.Tests.csproj"
   $location = "$workingSourceDir\Newtonsoft.Json.Schema.Tests"
   $testDir = if ($build.TestFramework -ne $null) { $build.TestFramework } else { $build.Framework }
 

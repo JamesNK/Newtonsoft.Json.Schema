@@ -1,153 +1,55 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{959F7F85-C98B-4876-971A-9036224578E4}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <TargetFrameworks Condition="'$(LibraryFrameworks)'==''">net45;net40;net35;netstandard1.3;portable-net45+win8+wpa81+wp8</TargetFrameworks>
+    <TargetFrameworks Condition="'$(LibraryFrameworks)'!=''">$(LibraryFrameworks)</TargetFrameworks>
+    <VersionPrefix>2.0.1</VersionPrefix>
+    <VersionSuffix></VersionSuffix>
+    <Authors>Newtonsoft</Authors>
+    <Company>Newtonsoft</Company>
+    <AssemblyTitle>Json.NET Schema</AssemblyTitle>
+    <Description>Json.NET Schema is a complete and easy-to-use JSON Schema framework for .NET</Description>
+    <Copyright>Copyright © Newtonsoft 2014</Copyright>
+    <Summary>Json.NET Schema is a complete and easy-to-use JSON Schema framework for .NET</Summary>
+    <NeutralLanguage>en-US</NeutralLanguage>
+    <PackageId>Newtonsoft.Json.Schema</PackageId>
+    <PackageTags>json;schema;jsonschema</PackageTags>
+    <PackageIconUrl>http://www.newtonsoft.com/content/images/nugeticon.png</PackageIconUrl>
+    <PackageProjectUrl>http://www.newtonsoft.com/jsonschema</PackageProjectUrl>
+    <PackageLicenseUrl>https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md</PackageLicenseUrl>
+    <RepositoryUrl>https://github.com/JamesNK/Newtonsoft.Json.Schema</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
     <RootNamespace>Newtonsoft.Json.Schema</RootNamespace>
     <AssemblyName>Newtonsoft.Json.Schema</AssemblyName>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <NetStandardImplicitPackageVersion>1.6.1</NetStandardImplicitPackageVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json.Unsigned" Version="10.0.2" />
+    <EmbeddedResource Include="Resources\*.json" />
+    <None Include="..\..\LICENSE.md" Pack="true" PackagePath="LICENSE.md" />
+  </ItemGroup>
+  <PropertyGroup Condition="'$(TargetFramework)'=='net45'">
+    <DefineConstants>$(AdditionalConstants)</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)'=='net40'">
+    <DefineConstants>NET40;$(AdditionalConstants)</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)'=='net35'">
+    <DefineConstants>NET35;$(AdditionalConstants)</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.3'">
+    <PackageReference Include="System.Net.Requests" Version="4.3.0" />
+  </ItemGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.3'">
+    <DefineConstants>NETSTANDARD1_3;PORTABLE;$(AdditionalConstants)</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'portable-net45+win8+wpa81+wp8'">
+    <DefineConstants>PORTABLE;$(AdditionalConstants)</DefineConstants>
+    <TargetFrameworkIdentifier>.NETPortable</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile>Profile259</TargetFrameworkProfile>
+    <NugetTargetMoniker>.NETPortable,Version=v0.0,Profile=Profile259</NugetTargetMoniker>
+    <LanguageTargets>$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets</LanguageTargets>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\Net45</OutputPath>
-    <DefineConstants>DEBUG;TRACE;CODE_ANALYSIS</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <RunCodeAnalysis>true</RunCodeAnalysis>
-    <CodeAnalysisRuleSet>Newtonsoft.Json.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\Net45</OutputPath>
-    <DefineConstants>TRACE;CODE_ANALYSIS</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <RunCodeAnalysis>true</RunCodeAnalysis>
-    <CodeAnalysisRuleSet>Newtonsoft.Json.ruleset</CodeAnalysisRuleSet>
-    <DocumentationFile>bin\Release\Net45\Newtonsoft.Json.Schema.xml</DocumentationFile>
-  </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Numerics" />
-    <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.Xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="ErrorType.cs" />
-    <Compile Include="ExternalSchema.cs" />
-    <Compile Include="Generation\JSchemaGeneratorProxy.cs" />
-    <Compile Include="Infrastructure\CollectionHelpers.cs" />
-    <Compile Include="Infrastructure\DeferedSchemaCollection.cs" />
-    <Compile Include="Infrastructure\KnownSchemaCollection.cs" />
-    <Compile Include="JSchemaWriterReferenceHandling.cs" />
-    <Compile Include="JsonValidator.cs" />
-    <Compile Include="Generation\JSchemaGeneratorInternal.cs" />
-    <Compile Include="Generation\JSchemaTypeGenerationContext.cs" />
-    <Compile Include="Generation\SchemaPropertyOrderHandling.cs" />
-    <Compile Include="Generation\SchemaLocationHandling.cs" />
-    <Compile Include="Generation\SchemaReferenceHandling.cs" />
-    <Compile Include="Infrastructure\Collections\JSchemaCollection.cs" />
-    <Compile Include="Infrastructure\Collections\JSchemaDependencyDictionary.cs" />
-    <Compile Include="Infrastructure\ColorHelpers.cs" />
-    <Compile Include="Infrastructure\Collections\DictionaryBase.cs" />
-    <Compile Include="Infrastructure\EnumHelpers.cs" />
-    <Compile Include="Infrastructure\JSchemaConverter.cs" />
-    <Compile Include="Infrastructure\Collections\JSchemaDictionary.cs" />
-    <Compile Include="Infrastructure\Licensing\CryptographyHelpers.cs" />
-    <Compile Include="Infrastructure\DataAnnotationHelpers.cs" />
-    <Compile Include="Infrastructure\EmailHelpers.cs" />
-    <Compile Include="Infrastructure\JSchemaTypeHelpers.cs" />
-    <Compile Include="Infrastructure\JsonTokenHelpers.cs" />
-    <Compile Include="Infrastructure\Licensing\LicenseDetails.cs" />
-    <Compile Include="Infrastructure\Licensing\LicenseHelpers.cs" />
-    <Compile Include="Infrastructure\Licensing\LicenseType.cs" />
-    <Compile Include="Infrastructure\Licensing\ReleaseDateAttribute.cs" />
-    <Compile Include="Infrastructure\JTokenPathAnnotation.cs" />
-    <Compile Include="Infrastructure\Collections\JSchemaPatternDictionary.cs" />
-    <Compile Include="Infrastructure\RegexHelpers.cs" />
-    <Compile Include="Infrastructure\StreamHelpers.cs" />
-    <Compile Include="Infrastructure\StringHelpers.cs" />
-    <Compile Include="Infrastructure\Timer.cs" />
-    <Compile Include="Infrastructure\MathHelpers.cs" />
-    <Compile Include="JSchemaReaderException.cs" />
-    <Compile Include="JSchemaReaderSettings.cs" />
-    <Compile Include="JSchemaValidationException.cs" />
-    <Compile Include="ResolveSchemaContext.cs" />
-    <Compile Include="Infrastructure\UriComparer.cs" />
-    <Compile Include="SchemaReference.cs" />
-    <Compile Include="ValidationError.cs" />
-    <Compile Include="JSchema.cs" />
-    <Compile Include="Generation\JSchemaGenerationProviderAttribute.cs" />
-    <Compile Include="Generation\JSchemaGenerator.cs" />
-    <Compile Include="Generation\JSchemaGenerationProvider.cs" />
-    <Compile Include="JSchemaResolver.cs" />
-    <Compile Include="JSchemaUrlResolver.cs" />
-    <Compile Include="JSchemaValidatingReader.cs" />
-    <Compile Include="JSchemaValidatingWriter.cs" />
-    <Compile Include="JSchemaWriterSettings.cs" />
-    <Compile Include="JSchemaPreloadedResolver.cs" />
-    <Compile Include="License.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SchemaExtensions.cs" />
-    <Compile Include="Infrastructure\Constants.cs" />
-    <Compile Include="JSchemaException.cs" />
-    <Compile Include="JSchemaType.cs" />
-    <Compile Include="Generation\SchemaIdGenerationHandling.cs" />
-    <Compile Include="SchemaValidationEventArgs.cs" />
-    <Compile Include="SchemaValidationEventHandler.cs" />
-    <Compile Include="Infrastructure\DeferedSchema.cs" />
-    <Compile Include="Infrastructure\JSchemaDummyResolver.cs" />
-    <Compile Include="Infrastructure\Discovery\JSchemaDiscovery.cs" />
-    <Compile Include="Infrastructure\Discovery\KnownSchema.cs" />
-    <Compile Include="Infrastructure\Discovery\KnownSchemaState.cs" />
-    <Compile Include="Infrastructure\Discovery\SchemaPath.cs" />
-    <Compile Include="Infrastructure\Validation\ConditionalContext.cs" />
-    <Compile Include="Infrastructure\Validation\ConditionalScope.cs" />
-    <Compile Include="Infrastructure\Validation\OneOfScope.cs" />
-    <Compile Include="Infrastructure\Validation\AnyOfScope.cs" />
-    <Compile Include="Infrastructure\Validation\NotScope.cs" />
-    <Compile Include="Infrastructure\Validation\AllOfScope.cs" />
-    <Compile Include="Infrastructure\Validation\ArrayScope.cs" />
-    <Compile Include="Infrastructure\Validation\ContextBase.cs" />
-    <Compile Include="Infrastructure\Validation\ObjectScope.cs" />
-    <Compile Include="Infrastructure\Validation\PrimativeScope.cs" />
-    <Compile Include="Infrastructure\Validation\SchemaScope.cs" />
-    <Compile Include="Infrastructure\Validation\Scope.cs" />
-    <Compile Include="Infrastructure\Validation\ValidatorContext.cs" />
-    <Compile Include="Infrastructure\Discovery\SchemaDiscovery.cs" />
-    <Compile Include="Infrastructure\WebRequestDownloader.cs" />
-    <Compile Include="Infrastructure\JSchemaWriter.cs" />
-    <Compile Include="Infrastructure\JSchemaReader.cs" />
-    <Compile Include="Infrastructure\IDownloader.cs" />
-    <Compile Include="Infrastructure\JSchemaAnnotation.cs" />
-    <Compile Include="Infrastructure\Validation\Validator.cs" />
-    <Compile Include="Generation\StringEnumGenerationProvider.cs" />
-    <Compile Include="Generation\TypeSchema.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\schema-draft-v3.json" />
-    <EmbeddedResource Include="Resources\schema-draft-v4.json" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Newtonsoft.Json.Schema.project.json" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>

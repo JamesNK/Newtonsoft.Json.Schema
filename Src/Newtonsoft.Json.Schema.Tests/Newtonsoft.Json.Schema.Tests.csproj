@@ -1,506 +1,100 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--Required for https://github.com/dotnet/roslyn-project-system/issues/1386--> 
+  <!--<Target Name="WorkAroundPackageAndProjectReferenceConflict" BeforeTargets="ResolveLockFileReferences">
+    <ItemGroup>
+      <ResolvedCompileFileDefinitions Remove="@(ResolvedCompileFileDefinitions)" Condition="'%(ResolvedCompileFileDefinitions.FileName)' == 'Newtonsoft.Json'" />
+    </ItemGroup>
+    <Message Text="FileName: %(ResolvedCompileFileDefinitions.FileName)" Importance="high" />
+    <Message Text="ProjectPath: %(PackageDependencies.ProjectPath)" Importance="high" />
+
+    <Message Text="NuGetPackageId: @(PackageDependencies)" Importance="high" />
+    <Message Text="PackageName: %(PackageDependencies.PackageName)" Importance="high" />
+    <Message Text="FileDependencies.asfd: %(FileDependencies.PackageName)" Importance="high" />
+    
+
+    <GetMetadataTask MyItemGroup="@(ResolvedCompileFileDefinitions)">
+      <Output TaskParameter="MetadataString" PropertyName="YourMetadataString" />
+    </GetMetadataTask>
+    <Message Text="NuGetPackageId: $(YourMetadataString)" />
+  </Target>-->
+
+  <!--<Target Name="TestMessage" BeforeTargets="Build">
+  </Target>--> 
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{3E6E2335-B079-4B5B-A65A-9D586914BCBB}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <TargetFrameworks Condition="'$(TestFrameworks)'==''">net45;net451;net40;net35</TargetFrameworks>
+    <TargetFrameworks Condition="'$(TestFrameworks)'!=''">$(TestFrameworks)</TargetFrameworks>
+    <VersionPrefix>1.0</VersionPrefix>
+    <Authors>Newtonsoft</Authors>
+    <NeutralLanguage>en-US</NeutralLanguage>
+    <Copyright>Copyright © Newtonsoft 2014</Copyright>
     <RootNamespace>Newtonsoft.Json.Schema.Tests</RootNamespace>
     <AssemblyName>Newtonsoft.Json.Schema.Tests</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\Net45</OutputPath>
-    <DefineConstants>DEBUG;TRACE;CODE_ANALYSIS</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\Net45</OutputPath>
-    <DefineConstants>TRACE;CODE_ANALYSIS</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <!-- Workaround for https://github.com/nunit/nunit3-vs-adapter/issues/296 -->
+    <DebugType Condition="'$(TargetFramework)' != '' AND '$(TargetFramework)' != 'netcoreapp1.1'">Full</DebugType>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.Core" />
+    <!-- Tracking for removal https://github.com/Microsoft/vstest/issues/472 -->
+    <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
+    <None Remove="**\*.orig" />
+    <None Include="Resources\**\*.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Specs\**\*.json" CopyToOutputDirectory="PreserveNewest" />
+
+    <ProjectReference Include="..\Newtonsoft.Json.Schema\Newtonsoft.Json.Schema.csproj" />
+  </ItemGroup>
+  
+  <ItemGroup Condition="'$(TargetFramework)'=='net45'">
+    <PackageReference Include="NUnit" Version="3.6.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.7.0" />
+    <PackageReference Include="BenchmarkDotNet" Version="0.10.2" />
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Numerics" />
-    <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.Xml" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Documentation\GeneratingSchemas.cs" />
-    <Compile Include="Documentation\LoadingSchemas.cs" />
-    <Compile Include="Documentation\Samples\Create\CreateJsonSchemaWithReferences.cs" />
-    <Compile Include="Documentation\Samples\Generation\CreateCustomProvider.cs" />
-    <Compile Include="Documentation\Samples\Generation\GenerateWithJsonNetAttributes.cs" />
-    <Compile Include="Documentation\Samples\Generation\GenerateWithProvider.cs" />
-    <Compile Include="Documentation\Samples\Generation\GenerateWithDataAnnotations.cs" />
-    <Compile Include="Documentation\Samples\Generation\GenerateWithSchemaIdGenerationHandling.cs" />
-    <Compile Include="Documentation\Samples\Generation\GenerateWithContractResolver.cs" />
-    <Compile Include="Documentation\Samples\Generation\GenerateSchema.cs" />
-    <Compile Include="Documentation\Samples\Load\JSchemaUrlResolverRelative.cs" />
-    <Compile Include="Documentation\Samples\Load\JSchemaUrlResolverHttp.cs" />
-    <Compile Include="Documentation\Samples\Validate\CustomJsonValidator.cs" />
-    <Compile Include="Documentation\Samples\Validate\JsonValidatingWriterAndSerializer.cs" />
-    <Compile Include="Documentation\Samples\Validate\JTokenIsValidWithValidationErrors.cs" />
-    <Compile Include="Documentation\PerformanceTests.cs" />
-    <Compile Include="Documentation\ValidatingJson.cs" />
-    <Compile Include="Documentation\Samples\Create\CreateJsonSchemaManually.cs" />
-    <Compile Include="Documentation\Samples\Create\SaveJsonSchemaToFile.cs" />
-    <Compile Include="Documentation\Samples\File.cs" />
-    <Compile Include="Documentation\Samples\Load\JsonSchemaParse.cs" />
-    <Compile Include="Documentation\Samples\Load\LoadJsonSchemaFromFile.cs" />
-    <Compile Include="Documentation\Samples\Load\RefJsonSchemaResolver.cs" />
-    <Compile Include="Documentation\Samples\Validate\JsonValidatingReaderAndSerializer.cs" />
-    <Compile Include="Documentation\Samples\Validate\JTokenIsValid.cs" />
-    <Compile Include="Documentation\Samples\Validate\JTokenIsValidWithMessages.cs" />
-    <Compile Include="Documentation\Samples\Validate\JTokenValidateWithEvent.cs" />
-    <Compile Include="Infrastructure\CryptographyHelpersTests.cs" />
-    <Compile Include="Infrastructure\MathHelpersTests.cs" />
-    <Compile Include="Infrastructure\EmailHelpersTests.cs" />
-    <Compile Include="Infrastructure\EnumHelpersTests.cs" />
-    <Compile Include="Infrastructure\JSchemaDiscoveryTests.cs" />
-    <Compile Include="Infrastructure\JSchemaUrlResolverTests.cs" />
-    <Compile Include="Infrastructure\JSchemaWriterTests.cs" />
-    <Compile Include="Infrastructure\LicenseHelpersTests.cs" />
-    <Compile Include="Infrastructure\NestedPreloadedResolver.cs" />
-    <Compile Include="Infrastructure\SerializationTests.cs" />
-    <Compile Include="Issues\Issue10Tests.cs" />
-    <Compile Include="Issues\Issue14Tests.cs" />
-    <Compile Include="Issues\Issue16Tests.cs" />
-    <Compile Include="Issues\Issue37Tests.cs" />
-    <Compile Include="Issues\Issue36Tests.cs" />
-    <Compile Include="Issues\Issue78Tests.cs" />
-    <Compile Include="Issues\Issue75Tests.cs" />
-    <Compile Include="Issues\Issue68Tests.cs" />
-    <Compile Include="Issues\Issue67Tests.cs" />
-    <Compile Include="Issues\Issue66Tests.cs" />
-    <Compile Include="Issues\Issue65Tests.cs" />
-    <Compile Include="Issues\Issue64Tests.cs" />
-    <Compile Include="Issues\Issue63Tests.cs" />
-    <Compile Include="Issues\Issue56Tests.cs" />
-    <Compile Include="Issues\Issue47Tests.cs" />
-    <Compile Include="Issues\Issue42Tests.cs" />
-    <Compile Include="Issues\Issue40Tests.cs" />
-    <Compile Include="Issues\Issue32Tests.cs" />
-    <Compile Include="Issues\Issue28Tests.cs" />
-    <Compile Include="Issues\Issue03Tests.cs" />
-    <Compile Include="Issues\Issue81Tests.cs" />
-    <Compile Include="JSchemaTests.cs" />
-    <Compile Include="JSchemaValidatingWriterTests.cs" />
-    <Compile Include="JSchemaSpecTests.cs" />
-    <Compile Include="JSchemaValidatingReaderTests.cs" />
-    <Compile Include="ExtensionsTests.cs" />
-    <Compile Include="Infrastructure\JSchemaReaderTests.cs" />
-    <Compile Include="JSchemaGeneratorTests.cs" />
-    <Compile Include="JsonValidatorTests.cs" />
-    <Compile Include="LicenseTests.cs" />
-    <Compile Include="PerformanceComparisonTests.cs" />
-    <Compile Include="PerformanceTests.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RealWorldTests.cs" />
-    <Compile Include="TestFixtureBase.cs" />
-    <Compile Include="TestHelpers.cs" />
-    <Compile Include="TestObjects\CircularReferenceClass.cs" />
-    <Compile Include="TestObjects\CircularReferenceWithIdClass.cs" />
-    <Compile Include="TestObjects\ClassWithArray.cs" />
-    <Compile Include="TestObjects\ClassWithGuid.cs" />
-    <Compile Include="TestObjects\DefaultValueAttributeTestClass.cs" />
-    <Compile Include="TestObjects\JsonPropertyWithHandlingValues.cs" />
-    <Compile Include="TestObjects\NullableDateTimeTestClass.cs" />
-    <Compile Include="TestObjects\Person.cs" />
-    <Compile Include="TestObjects\PersonRaw.cs" />
-    <Compile Include="TestObjects\Product.cs" />
-    <Compile Include="TestObjects\RequiredMembersClass.cs" />
-    <Compile Include="TestObjects\Store.cs" />
-    <Compile Include="TestObjects\StoreColor.cs" />
-    <Compile Include="TestObjects\UserNullable.cs" />
+  <PropertyGroup Condition="'$(TargetFramework)'=='net45'">
+    <DefineConstants>NET45;HAVE_BENCHMARKS;$(AdditionalConstants)</DefineConstants>
+  </PropertyGroup>
+  
+  <ItemGroup Condition="'$(TargetFramework)'=='net451'">
+    <PackageReference Include="NUnit" Version="3.6.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.7.0" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="Newtonsoft.Json.Schema.Tests.project.json" />
-    <None Include="Resources\Json\components-5levels.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Json\swagger-petstore.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Schemas\bower.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Schemas\bowerrc.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Schemas\chrome-manifest.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Schemas\chutzpah.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Schemas\coffeelint.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Schemas\component.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Schemas\components-10definitions.schema.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Schemas\composer.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Schemas\config.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Schemas\contribute.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Schemas\Custom\Folder With Spaces\root.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Schemas\Custom\Folder With Spaces\sub4.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Schemas\Custom\Folder With Spaces\sub6.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Schemas\Custom\obj_branch.schema.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Schemas\Custom\prop_see_also.schema.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Schemas\Custom\root_invalidnestedref.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Schemas\Custom\sub1.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Schemas\Custom\root.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Schemas\Custom\sub5.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Schemas\Custom\sub3.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Schemas\Custom\Sub\sub2.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Schemas\Custom\validator1.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Schemas\epr-manifest.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Schemas\global.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Schemas\grunt-clean-task.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Schemas\grunt-copy-task.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Schemas\grunt-cssmin-task.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Schemas\grunt-jshint-task.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Schemas\grunt-task.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Schemas\grunt-watch-task.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Schemas\host-meta.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Schemas\jscsrc.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Schemas\jshintrc.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Schemas\json-patch.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Schemas\jsonld.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Schemas\package.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Schemas\package.manifest.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Schemas\project.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Schemas\resjson.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Schemas\resume.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Schemas\schema-catalog.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Schemas\schema-draft-v3.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Schemas\schema-draft-v4.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Schemas\settings.job.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Schemas\sourcemap-v3.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Schemas\swagger-2.0.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Schemas\tslint.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Schemas\web-manifest.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Schemas\webjob-publish-settings.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Schemas\webjobs-list.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Schemas\GeoJson\bbox.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Schemas\GeoJson\crs.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Schemas\GeoJson\geojson.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Schemas\GeoJson\geometry.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Specs\tests\Draft3\additionalItems.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Specs\tests\Draft3\additionalProperties.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Specs\tests\Draft3\default.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Specs\tests\Draft3\dependencies.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Specs\tests\Draft3\disallow.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Specs\tests\Draft3\divisibleBy.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Specs\tests\Draft3\enum.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Specs\tests\Draft3\extends.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Specs\tests\Draft3\items.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Specs\tests\Draft3\maximum.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Specs\tests\Draft3\maxItems.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Specs\tests\Draft3\maxLength.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Specs\tests\Draft3\minimum.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Specs\tests\Draft3\minItems.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Specs\tests\Draft3\minLength.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Specs\tests\Draft3\optional\bignum.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Specs\tests\Draft3\optional\format.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Specs\tests\Draft3\optional\zeroTerminatedFloats.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Specs\tests\Draft3\pattern.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Specs\tests\Draft3\patternProperties.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Specs\tests\Draft3\properties.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Specs\tests\Draft3\ref.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Specs\tests\Draft3\refRemote.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Specs\tests\Draft3\required.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Specs\tests\Draft3\type.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Specs\tests\Draft3\uniqueItems.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Specs\tests\Draft4\additionalItems.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Specs\tests\Draft4\additionalProperties.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Specs\tests\Draft4\allOf.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Specs\tests\Draft4\anyOf.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Specs\tests\Draft4\default.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Specs\tests\Draft4\definitions.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Specs\tests\Draft4\dependencies.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Specs\tests\Draft4\enum.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Specs\tests\Draft4\items.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Specs\tests\Draft4\maximum.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Specs\tests\Draft4\maxItems.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Specs\tests\Draft4\maxLength.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Specs\tests\Draft4\maxProperties.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Specs\tests\Draft4\minimum.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Specs\tests\Draft4\minItems.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Specs\tests\Draft4\minLength.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Specs\tests\Draft4\minProperties.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Specs\tests\Draft4\multipleOf.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Specs\tests\Draft4\not.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Specs\tests\Draft4\oneOf.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Specs\tests\Draft4\optional\bignum.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Specs\tests\Draft4\optional\format.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Specs\tests\Draft4\optional\zeroTerminatedFloats.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Specs\tests\Draft4\pattern.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Specs\tests\Draft4\patternProperties.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Specs\tests\Draft4\properties.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Specs\tests\Draft4\ref.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Specs\tests\Draft4\refRemote.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Specs\tests\Draft4\required.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Specs\tests\Draft4\type.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Specs\tests\Draft4\uniqueItems.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Specs\remotes\draft3.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Specs\remotes\draft4.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Specs\remotes\folder\folderInteger.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Specs\remotes\integer.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Specs\remotes\subSchemas.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+  <PropertyGroup Condition="'$(TargetFramework)'=='net451'">
+    <ReferringTargetFrameworkForProjectReferences>.NETPortable,Version=v0.0,Profile=Profile259</ReferringTargetFrameworkForProjectReferences>
+    <DefineConstants>PORTABLE;$(AdditionalConstants)</DefineConstants>
+  </PropertyGroup>
+  
+  <ItemGroup Condition="'$(TargetFramework)'=='net40'">
+    <PackageReference Include="NUnit" Version="3.6.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.7.0" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
   </ItemGroup>
-  <ItemGroup>
-    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+  <PropertyGroup Condition="'$(TargetFramework)'=='net40'">
+    <DefineConstants>NET40;$(AdditionalConstants)</DefineConstants>
+  </PropertyGroup>
+  
+  <ItemGroup Condition="'$(TargetFramework)'=='net35'">
+    <PackageReference Include="NUnit" Version="3.6.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.7.0" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Newtonsoft.Json.Schema\Newtonsoft.Json.Schema.csproj">
-      <Project>{959f7f85-c98b-4876-971a-9036224578e4}</Project>
-      <Name>Newtonsoft.Json.Schema</Name>
-    </ProjectReference>
+  <PropertyGroup Condition="'$(TargetFramework)'=='net35'">
+    <DefineConstants>NET35;$(AdditionalConstants)</DefineConstants>
+  </PropertyGroup>
+  
+  <ItemGroup Condition="'$(TargetFramework)'=='netcoreapp1.1'">
+    <PackageReference Include="BenchmarkDotNet" Version="0.10.2" />
+    <PackageReference Include="FSharp.Core" Version="4.1.2" />
+    <PackageReference Include="System.ComponentModel.Annotations" Version="4.3.0" />
+    <PackageReference Include="xunit" Version="2.2.0" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0" />
   </ItemGroup>
-  <ItemGroup />
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+  <PropertyGroup Condition="'$(TargetFramework)'=='netcoreapp1.1'">
+    <ReferringTargetFrameworkForProjectReferences>.NETStandard,Version=v1.3</ReferringTargetFrameworkForProjectReferences>
+    <DefineConstants>NETSTANDARD1_3;DNXCORE50;PORTABLE;HAVE_BENCHMARKS;$(AdditionalConstants)</DefineConstants>
+  </PropertyGroup>
 </Project>
