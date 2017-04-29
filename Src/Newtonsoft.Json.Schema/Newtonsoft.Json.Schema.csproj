@@ -2,11 +2,13 @@
   <PropertyGroup>
     <TargetFrameworks Condition="'$(LibraryFrameworks)'==''">net45;net40;net35;netstandard1.3;portable-net45+win8+wpa81+wp8</TargetFrameworks>
     <TargetFrameworks Condition="'$(LibraryFrameworks)'!=''">$(LibraryFrameworks)</TargetFrameworks>
+    <AssemblyVersion>2.0.0.0</AssemblyVersion>
+    <FileVersion>2.0.1</FileVersion>
     <VersionPrefix>2.0.1</VersionPrefix>
     <VersionSuffix></VersionSuffix>
     <Authors>Newtonsoft</Authors>
     <Company>Newtonsoft</Company>
-    <AssemblyTitle>Json.NET Schema</AssemblyTitle>
+    <Product>Json.NET Schema</Product>
     <Description>Json.NET Schema is a complete and easy-to-use JSON Schema framework for .NET</Description>
     <Copyright>Copyright © Newtonsoft 2014</Copyright>
     <Summary>Json.NET Schema is a complete and easy-to-use JSON Schema framework for .NET</Summary>
@@ -21,7 +23,6 @@
     <RootNamespace>Newtonsoft.Json.Schema</RootNamespace>
     <AssemblyName>Newtonsoft.Json.Schema</AssemblyName>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <NetStandardImplicitPackageVersion>1.6.1</NetStandardImplicitPackageVersion>
   </PropertyGroup>
   <ItemGroup>
@@ -30,18 +31,22 @@
     <None Include="..\..\LICENSE.md" Pack="true" PackagePath="LICENSE.md" />
   </ItemGroup>
   <PropertyGroup Condition="'$(TargetFramework)'=='net45'">
+    <AssemblyTitle>Json.NET Schema</AssemblyTitle>
     <DefineConstants>$(AdditionalConstants)</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)'=='net40'">
+    <AssemblyTitle>Json.NET Schema .NET 4.0</AssemblyTitle>
     <DefineConstants>NET40;$(AdditionalConstants)</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)'=='net35'">
+    <AssemblyTitle>Json.NET Schema .NET 3.5</AssemblyTitle>
     <DefineConstants>NET35;$(AdditionalConstants)</DefineConstants>
   </PropertyGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.3'">
     <PackageReference Include="System.Net.Requests" Version="4.3.0" />
   </ItemGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.3'">
+    <AssemblyTitle>Json.NET Schema .NET Standard 1.3</AssemblyTitle>
     <DefineConstants>NETSTANDARD1_3;PORTABLE;$(AdditionalConstants)</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'portable-net45+win8+wpa81+wp8'">

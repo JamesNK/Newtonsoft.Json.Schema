@@ -8,28 +8,8 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using Newtonsoft.Json.Schema.Infrastructure.Licensing;
 
-#if NETSTANDARD1_3
-[assembly: AssemblyTitle("Json.NET Schema .NET Standard 1.3")]
-#elif PORTABLE
-[assembly: AssemblyTitle("Json.NET Schema Portable")]
-#elif NET35
-[assembly: AssemblyTitle("Json.NET Schema .NET 3.5")]
-#elif NET40
-[assembly: AssemblyTitle("Json.NET Schema .NET 4.0")]
-#else
-
-[assembly: AssemblyTitle("Json.NET Schema")]
-#endif
-
-[assembly: AssemblyDescription("Json.NET Schema is a complete and easy-to-use JSON Schema framework for .NET")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Newtonsoft")]
-[assembly: AssemblyProduct("Json.NET Schema")]
-[assembly: AssemblyCopyright("Copyright © Newtonsoft 2014")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.1.18123")]
 [assembly: CLSCompliant(true)]
 
 #if !SIGNED
