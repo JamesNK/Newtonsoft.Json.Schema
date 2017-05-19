@@ -19,6 +19,7 @@
     <PackageIconUrl>http://www.newtonsoft.com/content/images/nugeticon.png</PackageIconUrl>
     <PackageProjectUrl>http://www.newtonsoft.com/jsonschema</PackageProjectUrl>
     <PackageLicenseUrl>https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md</PackageLicenseUrl>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <RepositoryUrl>https://github.com/JamesNK/Newtonsoft.Json.Schema</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <RootNamespace>Newtonsoft.Json.Schema</RootNamespace>
