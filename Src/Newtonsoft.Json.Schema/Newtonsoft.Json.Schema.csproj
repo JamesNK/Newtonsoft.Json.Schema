@@ -24,6 +24,7 @@
     <AssemblyName>Newtonsoft.Json.Schema</AssemblyName>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NetStandardImplicitPackageVersion>1.6.1</NetStandardImplicitPackageVersion>
+    <MinClientVersion>2.12</MinClientVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json.Unsigned" Version="10.0.2" />

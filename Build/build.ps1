@@ -1,7 +1,7 @@
 ﻿properties { 
-  $zipFileName = "JsonSchema20r11.zip"
+  $zipFileName = "JsonSchema20r12.zip"
   $majorVersion = "2.0"
-  $majorWithReleaseVersion = "2.0.11"
+  $majorWithReleaseVersion = "2.0.12"
   $nugetPrerelease = $null
   $version = GetVersion $majorWithReleaseVersion
   $packageId = "Newtonsoft.Json.Schema"
