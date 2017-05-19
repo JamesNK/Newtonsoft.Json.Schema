@@ -13,6 +13,7 @@
     <Copyright>Copyright © Newtonsoft 2014</Copyright>
     <Summary>Json.NET Schema is a complete and easy-to-use JSON Schema framework for .NET</Summary>
     <NeutralLanguage>en-US</NeutralLanguage>
+    <Title>Json.NET Schema</Title>
     <PackageId>Newtonsoft.Json.Schema</PackageId>
     <PackageTags>json;schema;jsonschema</PackageTags>
     <PackageIconUrl>http://www.newtonsoft.com/content/images/nugeticon.png</PackageIconUrl>
