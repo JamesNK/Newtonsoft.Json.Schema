@@ -135,20 +135,23 @@ namespace Newtonsoft.Json.Schema.Generation
 
         private string GetTitle(Type type, JsonProperty memberProperty)
         {
-            JsonContainerAttribute containerAttribute = GetAttributeFromTypeOrProperty<JsonContainerAttribute>(type, memberProperty);
-
+            JsonContainerAttribute containerAttribute = JsonTypeReflector.GetCachedAttribute<JsonContainerAttribute>(type);
             if (!string.IsNullOrEmpty(containerAttribute?.Title))
             {
                 return containerAttribute.Title;
             }
 
+#if !(PORTABLE40 || PORTABLE)
+            DisplayNameAttribute displayNameAttribute = GetAttributeFromTypeOrProperty<DisplayNameAttribute>(type, memberProperty);
+            return displayNameAttribute?.DisplayName;
+#else
             return null;
+#endif
         }
 
         private string GetDescription(Type type, JsonProperty memberProperty)
         {
-            JsonContainerAttribute containerAttribute = GetAttributeFromTypeOrProperty<JsonContainerAttribute>(type, memberProperty);
-
+            JsonContainerAttribute containerAttribute = JsonTypeReflector.GetCachedAttribute<JsonContainerAttribute>(type);
             if (!string.IsNullOrEmpty(containerAttribute?.Description))
             {
                 return containerAttribute.Description;
