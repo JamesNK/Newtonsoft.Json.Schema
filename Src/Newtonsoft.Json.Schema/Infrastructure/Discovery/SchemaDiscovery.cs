@@ -64,17 +64,10 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                         IList<JSchema> l = (IList<JSchema>) current;
                         int index;
 
-                        // if the schema collection is items then implicitly get first item if there is no position validation
-                        if (ReferenceEquals(parent._items, l) && !parent.ItemsPositionValidation)
+                        JSchema itemsSchema;
+                        if (TryGetImplicitItemsSchema(parent, l, out itemsSchema))
                         {
-                            if (l.Count > 0)
-                            {
-                                current = GetCurrentFromSchema(l[0], unescapedPart);
-                            }
-                            else
-                            {
-                                current = null;
-                            }
+                            current = GetCurrentFromSchema(itemsSchema, unescapedPart);
                         }
                         else if (int.TryParse(unescapedPart, NumberStyles.None, CultureInfo.InvariantCulture, out index))
                         {
@@ -98,35 +91,41 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                     }
                 }
 
-                JToken t = current as JToken;
-                if (t != null)
+                IList<JSchema> itemsSchemas = current as IList<JSchema>;
+                if (itemsSchemas != null)
                 {
-                    JSchemaAnnotation annotation = t.Annotation<JSchemaAnnotation>();
-                    if (annotation != null)
+                    JSchema itemsSchema;
+                    if (TryGetImplicitItemsSchema(parent, itemsSchemas, out itemsSchema))
                     {
-                        setSchema(annotation.Schema);
-                        resolvedSchema = true;
-                    }
-                    else
-                    {
-                        JSchema inlineSchema = schemaReader.ReadInlineSchema(setSchema, t);
-
-                        string path = reference.OriginalString;
-                        if (path.StartsWith("#/", StringComparison.Ordinal))
-                        {
-                            path = path.Substring(2, path.Length - 2);
-                        }
-
-                        discovery.Discover(inlineSchema, rootSchemaId, path);
-
-                        resolvedSchema = true;
+                        current = itemsSchema;
                     }
                 }
-                else
+
+                switch (current)
                 {
-                    JSchema s = current as JSchema;
-                    if (s != null)
-                    {
+                    case JToken t:
+                        JSchemaAnnotation annotation = t.Annotation<JSchemaAnnotation>();
+                        if (annotation != null)
+                        {
+                            setSchema(annotation.Schema);
+                            resolvedSchema = true;
+                        }
+                        else
+                        {
+                            JSchema inlineSchema = schemaReader.ReadInlineSchema(setSchema, t);
+
+                            string path = reference.OriginalString;
+                            if (path.StartsWith("#/", StringComparison.Ordinal))
+                            {
+                                path = path.Substring(2, path.Length - 2);
+                            }
+
+                            discovery.Discover(inlineSchema, rootSchemaId, path);
+
+                            resolvedSchema = true;
+                        }
+                        break;
+                    case JSchema s:
                         setSchema(s);
                         resolvedSchema = true;
 
@@ -135,11 +134,10 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                         {
                             schemaReader.AddDeferedSchema(null, setSchema, s);
                         }
-                    }
-                    else
-                    {
+                        break;
+                    default:
                         resolvedSchema = false;
-                    }
+                        break;
                 }
 
                 schemaReader._schemaStack.Clear();
@@ -229,6 +227,22 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             }
 
             return resolvedSchema;
+        }
+
+        private static bool TryGetImplicitItemsSchema(JSchema parent, IList<JSchema> items, out JSchema schema)
+        {
+            // if the schema collection is items then implicitly get first item if there is no position validation
+            if (ReferenceEquals(parent._items, items) && !parent.ItemsPositionValidation)
+            {
+                if (items.Count > 0)
+                {
+                    schema = items[0];
+                    return true;
+                }
+            }
+
+            schema = null;
+            return false;
         }
 
         private static object GetCurrentFromSchema(JSchema s, string unescapedPart)
