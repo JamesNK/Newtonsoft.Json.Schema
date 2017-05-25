@@ -84,8 +84,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Collections
 
         public bool Contains(KeyValuePair<string, JSchema> item)
         {
-            PatternSchema patternSchema;
-            if (!_inner.TryGetValue(item.Key, out patternSchema))
+            if (!_inner.TryGetValue(item.Key, out PatternSchema patternSchema))
             {
                 return false;
             }
@@ -107,8 +106,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Collections
 
         public bool Remove(KeyValuePair<string, JSchema> item)
         {
-            PatternSchema patternSchema;
-            if (!_inner.TryGetValue(item.Key, out patternSchema))
+            if (!_inner.TryGetValue(item.Key, out PatternSchema patternSchema))
             {
                 return false;
             }
@@ -148,8 +146,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Collections
 
         public bool TryGetValue(string key, out JSchema value)
         {
-            PatternSchema patternSchema;
-            if (_inner.TryGetValue(key, out patternSchema))
+            if (_inner.TryGetValue(key, out PatternSchema patternSchema))
             {
                 value = patternSchema.Schema;
                 return true;

@@ -115,8 +115,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Licensing
                 throw new JSchemaException("Specified license text is invalid.");
             }
 
-            int licenseId;
-            if (!int.TryParse(licenseParts[0], NumberStyles.Integer, CultureInfo.InvariantCulture, out licenseId))
+            if (!int.TryParse(licenseParts[0], NumberStyles.Integer, CultureInfo.InvariantCulture, out int licenseId))
             {
                 throw new JSchemaException("Specified license text is invalid.");
             }

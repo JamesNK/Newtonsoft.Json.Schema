@@ -57,9 +57,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
         {
             for (int i = Context.Scopes.Count - 1; i >= 0; i--)
             {
-                SchemaScope scope = Context.Scopes[i] as SchemaScope;
-
-                if (scope != null)
+                if (Context.Scopes[i] is SchemaScope scope)
                 {
                     if (scope.InitialDepth == InitialDepth)
                     {

@@ -31,8 +31,7 @@ namespace Newtonsoft.Json.Schema
         /// <returns>The resolved schema reference.</returns>
         public virtual SchemaReference ResolveSchemaReference(ResolveSchemaContext context)
         {
-            string fragment;
-            Uri baseUri = ResolveBaseUri(context, out fragment);
+            Uri baseUri = ResolveBaseUri(context, out string fragment);
 
             SchemaReference schemaReference = new SchemaReference();
             schemaReference.BaseUri = baseUri;

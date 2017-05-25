@@ -62,8 +62,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Collections
                 throw new ArgumentNullException(nameof(value));
             }
 
-            JSchema s;
-            if (TryGetValue(key, out s))
+            if (TryGetValue(key, out JSchema s))
             {
                 if (s == value)
                 {
@@ -86,8 +85,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Collections
                 throw new ArgumentNullException(nameof(key));
             }
 
-            JSchema s;
-            if (!TryGetValue(key, out s))
+            if (!TryGetValue(key, out JSchema s))
             {
                 return false;
             }

@@ -74,8 +74,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 return null;
             }
 
-            KnownSchema knownSchema;
-            _uriKnownSchemaLookup.TryGetValue(id, out knownSchema);
+            _uriKnownSchemaLookup.TryGetValue(id, out KnownSchema knownSchema);
 
             return knownSchema;
         }

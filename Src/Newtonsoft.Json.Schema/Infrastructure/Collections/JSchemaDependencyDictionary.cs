@@ -43,8 +43,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Collections
         protected override void AddItem(string key, object value)
         {
             base.AddItem(key, value);
-            JSchema s = value as JSchema;
-            if (s != null)
+            if (value is JSchema s)
             {
                 _schemasCount++;
                 s.Changed += OnChildChanged;
@@ -56,11 +55,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Collections
         {
             bool changed = false;
 
-            object o;
-            if (TryGetValue(key, out o))
+            if (TryGetValue(key, out object o))
             {
-                JSchema s1 = o as JSchema;
-                if (s1 != null)
+                if (o is JSchema s1)
                 {
                     if (s1 == value)
                     {
@@ -75,8 +72,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Collections
             }
 
             base.SetItem(key, value);
-            JSchema s2 = value as JSchema;
-            if (s2 != null)
+            if (value is JSchema s2)
             {
                 _schemasCount++;
                 s2.Changed += OnChildChanged;
@@ -91,16 +87,13 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Collections
 
         protected override bool RemoveItem(string key)
         {
-            object o;
-            if (!TryGetValue(key, out o))
+            if (!TryGetValue(key, out object o))
             {
                 return false;
             }
 
-            JSchema s = o as JSchema;
-
             base.RemoveItem(key);
-            if (s != null)
+            if (o is JSchema s)
             {
                 _schemasCount--;
                 s.Changed -= OnChildChanged;
@@ -115,8 +108,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Collections
 
             foreach (KeyValuePair<string, object> keyValuePair in this)
             {
-                JSchema s = keyValuePair.Value as JSchema;
-                if (s != null)
+                if (keyValuePair.Value is JSchema s)
                 {
                     s.Changed -= OnChildChanged;
                     changed = true;

@@ -252,8 +252,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
                     ResolveDeferedSchema(deferedSchema);
 
-                    DeferedSchema previouslyResolvedSchema;
-                    if (_resolvedDeferedSchemas.TryGetValue(deferedSchema.ResolvedReference, out previouslyResolvedSchema))
+                    if (_resolvedDeferedSchemas.TryGetValue(deferedSchema.ResolvedReference, out DeferedSchema previouslyResolvedSchema))
                     {
                         if (!deferedSchema.Success)
                         {
@@ -659,8 +658,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                         }
                         else if (reader.TokenType == JsonToken.StartArray)
                         {
-                            List<string> l;
-                            ReadStringArray(reader, name, out l);
+                            ReadStringArray(reader, name, out List<string> l);
                             dependencies[name] = l;
                         }
                         else
@@ -714,8 +712,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         {
             string typeName = (string) reader.Value;
 
-            JSchemaType mappedType;
-            if (!Constants.JSchemaTypeMapping.TryGetValue(typeName, out mappedType))
+            if (!Constants.JSchemaTypeMapping.TryGetValue(typeName, out JSchemaType mappedType))
             {
                 if (EnsureVersion(SchemaVersion.Draft3, SchemaVersion.Draft3))
                 {
@@ -826,8 +823,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         private void LoadAndSetSchema(JsonReader reader, JSchema target, Action<JSchema> setSchema, bool isRoot = false)
         {
             // check whether a schema for this token has already been loaded
-            JTokenReader tokenReader = reader as JTokenReader;
-            if (tokenReader != null)
+            if (reader is JTokenReader tokenReader)
             {
                 JSchemaAnnotation schemaAnnotication = tokenReader.CurrentToken.Annotation<JSchemaAnnotation>();
                 if (schemaAnnotication != null)
@@ -842,8 +838,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             loadingSchema.State = JSchemaState.Loading;
             loadingSchema.BaseUri = _baseUri;
 
-            IJsonLineInfo lineInfo = reader as IJsonLineInfo;
-            if (lineInfo != null)
+            if (reader is IJsonLineInfo lineInfo)
             {
                 loadingSchema.SetLineInfo(lineInfo);
             }
@@ -890,9 +885,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         private bool AddDeferedSchema(Uri resolvedReference, JSchema referenceSchema, JSchema target, Action<JSchema> setSchema)
         {
-            DeferedSchema deferedSchema;
 
-            if (_resolvedDeferedSchemas.TryGetValue(resolvedReference, out deferedSchema) && deferedSchema.Success)
+            if (_resolvedDeferedSchemas.TryGetValue(resolvedReference, out DeferedSchema deferedSchema) && deferedSchema.Success)
             {
                 if (deferedSchema.Success)
                 {
@@ -1119,9 +1113,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                     {
                         foreach (PatternSchema patternProperty in target.GetPatternSchemas())
                         {
-                            Regex patternRegex;
-                            string errorMessage;
-                            if (!patternProperty.TryGetPatternRegex(out patternRegex, out errorMessage))
+                            if (!patternProperty.TryGetPatternRegex(out Regex patternRegex, out string errorMessage))
                             {
                                 ValidationError error = ValidationError.CreateValidationError($"Could not parse regex pattern '{patternProperty.Pattern}'. Regex parser error: {errorMessage}", ErrorType.PatternProperties, target, null, patternProperty.Pattern, null, target, target.Path);
                                 _validationErrors.Add(error);
@@ -1237,9 +1229,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
                     if (_validationErrors != null)
                     {
-                        Regex patternRegex;
-                        string errorMessage;
-                        if (!target.TryGetPatternRegex(out patternRegex, out errorMessage))
+                        if (!target.TryGetPatternRegex(out Regex patternRegex, out string errorMessage))
                         {
                             ValidationError error = ValidationError.CreateValidationError($"Could not parse regex pattern '{target.Pattern}'. Regex parser error: {errorMessage}", ErrorType.Pattern, target, null, target.Pattern, null, target, target.Path);
                             _validationErrors.Add(error);
@@ -1346,8 +1336,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             }
 
             JToken t;
-            JTokenReader tokenReader = reader as JTokenReader;
-            if (tokenReader != null)
+            if (reader is JTokenReader tokenReader)
             {
                 t = tokenReader.CurrentToken;
                 tokenReader.Skip();

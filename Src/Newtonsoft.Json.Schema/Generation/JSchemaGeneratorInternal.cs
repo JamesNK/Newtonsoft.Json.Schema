@@ -36,8 +36,7 @@ namespace Newtonsoft.Json.Schema.Generation
             {
                 if (_typeSchemas.Count > 1)
                 {
-                    JToken definitions;
-                    if (!schema.ExtensionData.TryGetValue(Constants.PropertyNames.Definitions, out definitions))
+                    if (!schema.ExtensionData.TryGetValue(Constants.PropertyNames.Definitions, out JToken definitions))
                     {
                         definitions = new JObject();
                         schema.ExtensionData[Constants.PropertyNames.Definitions] = definitions;
@@ -461,9 +460,7 @@ namespace Newtonsoft.Json.Schema.Generation
                         schema.MinimumProperties = DataAnnotationHelpers.GetMinLength(memberProperty);
                         schema.MaximumProperties = DataAnnotationHelpers.GetMaxLength(memberProperty);
 
-                        Type keyType;
-                        Type valueType;
-                        ReflectionUtils.GetDictionaryKeyValueTypes(contract.NonNullableUnderlyingType, out keyType, out valueType);
+                        ReflectionUtils.GetDictionaryKeyValueTypes(contract.NonNullableUnderlyingType, out Type keyType, out Type valueType);
 
                         if (keyType != null)
                         {
@@ -506,9 +503,7 @@ namespace Newtonsoft.Json.Schema.Generation
 
             if (JSchemaTypeHelpers.HasFlag(schema.Type, JSchemaType.String))
             {
-                int minimumLength;
-                int maximumLength;
-                if (DataAnnotationHelpers.GetStringLength(memberProperty, out minimumLength, out maximumLength))
+                if (DataAnnotationHelpers.GetStringLength(memberProperty, out int minimumLength, out int maximumLength))
                 {
                     schema.MinimumLength = minimumLength;
                     schema.MaximumLength = maximumLength;
@@ -538,9 +533,7 @@ namespace Newtonsoft.Json.Schema.Generation
             }
             if (JSchemaTypeHelpers.HasFlag(type, JSchemaType.Number) || JSchemaTypeHelpers.HasFlag(type, JSchemaType.Integer))
             {
-                double minimum;
-                double maximum;
-                if (DataAnnotationHelpers.GetRange(memberProperty, out minimum, out maximum))
+                if (DataAnnotationHelpers.GetRange(memberProperty, out double minimum, out double maximum))
                 {
                     schema.Minimum = minimum;
                     schema.Maximum = maximum;

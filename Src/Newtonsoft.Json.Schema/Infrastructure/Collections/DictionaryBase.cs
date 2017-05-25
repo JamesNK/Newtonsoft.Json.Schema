@@ -158,8 +158,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Collections
 
         bool ICollection<KeyValuePair<TKey, TValue>>.Remove(KeyValuePair<TKey, TValue> keyValuePair)
         {
-            TValue value;
-            if (TryGetValue(keyValuePair.Key, out value))
+            if (TryGetValue(keyValuePair.Key, out TValue value))
             {
                 if (EqualityComparer<TValue>.Default.Equals(value, keyValuePair.Value))
                 {

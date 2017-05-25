@@ -104,11 +104,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                         {
                             foreach (string readProperty in _readProperties)
                             {
-                                object dependency;
-                                if (Schema._dependencies.TryGetValue(readProperty, out dependency))
+                                if (Schema._dependencies.TryGetValue(readProperty, out object dependency))
                                 {
-                                    List<string> requiredProperties = dependency as List<string>;
-                                    if (requiredProperties != null)
+                                    if (dependency is List<string> requiredProperties)
                                     {
                                         if (!requiredProperties.All(r => _readProperties.Contains(r)))
                                         {
@@ -135,9 +133,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                         {
                             foreach (PatternSchema patternSchema in Schema.GetPatternSchemas())
                             {
-                                Regex regex;
-                                string errorMessage;
-                                if (!patternSchema.TryGetPatternRegex(out regex, out errorMessage))
+                                if (!patternSchema.TryGetPatternRegex(out Regex regex, out string errorMessage))
                                 {
                                     RaiseError($"Could not test property names with regex pattern '{patternSchema.Pattern}'. There was an error parsing the regex: {errorMessage}",
                                         ErrorType.PatternProperties,
@@ -185,8 +181,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                         bool matched = false;
                         if (Schema._properties != null)
                         {
-                            JSchema propertySchema;
-                            if (Schema._properties.TryGetValue(_currentPropertyName, out propertySchema))
+                            if (Schema._properties.TryGetValue(_currentPropertyName, out JSchema propertySchema))
                             {
                                 CreateScopesAndEvaluateToken(token, value, depth, propertySchema);
                                 matched = true;
@@ -197,9 +192,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                         {
                             foreach (PatternSchema patternProperty in Schema.GetPatternSchemas())
                             {
-                                Regex regex;
-                                string errorMessage;
-                                if (patternProperty.TryGetPatternRegex(out regex, out errorMessage))
+                                if (patternProperty.TryGetPatternRegex(out Regex regex, out string errorMessage))
                                 {
                                     if (regex.IsMatch(_currentPropertyName))
                                     {
@@ -235,9 +228,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             {
                 foreach (PatternSchema patternSchema in schema.GetPatternSchemas())
                 {
-                    Regex regex;
-                    string errorMessage;
-                    if (patternSchema.TryGetPatternRegex(out regex, out errorMessage))
+                    if (patternSchema.TryGetPatternRegex(out Regex regex, out string errorMessage))
                     {
                         if (regex.IsMatch(_currentPropertyName))
                         {
@@ -259,8 +250,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             {
                 foreach (KeyValuePair<string, object> dependency in Schema._dependencies.GetInnerDictionary())
                 {
-                    JSchema dependencySchema = dependency.Value as JSchema;
-                    if (dependencySchema != null)
+                    if (dependency.Value is JSchema dependencySchema)
                     {
                         SchemaScope scope = CreateTokenScope(token, dependencySchema, ConditionalContext.Create(Context), null, InitialDepth);
                         _dependencyScopes.Add(dependency.Key, scope);

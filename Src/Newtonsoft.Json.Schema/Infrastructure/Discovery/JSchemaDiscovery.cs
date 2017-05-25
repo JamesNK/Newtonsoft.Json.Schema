@@ -60,9 +60,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                 return;
             }
 
-            Uri newScopeId;
             string scopePath = latestPath;
-            Uri schemaKnownId = GetSchemaIdAndNewScopeId(schema, ref scopePath, out newScopeId);
+            Uri schemaKnownId = GetSchemaIdAndNewScopeId(schema, ref scopePath, out Uri newScopeId);
 
             // check whether a schema with the resolved id is already known
             // this will be hit when a schema contains duplicate ids or references a schema with a duplicate id
@@ -224,9 +223,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             {
                 foreach (KeyValuePair<string, object> valuePair in schemas)
                 {
-                    JSchema schema = valuePair.Value as JSchema;
-
-                    if (schema != null)
+                    if (valuePair.Value is JSchema schema)
                     {
                         DiscoverInternal(schema, name + "/" + EscapePath(valuePair.Key));
                     }

@@ -39,63 +39,57 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                 {
                     string unescapedPart = UnescapeReference(parts[i]);
 
-                    JSchema s = current as JSchema;
-                    if (s != null)
+                    switch (current)
                     {
-                        schemaReader._schemaStack.Add(s);
+                        case JSchema s:
+                            schemaReader._schemaStack.Add(s);
 
-                        parent = s;
-                        current = GetCurrentFromSchema(s, unescapedPart);
-                    }
-                    else if (current is JToken)
-                    {
-                        current = GetCurrentFromToken((JToken) current, unescapedPart);
-                    }
-                    else if (current is IDictionary<string, JSchema>)
-                    {
-                        IDictionary<string, JSchema> d = (IDictionary<string, JSchema>) current;
+                            parent = s;
+                            current = GetCurrentFromSchema(s, unescapedPart);
+                            break;
+                        case JToken t:
+                            current = GetCurrentFromToken(t, unescapedPart);
+                            break;
+                        case IDictionary<string, JSchema> d:
+                            JSchema temp;
+                            d.TryGetValue(unescapedPart, out temp);
+                            current = temp;
+                            break;
+                        case IList<JSchema> l:
+                            int index;
 
-                        JSchema temp;
-                        d.TryGetValue(unescapedPart, out temp);
-                        current = temp;
-                    }
-                    else if (current is IList<JSchema>)
-                    {
-                        IList<JSchema> l = (IList<JSchema>) current;
-                        int index;
-
-                        JSchema itemsSchema;
-                        if (TryGetImplicitItemsSchema(parent, l, out itemsSchema))
-                        {
-                            current = GetCurrentFromSchema(itemsSchema, unescapedPart);
-                        }
-                        else if (int.TryParse(unescapedPart, NumberStyles.None, CultureInfo.InvariantCulture, out index))
-                        {
-                            if (index > l.Count || index < 0)
+                            JSchema itemsSchema;
+                            if (TryGetImplicitItemsSchema(parent, l, out itemsSchema))
                             {
-                                current = null;
+                                current = GetCurrentFromSchema(itemsSchema, unescapedPart);
+                            }
+                            else if (int.TryParse(unescapedPart, NumberStyles.None, CultureInfo.InvariantCulture, out index))
+                            {
+                                if (index > l.Count || index < 0)
+                                {
+                                    current = null;
+                                }
+                                else
+                                {
+                                    current = l[index];
+                                }
                             }
                             else
                             {
-                                current = l[index];
+                                current = null;
                             }
-                        }
-                        else
-                        {
-                            current = null;
-                        }
+                            break;
                     }
-                    else
+
+                    if (current == null)
                     {
                         break;
                     }
                 }
 
-                IList<JSchema> itemsSchemas = current as IList<JSchema>;
-                if (itemsSchemas != null)
+                if (current is IList<JSchema> itemsSchemas)
                 {
-                    JSchema itemsSchema;
-                    if (TryGetImplicitItemsSchema(parent, itemsSchemas, out itemsSchema))
+                    if (TryGetImplicitItemsSchema(parent, itemsSchemas, out JSchema itemsSchema))
                     {
                         current = itemsSchema;
                     }
@@ -191,16 +185,14 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                     {
                         // special case
                         // look in the root schema's definitions for a definition with the same property name and id as reference
-                        JToken definitions;
-                        if (schema.ExtensionData.TryGetValue(Constants.PropertyNames.Definitions, out definitions))
+                        if (schema.ExtensionData.TryGetValue(Constants.PropertyNames.Definitions, out JToken definitions))
                         {
-                            JObject definitionsObject = definitions as JObject;
-                            if (definitionsObject != null)
+                            if (definitions is JObject definitionsObject)
                             {
                                 JProperty matchingProperty = definitionsObject.Properties().FirstOrDefault(p => TryCompare(p.Name, resolvedReference));
 
-                                JObject o = matchingProperty?.Value as JObject;
-                                if (o != null && TryCompare((string) o["id"], resolvedReference))
+                                if (matchingProperty?.Value is JObject o
+                                    && TryCompare((string)o["id"], resolvedReference))
                                 {
                                     JSchema inlineSchema = schemaReader.ReadInlineSchema(setSchema, o);
 
@@ -288,8 +280,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             }
             else if (t is JArray || t is JConstructor)
             {
-                int index;
-                if (int.TryParse(unescapedPart, NumberStyles.None, CultureInfo.InvariantCulture, out index))
+                if (int.TryParse(unescapedPart, NumberStyles.None, CultureInfo.InvariantCulture, out int index))
                 {
                     if (index >= t.Count() || index < 0)
                     {
@@ -333,8 +324,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                 return false;
             }
 
-            Uri definitionUri;
-            if (Uri.TryCreate(value, UriKind.RelativeOrAbsolute, out definitionUri))
+            if (Uri.TryCreate(value, UriKind.RelativeOrAbsolute, out Uri definitionUri))
             {
                 return UriComparer.Instance.Equals(definitionUri, resolvedReference);
             }

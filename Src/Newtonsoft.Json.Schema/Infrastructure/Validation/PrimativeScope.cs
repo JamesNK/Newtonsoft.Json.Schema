@@ -75,7 +75,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     byte[] data = value as byte[];
                     if (data == null)
                     {
-                        data = ((Guid)value).ToByteArray();
+                        data = ((Guid) value).ToByteArray();
                     }
 
                     string s = Convert.ToBase64String(data);
@@ -198,10 +198,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
             if (schema.Pattern != null)
             {
-                Regex regex;
-                string errorMessage;
 
-                if (schema.TryGetPatternRegex(out regex, out errorMessage))
+                if (schema.TryGetPatternRegex(out Regex regex, out string errorMessage))
                 {
                     if (!regex.IsMatch(value))
                     {
@@ -252,8 +250,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
                     for (int i = 0; i < parts.Length; i++)
                     {
-                        int num;
-                        if (!int.TryParse(parts[i], NumberStyles.Integer, CultureInfo.InvariantCulture, out num)
+                        if (!int.TryParse(parts[i], NumberStyles.Integer, CultureInfo.InvariantCulture, out int num)
                             || (num < 0 || num > 255))
                         {
                             return false;
@@ -275,23 +272,19 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 }
                 case Constants.Formats.Date:
                 {
-                    DateTime temp;
-                    return DateTime.TryParseExact(value, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out temp);
+                    return DateTime.TryParseExact(value, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime temp);
                 }
                 case Constants.Formats.Time:
                 {
-                    DateTime temp;
-                    return DateTime.TryParseExact(value, "HH:mm:ss.FFFFFFFK", CultureInfo.InvariantCulture, DateTimeStyles.None, out temp);
+                    return DateTime.TryParseExact(value, "HH:mm:ss.FFFFFFFK", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime temp);
                 }
                 case Constants.Formats.DateTime:
                 {
-                    DateTime temp;
-                    return DateTime.TryParseExact(value, @"yyyy-MM-dd\THH:mm:ss.FFFFFFFK", CultureInfo.InvariantCulture, DateTimeStyles.None, out temp);
+                    return DateTime.TryParseExact(value, @"yyyy-MM-dd\THH:mm:ss.FFFFFFFK", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime temp);
                 }
                 case Constants.Formats.UtcMilliseconds:
                 {
-                    double temp;
-                    return Double.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out temp);
+                    return Double.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out double temp);
                 }
                 case Constants.Formats.Regex:
                 {
