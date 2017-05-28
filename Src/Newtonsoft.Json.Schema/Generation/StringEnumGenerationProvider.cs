@@ -32,6 +32,8 @@ namespace Newtonsoft.Json.Schema.Generation
 
             JSchema schema = new JSchema
             {
+                Title = context.SchemaTitle,
+                Description = context.SchemaDescription,
                 Type = JSchemaType.String
             };
 

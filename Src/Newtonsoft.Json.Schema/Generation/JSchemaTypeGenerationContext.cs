@@ -13,46 +13,40 @@ namespace Newtonsoft.Json.Schema.Generation
     /// </summary>
     public class JSchemaTypeGenerationContext
     {
-        private readonly Type _objectType;
-        private readonly Required _required;
-        private readonly JsonProperty _memberProperty;
-        private readonly JsonContainerContract _parentContract;
         private readonly JSchemaGeneratorInternal _generatorInternal;
 
         internal JSchemaGenerationProvider GenerationProvider;
         private JSchemaGeneratorProxy _generatorProxy;
 
         /// <summary>
+        /// The schema title.
+        /// </summary>
+        public string SchemaTitle { get; }
+
+        /// <summary>
+        /// The schema description.
+        /// </summary>
+        public string SchemaDescription { get; }
+
+        /// <summary>
         /// The object type.
         /// </summary>
-        public Type ObjectType
-        {
-            get { return _objectType; }
-        }
+        public Type ObjectType { get; }
 
         /// <summary>
         /// The required state.
         /// </summary>
-        public Required Required
-        {
-            get { return _required; }
-        }
+        public Required Required { get; }
 
         /// <summary>
         /// The member property.
         /// </summary>
-        public JsonProperty MemberProperty
-        {
-            get { return _memberProperty; }
-        }
+        public JsonProperty MemberProperty { get; }
 
         /// <summary>
         /// The parent contract.
         /// </summary>
-        public JsonContainerContract ParentContract
-        {
-            get { return _parentContract; }
-        }
+        public JsonContainerContract ParentContract { get; }
 
         /// <summary>
         /// The current <see cref="JSchemaGenerator"/>.
@@ -75,12 +69,16 @@ namespace Newtonsoft.Json.Schema.Generation
             Required required,
             JsonProperty memberProperty,
             JsonContainerContract parentContract,
-            JSchemaGeneratorInternal generatorInternal)
+            JSchemaGeneratorInternal generatorInternal,
+            string schemaTitle,
+            string schemaDescription)
         {
-            _objectType = objectType;
-            _required = required;
-            _memberProperty = memberProperty;
-            _parentContract = parentContract;
+            SchemaTitle = schemaTitle;
+            SchemaDescription = schemaDescription;
+            ObjectType = objectType;
+            Required = required;
+            MemberProperty = memberProperty;
+            ParentContract = parentContract;
             _generatorInternal = generatorInternal;
         }
     }

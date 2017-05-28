@@ -260,7 +260,14 @@ namespace Newtonsoft.Json.Schema.Generation
             JSchemaGenerationProvider provider = ResolveTypeProvider(nonNullableType, memberProperty);
             if (provider != null && provider != currentGenerationProvider)
             {
-                JSchemaTypeGenerationContext context = new JSchemaTypeGenerationContext(type, resolvedRequired, memberProperty, container, this);
+                JSchemaTypeGenerationContext context = new JSchemaTypeGenerationContext(
+                    type,
+                    resolvedRequired,
+                    memberProperty,
+                    container,
+                    this,
+                    GetTitle(type, memberProperty),
+                    GetDescription(type, memberProperty));
                 context.GenerationProvider = provider;
 
                 schema = provider.GetSchema(context);
@@ -273,7 +280,14 @@ namespace Newtonsoft.Json.Schema.Generation
 
             if (_generator._generationProviders != null)
             {
-                JSchemaTypeGenerationContext context = new JSchemaTypeGenerationContext(type, resolvedRequired, memberProperty, container, this);
+                JSchemaTypeGenerationContext context = new JSchemaTypeGenerationContext(
+                    type,
+                    resolvedRequired,
+                    memberProperty,
+                    container,
+                    this,
+                    GetTitle(type, memberProperty),
+                    GetDescription(type, memberProperty));
 
                 foreach (JSchemaGenerationProvider generationProvider in _generator._generationProviders)
                 {

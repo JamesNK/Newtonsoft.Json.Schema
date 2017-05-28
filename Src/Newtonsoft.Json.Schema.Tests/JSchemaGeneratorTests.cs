@@ -101,6 +101,77 @@ namespace Newtonsoft.Json.Schema.Tests
             JObject jObject = JObject.FromObject(testObject);
             jObject.Validate(schema);
         }
+
+        [JsonObject(Title = "Title!", Description = "Description!")]
+        public class DescriptionWithSchemaProviderTestClass
+        {
+            [System.ComponentModel.Description("This is prop1!")]
+            [System.ComponentModel.DisplayName("This is prop1 title!")]
+            [JSchemaGenerationProvider(typeof(StringEnumGenerationProvider))]
+            public StringComparison Prop1 { get; set; }
+            [System.ComponentModel.Description("This is prop2!")]
+            [System.ComponentModel.DisplayName("This is prop2 title!")]
+            [JSchemaGenerationProvider(typeof(StringEnumGenerationProvider))]
+            public StringComparison Prop2 { get; set; }
+            public StringComparison Prop3 { get; set; }
+            [System.ComponentModel.Description("This is prop4!")]
+            [System.ComponentModel.DisplayName("This is prop4 title!")]
+            [JSchemaGenerationProvider(typeof(StringEnumGenerationProvider))]
+            public DescriptionChildWithSchemaProvider Prop4 { get; set; }
+            public DescriptionChildWithSchemaProvider Prop5 { get; set; }
+        }
+
+        [System.ComponentModel.Description("This is child!")]
+        [JSchemaGenerationProvider(typeof(StringEnumGenerationProvider))]
+        public enum DescriptionChildWithSchemaProvider
+        {
+            One,
+            Two
+        }
+
+        [Test]
+        public void TitleAndDescriptionWithSchemaProviderTest()
+        {
+            JSchemaGenerator generator = new JSchemaGenerator();
+            JSchema schema = generator.Generate(typeof(DescriptionWithSchemaProviderTestClass));
+
+            Console.WriteLine(schema.ToString());
+
+            Assert.AreEqual(JSchemaType.Object, schema.Type);
+            Assert.AreEqual("Title!", schema.Title);
+            Assert.AreEqual("Description!", schema.Description);
+            Assert.AreEqual(5, schema.Properties.Count);
+
+            Assert.AreEqual(JSchemaType.String, schema.Properties["Prop1"].Type);
+            Assert.AreEqual("This is prop1!", schema.Properties["Prop1"].Description);
+            Assert.AreEqual("This is prop1 title!", schema.Properties["Prop1"].Title);
+
+            Assert.AreEqual(JSchemaType.String, schema.Properties["Prop2"].Type);
+            Assert.AreEqual("This is prop2!", schema.Properties["Prop2"].Description);
+            Assert.AreEqual("This is prop2 title!", schema.Properties["Prop2"].Title);
+
+            Assert.AreEqual(JSchemaType.Integer, schema.Properties["Prop3"].Type);
+            Assert.AreEqual(null, schema.Properties["Prop3"].Description);
+
+            Assert.AreEqual(JSchemaType.String, schema.Properties["Prop4"].Type);
+            Assert.AreEqual("This is prop4!", schema.Properties["Prop4"].Description);
+            Assert.AreEqual("This is prop4 title!", schema.Properties["Prop4"].Title);
+
+            Assert.AreEqual(JSchemaType.String, schema.Properties["Prop5"].Type);
+            Assert.AreEqual("This is child!", schema.Properties["Prop5"].Description);
+            Assert.AreEqual(null, schema.Properties["Prop5"].Title);
+
+            JObject jObject = new JObject
+            {
+                ["Prop1"] = "InvariantCulture",
+                ["Prop2"] = "CurrentCultureIgnoreCase",
+                ["Prop3"] = 5,
+                ["Prop4"] = "One",
+                ["Prop5"] = "Two"
+            };
+
+            jObject.Validate(schema);
+        }
 #endif
 
         public class FormatTestClass
