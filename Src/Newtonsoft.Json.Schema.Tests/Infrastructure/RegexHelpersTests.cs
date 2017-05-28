@@ -15,8 +15,8 @@ using Test = Xunit.FactAttribute;
 using Assert = Newtonsoft.Json.Schema.Tests.XUnitAssert;
 #else
 using NUnit.Framework;
-using System.Text.RegularExpressions;
 #endif
+using System.Text.RegularExpressions;
 
 namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 {
