@@ -50,6 +50,17 @@ namespace Newtonsoft.Json.Schema
             remove { _validator.ValidationEventHandler -= value; }
         }
 
+#if !(NET35 || NET40)
+        /// <summary>
+        /// Gets or sets a timeout that will be used when executing regular expressions.
+        /// </summary>
+        public TimeSpan? RegexMatchTimeout
+        {
+            get { return _validator.RegexMatchTimeout; }
+            set { _validator.RegexMatchTimeout = value; }
+        }
+#endif
+
         /// <summary>
         /// Gets the text value of the current JSON token.
         /// </summary>

@@ -24,6 +24,44 @@ namespace Newtonsoft.Json.Schema.Tests
     [TestFixture]
     public class JSchemaValidatingWriterTests : TestFixtureBase
     {
+#if !(NET35 || NET40)
+        [Test]
+        public void RegexMatchTimeout()
+        {
+            JSchema schema = JSchema.Parse(@"{
+    ""description"": ""Sample regexp schema, which will take ** ~1h ** per event to validate…"",
+    ""type"": ""object"",
+    ""properties"": {
+        ""bomb"": {
+            ""description"": ""The PCRE library (regexp) is well-known to be bad in some cases. E.g. this kind of pattern."",
+            ""type"": ""string"",
+            ""pattern"": ""a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"",
+            ""examples"": [
+                ""aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa""
+            ]
+        }
+    }
+}");
+
+            StringWriter sw = new StringWriter();
+            JsonTextWriter writer = new JsonTextWriter(sw);
+            JSchemaValidatingWriter validatingWriter = new JSchemaValidatingWriter(writer);
+            validatingWriter.RegexMatchTimeout = TimeSpan.FromSeconds(1);
+            validatingWriter.Schema = schema;
+            validatingWriter.ValidationEventHandler += (sender, args) => { };
+
+            ExceptionAssert.Throws<JSchemaException>(() =>
+            {
+                validatingWriter.WriteStartObject();
+                validatingWriter.WritePropertyName("bomb");
+                validatingWriter.WriteValue("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+                validatingWriter.WriteEndObject();
+                validatingWriter.Flush();
+            }, "Timeout when matching regex pattern 'a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'.");
+        }
+#endif
+
+
         [Test]
         public void ArrayBasicValidation_Pass()
         {

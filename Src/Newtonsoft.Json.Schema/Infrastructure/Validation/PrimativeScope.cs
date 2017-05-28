@@ -17,6 +17,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 {
     internal class PrimativeScope : SchemaScope
     {
+        private static readonly Regex HostnameRegex = new Regex(@"^(?=.{1,255}$)[0-9A-Za-z](?:(?:[0-9A-Za-z]|-){0,61}[0-9A-Za-z])?(?:\.[0-9A-Za-z](?:(?:[0-9A-Za-z]|-){0,61}[0-9A-Za-z])?)*\.?$", RegexOptions.CultureInvariant);
+
         public void Initialize(ContextBase context, SchemaScope parent, int initialDepth, JSchema schema)
         {
             Initialize(context, parent, initialDepth, ScopeType.Primitive);
@@ -198,10 +200,14 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
             if (schema.Pattern != null)
             {
-
-                if (schema.TryGetPatternRegex(out Regex regex, out string errorMessage))
+                if (schema.TryGetPatternRegex(
+#if !(NET35 || NET40)
+                    Context.Validator.RegexMatchTimeout,
+#endif
+                    out Regex regex,
+                    out string errorMessage))
                 {
-                    if (!regex.IsMatch(value))
+                    if (!RegexHelpers.IsMatch(regex, schema.Pattern, value))
                     {
                         RaiseError($"String '{value}' does not match regex pattern '{schema.Pattern}'.", ErrorType.Pattern, schema, value, null);
                     }
@@ -237,7 +243,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 case Constants.Formats.Draft3Hostname:
                 {
                     // http://stackoverflow.com/questions/1418423/the-hostname-regex
-                    return Regex.IsMatch(value, @"^(?=.{1,255}$)[0-9A-Za-z](?:(?:[0-9A-Za-z]|-){0,61}[0-9A-Za-z])?(?:\.[0-9A-Za-z](?:(?:[0-9A-Za-z]|-){0,61}[0-9A-Za-z])?)*\.?$", RegexOptions.CultureInvariant);
+                    return HostnameRegex.IsMatch(value);
                 }
                 case Constants.Formats.IPv4:
                 case Constants.Formats.Draft3IPv4:

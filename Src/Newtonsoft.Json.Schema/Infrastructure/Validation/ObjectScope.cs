@@ -133,7 +133,12 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                         {
                             foreach (PatternSchema patternSchema in Schema.GetPatternSchemas())
                             {
-                                if (!patternSchema.TryGetPatternRegex(out Regex regex, out string errorMessage))
+                                if (!patternSchema.TryGetPatternRegex(
+#if !(NET35 || NET40)
+                                    Context.Validator.RegexMatchTimeout,
+#endif
+                                    out Regex _,
+                                    out string errorMessage))
                                 {
                                     RaiseError($"Could not test property names with regex pattern '{patternSchema.Pattern}'. There was an error parsing the regex: {errorMessage}",
                                         ErrorType.PatternProperties,
@@ -192,9 +197,14 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                         {
                             foreach (PatternSchema patternProperty in Schema.GetPatternSchemas())
                             {
-                                if (patternProperty.TryGetPatternRegex(out Regex regex, out string errorMessage))
+                                if (patternProperty.TryGetPatternRegex(
+#if !(NET35 || NET40)
+                                    Context.Validator.RegexMatchTimeout,
+#endif
+                                    out Regex regex,
+                                    out string _))
                                 {
-                                    if (regex.IsMatch(_currentPropertyName))
+                                    if (RegexHelpers.IsMatch(regex, patternProperty.Pattern, _currentPropertyName))
                                     {
                                         CreateScopesAndEvaluateToken(token, value, depth, patternProperty.Schema);
                                         matched = true;
@@ -228,14 +238,16 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             {
                 foreach (PatternSchema patternSchema in schema.GetPatternSchemas())
                 {
-                    if (patternSchema.TryGetPatternRegex(out Regex regex, out string errorMessage))
+                    if (patternSchema.TryGetPatternRegex(
+#if !(NET35 || NET40)
+                        Context.Validator.RegexMatchTimeout,
+#endif
+                        out Regex regex,
+                        out string _))
                     {
-                        if (regex.IsMatch(_currentPropertyName))
+                        if (RegexHelpers.IsMatch(regex, patternSchema.Pattern, propertyName))
                         {
-                            if (Regex.IsMatch(propertyName, patternSchema.Pattern))
-                            {
-                                return true;
-                            }
+                            return true;
                         }
                     }
                 }

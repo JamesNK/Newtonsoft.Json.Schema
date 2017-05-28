@@ -511,9 +511,20 @@ namespace Newtonsoft.Json.Schema
             }
         }
 
-        internal bool TryGetPatternRegex(out Regex regex, out string errorMessage)
+        internal bool TryGetPatternRegex(
+#if !(NET35 || NET40)
+            TimeSpan? matchTimeout,
+#endif
+            out Regex regex,
+            out string errorMessage)
         {
-            bool result = RegexHelpers.TryGetPatternRegex(_pattern, ref _patternRegex, ref _patternError);
+            bool result = RegexHelpers.TryGetPatternRegex(
+                _pattern,
+#if !(NET35 || NET40)
+                matchTimeout,
+#endif
+                ref _patternRegex,
+                ref _patternError);
             regex = _patternRegex;
             errorMessage = _patternError;
 

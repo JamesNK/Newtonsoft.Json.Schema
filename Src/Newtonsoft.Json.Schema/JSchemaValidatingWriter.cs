@@ -78,6 +78,17 @@ namespace Newtonsoft.Json.Schema
             remove { _validator.ValidationEventHandler -= value; }
         }
 
+#if !(NET35 || NET40)
+        /// <summary>
+        /// Gets or sets a timeout that will be used when executing regular expressions.
+        /// </summary>
+        public TimeSpan? RegexMatchTimeout
+        {
+            get { return _validator.RegexMatchTimeout; }
+            set { _validator.RegexMatchTimeout = value; }
+        }
+#endif
+
         /// <summary>
         /// Flushes whatever is in the buffer to the underlying streams and also flushes the underlying stream.
         /// </summary>
@@ -208,7 +219,7 @@ namespace Newtonsoft.Json.Schema
             }
         }
 
-        #region WriteValue methods
+#region WriteValue methods
         /// <summary>
         /// Writes a null value.
         /// </summary>
@@ -516,7 +527,7 @@ namespace Newtonsoft.Json.Schema
             base.WriteValue(value);
             ValidateCurrentToken(JsonToken.String, value, _writer.Top);
         }
-        #endregion
+#endregion
 
         private void ValidateCurrentToken(JsonToken token, object value, int depth)
         {

@@ -37,6 +37,11 @@ namespace Newtonsoft.Json.Schema
         public IList<JsonValidator> Validators { get; set; }
 
         /// <summary>
+        /// Gets or sets an optional timeout that will be used when executing regular expressions during validation.
+        /// </summary>
+        public TimeSpan? RegexTimeout { get; set; }
+
+        /// <summary>
         /// Sets an event handler for receiving information about receives information about JSON Schema syntax errors. 
         /// </summary>
         public event SchemaValidationEventHandler ValidationEventHandler

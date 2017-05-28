@@ -1113,7 +1113,12 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                     {
                         foreach (PatternSchema patternProperty in target.GetPatternSchemas())
                         {
-                            if (!patternProperty.TryGetPatternRegex(out Regex patternRegex, out string errorMessage))
+                            if (!patternProperty.TryGetPatternRegex(
+#if !(NET35 || NET40)
+                                null,
+#endif
+                                out Regex _,
+                                out string errorMessage))
                             {
                                 ValidationError error = ValidationError.CreateValidationError($"Could not parse regex pattern '{patternProperty.Pattern}'. Regex parser error: {errorMessage}", ErrorType.PatternProperties, target, null, patternProperty.Pattern, null, target, target.Path);
                                 _validationErrors.Add(error);
@@ -1229,7 +1234,12 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
                     if (_validationErrors != null)
                     {
-                        if (!target.TryGetPatternRegex(out Regex patternRegex, out string errorMessage))
+                        if (!target.TryGetPatternRegex(
+#if !(NET35 || NET40)
+                            null,
+#endif
+                            out Regex _,
+                            out string errorMessage))
                         {
                             ValidationError error = ValidationError.CreateValidationError($"Could not parse regex pattern '{target.Pattern}'. Regex parser error: {errorMessage}", ErrorType.Pattern, target, null, target.Pattern, null, target, target.Path);
                             _validationErrors.Add(error);

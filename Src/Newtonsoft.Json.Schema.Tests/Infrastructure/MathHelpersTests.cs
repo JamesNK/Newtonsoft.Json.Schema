@@ -20,7 +20,7 @@ using NUnit.Framework;
 namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 {
     [TestFixture]
-    public class MathHelpersTests
+    public class MathHelpersTests : TestFixtureBase
     {
         [Test]
         public void IsDoubleMultipleTests()
