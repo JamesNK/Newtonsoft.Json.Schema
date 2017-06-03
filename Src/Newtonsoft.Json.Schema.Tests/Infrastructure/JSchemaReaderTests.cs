@@ -2988,6 +2988,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             ExceptionAssert.Throws<JSchemaReaderException>(() => { JSchema.Parse(schemaJson); }, "Error parsing id 'http://'. Id must be a valid URI. Path '$schema', line 3, position 22.");
         }
 
+#if !(DNXCORE50 || NETFX_CORE)
         [Test]
         public void ScopeChangeInDefinitionsJson()
         {
@@ -3032,6 +3033,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 
             resolver.Add(new Uri(id), json);
         }
+#endif
 
         [Test]
         public void LargeMaxLength()
