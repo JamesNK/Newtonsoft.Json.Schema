@@ -2989,6 +2989,51 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         }
 
         [Test]
+        public void ScopeChangeInDefinitionsJson()
+        {
+            string schemaJson = @"{
+  ""id"": ""http://localhost:1234/scope_change_defs2.json"",
+  ""type"": ""object"",
+  ""properties"": {
+    ""list"": {
+      ""$ref"": ""#/definitions/baz/definitions/bar""
+    }
+  },
+  ""definitions"": {
+    ""baz"": {
+      ""id"": ""folder/"",
+      ""definitions"": {
+        ""bar"": {
+          ""type"": ""array"",
+          ""items"": {
+            ""$ref"": ""folderInteger.json""
+          }
+        }
+      }
+    }
+  }
+}";
+
+            var resolver = new JSchemaPreloadedResolver();
+            AddSchema(resolver, "folder/folderInteger.json", "http://localhost:1234/folder/folderInteger.json");
+
+            JSchema s = JSchema.Parse(schemaJson, resolver);
+
+            Assert.AreEqual(JSchemaType.Array, s.Properties["list"].Type);
+            Assert.AreEqual(JSchemaType.Integer, s.Properties["list"].Items[0].Type);
+        }
+
+        private static void AddSchema(JSchemaPreloadedResolver resolver, string schemaFileName, string id)
+        {
+            string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            string baseRemotePath = Path.Combine(baseDirectory, Path.Combine("Specs", "remotes"));
+
+            string json = File.ReadAllText(Path.Combine(baseRemotePath, schemaFileName));
+
+            resolver.Add(new Uri(id), json);
+        }
+
+        [Test]
         public void LargeMaxLength()
         {
             string schemaJson = @"{

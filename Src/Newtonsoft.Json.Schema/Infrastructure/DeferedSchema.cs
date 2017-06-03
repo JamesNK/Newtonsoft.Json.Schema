@@ -44,6 +44,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
     [DebuggerDisplay("Reference = {ResolvedReference}, Success = {Success}")]
     internal class DeferedSchema
     {
+        public readonly Uri OriginalReference;
         public readonly Uri ResolvedReference;
         public readonly JSchema ReferenceSchema;
         public readonly List<SetSchema> SetSchemas;
@@ -61,10 +62,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             get { return _resolvedSchema; }
         }
 
-        public DeferedSchema(Uri resolvedReference, JSchema referenceSchema)
+        public DeferedSchema(Uri resolvedReference, Uri originalReference, JSchema referenceSchema)
         {
             SetSchemas = new List<SetSchema>();
             ResolvedReference = resolvedReference;
+            OriginalReference = originalReference;
             ReferenceSchema = referenceSchema;
         }
 

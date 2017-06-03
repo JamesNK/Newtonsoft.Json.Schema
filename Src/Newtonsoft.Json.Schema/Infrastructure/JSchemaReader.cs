@@ -22,19 +22,12 @@ using Newtonsoft.Json.Utilities;
 
 namespace Newtonsoft.Json.Schema.Infrastructure
 {
-    internal enum SchemaVersion
-    {
-        Unknown,
-        Draft3,
-        Draft4
-    }
-
     internal class JSchemaReader
     {
         private static readonly ThreadSafeStore<string, JSchema> SpecSchemaCache = new ThreadSafeStore<string, JSchema>(LoadResourceSchema);
 
         internal JSchemaDiscovery _schemaDiscovery;
-        internal readonly List<JSchema> _schemaStack;
+        internal readonly List<IIdentiferScope> _identiferScopeStack;
         private readonly DeferedSchemaCollection _deferedSchemas;
         private readonly DeferedSchemaCollection _resolvedDeferedSchemas;
         private readonly JSchemaResolver _resolver;
@@ -62,7 +55,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             Cache = new Dictionary<Uri, JSchema>(UriComparer.Instance);
             _deferedSchemas = new DeferedSchemaCollection();
             _resolvedDeferedSchemas = new DeferedSchemaCollection();
-            _schemaStack = new List<JSchema>();
+            _identiferScopeStack = new List<IIdentiferScope>();
 
             _resolver = settings.Resolver ?? JSchemaDummyResolver.Instance;
             _baseUri = settings.BaseUri;
@@ -209,7 +202,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         {
             Uri resolvedReference = ResolveSchemaReference(referenceSchema);
 
-            return AddDeferedSchema(resolvedReference, referenceSchema, target, setSchema);
+            return AddDeferedSchema(resolvedReference, referenceSchema.Reference, referenceSchema, target, setSchema);
         }
 
         private void ReadSchemaProperties(JsonReader reader, JSchema target, bool isRoot)
@@ -282,22 +275,27 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         private void ResolveDeferedSchema(DeferedSchema deferedSchema)
         {
-            Uri reference = deferedSchema.ResolvedReference;
-
-            bool found = SchemaDiscovery.FindSchema(s =>
-            {
-                // additional json copied to referenced schema
-                // kind of hacky
-                if (s != deferedSchema.ReferenceSchema && deferedSchema.ReferenceSchema._extensionData != null)
+            bool found = SchemaDiscovery.FindSchema(
+                s =>
                 {
-                    foreach (KeyValuePair<string, JToken> keyValuePair in deferedSchema.ReferenceSchema._extensionData)
+                    // additional json copied to referenced schema
+                    // kind of hacky
+                    if (s != deferedSchema.ReferenceSchema && deferedSchema.ReferenceSchema._extensionData != null)
                     {
-                        s.ExtensionData[keyValuePair.Key] = keyValuePair.Value;
+                        foreach (KeyValuePair<string, JToken> keyValuePair in deferedSchema.ReferenceSchema._extensionData)
+                        {
+                            s.ExtensionData[keyValuePair.Key] = keyValuePair.Value;
+                        }
                     }
-                }
 
-                deferedSchema.SetResolvedSchema(s);
-            }, RootSchema, RootSchema.Id, reference, this, ref _schemaDiscovery);
+                    deferedSchema.SetResolvedSchema(s);
+                },
+                RootSchema,
+                RootSchema.Id,
+                deferedSchema.ResolvedReference,
+                deferedSchema.OriginalReference,
+                this,
+                ref _schemaDiscovery);
 
             if (found)
             {
@@ -844,7 +842,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             }
             loadingSchema.Path = reader.Path;
 
-            _schemaStack.Add(loadingSchema);
+            _identiferScopeStack.Add(loadingSchema);
 
             try
             {
@@ -854,7 +852,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 {
                     Uri resolvedReference = ResolveSchemaReference(loadingSchema);
 
-                    if (AddDeferedSchema(resolvedReference, loadingSchema, target, setSchema))
+                    if (AddDeferedSchema(resolvedReference, loadingSchema.Reference, loadingSchema, target, setSchema))
                     {
                         return;
                     }
@@ -879,13 +877,12 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             }
             finally
             {
-                _schemaStack.RemoveAt(_schemaStack.Count - 1);
+                _identiferScopeStack.RemoveAt(_identiferScopeStack.Count - 1);
             }
         }
 
-        private bool AddDeferedSchema(Uri resolvedReference, JSchema referenceSchema, JSchema target, Action<JSchema> setSchema)
+        private bool AddDeferedSchema(Uri resolvedReference, Uri originalReference, JSchema referenceSchema, JSchema target, Action<JSchema> setSchema)
         {
-
             if (_resolvedDeferedSchemas.TryGetValue(resolvedReference, out DeferedSchema deferedSchema) && deferedSchema.Success)
             {
                 if (deferedSchema.Success)
@@ -904,7 +901,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             {
                 if (!_deferedSchemas.TryGetValue(resolvedReference, out deferedSchema))
                 {
-                    deferedSchema = new DeferedSchema(resolvedReference, referenceSchema);
+                    deferedSchema = new DeferedSchema(resolvedReference, originalReference, referenceSchema);
                     _deferedSchemas.Add(deferedSchema);
                 }
 
@@ -978,9 +975,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         private Uri ResolveSchemaReference(JSchema schema)
         {
             Uri resolvedReference = null;
-            for (int i = 0; i < _schemaStack.Count; i++)
+            for (int i = 0; i < _identiferScopeStack.Count; i++)
             {
-                Uri part = _schemaStack[i].Id;
+                Uri part = _identiferScopeStack[i].Id;
 
                 if (part != null)
                 {

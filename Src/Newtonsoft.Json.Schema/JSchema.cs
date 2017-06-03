@@ -27,7 +27,7 @@ namespace Newtonsoft.Json.Schema
     /// An in-memory representation of a JSON Schema.
     /// </summary>
     [JsonConverter(typeof(JSchemaConverter))]
-    public class JSchema : IJsonLineInfo
+    public class JSchema : IJsonLineInfo, IIdentiferScope
     {
         internal Uri Reference { get; set; }
         internal bool DeprecatedRequired { get; set; }

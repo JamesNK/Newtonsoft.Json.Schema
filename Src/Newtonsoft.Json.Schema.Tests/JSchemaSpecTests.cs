@@ -49,6 +49,7 @@ namespace Newtonsoft.Json.Schema.Tests
                 AddSchema(resolver, "integer.json", "http://localhost:1234/integer.json");
                 AddSchema(resolver, "folder/folderInteger.json", "http://localhost:1234/folder/folderInteger.json");
                 AddSchema(resolver, "subSchemas.json", "http://localhost:1234/subSchemas.json");
+                AddSchema(resolver, "name.json", "http://localhost:1234/name.json");
 
                 _resolver = resolver;
             }

@@ -120,7 +120,7 @@ namespace Newtonsoft.Json.Schema
 
             JSchema subSchema = null;
 
-            SchemaDiscovery.FindSchema(s => subSchema = s, rootSchema, rootSchemaId, subschemaId, resolverSchemaReader, ref resolverSchemaReader._schemaDiscovery);
+            SchemaDiscovery.FindSchema(s => subSchema = s, rootSchema, rootSchemaId, subschemaId, null, resolverSchemaReader, ref resolverSchemaReader._schemaDiscovery);
 
             if (subSchema != null)
             {

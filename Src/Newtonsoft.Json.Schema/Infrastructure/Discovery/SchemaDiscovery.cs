@@ -22,7 +22,14 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             return Uri.UnescapeDataString(reference).Replace("~1", "/").Replace("~0", "~");
         }
 
-        public static bool FindSchema(Action<JSchema> setSchema, JSchema schema, Uri rootSchemaId, Uri reference, JSchemaReader schemaReader, ref JSchemaDiscovery discovery)
+        public static bool FindSchema(
+            Action<JSchema> setSchema,
+            JSchema schema,
+            Uri rootSchemaId,
+            Uri reference,
+            Uri originalReference,
+            JSchemaReader schemaReader,
+            ref JSchemaDiscovery discovery)
         {
             // todo, better way to get parts from Uri
             string[] parts = reference.ToString().Split('/');
@@ -31,7 +38,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
 
             if (parts.Length > 0 && (parts[0] == "#" || parts[0] == rootSchemaId + "#"))
             {
-                schemaReader._schemaStack.Add(schema);
+                schemaReader._identiferScopeStack.Add(schema);
 
                 JSchema parent = schema;
                 object current = schema;
@@ -42,12 +49,29 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                     switch (current)
                     {
                         case JSchema s:
-                            schemaReader._schemaStack.Add(s);
+                            schemaReader._identiferScopeStack.Add(s);
 
                             parent = s;
                             current = GetCurrentFromSchema(s, unescapedPart);
                             break;
                         case JToken t:
+                            IIdentiferScope scope;
+                            if (t is JObject && t[Constants.PropertyNames.Id] is JValue idToken && (idToken.Type == JTokenType.String || idToken.Type == JTokenType.Uri))
+                            {
+                                Uri id = idToken.Value as Uri;
+                                if (id == null)
+                                {
+                                    id = new Uri((string) idToken, UriKind.RelativeOrAbsolute);
+                                }
+                                scope = new JsonIdentiferScope(id);
+                            }
+                            else
+                            {
+                                scope = JsonIdentiferScope.Empty;
+                            }
+
+                            schemaReader._identiferScopeStack.Add(scope);
+
                             current = GetCurrentFromToken(t, unescapedPart);
                             break;
                         case IDictionary<string, JSchema> d:
@@ -134,7 +158,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                         break;
                 }
 
-                schemaReader._schemaStack.Clear();
+                schemaReader._identiferScopeStack.Clear();
             }
             else
             {
@@ -169,7 +193,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                                 || !UriComparer.Instance.Equals(rootSchemaId, path)
                                 || !UriComparer.Instance.Equals(reference, fragment))
                             {
-                                resolvedSchema = FindSchema(setSchema, knownSchema.Schema, path, fragment, schemaReader, ref discovery);
+                                resolvedSchema = FindSchema(setSchema, knownSchema.Schema, path, fragment, originalReference, schemaReader, ref discovery);
                             }
                             else
                             {
@@ -190,6 +214,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                             if (definitions is JObject definitionsObject)
                             {
                                 JProperty matchingProperty = definitionsObject.Properties().FirstOrDefault(p => TryCompare(p.Name, resolvedReference));
+                                // if no match then attempt to find key that matches the original reference
+                                if (matchingProperty == null && originalReference != null)
+                                {
+                                    matchingProperty = definitionsObject.Properties().FirstOrDefault(p => TryCompare(p.Name, originalReference));
+                                }
 
                                 if (matchingProperty?.Value is JObject o
                                     && TryCompare((string)o["id"], resolvedReference))
