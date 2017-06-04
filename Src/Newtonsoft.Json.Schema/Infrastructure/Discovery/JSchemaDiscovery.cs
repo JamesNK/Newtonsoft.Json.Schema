@@ -115,6 +115,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             DiscoverArraySchemas(Constants.PropertyNames.AnyOf, schema._anyOf);
             DiscoverArraySchemas(Constants.PropertyNames.OneOf, schema._oneOf);
             DiscoverSchema(Constants.PropertyNames.Not, schema.Not);
+            DiscoverSchema(Constants.PropertyNames.PropertyNamesSchema, schema.PropertyNames);
+            DiscoverSchema(Constants.PropertyNames.Contains, schema.Contains);
 
             _pathStack.RemoveAt(_pathStack.Count - 1);
         }

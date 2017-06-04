@@ -946,9 +946,10 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaGenerator generator = new JSchemaGenerator();
             JSchema schema = generator.Generate(typeof(Person));
 
-            string json = schema.ToString();
+            string json = schema.ToString(SchemaVersion.Draft4);
 
             StringAssert.AreEqual(@"{
+  ""$schema"": ""http://json-schema.org/draft-04/schema#"",
   ""id"": ""Person"",
   ""title"": ""Title!"",
   ""description"": ""JsonObjectAttribute description!"",
@@ -1237,9 +1238,10 @@ namespace Newtonsoft.Json.Schema.Tests
 
             JSchema schema = generator.Generate(typeof(Version), true);
 
-            string json = schema.ToString();
+            string json = schema.ToString(SchemaVersion.Draft4);
 
             StringAssert.AreEqual(@"{
+  ""$schema"": ""http://json-schema.org/draft-04/schema#"",
   ""id"": ""Version"",
   ""type"": [
     ""object"",
@@ -1290,9 +1292,10 @@ namespace Newtonsoft.Json.Schema.Tests
 
             JSchema schema = generator.Generate(typeof(Version), true);
 
-            string json = schema.ToString();
+            string json = schema.ToString(SchemaVersion.Draft4);
 
             StringAssert.AreEqual(@"{
+  ""$schema"": ""http://json-schema.org/draft-04/schema#"",
   ""id"": ""System.Version"",
   ""type"": [
     ""object"",
@@ -1451,9 +1454,10 @@ namespace Newtonsoft.Json.Schema.Tests
             generator.SchemaIdGenerationHandling = SchemaIdGenerationHandling.TypeName;
 
             JSchema schema = generator.Generate(typeof(CircularReferenceClass), false);
-            string json = schema.ToString();
+            string json = schema.ToString(SchemaVersion.Draft4);
 
             StringAssert.AreEqual(@"{
+  ""$schema"": ""http://json-schema.org/draft-04/schema#"",
   ""id"": ""CircularReferenceClass"",
   ""definitions"": {
     ""CircularReferenceClass-1"": {
@@ -1556,9 +1560,10 @@ namespace Newtonsoft.Json.Schema.Tests
 
             generator.SchemaIdGenerationHandling = SchemaIdGenerationHandling.TypeName;
             JSchema schema = generator.Generate(typeof(JsonPropertyWithHandlingValues), true);
-            string json = schema.ToString();
+            string json = schema.ToString(SchemaVersion.Draft4);
 
             StringAssert.AreEqual(@"{
+  ""$schema"": ""http://json-schema.org/draft-04/schema#"",
   ""id"": ""JsonPropertyWithHandlingValues"",
   ""type"": [
     ""object"",

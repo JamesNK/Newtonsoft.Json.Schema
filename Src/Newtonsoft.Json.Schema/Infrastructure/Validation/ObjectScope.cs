@@ -82,6 +82,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 switch (token)
                 {
                     case JsonToken.StartObject:
+                        EnsureValid(value);
                         TestType(Schema, JSchemaType.Object);
                         return false;
                     case JsonToken.EndObject:
@@ -168,6 +169,12 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     if (!Schema._dependencies.IsNullOrEmpty())
                     {
                         _readProperties.Add(_currentPropertyName);
+                    }
+
+                    if (Schema._propertyNames != null)
+                    {
+                        EnsureValid(this, Schema._propertyNames, value);
+                        PrimativeScope.ValidateString(this, Schema._propertyNames, _currentPropertyName);
                     }
 
                     if (!Schema.AllowAdditionalProperties)

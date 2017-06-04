@@ -27,6 +27,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
         protected override bool EvaluateTokenCore(JsonToken token, object value, int depth)
         {
+            EnsureValid(value);
+
             switch (token)
             {
                 case JsonToken.Integer:
@@ -50,7 +52,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     Uri uri = value as Uri;
                     string s = (uri != null) ? uri.OriginalString : value.ToString();
 
-                    if (!ValidateString(Schema, s))
+                    if (!ValidateString(this, Schema, s))
                     {
                         return true;
                     }
@@ -81,7 +83,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     }
 
                     string s = Convert.ToBase64String(data);
-                    if (!ValidateString(Schema, s))
+                    if (!ValidateString(this, Schema, s))
                     {
                         return true;
                     }
@@ -174,9 +176,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             return true;
         }
 
-        private bool ValidateString(JSchema schema, string value)
+        internal static bool ValidateString(SchemaScope scope, JSchema schema, string value)
         {
-            if (!TestType(schema, JSchemaType.String, value))
+            if (!TestType(scope, schema, JSchemaType.String, value))
             {
                 return false;
             }
@@ -189,12 +191,12 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
                 if (schema.MaximumLength != null && textLength > schema.MaximumLength)
                 {
-                    RaiseError($"String '{value}' exceeds maximum length of {schema.MaximumLength}.", ErrorType.MaximumLength, schema, value, null);
+                    scope.RaiseError($"String '{value}' exceeds maximum length of {schema.MaximumLength}.", ErrorType.MaximumLength, schema, value, null);
                 }
 
                 if (schema.MinimumLength != null && textLength < schema.MinimumLength)
                 {
-                    RaiseError($"String '{value}' is less than minimum length of {schema.MinimumLength}.", ErrorType.MinimumLength, schema, value, null);
+                    scope.RaiseError($"String '{value}' is less than minimum length of {schema.MinimumLength}.", ErrorType.MinimumLength, schema, value, null);
                 }
             }
 
@@ -202,19 +204,19 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             {
                 if (schema.TryGetPatternRegex(
 #if !(NET35 || NET40)
-                    Context.Validator.RegexMatchTimeout,
+                    scope.Context.Validator.RegexMatchTimeout,
 #endif
                     out Regex regex,
                     out string errorMessage))
                 {
                     if (!RegexHelpers.IsMatch(regex, schema.Pattern, value))
                     {
-                        RaiseError($"String '{value}' does not match regex pattern '{schema.Pattern}'.", ErrorType.Pattern, schema, value, null);
+                        scope.RaiseError($"String '{value}' does not match regex pattern '{schema.Pattern}'.", ErrorType.Pattern, schema, value, null);
                     }
                 }
                 else
                 {
-                    RaiseError($"Could not validate string with regex pattern '{schema.Pattern}'. There was an error parsing the regex: {errorMessage}", ErrorType.Pattern, schema, value, null);
+                    scope.RaiseError($"Could not validate string with regex pattern '{schema.Pattern}'. There was an error parsing the regex: {errorMessage}", ErrorType.Pattern, schema, value, null);
                 }
             }
 
@@ -224,7 +226,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
                 if (!valid)
                 {
-                    RaiseError($"String '{value}' does not validate against format '{schema.Format}'.", ErrorType.Format, schema, value, null);
+                    scope.RaiseError($"String '{value}' does not validate against format '{schema.Format}'.", ErrorType.Format, schema, value, null);
                 }
             }
 

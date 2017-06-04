@@ -25,6 +25,65 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
     public class JSchemaReaderTests : TestFixtureBase
     {
         [Test]
+        public void RootSchema_InvalidType()
+        {
+            string json = @"[]";
+
+            ExceptionAssert.Throws<JSchemaReaderException>(
+                () =>
+                {
+                    JSchema.Parse(json);
+                },
+                "Unexpected token encountered when reading schema. Expected StartObject, Boolean, got StartArray. Path '', line 1, position 1.");
+        }
+
+        [Test]
+        public void NestedSchema_InvalidType()
+        {
+            string json = @"{'not':[]}";
+
+            ExceptionAssert.Throws<JSchemaReaderException>(
+                () =>
+                {
+                    JSchema.Parse(json);
+                },
+                "Unexpected token encountered when reading value for 'not'. Expected StartObject, Boolean, got StartArray. Path 'not', line 1, position 8.");
+        }
+
+        [Test]
+        public void Valid_True()
+        {
+            string json = @"true";
+
+            JSchemaReader schemaReader = new JSchemaReader(JSchemaDummyResolver.Instance);
+            JSchema schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
+
+            Assert.AreEqual(true, schema.Valid);
+        }
+
+        [Test]
+        public void Valid_False()
+        {
+            string json = @"false";
+
+            JSchemaReader schemaReader = new JSchemaReader(JSchemaDummyResolver.Instance);
+            JSchema schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
+
+            Assert.AreEqual(false, schema.Valid);
+        }
+
+        [Test]
+        public void Valid_NotSet()
+        {
+            string json = @"{}";
+
+            JSchemaReader schemaReader = new JSchemaReader(JSchemaDummyResolver.Instance);
+            JSchema schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
+
+            Assert.AreEqual(null, schema.Valid);
+        }
+
+        [Test]
         public void AdditionalContent()
         {
             ExceptionAssert.Throws<JsonReaderException>(
@@ -366,6 +425,79 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         }
 
         [Test]
+        public void ConstNull()
+        {
+            string json = @"{""const"": null}";
+
+            JSchemaReader schemaReader = new JSchemaReader(JSchemaDummyResolver.Instance);
+            JSchema schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
+
+            Assert.AreEqual(JTokenType.Null, ((JValue)schema.Const).Type);
+        }
+
+        [Test]
+        public void ConstArray()
+        {
+            string json = @"{""const"": [1]}";
+
+            JSchemaReader schemaReader = new JSchemaReader(JSchemaDummyResolver.Instance);
+            JSchema schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
+
+            Assert.AreEqual(JTokenType.Array, schema.Const.Type);
+            Assert.AreEqual(1, (int)((JArray)schema.Const)[0]);
+        }
+
+        [Test]
+        public void NotFalse()
+        {
+            string json = @"{""not"": false}";
+
+            JSchemaReader schemaReader = new JSchemaReader(JSchemaDummyResolver.Instance);
+            JSchema schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
+
+            Assert.AreEqual(false, schema.Not.Valid);
+        }
+
+        [Test]
+        public void PropertyNames_False()
+        {
+            string json = @"{""propertyNames"": false}";
+
+            JSchemaReader schemaReader = new JSchemaReader(JSchemaDummyResolver.Instance);
+            JSchema schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
+
+            Assert.AreEqual(false, schema.PropertyNames.Valid);
+        }
+
+        [Test]
+        public void Contains_False()
+        {
+            string json = @"{""contains"": false}";
+
+            JSchemaReader schemaReader = new JSchemaReader(JSchemaDummyResolver.Instance);
+            JSchema schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
+
+            Assert.AreEqual(false, schema.Contains.Valid);
+        }
+
+        [Test]
+        public void Properties_Boolean()
+        {
+            string json = @"{
+  ""properties"": {
+    ""trueProp"": true,
+    ""falseProp"": false
+  }
+}";
+
+            JSchemaReader schemaReader = new JSchemaReader(JSchemaDummyResolver.Instance);
+            JSchema schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
+
+            Assert.AreEqual(true, schema.Properties["trueProp"].Valid);
+            Assert.AreEqual(false, schema.Properties["falseProp"].Valid);
+        }
+
+        [Test]
         public void MultipleTypes()
         {
             string json = @"{
@@ -467,7 +599,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         }
 
         [Test]
-        public void ExclusiveMinimum_ExclusiveMaximum()
+        public void ExclusiveMinimum_ExclusiveMaximum_Draft4()
         {
             string json = @"{
   ""exclusiveMinimum"":true,
@@ -477,6 +609,23 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             JSchemaReader schemaReader = new JSchemaReader(JSchemaDummyResolver.Instance);
             JSchema schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
 
+            Assert.AreEqual(true, schema.ExclusiveMinimum);
+            Assert.AreEqual(true, schema.ExclusiveMaximum);
+        }
+
+        [Test]
+        public void ExclusiveMinimum_ExclusiveMaximum()
+        {
+            string json = @"{
+  ""exclusiveMinimum"":2,
+  ""exclusiveMaximum"":6
+}";
+
+            JSchemaReader schemaReader = new JSchemaReader(JSchemaDummyResolver.Instance);
+            JSchema schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
+
+            Assert.AreEqual(2, schema.Minimum);
+            Assert.AreEqual(6, schema.Maximum);
             Assert.AreEqual(true, schema.ExclusiveMinimum);
             Assert.AreEqual(true, schema.ExclusiveMaximum);
         }
@@ -2162,7 +2311,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
   ]
 }";
 
-            string writtenJson = s.ToString();
+            string writtenJson = s.ToString(SchemaVersion.Draft4);
 
             StringAssert.AreEqual(expected, writtenJson);
         }

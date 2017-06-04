@@ -23,6 +23,151 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
     public class JSchemaWriterTests : TestFixtureBase
     {
         [Test]
+        public void ReadFromSchema_Draft4()
+        {
+            string schemaJson = @"{
+  ""$schema"": ""http://json-schema.org/draft-04/schema#"",
+  ""id"": ""MySchema""
+}";
+
+            JSchema schema = JSchema.Parse(schemaJson);
+            string json = schema.ToString();
+
+            StringAssert.AreEqual(schemaJson, json);
+        }
+
+        [Test]
+        public void ReadFromSchema_Draft6()
+        {
+            string schemaJson = @"{
+  ""$schema"": ""http://json-schema.org/draft-06/schema#"",
+  ""$id"": ""MySchema""
+}";
+
+            JSchema schema = JSchema.Parse(schemaJson);
+            string json = schema.ToString();
+
+            StringAssert.AreEqual(schemaJson, json);
+        }
+
+        [Test]
+        public void WriteTo_Draft6AsDraft4()
+        {
+            string schemaJson = @"{
+  ""$schema"": ""http://json-schema.org/draft-06/schema#"",
+  ""$id"": ""MySchema""
+}";
+
+            JSchema schema = JSchema.Parse(schemaJson);
+            string json = schema.ToString(SchemaVersion.Draft4);
+
+            StringAssert.AreEqual(@"{
+  ""$schema"": ""http://json-schema.org/draft-04/schema#"",
+  ""id"": ""MySchema""
+}", json);
+        }
+
+        [Test]
+        public void WriteTo_Draft6KeywordsSkippedAsDraft4()
+        {
+            JSchema s = new JSchema
+            {
+                Id = new Uri("anId!", UriKind.RelativeOrAbsolute),
+                PropertyNames = new JSchema(),
+                Contains = new JSchema(),
+                Const = new JArray()
+            };
+
+            string json = s.ToString(SchemaVersion.Draft6);
+
+            StringAssert.AreEqual(@"{
+  ""$schema"": ""http://json-schema.org/draft-06/schema#"",
+  ""$id"": ""anId!"",
+  ""const"": [],
+  ""propertyNames"": {},
+  ""contains"": {}
+}", json);
+
+            json = s.ToString(SchemaVersion.Draft4);
+
+            StringAssert.AreEqual(@"{
+  ""$schema"": ""http://json-schema.org/draft-04/schema#"",
+  ""id"": ""anId!""
+}", json);
+        }
+
+        [Test]
+        public void WriteTo_PropertyNames()
+        {
+            JSchema s = new JSchema
+            {
+                PropertyNames = new JSchema()
+            };
+
+            string json = s.ToString();
+
+            StringAssert.AreEqual(@"{
+  ""propertyNames"": {}
+}", json);
+        }
+
+        [Test]
+        public void WriteTo_Contains()
+        {
+            JSchema s = new JSchema
+            {
+                Contains = new JSchema()
+            };
+
+            string json = s.ToString();
+
+            StringAssert.AreEqual(@"{
+  ""contains"": {}
+}", json);
+        }
+
+        [Test]
+        public void WriteTo_Const_Null()
+        {
+            JSchema s = new JSchema
+            {
+                Const = JValue.CreateNull()
+            };
+
+            string json = s.ToString();
+
+            StringAssert.AreEqual(@"{
+  ""const"": null
+}", json);
+        }
+
+        [Test]
+        public void WriteTo_Valid_True()
+        {
+            JSchema s = new JSchema
+            {
+                Valid = true
+            };
+
+            string json = s.ToString();
+
+            StringAssert.AreEqual(@"true", json);
+        }
+
+        [Test]
+        public void WriteTo_Valid_False()
+        {
+            JSchema s = new JSchema
+            {
+                Valid = false
+            };
+
+            string json = s.ToString();
+
+            StringAssert.AreEqual(@"false", json);
+        }
+
+        [Test]
         public void WriteTo_Schema_Root()
         {
             JSchema s = new JSchema
@@ -98,9 +243,10 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             s.Items.Add(nested);
             s.Properties["test"] = nested;
 
-            string json = s.ToString();
+            string json = s.ToString(SchemaVersion.Draft4);
 
             StringAssert.AreEqual(@"{
+  ""$schema"": ""http://json-schema.org/draft-04/schema#"",
   ""id"": ""http://www.jnk.com/"",
   ""properties"": {
     ""test"": {
@@ -138,9 +284,10 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
                 }
             };
 
-            string json = s.ToString();
+            string json = s.ToString(SchemaVersion.Draft4);
 
             StringAssert.AreEqual(@"{
+  ""$schema"": ""http://json-schema.org/draft-04/schema#"",
   ""id"": ""http://www.jnk.com/"",
   ""properties"": {
     ""pattern_parent"": {
@@ -314,11 +461,17 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             JsonTextWriter jsonWriter = new JsonTextWriter(writer);
             jsonWriter.Formatting = Formatting.Indented;
 
-            schema.WriteTo(jsonWriter);
+            JSchemaWriterSettings settings = new JSchemaWriterSettings
+            {
+                Version = SchemaVersion.Draft4
+            };
+
+            schema.WriteTo(jsonWriter, settings);
 
             string writtenJson = writer.ToString();
 
             StringAssert.AreEqual(@"{
+  ""$schema"": ""http://json-schema.org/draft-04/schema#"",
   ""id"": ""CircularReferenceArray"",
   ""description"": ""CircularReference"",
   ""type"": ""array"",
@@ -447,12 +600,14 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
                 ExternalSchemas =
                 {
                     new ExternalSchema(referenceSchema)
-                }
+                },
+                Version = SchemaVersion.Draft4
             });
 
             string json = writer.ToString();
 
             StringAssert.AreEqual(@"{
+  ""$schema"": ""http://json-schema.org/draft-04/schema#"",
   ""id"": ""#root"",
   ""not"": {
     ""$ref"": ""http://localhost/test#/items""
@@ -517,11 +672,44 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         }
 
         [Test]
+        public void WriteTo_ExclusiveMinimum_ExclusiveMaximum_Draf4()
+        {
+            JSchema schema = new JSchema();
+            schema.ExclusiveMinimum = true;
+            schema.ExclusiveMaximum = true;
+            schema.Minimum = 100;
+            schema.Maximum = 101;
+
+            StringWriter writer = new StringWriter();
+            JsonTextWriter jsonWriter = new JsonTextWriter(writer);
+            jsonWriter.Formatting = Formatting.Indented;
+
+            JSchemaWriterSettings settings = new JSchemaWriterSettings
+            {
+                Version = SchemaVersion.Draft4
+            };
+
+            schema.WriteTo(jsonWriter, settings);
+
+            string json = writer.ToString();
+
+            StringAssert.AreEqual(@"{
+  ""$schema"": ""http://json-schema.org/draft-04/schema#"",
+  ""minimum"": 100.0,
+  ""maximum"": 101.0,
+  ""exclusiveMinimum"": true,
+  ""exclusiveMaximum"": true
+}", json);
+        }
+
+        [Test]
         public void WriteTo_ExclusiveMinimum_ExclusiveMaximum()
         {
             JSchema schema = new JSchema();
             schema.ExclusiveMinimum = true;
             schema.ExclusiveMaximum = true;
+            schema.Minimum = 100;
+            schema.Maximum = 101;
 
             StringWriter writer = new StringWriter();
             JsonTextWriter jsonWriter = new JsonTextWriter(writer);
@@ -532,8 +720,8 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             string json = writer.ToString();
 
             StringAssert.AreEqual(@"{
-  ""exclusiveMinimum"": true,
-  ""exclusiveMaximum"": true
+  ""exclusiveMinimum"": 100.0,
+  ""exclusiveMaximum"": 101.0
 }", json);
         }
 
@@ -676,12 +864,14 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
                 ExternalSchemas = new List<ExternalSchema>
                 {
                     new ExternalSchema(referenceSchema)
-                }
+                },
+                Version = SchemaVersion.Draft4
             });
 
             string json = writer.ToString();
 
             StringAssert.AreEqual(@"{
+  ""$schema"": ""http://json-schema.org/draft-04/schema#"",
   ""id"": ""#root"",
   ""definitions"": {
     ""reference"": {
@@ -746,9 +936,10 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 
             Assert.AreEqual(file, file2);
 
-            string json = schema.ToString();
+            string json = schema.ToString(SchemaVersion.Draft4);
 
             StringAssert.AreEqual(@"{
+  ""$schema"": ""http://json-schema.org/draft-04/schema#"",
   ""id"": ""root"",
   ""definitions"": {
     ""file"": {

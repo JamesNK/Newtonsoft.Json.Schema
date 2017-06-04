@@ -71,7 +71,7 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
             JSchema schema = JSchema.Parse(schemaJson);
             string json = schema.ToString();
 
-            StringAssert.AreEqual(schemaJson, schema.ToString());
+            StringAssert.AreEqual(schemaJson, json);
 
             JSchema schema2 = JSchema.Parse(json);
             JSchema myDefinitionSchema = (JSchema)schema2.ExtensionData["definitions"]["myDefinition"];

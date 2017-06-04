@@ -22,6 +22,39 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             return Uri.UnescapeDataString(reference).Replace("~1", "/").Replace("~0", "~");
         }
 
+        private static Uri GetTokenId(JToken o, JSchemaReader schemaReader)
+        {
+            string id = null;
+            if (schemaReader.EnsureVersion(SchemaVersion.Draft6)
+                && o[Constants.PropertyNames.Id] is JValue idToken
+                && (idToken.Type == JTokenType.String || idToken.Type == JTokenType.Uri))
+            {
+                if (idToken.Type == JTokenType.Uri)
+                {
+                    return (Uri)idToken;
+                }
+
+                id = (string)idToken;
+            }
+            else if (o[Constants.PropertyNames.IdDraft4] is JValue idDraf4Token
+                && (idDraf4Token.Type == JTokenType.String || idDraf4Token.Type == JTokenType.Uri))
+            {
+                if (idDraf4Token.Type == JTokenType.Uri)
+                {
+                    return (Uri)idDraf4Token;
+                }
+
+                id = (string)idDraf4Token;
+            }
+
+            if (Uri.TryCreate(id, UriKind.RelativeOrAbsolute, out Uri definitionUri))
+            {
+                return definitionUri;
+            }
+
+            return null;
+        }
+
         public static bool FindSchema(
             Action<JSchema> setSchema,
             JSchema schema,
@@ -55,22 +88,17 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                             current = GetCurrentFromSchema(s, unescapedPart);
                             break;
                         case JToken t:
-                            IIdentiferScope scope;
-                            if (t is JObject && t[Constants.PropertyNames.Id] is JValue idToken && (idToken.Type == JTokenType.String || idToken.Type == JTokenType.Uri))
+                            IIdentiferScope scope = null;
+                            if (t is JObject)
                             {
-                                Uri id = idToken.Value as Uri;
-                                if (id == null)
+                                Uri id = GetTokenId(t, schemaReader);
+                                if (id != null)
                                 {
-                                    id = new Uri((string) idToken, UriKind.RelativeOrAbsolute);
+                                    scope = new JsonIdentiferScope(id);
                                 }
-                                scope = new JsonIdentiferScope(id);
-                            }
-                            else
-                            {
-                                scope = JsonIdentiferScope.Empty;
                             }
 
-                            schemaReader._identiferScopeStack.Add(scope);
+                            schemaReader._identiferScopeStack.Add(scope ?? JsonIdentiferScope.Empty);
 
                             current = GetCurrentFromToken(t, unescapedPart);
                             break;
@@ -220,14 +248,22 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                                     matchingProperty = definitionsObject.Properties().FirstOrDefault(p => TryCompare(p.Name, originalReference));
                                 }
 
-                                if (matchingProperty?.Value is JObject o
-                                    && TryCompare((string)o["id"], resolvedReference))
+                                if (matchingProperty?.Value is JObject o)
                                 {
-                                    JSchema inlineSchema = schemaReader.ReadInlineSchema(setSchema, o);
+                                    Uri id = GetTokenId(o, schemaReader);
 
-                                    discovery.Discover(inlineSchema, rootSchemaId, Constants.PropertyNames.Definitions + "/" + resolvedReference.OriginalString);
+                                    if (id != null && UriComparer.Instance.Equals(id, resolvedReference))
+                                    {
+                                        JSchema inlineSchema = schemaReader.ReadInlineSchema(setSchema, o);
 
-                                    resolvedSchema = true;
+                                        discovery.Discover(inlineSchema, rootSchemaId, Constants.PropertyNames.Definitions + "/" + resolvedReference.OriginalString);
+
+                                        resolvedSchema = true;
+                                    }
+                                    else
+                                    {
+                                        resolvedSchema = false;
+                                    }
                                 }
                                 else
                                 {

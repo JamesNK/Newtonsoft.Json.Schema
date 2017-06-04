@@ -172,6 +172,24 @@ namespace Newtonsoft.Json.Schema
         /// A 'validator' error.
         /// </summary>
         [EnumMember(Value = "validator")]
-        Validator = 26
+        Validator = 26,
+
+        /// <summary>
+        /// A 'valid' error.
+        /// </summary>
+        [EnumMember(Value = "valid")]
+        Valid = 27,
+
+        /// <summary>
+        /// A 'const' error.
+        /// </summary>
+        [EnumMember(Value = "const")]
+        Const = 28,
+
+        /// <summary>
+        /// A 'contains' error.
+        /// </summary>
+        [EnumMember(Value = "contains")]
+        Contains = 29
     }
 }

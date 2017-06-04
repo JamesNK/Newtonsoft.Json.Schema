@@ -15,7 +15,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
     internal class ArrayScope : SchemaScope
     {
         private int _index;
+        private bool _matchContains;
         private List<JToken> _uniqueArrayItems;
+        private IList<ConditionalContext> _containsContexts;
 
         public void Initialize(ContextBase context, SchemaScope parent, int initialDepth, JSchema schema)
         {
@@ -23,6 +25,19 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             InitializeSchema(schema);
 
             _index = -1;
+            _matchContains = false;
+
+            if (schema.Contains != null)
+            {
+                if (_containsContexts != null)
+                {
+                    _containsContexts.Clear();
+                }
+                else
+                {
+                    _containsContexts = new List<ConditionalContext>();
+                }
+            }
 
             if (schema.UniqueItems)
             {
@@ -48,6 +63,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 switch (token)
                 {
                     case JsonToken.StartArray:
+                        EnsureValid(value);
                         TestType(Schema, JSchemaType.Array);
                         return false;
                     case JsonToken.StartConstructor:
@@ -70,6 +86,17 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                         if (Schema.MinimumItems != null && itemCount < Schema.MinimumItems)
                         {
                             RaiseError($"Array item count {itemCount} is less than minimum count of {Schema.MinimumItems}.", ErrorType.MinimumItems, Schema, itemCount, null);
+                        }
+
+                        if (Schema.Contains != null && !_matchContains)
+                        {
+                            List<ValidationError> containsErrors = new List<ValidationError>();
+                            foreach (ConditionalContext containsContext in _containsContexts)
+                            {
+                                containsErrors.AddRange(containsContext.Errors);
+                            }
+
+                            RaiseError($"No items match contains.", ErrorType.Contains, Schema, null, containsErrors);
                         }
 
                         return true;
@@ -122,6 +149,15 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                             CreateScopesAndEvaluateToken(token, value, depth, Schema._items[0]);
                         }
                     }
+
+                    // no longer need to check contains schema after match
+                    if (Schema.Contains != null && !_matchContains)
+                    {
+                        ConditionalContext containsContext = ConditionalContext.Create(Context);
+                        _containsContexts.Add(containsContext);
+
+                        CreateScopesAndEvaluateToken(token, value, depth, Schema.Contains, containsContext);
+                    }
                 }
 
                 if (JsonTokenHelpers.IsPrimitiveOrEndToken(token))
@@ -139,6 +175,18 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                         else
                         {
                             _uniqueArrayItems.Add(Context.TokenWriter.CurrentToken);
+                        }
+                    }
+
+                    if (Schema.Contains != null && !_matchContains)
+                    {
+                        ConditionalContext currentContainsContext = _containsContexts[_containsContexts.Count - 1];
+                        if (!currentContainsContext.HasErrors)
+                        {
+                            _matchContains = true;
+
+                            // no longer need previous errors after match
+                            _containsContexts.Clear();
                         }
                     }
                 }

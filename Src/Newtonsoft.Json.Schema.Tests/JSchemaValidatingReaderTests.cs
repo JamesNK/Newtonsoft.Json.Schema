@@ -102,6 +102,76 @@ namespace Newtonsoft.Json.Schema.Tests
         }
 
         [Test]
+        public void PropertyNamesFalse()
+        {
+            JSchema schema = new JSchema();
+            schema.PropertyNames = new JSchema
+            {
+                Valid = false
+            };
+
+            string json = "{'prop':true}";
+
+            IList<SchemaValidationEventArgs> errors;
+            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out errors);
+
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsFalse(validatingReader.Read());
+
+            Assert.AreEqual(1, errors.Count);
+            Assert.AreEqual("prop", errors[0].ValidationError.Value);
+            Assert.AreEqual("Schema always fails validation.", errors[0].ValidationError.Message);
+        }
+
+        [Test]
+        public void ConstComplex_Valid()
+        {
+            JSchema schema = new JSchema();
+            schema.PropertyNames = new JSchema
+            {
+                Const = JObject.Parse("{'prop':true}")
+            };
+
+            string json = "{'prop':true}";
+
+            IList<SchemaValidationEventArgs> errors;
+            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out errors);
+
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsFalse(validatingReader.Read());
+
+            Assert.AreEqual(0, errors.Count);
+        }
+
+        [Test]
+        public void ConstComplex_Invalid()
+        {
+            JSchema schema = new JSchema();
+            schema.Const = JObject.Parse("{'prop':null}");
+
+            string json = "{'prop':true}";
+
+            IList<SchemaValidationEventArgs> errors;
+            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out errors);
+
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsFalse(validatingReader.Read());
+
+            Assert.AreEqual(1, errors.Count);
+            Assert.AreEqual(ErrorType.Const, errors[0].ValidationError.ErrorType);
+            Assert.AreEqual(@"Value {""prop"":true} does not match const.", errors[0].ValidationError.Message);
+        }
+
+        [Test]
         public void ValidateInteger()
         {
             JSchema schema = new JSchema();
@@ -133,6 +203,62 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsFalse(validatingReader.Read());
 
             Assert.AreEqual(0, errors.Count);
+        }
+
+        [Test]
+        public void ValidateObject_Valid_False()
+        {
+            JSchema schema = new JSchema();
+            schema.Valid = false;
+
+            string json = "{}";
+
+            IList<SchemaValidationEventArgs> errors;
+            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out errors);
+
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsFalse(validatingReader.Read());
+
+            Assert.AreEqual(1, errors.Count);
+            Assert.AreEqual(schema, errors[0].ValidationError.Schema);
+        }
+
+        [Test]
+        public void ValidateArray_Valid_False()
+        {
+            JSchema schema = new JSchema();
+            schema.Valid = false;
+
+            string json = "[]";
+
+            IList<SchemaValidationEventArgs> errors;
+            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out errors);
+
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsFalse(validatingReader.Read());
+
+            Assert.AreEqual(1, errors.Count);
+            Assert.AreEqual(schema, errors[0].ValidationError.Schema);
+        }
+
+        [Test]
+        public void ValidatePrimitive_Valid_False()
+        {
+            JSchema schema = new JSchema();
+            schema.Valid = false;
+
+            string json = "1";
+
+            IList<SchemaValidationEventArgs> errors;
+            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out errors);
+
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsFalse(validatingReader.Read());
+
+            Assert.AreEqual(1, errors.Count);
+            Assert.AreEqual(schema, errors[0].ValidationError.Schema);
         }
 
         [Test]
@@ -193,6 +319,146 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(true, errors[0].ValidationError.Value);
             StringAssert.AreEqual(@"Invalid type. Expected Integer but got String. Path '[3]', line 1, position 14.", errors[1].Message);
             Assert.AreEqual("hi", errors[1].ValidationError.Value);
+        }
+
+        [Test]
+        public void ValidateContains_Simple_Valid()
+        {
+            JSchema schema = new JSchema();
+            schema.Type = JSchemaType.Array;
+            schema.Contains = new JSchema
+            {
+                Const = true
+            };
+
+            string json = "[1,true,2,'hi']";
+
+            IList<SchemaValidationEventArgs> errors;
+            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out errors);
+
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsFalse(validatingReader.Read());
+
+            Assert.AreEqual(0, errors.Count);
+        }
+
+        [Test]
+        public void ValidateContains_Complex_Valid()
+        {
+            JSchema schema = new JSchema();
+            schema.Type = JSchemaType.Array;
+            schema.Contains = new JSchema
+            {
+                Const = JArray.Parse("[1,2]")
+            };
+
+            string json = "[1,[1,2],2,'hi']";
+
+            IList<SchemaValidationEventArgs> errors;
+            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out errors);
+
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsFalse(validatingReader.Read());
+
+            Assert.AreEqual(0, errors.Count);
+        }
+
+        [Test]
+        public void ValidateContains_Simple_Invalid()
+        {
+            JSchema schema = new JSchema();
+            schema.Type = JSchemaType.Array;
+            schema.Contains = new JSchema
+            {
+                Const = false
+            };
+
+            string json = "[1,true,2,'hi']";
+
+            IList<SchemaValidationEventArgs> errors;
+            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out errors);
+
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsFalse(validatingReader.Read());
+
+            Assert.AreEqual(1, errors.Count);
+            StringAssert.AreEqual(@"No items match contains. Path '', line 1, position 15.", errors[0].Message);
+            Assert.AreEqual(ErrorType.Contains, errors[0].ValidationError.ErrorType);
+            Assert.AreEqual(4, errors[0].ValidationError.ChildErrors.Count);
+
+            Assert.AreEqual("Value 1 does not match const.", errors[0].ValidationError.ChildErrors[0].Message);
+            Assert.AreEqual("[0]", errors[0].ValidationError.ChildErrors[0].Path);
+
+            Assert.AreEqual("Value true does not match const.", errors[0].ValidationError.ChildErrors[1].Message);
+            Assert.AreEqual("[1]", errors[0].ValidationError.ChildErrors[1].Path);
+
+            Assert.AreEqual("Value 2 does not match const.", errors[0].ValidationError.ChildErrors[2].Message);
+            Assert.AreEqual("[2]", errors[0].ValidationError.ChildErrors[2].Path);
+
+            Assert.AreEqual(@"Value ""hi"" does not match const.", errors[0].ValidationError.ChildErrors[3].Message);
+            Assert.AreEqual("[3]", errors[0].ValidationError.ChildErrors[3].Path);
+        }
+
+        [Test]
+        public void ValidateContains_Complex_Invalid()
+        {
+            JSchema schema = new JSchema();
+            schema.Type = JSchemaType.Array;
+            schema.Contains = new JSchema
+            {
+                Const = JArray.Parse("[1]")
+            };
+
+            string json = "[1,[1,2],2,'hi']";
+
+            IList<SchemaValidationEventArgs> errors;
+            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out errors);
+
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsFalse(validatingReader.Read());
+
+            Assert.AreEqual(1, errors.Count);
+            StringAssert.AreEqual(@"No items match contains. Path '', line 1, position 16.", errors[0].Message);
+            Assert.AreEqual(ErrorType.Contains, errors[0].ValidationError.ErrorType);
+            Assert.AreEqual(4, errors[0].ValidationError.ChildErrors.Count);
+
+            Assert.AreEqual("Value 1 does not match const.", errors[0].ValidationError.ChildErrors[0].Message);
+            Assert.AreEqual("[0]", errors[0].ValidationError.ChildErrors[0].Path);
+
+            Assert.AreEqual("Value [1,2] does not match const.", errors[0].ValidationError.ChildErrors[1].Message);
+            Assert.AreEqual("[1]", errors[0].ValidationError.ChildErrors[1].Path);
+
+            Assert.AreEqual("Value 2 does not match const.", errors[0].ValidationError.ChildErrors[2].Message);
+            Assert.AreEqual("[2]", errors[0].ValidationError.ChildErrors[2].Path);
+
+            Assert.AreEqual(@"Value ""hi"" does not match const.", errors[0].ValidationError.ChildErrors[3].Message);
+            Assert.AreEqual("[3]", errors[0].ValidationError.ChildErrors[3].Path);
         }
 
         [Test]

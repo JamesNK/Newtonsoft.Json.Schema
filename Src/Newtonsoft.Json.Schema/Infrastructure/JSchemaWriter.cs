@@ -21,6 +21,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         private readonly List<JSchema> _schemaStack;
         private readonly IList<ExternalSchema> _externalSchemas;
         private readonly JSchemaWriterReferenceHandling _referenceHandling;
+        private SchemaVersion? _version;
         private JSchema _rootSchema;
 
         public JSchemaWriter(JsonWriter writer)
@@ -39,6 +40,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             {
                 _externalSchemas = settings.ExternalSchemas;
                 _referenceHandling = settings.ReferenceHandling;
+                _version = settings.Version;
             }
 
             if (_referenceHandling != JSchemaWriterReferenceHandling.Always)
@@ -220,6 +222,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 }
             }
 
+            if (_version == null)
+            {
+                _version = SchemaVersionHelpers.MapSchemaUri(schema.SchemaVersion);
+            }
+
             discovery = new JSchemaDiscovery(_knownSchemas, KnownSchemaState.InlinePending);
             discovery.Discover(schema, null);
 
@@ -233,14 +240,39 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         {
             _schemaStack?.Add(schema);
 
+            if (schema.Valid != null)
+            {
+                _writer.WriteValue(schema.Valid);
+            }
+            else
+            {
+                WriteSchemaObjectInternal(schema);
+            }
+
+            _schemaStack?.RemoveAt(_schemaStack.Count - 1);
+        }
+
+        private void WriteSchemaObjectInternal(JSchema schema)
+        {
             _writer.WriteStartObject();
 
             if (schema == _rootSchema)
             {
-                WritePropertyIfNotNull(_writer, Constants.PropertyNames.Schema, schema.SchemaVersion);
+                Uri resolvedVersionUri = (_version != null && _version != SchemaVersion.Unset)
+                    ? SchemaVersionHelpers.MapSchemaVersion(_version)
+                    : schema.SchemaVersion;
+
+                WritePropertyIfNotNull(_writer, Constants.PropertyNames.Schema, resolvedVersionUri);
             }
 
-            WritePropertyIfNotNull(_writer, Constants.PropertyNames.Id, schema.Id);
+            if (EnsureVersion(SchemaVersion.Draft6))
+            {
+                WritePropertyIfNotNull(_writer, Constants.PropertyNames.Id, schema.Id);
+            }
+            else
+            {
+                WritePropertyIfNotNull(_writer, Constants.PropertyNames.IdDraft4, schema.Id);
+            }
             WritePropertyIfNotNull(_writer, Constants.PropertyNames.Title, schema.Title);
             WritePropertyIfNotNull(_writer, Constants.PropertyNames.Description, schema.Description);
 
@@ -292,10 +324,20 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             WriteSchemaDictionaryIfNotNull(schema, _writer, Constants.PropertyNames.PatternProperties, schema._patternProperties);
             WriteItems(schema);
             WritePropertyIfNotDefault(_writer, Constants.PropertyNames.UniqueItems, schema.UniqueItems);
-            WritePropertyIfNotNull(_writer, Constants.PropertyNames.Minimum, schema.Minimum);
-            WritePropertyIfNotNull(_writer, Constants.PropertyNames.Maximum, schema.Maximum);
-            WritePropertyIfNotDefault(_writer, Constants.PropertyNames.ExclusiveMinimum, schema.ExclusiveMinimum);
-            WritePropertyIfNotDefault(_writer, Constants.PropertyNames.ExclusiveMaximum, schema.ExclusiveMaximum);
+
+            if (EnsureVersion(SchemaVersion.Draft6))
+            {
+                WritePropertyIfNotNull(_writer, schema.ExclusiveMinimum ? Constants.PropertyNames.ExclusiveMinimum : Constants.PropertyNames.Minimum, schema.Minimum);
+                WritePropertyIfNotNull(_writer, schema.ExclusiveMaximum ? Constants.PropertyNames.ExclusiveMaximum : Constants.PropertyNames.Minimum, schema.Maximum);
+            }
+            else
+            {
+                WritePropertyIfNotNull(_writer, Constants.PropertyNames.Minimum, schema.Minimum);
+                WritePropertyIfNotNull(_writer, Constants.PropertyNames.Maximum, schema.Maximum);
+                WritePropertyIfNotDefault(_writer, Constants.PropertyNames.ExclusiveMinimum, schema.ExclusiveMinimum);
+                WritePropertyIfNotDefault(_writer, Constants.PropertyNames.ExclusiveMaximum, schema.ExclusiveMaximum);
+            }
+
             WritePropertyIfNotNull(_writer, Constants.PropertyNames.MinimumLength, schema.MinimumLength);
             WritePropertyIfNotNull(_writer, Constants.PropertyNames.MaximumLength, schema.MaximumLength);
             WritePropertyIfNotNull(_writer, Constants.PropertyNames.MinimumItems, schema.MinimumItems);
@@ -315,14 +357,22 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 }
                 _writer.WriteEndArray();
             }
+            if (EnsureVersion(SchemaVersion.Draft6))
+            {
+                if (schema.Const != null)
+                {
+                    _writer.WritePropertyName(Constants.PropertyNames.Const);
+                    schema.Const.WriteTo(_writer);
+                }
+                WriteSchema(schema, schema.PropertyNames, Constants.PropertyNames.PropertyNamesSchema);
+                WriteSchema(schema, schema.Contains, Constants.PropertyNames.Contains);
+            }
             WriteSchemas(schema, schema._allOf, Constants.PropertyNames.AllOf);
             WriteSchemas(schema, schema._anyOf, Constants.PropertyNames.AnyOf);
             WriteSchemas(schema, schema._oneOf, Constants.PropertyNames.OneOf);
             WriteSchema(schema, schema.Not, Constants.PropertyNames.Not);
 
             _writer.WriteEndObject();
-
-            _schemaStack?.RemoveAt(_schemaStack.Count - 1);
         }
 
         private void WriteRequired(JSchema schema)
@@ -467,6 +517,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 writer.WritePropertyName(propertyName);
                 writer.WriteValue(value);
             }
+        }
+
+        internal bool EnsureVersion(SchemaVersion minimum, SchemaVersion? maximum = null)
+        {
+            return SchemaVersionHelpers.EnsureVersion(_version ?? SchemaVersion.Unset, minimum, maximum);
         }
     }
 }

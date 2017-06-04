@@ -37,8 +37,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         private readonly List<ValidationError> _validationErrors;
         private readonly IList<JsonValidator> _validators;
 
-        private Uri _schemaVersionUri;
-        private SchemaVersion _schemaVersion;
+        private Uri _versionUri;
+        private SchemaVersion _version;
         private JSchema _validatingSchema;
         private bool _isReentrant;
 
@@ -46,7 +46,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         public Dictionary<Uri, JSchema> Cache { get; set; }
 
         public JSchemaReader(JSchemaResolver resolver)
-            : this(new JSchemaReaderSettings {Resolver = resolver})
+            : this(new JSchemaReaderSettings { Resolver = resolver })
         {
         }
 
@@ -81,10 +81,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 }
             }
 
-            if (reader.TokenType != JsonToken.StartObject)
-            {
-                throw JSchemaReaderException.Create(reader, _baseUri, "Unexpected token encountered when reading schema. Expected StartObject, got {0}.".FormatWith(CultureInfo.InvariantCulture, reader.TokenType));
-            }
+            ValidateSchemaStart(reader, null);
 
             RootSchema = new JSchema();
 
@@ -129,27 +126,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             }
         }
 
-        private bool EnsureVersion(SchemaVersion minimum)
+        internal bool EnsureVersion(SchemaVersion minimum, SchemaVersion? maximum = null)
         {
-            return EnsureVersion(minimum, null);
-        }
-
-        private bool EnsureVersion(SchemaVersion minimum, SchemaVersion? maximum)
-        {
-            if (_schemaVersion == SchemaVersion.Unknown)
-            {
-                return true;
-            }
-
-            if (_schemaVersion >= minimum)
-            {
-                if (_schemaVersion <= maximum || maximum == null)
-                {
-                    return true;
-                }
-            }
-
-            return false;
+            return SchemaVersionHelpers.EnsureVersion(_version, minimum, maximum);
         }
 
         internal JSchema ReadInlineSchema(Action<JSchema> setSchema, JToken inlineToken)
@@ -212,7 +191,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 switch (reader.TokenType)
                 {
                     case JsonToken.PropertyName:
-                        ProcessSchemaName(ref reader, target, isRoot, (string) reader.Value);
+                        ProcessSchemaName(ref reader, target, isRoot, (string)reader.Value);
                         break;
                     case JsonToken.Comment:
                         // nom, nom
@@ -323,9 +302,33 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         private void ReadSchema(JsonReader reader, JSchema target, string name, Action<JSchema> setSchema)
         {
-            EnsureToken(reader, name, JsonToken.StartObject);
+            ValidateSchemaStart(reader, name);
 
             LoadAndSetSchema(reader, target, setSchema);
+        }
+
+        private void ValidateSchemaStart(JsonReader reader, string name)
+        {
+            string errorMessage = (name == null)
+                ? "Unexpected token encountered when reading schema. Expected {1}, got {2}."
+                : null;
+
+            if (EnsureVersion(SchemaVersion.Draft6))
+            {
+                if (name != null)
+                {
+                    EnsureRead(reader, name);
+                }
+
+                if (reader.TokenType != JsonToken.Boolean)
+                {
+                    EnsureToken(reader, name, Constants.SchemaTokens, errorMessage);
+                }
+            }
+            else
+            {
+                EnsureReadAndToken(reader, name, JsonToken.StartObject, errorMessage);
+            }
         }
 
         private void EnsureRead(JsonReader reader, string name)
@@ -342,29 +345,39 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             throw JSchemaReaderException.Create(reader, _baseUri, "Unexpected end when reading value for '{0}'.".FormatWith(CultureInfo.InvariantCulture, name));
         }
 
-        private void EnsureToken(JsonReader reader, string name, JsonToken tokenType)
+        private void EnsureReadAndToken(JsonReader reader, string name, JsonToken tokenType, string errorMessage = null)
         {
             EnsureRead(reader, name);
 
+            EnsureToken(reader, name, tokenType, errorMessage);
+        }
+
+        private void EnsureToken(JsonReader reader, string name, JsonToken tokenType, string errorMessage)
+        {
             if (reader.TokenType != tokenType)
             {
-                throw JSchemaReaderException.Create(reader, _baseUri, "Unexpected token encountered when reading value for '{0}'. Expected {1}, got {2}.".FormatWith(CultureInfo.InvariantCulture, name, tokenType, reader.TokenType));
+                throw JSchemaReaderException.Create(reader, _baseUri, (errorMessage ?? "Unexpected token encountered when reading value for '{0}'. Expected {1}, got {2}.").FormatWith(CultureInfo.InvariantCulture, name, tokenType, reader.TokenType));
             }
         }
 
-        private void EnsureToken(JsonReader reader, string name, List<JsonToken> tokenTypes)
+        private void EnsureToken(JsonReader reader, string name, List<JsonToken> tokenTypes, string errorMessage)
+        {
+            if (!tokenTypes.Contains(reader.TokenType))
+            {
+                throw JSchemaReaderException.Create(reader, _baseUri, (errorMessage ?? "Unexpected token encountered when reading value for '{0}'. Expected {1}, got {2}.").FormatWith(CultureInfo.InvariantCulture, name, StringHelpers.Join(", ", tokenTypes), reader.TokenType));
+            }
+        }
+
+        private void EnsureReadAndToken(JsonReader reader, string name, List<JsonToken> tokenTypes, string errorMessage = null)
         {
             EnsureRead(reader, name);
 
-            if (!tokenTypes.Contains(reader.TokenType))
-            {
-                throw JSchemaReaderException.Create(reader, _baseUri, "Unexpected token encountered when reading value for '{0}'. Expected {1}, got {2}.".FormatWith(CultureInfo.InvariantCulture, name, StringHelpers.Join(", ", tokenTypes), reader.TokenType));
-            }
+            EnsureToken(reader, name, tokenTypes, errorMessage);
         }
 
         private Uri ReadUri(JsonReader reader, string name)
         {
-            EnsureToken(reader, name, JsonToken.String);
+            EnsureReadAndToken(reader, name, JsonToken.String);
             string id = (string) reader.Value;
             return ParseUri(reader, id);
         }
@@ -383,19 +396,19 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         private string ReadString(JsonReader reader, string name)
         {
-            EnsureToken(reader, name, JsonToken.String);
+            EnsureReadAndToken(reader, name, JsonToken.String);
             return (string) reader.Value;
         }
 
         private bool ReadBoolean(JsonReader reader, string name)
         {
-            EnsureToken(reader, name, JsonToken.Boolean);
+            EnsureReadAndToken(reader, name, JsonToken.Boolean);
             return (bool) reader.Value;
         }
 
         private long ReadLong(JsonReader reader, string name)
         {
-            EnsureToken(reader, name, JsonToken.Integer);
+            EnsureReadAndToken(reader, name, JsonToken.Integer);
 
 #if !(NET20 || NET35 || PORTABLE || PORTABLE40) || NETSTANDARD1_3
             if (reader.Value is BigInteger)
@@ -416,8 +429,13 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         private double ReadDouble(JsonReader reader, string name)
         {
-            EnsureToken(reader, name, Constants.NumberTokens);
+            EnsureReadAndToken(reader, name, Constants.NumberTokens);
 
+            return GetDouble(reader);
+        }
+
+        private static double GetDouble(JsonReader reader)
+        {
 #if !(NET20 || NET35 || PORTABLE || PORTABLE40) || NETSTANDARD1_3
             if (reader.Value is BigInteger)
             {
@@ -431,7 +449,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         private void ReadProperties(JsonReader reader, JSchema target, IDictionary<string, JSchema> properties)
         {
-            EnsureToken(reader, Constants.PropertyNames.Properties, JsonToken.StartObject);
+            EnsureReadAndToken(reader, Constants.PropertyNames.Properties, JsonToken.StartObject);
 
             while (reader.Read())
             {
@@ -440,7 +458,14 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                     case JsonToken.PropertyName:
                         string name = (string) reader.Value;
 
-                        EnsureToken(reader, name, JsonToken.StartObject);
+                        if (EnsureVersion(SchemaVersion.Draft6))
+                        {
+                            EnsureReadAndToken(reader, name, Constants.SchemaTokens);
+                        }
+                        else
+                        {
+                            EnsureReadAndToken(reader, name, JsonToken.StartObject);
+                        }
 
                         // use last schema for duplicates
                         // will this cause issues with a previously deferred schemas?
@@ -477,7 +502,15 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         private void ReadItems(JsonReader reader, JSchema target)
         {
-            EnsureRead(reader, Constants.PropertyNames.Items);
+            if (EnsureVersion(SchemaVersion.Draft6))
+            {
+                EnsureReadAndToken(reader, Constants.PropertyNames.Items, Constants.ItemsTokens);
+            }
+            else
+            {
+                EnsureReadAndToken(reader, Constants.PropertyNames.Items, Constants.ItemsDraft4Tokens);
+            }
+
             if (target._items == null)
             {
                 target._items = new JSchemaCollection(target);
@@ -486,6 +519,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             switch (reader.TokenType)
             {
                 case JsonToken.StartObject:
+                case JsonToken.Boolean:
                     LoadAndSetSchema(reader, target, s => SetAtIndex(target._items, 0, s));
                     target.ItemsPositionValidation = false;
                     break;
@@ -500,7 +534,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         private void ReadSchemaArray(JsonReader reader, JSchema target, string name, out JSchemaCollection schemas)
         {
-            EnsureToken(reader, name, JsonToken.StartArray);
+            EnsureReadAndToken(reader, name, JsonToken.StartArray);
 
             schemas = new JSchemaCollection(target);
 
@@ -583,7 +617,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         private void ReadTokenArray(JsonReader reader, string name, ref List<JToken> values)
         {
-            EnsureToken(reader, name, JsonToken.StartArray);
+            EnsureReadAndToken(reader, name, JsonToken.StartArray);
 
             if (values == null)
             {
@@ -636,7 +670,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         private void ReadDependencies(JsonReader reader, JSchema target)
         {
-            EnsureToken(reader, Constants.PropertyNames.Dependencies, JsonToken.StartObject);
+            EnsureReadAndToken(reader, Constants.PropertyNames.Dependencies, JsonToken.StartObject);
 
             JSchemaDependencyDictionary dependencies = new JSchemaDependencyDictionary(target);
 
@@ -647,10 +681,13 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                     case JsonToken.PropertyName:
                         string name = (string) reader.Value;
 
-                        EnsureToken(reader, name, Constants.DependencyTokens);
+                        List<JsonToken> validDependencyTokens = EnsureVersion(SchemaVersion.Draft6)
+                            ? Constants.DependencyTokens
+                            : Constants.DependencyDraft4Tokens;
+                        EnsureReadAndToken(reader, name, validDependencyTokens);
 
                         // use last dependency when duplicates are defined
-                        if (reader.TokenType == JsonToken.StartObject)
+                        if (reader.TokenType == JsonToken.StartObject || reader.TokenType == JsonToken.Boolean)
                         {
                             LoadAndSetSchema(reader, target, s => dependencies[name] = s);
                         }
@@ -690,6 +727,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 switch (reader.TokenType)
                 {
                     case JsonToken.StartObject:
+                    case JsonToken.Boolean:
                         int itemCount = schemas.Count;
                         LoadAndSetSchema(reader, target, s => SetAtIndex(schemas, itemCount, s));
                         break;
@@ -846,7 +884,14 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
             try
             {
-                ReadSchemaProperties(reader, loadingSchema, isRoot);
+                if (reader.TokenType == JsonToken.Boolean)
+                {
+                    loadingSchema.Valid = (bool)reader.Value;
+                }
+                else
+                {
+                    ReadSchemaProperties(reader, loadingSchema, isRoot);
+                }
 
                 if (loadingSchema.Reference != null)
                 {
@@ -1011,7 +1056,24 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             switch (name)
             {
                 case Constants.PropertyNames.Id:
-                    target.Id = ReadUri(reader, name);
+                    if (EnsureVersion(SchemaVersion.Draft6))
+                    {
+                        target.Id = ReadUri(reader, name);
+                    }
+                    else
+                    {
+                        ReadExtensionData(reader, target, name);
+                    }
+                    break;
+                case Constants.PropertyNames.IdDraft4:
+                    if (EnsureVersion(SchemaVersion.Draft4))
+                    {
+                        target.Id = ReadUri(reader, name);
+                    }
+                    else
+                    {
+                        ReadExtensionData(reader, target, name);
+                    }
                     break;
                 case Constants.PropertyNames.Ref:
                     target.Reference = ReadUri(reader, name);
@@ -1088,6 +1150,26 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                         ReadExtensionData(reader, target, name);
                     }
                     break;
+                case Constants.PropertyNames.PropertyNamesSchema:
+                    if (EnsureVersion(SchemaVersion.Draft6))
+                    {
+                        ReadSchema(reader, target, name, s => target.PropertyNames = s);
+                    }
+                    else
+                    {
+                        ReadExtensionData(reader, target, name);
+                    }
+                    break;
+                case Constants.PropertyNames.Contains:
+                    if (EnsureVersion(SchemaVersion.Draft6))
+                    {
+                        ReadSchema(reader, target, name, s => target.Contains = s);
+                    }
+                    else
+                    {
+                        ReadExtensionData(reader, target, name);
+                    }
+                    break;
                 case Constants.PropertyNames.Title:
                     target.Title = ReadString(reader, name);
                     break;
@@ -1136,10 +1218,44 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                     target.Maximum = ReadDouble(reader, name);
                     break;
                 case Constants.PropertyNames.ExclusiveMinimum:
-                    target.ExclusiveMinimum = ReadBoolean(reader, name);
+                    if (EnsureVersion(SchemaVersion.Draft6))
+                    {
+                        EnsureReadAndToken(reader, Constants.PropertyNames.ExclusiveMinimum, Constants.MaximumMinimumTokens);
+                    }
+                    else
+                    {
+                        EnsureReadAndToken(reader, Constants.PropertyNames.ExclusiveMinimum, JsonToken.Boolean);
+                    }
+
+                    if (reader.TokenType == JsonToken.Boolean)
+                    {
+                        target.ExclusiveMinimum = (bool)reader.Value;
+                    }
+                    else
+                    {
+                        target.Minimum = GetDouble(reader);
+                        target.ExclusiveMinimum = true;
+                    }
                     break;
                 case Constants.PropertyNames.ExclusiveMaximum:
-                    target.ExclusiveMaximum = ReadBoolean(reader, name);
+                    if (EnsureVersion(SchemaVersion.Draft6))
+                    {
+                        EnsureReadAndToken(reader, Constants.PropertyNames.ExclusiveMaximum, Constants.MaximumMinimumTokens);
+                    }
+                    else
+                    {
+                        EnsureReadAndToken(reader, Constants.PropertyNames.ExclusiveMaximum, JsonToken.Boolean);
+                    }
+
+                    if (reader.TokenType == JsonToken.Boolean)
+                    {
+                        target.ExclusiveMaximum = (bool)reader.Value;
+                    }
+                    else
+                    {
+                        target.Maximum = GetDouble(reader);
+                        target.ExclusiveMaximum = true;
+                    }
                     break;
                 case Constants.PropertyNames.MaximumLength:
                     target.MaximumLength = ReadLong(reader, name);
@@ -1250,6 +1366,19 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                         throw JSchemaReaderException.Create(reader, _baseUri, "Enum array must have at least one value.");
                     }
                     break;
+                case Constants.PropertyNames.Const:
+                    if (EnsureVersion(SchemaVersion.Draft6))
+                    {
+                        EnsureRead(reader, Constants.PropertyNames.Const);
+                        JToken t = JToken.ReadFrom(reader);
+
+                        target.Const = t;
+                    }
+                    else
+                    {
+                        ReadExtensionData(reader, target, name);
+                    }
+                    break;
                 case Constants.PropertyNames.Extends:
                     if (EnsureVersion(SchemaVersion.Draft3, SchemaVersion.Draft3))
                     {
@@ -1282,39 +1411,36 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
                         target.SchemaVersion = ParseUri(reader, (string)reader.Value);
 
-                        _schemaVersionUri = target.SchemaVersion;
+                        _versionUri = target.SchemaVersion;
 
-                        if (_schemaVersionUri == Constants.SchemaVersions.Draft3)
-                        {
-                            _schemaVersion = SchemaVersion.Draft3;
-                        }
-                        else if (_schemaVersionUri == Constants.SchemaVersions.Draft4)
-                        {
-                            _schemaVersion = SchemaVersion.Draft4;
-                        }
+                        _version = MapSchemaUri(_versionUri) ?? SchemaVersion.Unset;
 
                         if (_validateSchema)
                         {
-                            if (_schemaVersion == SchemaVersion.Draft3)
+                            if (_version == SchemaVersion.Draft3)
                             {
                                 _validatingSchema = SpecSchemaCache.Get("schema-draft-v3.json");
                             }
-                            else if (_schemaVersion == SchemaVersion.Draft4)
+                            else if (_version == SchemaVersion.Draft4)
                             {
                                 _validatingSchema = SpecSchemaCache.Get("schema-draft-v4.json");
                             }
+                            else if (_version == SchemaVersion.Draft6)
+                            {
+                                _validatingSchema = SpecSchemaCache.Get("schema-draft-v6.json");
+                            }
                             else
                             {
-                                if (!_schemaVersionUri.IsAbsoluteUri)
+                                if (!_versionUri.IsAbsoluteUri)
                                 {
-                                    throw JSchemaReaderException.Create(reader, _baseUri, "Schema version identifier '{0}' is not an absolute URI.".FormatWith(CultureInfo.InvariantCulture, _schemaVersionUri.OriginalString));
+                                    throw JSchemaReaderException.Create(reader, _baseUri, "Schema version identifier '{0}' is not an absolute URI.".FormatWith(CultureInfo.InvariantCulture, _versionUri.OriginalString));
                                 }
 
-                                _validatingSchema = ResolvedSchema(_schemaVersionUri, _schemaVersionUri);
+                                _validatingSchema = ResolvedSchema(_versionUri, _versionUri);
 
                                 if (_validatingSchema == null)
                                 {
-                                    throw JSchemaReaderException.Create(reader, _baseUri, "Could not resolve schema version identifier '{0}'.".FormatWith(CultureInfo.InvariantCulture, _schemaVersionUri.OriginalString));
+                                    throw JSchemaReaderException.Create(reader, _baseUri, "Could not resolve schema version identifier '{0}'.".FormatWith(CultureInfo.InvariantCulture, _versionUri.OriginalString));
                                 }
                             }
 
@@ -1333,6 +1459,24 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                     }
                     break;
             }
+        }
+
+        private SchemaVersion? MapSchemaUri(Uri schemaVersionUri)
+        {
+            if (schemaVersionUri == Constants.SchemaVersions.Draft3)
+            {
+                return SchemaVersion.Draft3;
+            }
+            if (schemaVersionUri == Constants.SchemaVersions.Draft4)
+            {
+                return SchemaVersion.Draft4;
+            }
+            if (schemaVersionUri == Constants.SchemaVersions.Draft6)
+            {
+                return SchemaVersion.Draft6;
+            }
+
+            return null;
         }
 
         private void ReadExtensionData(JsonReader reader, JSchema target, string name)
@@ -1363,7 +1507,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             throw JSchemaReaderException.Create(
                 (JsonReader)sender,
                 _baseUri,
-                "Validation error raised by version schema '{0}': {1}".FormatWith(CultureInfo.InvariantCulture, _schemaVersionUri, e.ValidationError.Message),
+                "Validation error raised by version schema '{0}': {1}".FormatWith(CultureInfo.InvariantCulture, _versionUri, e.ValidationError.Message),
                 JSchemaValidationException.Create(e.ValidationError));
         }
 

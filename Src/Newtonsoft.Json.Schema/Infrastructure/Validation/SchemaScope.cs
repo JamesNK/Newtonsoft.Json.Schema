@@ -127,12 +127,26 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             return scope;
         }
 
+        protected void EnsureValid(object value)
+        {
+            EnsureValid(this, Schema, value);
+        }
+
+        internal static void EnsureValid(SchemaScope scope, JSchema schema, object value)
+        {
+            if (schema.Valid != null && !schema.Valid.Value)
+            {
+                scope.RaiseError($"Schema always fails validation.", ErrorType.Valid, schema, value, null);
+            }
+        }
+
         protected void EnsureEnum(JsonToken token, object value)
         {
             bool isEnum = !Schema._enum.IsNullOrEmpty();
+            bool hasConst = Schema.Const != null;
             bool hasValidator = !Schema._validators.IsNullOrEmpty();
 
-            if (isEnum || hasValidator)
+            if (isEnum || hasConst || hasValidator)
             {
                 if (JsonTokenHelpers.IsPrimitiveOrStartToken(token))
                 {
@@ -160,6 +174,19 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                         }
                     }
 
+                    if (hasConst)
+                    {
+                        bool defined = Schema.Const.DeepEquals(currentToken);
+
+                        if (!defined)
+                        {
+                            StringWriter sw = new StringWriter(CultureInfo.InvariantCulture);
+                            currentToken.WriteTo(new JsonTextWriter(sw));
+
+                            RaiseError($"Value {sw.ToString()} does not match const.", ErrorType.Const, Schema, value, null);
+                        }
+                    }
+
                     if (hasValidator)
                     {
                         JsonValidatorContext context = new JsonValidatorContext(this, Schema);
@@ -180,9 +207,14 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
         protected bool TestType<T>(JSchema currentSchema, JSchemaType currentType, T value)
         {
+            return TestType(this, currentSchema, currentType, value);
+        }
+
+        internal static bool TestType<T>(SchemaScope scope, JSchema currentSchema, JSchemaType currentType, T value)
+        {
             if (!JSchemaTypeHelpers.HasFlag(currentSchema.Type, currentType))
             {
-                RaiseError($"Invalid type. Expected {currentSchema.Type.Value.GetDisplayText()} but got {currentType.GetDisplayText()}.", ErrorType.Type, currentSchema, value, null);
+                scope.RaiseError($"Invalid type. Expected {currentSchema.Type.Value.GetDisplayText()} but got {currentType.GetDisplayText()}.", ErrorType.Type, currentSchema, value, null);
                 return false;
             }
 
@@ -191,9 +223,14 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
         protected void CreateScopesAndEvaluateToken(JsonToken token, object value, int depth, JSchema schema)
         {
+            CreateScopesAndEvaluateToken(token, value, depth, schema, Context);
+        }
+
+        protected void CreateScopesAndEvaluateToken(JsonToken token, object value, int depth, JSchema schema, ContextBase context)
+        {
             int startCount = Context.Scopes.Count;
 
-            CreateTokenScope(token, schema, Context, this, depth);
+            CreateTokenScope(token, schema, context, this, depth);
 
             int start = Context.Scopes.Count - 1;
             int end = startCount;

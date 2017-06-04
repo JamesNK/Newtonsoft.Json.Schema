@@ -14,7 +14,12 @@ namespace Newtonsoft.Json.Schema.Infrastructure
     internal static class Constants
     {
         public static readonly List<JsonToken> NumberTokens = new List<JsonToken> { JsonToken.Integer, JsonToken.Float };
-        public static readonly List<JsonToken> DependencyTokens = new List<JsonToken> { JsonToken.StartObject, JsonToken.StartArray, JsonToken.String };
+        public static readonly List<JsonToken> SchemaTokens = new List<JsonToken> { JsonToken.StartObject, JsonToken.Boolean };
+        public static readonly List<JsonToken> ItemsTokens = new List<JsonToken> { JsonToken.StartArray, JsonToken.StartObject, JsonToken.Boolean };
+        public static readonly List<JsonToken> ItemsDraft4Tokens = new List<JsonToken> { JsonToken.StartArray, JsonToken.StartObject };
+        public static readonly List<JsonToken> DependencyTokens = new List<JsonToken> { JsonToken.StartObject, JsonToken.StartArray, JsonToken.String, JsonToken.Boolean };
+        public static readonly List<JsonToken> DependencyDraft4Tokens = new List<JsonToken> { JsonToken.StartObject, JsonToken.StartArray, JsonToken.String };
+        public static readonly List<JsonToken> MaximumMinimumTokens = new List<JsonToken> { JsonToken.Integer, JsonToken.Float, JsonToken.Boolean };
 
         public static class PropertyNames
         {
@@ -48,10 +53,15 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             public const string Hidden = "hidden";
             public const string Disallow = "disallow";
             public const string Extends = "extends";
-            public const string Id = "id";
+            public const string Id = "$id";
+            public const string IdDraft4 = "id";
             public const string UniqueItems = "uniqueItems";
             public const string MinimumProperties = "minProperties";
             public const string MaximumProperties = "maxProperties";
+            // todo - rename class and this prop
+            public const string PropertyNamesSchema = "propertyNames";
+            public const string Const = "const";
+            public const string Contains = "contains";
 
             public const string AnyOf = "anyOf";
             public const string AllOf = "allOf";
@@ -113,6 +123,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         {
             public static readonly Uri Draft3 = new Uri("http://json-schema.org/draft-03/schema#");
             public static readonly Uri Draft4 = new Uri("http://json-schema.org/draft-04/schema#");
+            public static readonly Uri Draft6 = new Uri("http://json-schema.org/draft-06/schema#");
         }
     }
 }

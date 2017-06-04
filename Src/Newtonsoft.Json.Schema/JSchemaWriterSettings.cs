@@ -13,6 +13,13 @@ namespace Newtonsoft.Json.Schema
     public class JSchemaWriterSettings
     {
         /// <summary>
+        /// Gets or set the <see cref="SchemaVersion"/> of the written JSON. Explicitly setting the version will include the <c>$schema</c> property
+        /// and limit the written schema to only features available in that version.
+        /// </summary>
+        /// <value>The <see cref="SchemaVersion"/> of the written JSON.</value>
+        public SchemaVersion? Version { get; set; }
+
+        /// <summary>
         /// Gets or sets the <see cref="ExternalSchema"/>s used when resolving the schema reference to write.
         /// </summary>
         /// <value>The <see cref="ExternalSchema"/>s used when resolving the schema reference to write.</value>

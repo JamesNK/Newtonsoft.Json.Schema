@@ -22,7 +22,7 @@ namespace Newtonsoft.Json.Schema.Tests
         public string FileName { get; set; }
         public string Version { get; set; }
         public string TestCaseDescription { get; set; }
-        public JObject Schema { get; set; }
+        public JToken Schema { get; set; }
         public string TestDescription { get; set; }
         public JToken Data { get; set; }
         public bool IsValid { get; set; }
@@ -164,12 +164,12 @@ namespace Newtonsoft.Json.Schema.Tests
 
                         schemaSpecTest.FileName = Path.GetFileName(testFile);
                         schemaSpecTest.Version = version;
-                        schemaSpecTest.TestCaseDescription = (string)testCase["description"];
-                        schemaSpecTest.Schema = (JObject)testCase["schema"];
+                        schemaSpecTest.TestCaseDescription = (string) testCase["description"];
+                        schemaSpecTest.Schema = testCase["schema"];
 
-                        schemaSpecTest.TestDescription = (string)test["description"];
+                        schemaSpecTest.TestDescription = (string) test["description"];
                         schemaSpecTest.Data = test["data"];
-                        schemaSpecTest.IsValid = (bool)test["valid"];
+                        schemaSpecTest.IsValid = (bool) test["valid"];
                         schemaSpecTest.TestNumber = _specTests.Count(t => t.Version == schemaSpecTest.Version) + 1;
 
                         _specTests.Add(schemaSpecTest);

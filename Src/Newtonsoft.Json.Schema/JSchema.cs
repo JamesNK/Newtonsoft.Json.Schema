@@ -53,6 +53,8 @@ namespace Newtonsoft.Json.Schema
         private Uri _id;
         private bool _itemsPositionValidation;
         private JSchema _not;
+        private JSchema _contains;
+        internal JSchema _propertyNames;
         private JSchema _additionalProperties;
         private JSchema _additionalItems;
         private JSchemaPatternDictionary _internalPatternProperties;
@@ -104,7 +106,13 @@ namespace Newtonsoft.Json.Schema
         /// Gets or sets the $schema. This value will only be read from JSON and written to JSON if the <see cref="JSchema"/> is the root schema.
         /// </summary>
         public Uri SchemaVersion { get; set; }
-        
+
+        /// <summary>
+        /// Gets or sets a flag indicating whether this schema is <c>true</c> and always valid, or <c>false</c> and always invalid.
+        /// </summary>
+        /// <value>A flag indicating whether this schema is <c>true</c> and always valid, or <c>false</c> and always invalid.</value>
+        public bool? Valid { get; set; }
+
         /// <summary>
         /// Gets or sets the schema ID.
         /// </summary>
@@ -264,6 +272,26 @@ namespace Newtonsoft.Json.Schema
             set { SetSchema(ref _not, value); }
         }
 
+        /// <summary>
+        /// Gets the Contains schema.
+        /// </summary>
+        /// <value>The Contains schema.</value>
+        public JSchema Contains
+        {
+            get { return _contains; }
+            set { SetSchema(ref _contains, value); }
+        }
+
+        /// <summary>
+        /// Gets the PropertyNames schema.
+        /// </summary>
+        /// <value>The PropertyNames schema.</value>
+        public JSchema PropertyNames
+        {
+            get { return _propertyNames; }
+            set { SetSchema(ref _propertyNames, value); }
+        }
+
         private void SetSchema(ref JSchema schema, JSchema newSchema)
         {
             if (schema != newSchema)
@@ -296,6 +324,12 @@ namespace Newtonsoft.Json.Schema
                 return _enum;
             }
         }
+
+        /// <summary>
+        /// Gets or sets the const value.
+        /// </summary>
+        /// <value>The const value.</value>
+        public JToken Const { get; set; }
 
         /// <summary>
         /// Gets or sets a flag indicating whether the array items must be unique.
@@ -449,18 +483,35 @@ namespace Newtonsoft.Json.Schema
         }
 
         /// <summary>
-        /// Returns a <see cref="T:System.String"/> that represents the current <see cref="T:System.Object"/>.
+        /// Returns the JSON for this schema.
         /// </summary>
-        /// <returns>
-        /// A <see cref="T:System.String"/> that represents the current <see cref="T:System.Object"/>.
-        /// </returns>
+        /// <returns>The JSON for this schema.</returns>
         public override string ToString()
+        {
+            return ToStringInternal(null);
+        }
+
+        /// <summary>
+        /// Returns the JSON for this schema using the specified <see cref="SchemaVersion"/>.
+        /// </summary>
+        /// <param name="version">The <see cref="SchemaVersion"/> used to create JSON for this schema.</param>
+        /// <returns>The JSON for this schema.</returns>
+        public string ToString(SchemaVersion version)
+        {
+            JSchemaWriterSettings settings = version != Schema.SchemaVersion.Unset
+                ? new JSchemaWriterSettings { Version = version }
+                : null;
+
+            return ToStringInternal(settings);
+        }
+
+        private string ToStringInternal(JSchemaWriterSettings settings)
         {
             StringWriter writer = new StringWriter(CultureInfo.InvariantCulture);
             JsonTextWriter jsonWriter = new JsonTextWriter(writer);
             jsonWriter.Formatting = Formatting.Indented;
 
-            WriteTo(jsonWriter);
+            WriteToInternal(jsonWriter, settings);
 
             return writer.ToString();
         }
