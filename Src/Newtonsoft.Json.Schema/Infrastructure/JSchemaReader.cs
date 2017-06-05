@@ -24,8 +24,6 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 {
     internal class JSchemaReader
     {
-        private static readonly ThreadSafeStore<string, JSchema> SpecSchemaCache = new ThreadSafeStore<string, JSchema>(LoadResourceSchema);
-
         internal JSchemaDiscovery _schemaDiscovery;
         internal readonly List<IIdentiferScope> _identiferScopeStack;
         private readonly DeferedSchemaCollection _deferedSchemas;
@@ -1413,23 +1411,13 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
                         _versionUri = target.SchemaVersion;
 
-                        _version = MapSchemaUri(_versionUri) ?? SchemaVersion.Unset;
+                        _version = SchemaVersionHelpers.MapSchemaUri(_versionUri);
 
                         if (_validateSchema)
                         {
-                            if (_version == SchemaVersion.Draft3)
-                            {
-                                _validatingSchema = SpecSchemaCache.Get("schema-draft-v3.json");
-                            }
-                            else if (_version == SchemaVersion.Draft4)
-                            {
-                                _validatingSchema = SpecSchemaCache.Get("schema-draft-v4.json");
-                            }
-                            else if (_version == SchemaVersion.Draft6)
-                            {
-                                _validatingSchema = SpecSchemaCache.Get("schema-draft-v6.json");
-                            }
-                            else
+                            _validatingSchema = SchemaVersionHelpers.GetSchema(_version);
+
+                            if (_validatingSchema == null)
                             {
                                 if (!_versionUri.IsAbsoluteUri)
                                 {
@@ -1459,24 +1447,6 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                     }
                     break;
             }
-        }
-
-        private SchemaVersion? MapSchemaUri(Uri schemaVersionUri)
-        {
-            if (schemaVersionUri == Constants.SchemaVersions.Draft3)
-            {
-                return SchemaVersion.Draft3;
-            }
-            if (schemaVersionUri == Constants.SchemaVersions.Draft4)
-            {
-                return SchemaVersion.Draft4;
-            }
-            if (schemaVersionUri == Constants.SchemaVersions.Draft6)
-            {
-                return SchemaVersion.Draft6;
-            }
-
-            return null;
         }
 
         private void ReadExtensionData(JsonReader reader, JSchema target, string name)
@@ -1509,15 +1479,6 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 _baseUri,
                 "Validation error raised by version schema '{0}': {1}".FormatWith(CultureInfo.InvariantCulture, _versionUri, e.ValidationError.Message),
                 JSchemaValidationException.Create(e.ValidationError));
-        }
-
-        private static JSchema LoadResourceSchema(string name)
-        {
-            using (Stream schemaData = typeof(JSchemaReader).Assembly().GetManifestResourceStream("Newtonsoft.Json.Schema.Resources." + name))
-            using (StreamReader sr = new StreamReader(schemaData))
-            {
-                return JSchema.Load(new JsonTextReader(sr));
-            }
         }
     }
 }

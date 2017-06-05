@@ -4,11 +4,45 @@
 #endregion
 
 using System;
+using System.IO;
+using Newtonsoft.Json.Utilities;
 
 namespace Newtonsoft.Json.Schema.Infrastructure
 {
     internal static class SchemaVersionHelpers
     {
+        private class SchemaVersionMap
+        {
+            public readonly SchemaVersion Version;
+            public readonly Uri VersionUri;
+            public readonly string ResourceName;
+
+            public SchemaVersionMap(SchemaVersion version, Uri versionUri, string resourceName)
+            {
+                Version = version;
+                VersionUri = versionUri;
+                ResourceName = resourceName;
+            }
+        }
+
+        private static readonly SchemaVersionMap[] VersionMap =
+        {
+            new SchemaVersionMap(SchemaVersion.Draft3, Constants.SchemaVersions.Draft3, "schema-draft-v3.json"),
+            new SchemaVersionMap(SchemaVersion.Draft4, Constants.SchemaVersions.Draft4, "schema-draft-v4.json"),
+            new SchemaVersionMap(SchemaVersion.Draft6, Constants.SchemaVersions.Draft6, "schema-draft-v6.json"),
+        };
+
+        private static readonly ThreadSafeStore<string, JSchema> SpecSchemaCache = new ThreadSafeStore<string, JSchema>(LoadResourceSchema);
+
+        private static JSchema LoadResourceSchema(string name)
+        {
+            using (Stream schemaData = typeof(JSchemaReader).Assembly().GetManifestResourceStream("Newtonsoft.Json.Schema.Resources." + name))
+            using (StreamReader sr = new StreamReader(schemaData))
+            {
+                return JSchema.Load(new JsonTextReader(sr));
+            }
+        }
+
         public static bool EnsureVersion(SchemaVersion currentVersion, SchemaVersion minimum, SchemaVersion? maximum = null)
         {
             if (currentVersion == SchemaVersion.Unset)
@@ -27,19 +61,27 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             return false;
         }
 
-        public static SchemaVersion? MapSchemaUri(Uri schemaVersionUri)
+        public static SchemaVersion MapSchemaUri(Uri schemaVersionUri)
         {
-            if (schemaVersionUri == Constants.SchemaVersions.Draft3)
+            for (int i = 0; i < VersionMap.Length; i++)
             {
-                return SchemaVersion.Draft3;
+                if (VersionMap[i].VersionUri == schemaVersionUri)
+                {
+                    return VersionMap[i].Version;
+                }
             }
-            if (schemaVersionUri == Constants.SchemaVersions.Draft4)
+
+            return SchemaVersion.Unset;
+        }
+
+        public static JSchema GetSchema(SchemaVersion version)
+        {
+            for (int i = 0; i < VersionMap.Length; i++)
             {
-                return SchemaVersion.Draft4;
-            }
-            if (schemaVersionUri == Constants.SchemaVersions.Draft6)
-            {
-                return SchemaVersion.Draft6;
+                if (VersionMap[i].Version == version)
+                {
+                    return SpecSchemaCache.Get(VersionMap[i].ResourceName);
+                }
             }
 
             return null;
@@ -47,17 +89,15 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         public static Uri MapSchemaVersion(SchemaVersion? schemaVersion)
         {
-            switch (schemaVersion)
+            for (int i = 0; i < VersionMap.Length; i++)
             {
-                case SchemaVersion.Draft3:
-                    return Constants.SchemaVersions.Draft3;
-                case SchemaVersion.Draft4:
-                    return Constants.SchemaVersions.Draft4;
-                case SchemaVersion.Draft6:
-                    return Constants.SchemaVersions.Draft6;
-                default:
-                    return null;
+                if (VersionMap[i].Version == schemaVersion)
+                {
+                    return VersionMap[i].VersionUri;
+                }
             }
+
+            return null;
         }
     }
 }

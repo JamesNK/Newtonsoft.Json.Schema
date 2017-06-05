@@ -21,7 +21,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         private readonly List<JSchema> _schemaStack;
         private readonly IList<ExternalSchema> _externalSchemas;
         private readonly JSchemaWriterReferenceHandling _referenceHandling;
-        private SchemaVersion? _version;
+        private SchemaVersion _version;
         private JSchema _rootSchema;
 
         public JSchemaWriter(JsonWriter writer)
@@ -40,7 +40,10 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             {
                 _externalSchemas = settings.ExternalSchemas;
                 _referenceHandling = settings.ReferenceHandling;
-                _version = settings.Version;
+                if (settings.Version != null)
+                {
+                    _version = settings.Version.Value;
+                }
             }
 
             if (_referenceHandling != JSchemaWriterReferenceHandling.Always)
@@ -222,7 +225,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 }
             }
 
-            if (_version == null)
+            if (_version == SchemaVersion.Unset)
             {
                 _version = SchemaVersionHelpers.MapSchemaUri(schema.SchemaVersion);
             }
@@ -521,7 +524,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         internal bool EnsureVersion(SchemaVersion minimum, SchemaVersion? maximum = null)
         {
-            return SchemaVersionHelpers.EnsureVersion(_version ?? SchemaVersion.Unset, minimum, maximum);
+            return SchemaVersionHelpers.EnsureVersion(_version, minimum, maximum);
         }
     }
 }

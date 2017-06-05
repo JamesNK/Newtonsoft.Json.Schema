@@ -1453,6 +1453,22 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         }
 
         [Test]
+        public void Any_Draft6_ValidateVersion()
+        {
+            ExceptionAssert.Throws<JSchemaReaderException>(() =>
+            {
+                JSchemaReaderSettings settings = new JSchemaReaderSettings
+                {
+                    ValidateVersion = true
+                };
+                JSchema.Parse(@"{
+	              ""$schema"": ""http://json-schema.org/draft-06/schema#"",
+                  ""type"": ""any""
+                }", settings);
+            }, "Validation error raised by version schema 'http://json-schema.org/draft-06/schema#': JSON does not match any schemas from 'anyOf'. Path 'type', line 3, position 31.");
+        }
+
+        [Test]
         public void Any_Draft4_ValidateVersion_Nested()
         {
             ExceptionAssert.Throws<JSchemaReaderException>(() =>
