@@ -261,7 +261,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
             if (schema == _rootSchema)
             {
-                Uri resolvedVersionUri = (_version != null && _version != SchemaVersion.Unset)
+                Uri resolvedVersionUri = (_version != SchemaVersion.Unset)
                     ? SchemaVersionHelpers.MapSchemaVersion(_version)
                     : schema.SchemaVersion;
 
