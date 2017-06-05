@@ -161,7 +161,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Licensing
 
             if (deserializedLicense.ExpiryDate < releaseDate)
             {
-                string message = "License is not valid for this version of Json.NET Schema. License expired on {0}. This version of Json.NET Schema was released on {1}.".FormatWith(
+                string message = "License is not valid for this version of Json.NET Schema. License free upgrade date expired on {0}. This version of Json.NET Schema was released on {1}.".FormatWith(
                     CultureInfo.InvariantCulture,
                     deserializedLicense.ExpiryDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
                     releaseDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
