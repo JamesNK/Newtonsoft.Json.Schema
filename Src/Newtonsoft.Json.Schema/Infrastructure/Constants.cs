@@ -88,6 +88,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             public const string Style = "style";
             public const string Phone = "phone";
             public const string Uri = "uri";
+            public const string UriReference = "uri-reference";
+            public const string UriTemplate = "uri-template";
+            public const string JsonPointer = "json-pointer";
             public const string IPv6 = "ipv6";
             public const string IPv4 = "ipv4";
             public const string Email = "email";

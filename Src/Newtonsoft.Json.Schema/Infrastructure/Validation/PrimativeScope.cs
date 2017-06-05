@@ -278,6 +278,18 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 {
                     return Uri.IsWellFormedUriString(value, UriKind.Absolute);
                 }
+                case Constants.Formats.UriReference:
+                {
+                    return FormatHelpers.ValidateUriReference(value);
+                }
+                case Constants.Formats.UriTemplate:
+                {
+                    return FormatHelpers.ValidateUriTemplate(value);
+                }
+                case Constants.Formats.JsonPointer:
+                {
+                    return FormatHelpers.ValidateJsonPointer(value);
+                }
                 case Constants.Formats.Date:
                 {
                     return DateTime.TryParseExact(value, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime temp);
