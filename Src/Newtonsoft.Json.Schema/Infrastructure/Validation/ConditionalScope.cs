@@ -35,12 +35,15 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             ConditionalContext = ConditionalContext.Create(context);
         }
 
-        public void InitializeScopes(JsonToken token, List<JSchema> schemas)
+        public void InitializeScopes(JsonToken token, List<JSchema> schemas, int scopeIndex)
         {
             foreach (JSchema schema in schemas)
             {
+                // cache this for performance
+                int scopeCurrentIndex = scopeIndex;
+
                 // check to see whether a scope with the same schema exists
-                SchemaScope childScope = GetExistingSchemaScope(schema);
+                SchemaScope childScope = GetExistingSchemaScope(schema, ref scopeCurrentIndex);
 
                 if (childScope == null)
                 {
@@ -53,7 +56,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
         internal abstract bool IsValid();
 
-        private SchemaScope GetExistingSchemaScope(JSchema schema)
+        private SchemaScope GetExistingSchemaScope(JSchema schema, ref int scopeCurrentIndex)
         {
             for (int i = Context.Scopes.Count - 1; i >= 0; i--)
             {
@@ -63,14 +66,15 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     {
                         if (!scope.Complete && scope.Schema == schema)
                         {
-                            int currentScopeIndex = Context.Scopes.IndexOf(this);
-
-                            if (i < currentScopeIndex)
+                            if (i < scopeCurrentIndex)
                             {
                                 // existing schema is before conditional scope
                                 // move it so conditional scope is evaluated after existing schema
                                 Context.Scopes.RemoveAt(i);
-                                Context.Scopes.Insert(currentScopeIndex, scope);
+                                Context.Scopes.Insert(scopeCurrentIndex, scope);
+
+                                // decrement index because the schema before current scope has been moved to after
+                                scopeCurrentIndex--;
                             }
 
                             return scope;
