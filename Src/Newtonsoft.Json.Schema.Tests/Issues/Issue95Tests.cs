@@ -44,11 +44,5 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
   ""maximum"": 1000.0
 }", s.ToString(SchemaVersion.Draft6));
         }
-
-        public const string Schema = @"{
-  ""type"": ""integer"",
-  ""minimum"": 1.0,
-  ""minimum"": 1000.0
-}";
     }
 }
