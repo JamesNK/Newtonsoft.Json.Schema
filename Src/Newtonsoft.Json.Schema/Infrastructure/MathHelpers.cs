@@ -160,7 +160,24 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
             if ((FitsInDecimal(d) || value is decimal) && FitsInDecimal(multipleOf))
             {
-                return IsDoubleMultiple(Convert.ToDecimal(value, CultureInfo.InvariantCulture), Convert.ToDecimal(multipleOf));
+                decimal multipleOfD = Convert.ToDecimal(multipleOf);
+                decimal valueD = Convert.ToDecimal(value, CultureInfo.InvariantCulture);
+
+                // check if value divided by multipleOf is too big for decimal - the modulus will error if it is
+                if (!FitsInDecimal(d / multipleOf))
+                {
+                    // check if remainder is between 0 and 1 and multipleOf fits into 0
+                    // remove whole numbers from value to avoid overflow error
+                    if (Math.Abs(multipleOfD) < 1 && 1 % multipleOfD == 0)
+                    {
+                        valueD = valueD % 1;
+                        return IsDoubleMultiple(valueD, multipleOfD);
+                    }
+                }
+                else
+                {
+                    return IsDoubleMultiple(valueD, multipleOfD);
+                }
             }
 
             double remainder = d % multipleOf;
