@@ -25,6 +25,10 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         [Test]
         public void IsDoubleMultipleTests()
         {
+            Assert.AreEqual(true, MathHelpers.IsDoubleMultiple(5555555555555555555555555555.01d, 0.01));
+            Assert.AreEqual(false, MathHelpers.IsDoubleMultiple(5555555555555555555555555555.01d, 0.013453));
+            Assert.AreEqual(true, MathHelpers.IsDoubleMultiple(555555555555555555555555555.01m, 0.01));
+
             Assert.AreEqual(true, MathHelpers.IsDoubleMultiple(3199.981, 0.001));
             Assert.AreEqual(true, MathHelpers.IsDoubleMultiple(3199.980, 0.001));
             Assert.AreEqual(true, MathHelpers.IsDoubleMultiple(540.1, 0.001));

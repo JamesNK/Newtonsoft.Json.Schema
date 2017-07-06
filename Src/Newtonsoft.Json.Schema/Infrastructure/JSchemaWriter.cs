@@ -331,7 +331,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             if (EnsureVersion(SchemaVersion.Draft6))
             {
                 WritePropertyIfNotNull(_writer, schema.ExclusiveMinimum ? Constants.PropertyNames.ExclusiveMinimum : Constants.PropertyNames.Minimum, schema.Minimum);
-                WritePropertyIfNotNull(_writer, schema.ExclusiveMaximum ? Constants.PropertyNames.ExclusiveMaximum : Constants.PropertyNames.Minimum, schema.Maximum);
+                WritePropertyIfNotNull(_writer, schema.ExclusiveMaximum ? Constants.PropertyNames.ExclusiveMaximum : Constants.PropertyNames.Maximum, schema.Maximum);
             }
             else
             {
