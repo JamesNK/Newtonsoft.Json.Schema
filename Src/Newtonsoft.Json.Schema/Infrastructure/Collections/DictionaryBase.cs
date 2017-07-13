@@ -7,12 +7,55 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Reflection;
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Collections
 {
     internal abstract class DictionaryBase<TKey, TValue> : IDictionary<TKey, TValue>, IDictionary
     {
+        #region DictionaryEnumerator
+        private struct DictionaryEnumerator<TEnumeratorKey, TEnumeratorValue> : IDictionaryEnumerator
+        {
+            private readonly IEnumerator<KeyValuePair<TEnumeratorKey, TEnumeratorValue>> _e;
+
+            public DictionaryEnumerator(IEnumerator<KeyValuePair<TEnumeratorKey, TEnumeratorValue>> e)
+            {
+                _e = e;
+            }
+
+            public DictionaryEntry Entry
+            {
+                get { return (DictionaryEntry)Current; }
+            }
+
+            public object Key
+            {
+                get { return Entry.Key; }
+            }
+
+            public object Value
+            {
+                get { return Entry.Value; }
+            }
+
+            public object Current
+            {
+                get { return new DictionaryEntry(_e.Current.Key, _e.Current.Value); }
+            }
+
+            public bool MoveNext()
+            {
+                return _e.MoveNext();
+            }
+
+            public void Reset()
+            {
+                _e.Reset();
+            }
+        }
+        #endregion
+
         private readonly IDictionary<TKey, TValue> _dictionary;
 
         protected DictionaryBase()
@@ -98,6 +141,15 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Collections
                     throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "Value is of type {0}.", typeof(TValue)), nameof(value));
                 }
             }
+        }
+
+        private static bool IsCompatibleKey(object key)
+        {
+            if (key == null)
+            {
+                throw new ArgumentNullException(nameof(key));
+            }
+            return (key is TKey);
         }
 
         public bool ContainsKey(TKey key)
@@ -193,12 +245,12 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Collections
 
         bool IDictionary.Contains(object key)
         {
-            return ((IDictionary)_dictionary).Contains(key);
+            return IsCompatibleKey(key) && _dictionary.ContainsKey((TKey) key);
         }
 
         IDictionaryEnumerator IDictionary.GetEnumerator()
         {
-            return ((IDictionary)_dictionary).GetEnumerator();
+            return new DictionaryEnumerator<TKey, TValue>(_dictionary.GetEnumerator());
         }
 
         void IDictionary.Remove(object key)
@@ -209,7 +261,18 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Collections
 
         object IDictionary.this[object key]
         {
-            get { return ((IDictionary)_dictionary)[key]; }
+            get
+            {
+                if (IsCompatibleKey(key))
+                {
+                    TValue value;
+                    if (TryGetValue((TKey) key, out value))
+                    {
+                        return value;
+                    }
+                }
+                return null;
+            }
             set
             {
                 VerifyKey(key);
@@ -220,12 +283,12 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Collections
 
         ICollection IDictionary.Keys
         {
-            get { return ((IDictionary)_dictionary).Keys; }
+            get { return _dictionary.Keys.ToList(); }
         }
 
         ICollection IDictionary.Values
         {
-            get { return ((IDictionary)_dictionary).Values; }
+            get { return _dictionary.Values.ToList(); }
         }
 
         public bool IsFixedSize
@@ -235,22 +298,22 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Collections
 
         public bool IsReadOnly
         {
-            get { return ((IDictionary)_dictionary).IsReadOnly; }
+            get { return false; }
         }
 
         void ICollection.CopyTo(Array array, int index)
         {
-            ((ICollection)_dictionary).CopyTo(array, index);
+            _dictionary.CopyTo((KeyValuePair<TKey, TValue>[])array, index);
         }
 
         object ICollection.SyncRoot
         {
-            get { return ((ICollection)_dictionary).SyncRoot; }
+            get { return this; }
         }
 
         bool ICollection.IsSynchronized
         {
-            get { return ((ICollection)_dictionary).IsSynchronized; }
+            get { return false; }
         }
     }
 }
