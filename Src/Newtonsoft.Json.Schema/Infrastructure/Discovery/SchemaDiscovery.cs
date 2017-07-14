@@ -222,6 +222,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                                 || !UriComparer.Instance.Equals(reference, fragment))
                             {
                                 resolvedSchema = FindSchema(setSchema, knownSchema.Schema, path, fragment, originalReference, schemaReader, ref discovery);
+
                             }
                             else
                             {
@@ -235,55 +236,96 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                     }
                     else
                     {
-                        // special case
-                        // look in the root schema's definitions for a definition with the same property name and id as reference
-                        if (schema.ExtensionData.TryGetValue(Constants.PropertyNames.Definitions, out JToken definitions))
-                        {
-                            if (definitions is JObject definitionsObject)
-                            {
-                                JProperty matchingProperty = definitionsObject.Properties().FirstOrDefault(p => TryCompare(p.Name, resolvedReference));
-                                // if no match then attempt to find key that matches the original reference
-                                if (matchingProperty == null && originalReference != null)
-                                {
-                                    matchingProperty = definitionsObject.Properties().FirstOrDefault(p => TryCompare(p.Name, originalReference));
-                                }
+                        resolvedSchema = false;
+                    }
 
-                                if (matchingProperty?.Value is JObject o)
-                                {
-                                    Uri id = GetTokenId(o, schemaReader);
-
-                                    if (id != null && UriComparer.Instance.Equals(id, resolvedReference))
-                                    {
-                                        JSchema inlineSchema = schemaReader.ReadInlineSchema(setSchema, o);
-
-                                        discovery.Discover(inlineSchema, rootSchemaId, Constants.PropertyNames.Definitions + "/" + resolvedReference.OriginalString);
-
-                                        resolvedSchema = true;
-                                    }
-                                    else
-                                    {
-                                        resolvedSchema = false;
-                                    }
-                                }
-                                else
-                                {
-                                    resolvedSchema = false;
-                                }
-                            }
-                            else
-                            {
-                                resolvedSchema = false;
-                            }
-                        }
-                        else
-                        {
-                            resolvedSchema = false;
-                        }
+                    if (!resolvedSchema)
+                    {
+                        resolvedSchema = TryFindSchemaInDefinitions(setSchema, schema, rootSchemaId, originalReference, schemaReader, discovery, resolvedReference);
                     }
                 }
             }
 
             return resolvedSchema;
+        }
+
+        private static bool TryFindSchemaInDefinitions(Action<JSchema> setSchema, JSchema schema, Uri rootSchemaId,
+            Uri originalReference, JSchemaReader schemaReader, JSchemaDiscovery discovery, Uri resolvedReference)
+        {
+            // special case
+            // look in the root schema's definitions for a definition with the same property name and id as reference
+            if (schema.ExtensionData.TryGetValue(Constants.PropertyNames.Definitions, out JToken definitions))
+            {
+                if (definitions is JObject definitionsObject)
+                {
+                    JProperty matchingProperty = definitionsObject
+                        .Properties()
+                        .FirstOrDefault(p => TryCompare(p.Name, resolvedReference));
+
+                    // if no match then attempt to find key that matches the original reference
+                    if (matchingProperty == null && originalReference != null)
+                    {
+                        matchingProperty = definitionsObject.Properties()
+                            .FirstOrDefault(p => TryCompare(p.Name, originalReference));
+                    }
+
+                    if (matchingProperty?.Value is JObject o)
+                    {
+                        if (IsIdMatch(schemaReader, resolvedReference, o, rootSchemaId))
+                        {
+                            JSchema inlineSchema = schemaReader.ReadInlineSchema(setSchema, o);
+
+                            discovery.Discover(inlineSchema, rootSchemaId, Constants.PropertyNames.Definitions + "/" + matchingProperty.Name);
+
+                            return true;
+                        }
+                    }
+                    else
+                    {
+                        foreach (KeyValuePair<string, JToken> property in definitionsObject)
+                        {
+                            if (property.Value is JObject obj)
+                            {
+                                if (IsIdMatch(schemaReader, resolvedReference, obj, rootSchemaId))
+                                {
+                                    JSchema inlineSchema = schemaReader.ReadInlineSchema(setSchema, obj);
+
+                                    discovery.Discover(inlineSchema, rootSchemaId, Constants.PropertyNames.Definitions + "/" + property.Key);
+
+                                    return true;
+                                }
+                            }
+
+                        }
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        private static bool IsIdMatch(JSchemaReader schemaReader, Uri resolvedReference, JObject o, Uri rootSchemaId)
+        {
+            Uri id = GetTokenId(o, schemaReader);
+
+            if (id == null)
+            {
+                return false;
+            }
+
+            if (UriComparer.Instance.Equals(id, resolvedReference))
+            {
+                return true;
+            }
+
+            Uri resolvedId = ResolveSchemaId(rootSchemaId, id);
+
+            if (UriComparer.Instance.Equals(resolvedId, resolvedReference))
+            {
+                return true;
+            }
+
+            return false;
         }
 
         private static bool TryGetImplicitItemsSchema(JSchema parent, IList<JSchema> items, out JSchema schema)
