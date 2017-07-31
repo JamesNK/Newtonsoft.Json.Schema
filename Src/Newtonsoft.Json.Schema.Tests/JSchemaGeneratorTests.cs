@@ -1829,34 +1829,34 @@ namespace Newtonsoft.Json.Schema.Tests
       ""additionalProperties"": false,
       ""patternProperties"": {
         ""Block1.*"": {
-          ""type"": ""object"",
-          ""properties"": {
-            ""NestedBlocks"": {
-              ""$ref"": ""#/definitions/Dictionary<String, BlockBase>""
-            }
-          },
-          ""required"": [
-            ""NestedBlocks""
-          ]
+          ""$ref"": ""#/definitions/Block1""
         },
         ""Block2.*"": {
-          ""type"": ""object"",
-          ""properties"": {
-            ""NestedBlocks"": {
-              ""$ref"": ""#/definitions/Dictionary<String, BlockBase>""
-            }
-          },
-          ""required"": [
-            ""NestedBlocks""
-          ]
+          ""$ref"": ""#/definitions/Block2""
         }
       }
     },
     ""Block2"": {
-      ""$ref"": ""#/definitions/Dictionary<String, BlockBase>/patternProperties/Block2.*""
+      ""type"": ""object"",
+      ""properties"": {
+        ""NestedBlocks"": {
+          ""$ref"": ""#/definitions/Dictionary<String, BlockBase>""
+        }
+      },
+      ""required"": [
+        ""NestedBlocks""
+      ]
     },
     ""Block1"": {
-      ""$ref"": ""#/definitions/Dictionary<String, BlockBase>/patternProperties/Block1.*""
+      ""type"": ""object"",
+      ""properties"": {
+        ""NestedBlocks"": {
+          ""$ref"": ""#/definitions/Dictionary<String, BlockBase>""
+        }
+      },
+      ""required"": [
+        ""NestedBlocks""
+      ]
     }
   },
   ""type"": ""object"",

@@ -58,7 +58,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             _resolver = settings.Resolver ?? JSchemaDummyResolver.Instance;
             _baseUri = settings.BaseUri;
             _validateSchema = settings.ValidateVersion;
-            _schemaDiscovery = new JSchemaDiscovery();
+            _schemaDiscovery = new JSchemaDiscovery(null);
             _validationEventHandler = settings.GetValidationEventHandler();
             _validators = settings.Validators;
 

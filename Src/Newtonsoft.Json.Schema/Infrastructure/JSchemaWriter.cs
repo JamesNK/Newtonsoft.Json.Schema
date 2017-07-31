@@ -52,7 +52,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             }
         }
 
-        private void ReferenceOrWriteSchema(JSchema context, JSchema schema, string propertyName)
+        private void ReferenceOrWriteSchema(JSchema context, JSchema schema, string propertyName, bool isDefinitions = false)
         {
             KnownSchema knownSchema = _knownSchemas.SingleOrDefault(s => s.Schema == schema);
             if (knownSchema == null)
@@ -65,7 +65,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 _writer.WritePropertyName(propertyName);
             }
 
-            if (ShouldWriteReference(knownSchema))
+            if (ShouldWriteReference(knownSchema, isDefinitions))
             {
                 KnownSchema currentKnownSchema = _knownSchemas.Single(s => s.Schema == context);
 
@@ -100,13 +100,20 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 return;
             }
 
-            knownSchema.State = KnownSchemaState.InlineWritten;
+            knownSchema.State = KnownSchemaState.Written;
 
             WriteSchemaInternal(schema);
         }
 
-        private bool ShouldWriteReference(KnownSchema knownSchema)
+        private bool ShouldWriteReference(KnownSchema knownSchema, bool isDefinitions)
         {
+            if (knownSchema.State == KnownSchemaState.DefinitionPending)
+            {
+                // only write schemas found in dependencies in the dependencies object
+                // otherwise write reference
+                return !isDefinitions;
+            }
+
             if (knownSchema.State != KnownSchemaState.InlinePending)
             {
                 if (_referenceHandling == JSchemaWriterReferenceHandling.Always)
@@ -140,7 +147,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             _writer.WriteEndObject();
         }
 
-        private void WriteToken(JSchema context, JsonWriter writer, JToken token)
+        private void WriteToken(JSchema context, JsonWriter writer, JToken token, bool isDefinitions = false)
         {
             if (token is JObject)
             {
@@ -150,7 +157,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
                 if (schemaAnnotation != null)
                 {
-                    ReferenceOrWriteSchema(context, schemaAnnotation.Schema, null);
+                    ReferenceOrWriteSchema(context, schemaAnnotation.Schema, null, isDefinitions);
                 }
                 else
                 {
@@ -163,7 +170,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                         JToken value = property.Value;
                         if (value != null)
                         {
-                            WriteToken(context, writer, value);
+                            WriteToken(context, writer, value, isDefinitions);
                         }
                         else
                         {
@@ -220,7 +227,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             {
                 foreach (ExternalSchema externalSchema in _externalSchemas)
                 {
-                    discovery = new JSchemaDiscovery(_knownSchemas, KnownSchemaState.External);
+                    discovery = new JSchemaDiscovery(schema, _knownSchemas, KnownSchemaState.External);
                     discovery.Discover(externalSchema.Schema, externalSchema.Uri);
                 }
             }
@@ -230,11 +237,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 _version = SchemaVersionHelpers.MapSchemaUri(schema.SchemaVersion);
             }
 
-            discovery = new JSchemaDiscovery(_knownSchemas, KnownSchemaState.InlinePending);
+            discovery = new JSchemaDiscovery(schema, _knownSchemas, KnownSchemaState.InlinePending);
             discovery.Discover(schema, null);
 
             KnownSchema rootKnownSchema = _knownSchemas.Single(s => s.Schema == schema);
-            rootKnownSchema.State = KnownSchemaState.InlineWritten;
+            rootKnownSchema.State = KnownSchemaState.Written;
 
             WriteSchemaInternal(schema);
         }
@@ -283,8 +290,10 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             {
                 foreach (KeyValuePair<string, JToken> extensionDataPair in schema._extensionData)
                 {
+                    bool isDefinitions = schema == _rootSchema && string.Equals(extensionDataPair.Key, Constants.PropertyNames.Definitions);
+
                     _writer.WritePropertyName(extensionDataPair.Key);
-                    WriteToken(schema, _writer, extensionDataPair.Value);
+                    WriteToken(schema, _writer, extensionDataPair.Value, isDefinitions);
                 }
             }
 

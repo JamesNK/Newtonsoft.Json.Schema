@@ -1,0 +1,83 @@
+﻿#region License
+// Copyright (c) Newtonsoft. All Rights Reserved.
+// License: https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md
+#endregion
+
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Runtime.Serialization;
+using System.Text;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Schema.Generation;
+using Newtonsoft.Json.Schema.Infrastructure;
+using Newtonsoft.Json.Serialization;
+#if DNXCORE50
+using Xunit;
+using Test = Xunit.FactAttribute;
+using Assert = Newtonsoft.Json.Schema.Tests.XUnitAssert;
+#else
+using NUnit.Framework;
+#endif
+
+namespace Newtonsoft.Json.Schema.Tests.Issues
+{
+    [TestFixture]
+    public class Issue98Tests : TestFixtureBase
+    {
+        [Test]
+        public void Test()
+        {
+            var generator = new JSchemaGenerator();
+            //_generator.SchemaIdGenerationHandling = SchemaIdGenerationHandling.TypeName;
+            generator.GenerationProviders.Add(new StringEnumGenerationProvider());
+            generator.ContractResolver = new CamelCasePropertyNamesContractResolver();
+
+            var schema = generator.Generate(typeof(TypeOne));
+
+            // A process will generate the schema and cache it
+            var schemaString = schema.ToString(SchemaVersion.Draft4);
+
+            Console.WriteLine(schemaString);
+
+            JSchema parsedSchema = JSchema.Parse(schemaString);
+
+            Assert.AreEqual(new Uri("typeOne", UriKind.RelativeOrAbsolute), parsedSchema.Id);
+        }
+
+        [JsonObject("settings")]
+        public class CommonViewModel
+        {
+            [JsonProperty("a")]
+            public string A { get; set; }
+
+            [JsonProperty("b")]
+            public int B { get; set; }
+        }
+
+        [JsonObject("typeOne")]
+        public class TypeOne
+        {
+            [JsonProperty("prop1")]
+            public string Prop1 { get; set; }
+
+            [JsonProperty("prop2")]
+            public CommonViewModel Common { get; set; }
+
+            [JsonProperty("prop3")]
+            public TypeTwo TypeTwo { get; set; }
+        }
+
+        [JsonObject("typeTwo")]
+        public class TypeTwo
+        {
+            [JsonProperty("prop2")]
+            public string Prop2 { get; set; }
+
+            [JsonProperty("common")]
+            public CommonViewModel Common { get; set; }
+        }
+    }
+}

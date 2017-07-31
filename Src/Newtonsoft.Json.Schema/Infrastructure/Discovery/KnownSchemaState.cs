@@ -9,6 +9,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
     {
         External,
         InlinePending,
-        InlineWritten
+        DefinitionPending,
+        Written
     }
 }

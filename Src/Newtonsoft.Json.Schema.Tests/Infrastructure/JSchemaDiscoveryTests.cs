@@ -37,7 +37,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
                 }
             };
 
-            JSchemaDiscovery discovery = new JSchemaDiscovery();
+            JSchemaDiscovery discovery = new JSchemaDiscovery(root);
             discovery.Discover(root, null);
 
             Assert.AreEqual(2, discovery.KnownSchemas.Count);
@@ -61,7 +61,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
                 }
             };
 
-            JSchemaDiscovery discovery = new JSchemaDiscovery();
+            JSchemaDiscovery discovery = new JSchemaDiscovery(root);
             discovery.Discover(root, null);
 
             Assert.AreEqual(2, discovery.KnownSchemas.Count);
@@ -129,7 +129,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
                 }
             };
 
-            JSchemaDiscovery discovery = new JSchemaDiscovery();
+            JSchemaDiscovery discovery = new JSchemaDiscovery(root);
             discovery.Discover(root, null);
 
             int i = 0;
@@ -230,7 +230,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
                 }
             };
 
-            JSchemaDiscovery discovery = new JSchemaDiscovery();
+            JSchemaDiscovery discovery = new JSchemaDiscovery(root);
             discovery.Discover(root, null);
 
             Assert.AreEqual(7, discovery.KnownSchemas.Count);
@@ -251,7 +251,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             string schemaJson = File.ReadAllText(path);
             JSchema schema = JSchema.Parse(schemaJson);
 
-            JSchemaDiscovery discovery = new JSchemaDiscovery();
+            JSchemaDiscovery discovery = new JSchemaDiscovery(schema);
             discovery.Discover(schema, null);
 
             // ensure the path does not contain multiple #'s
@@ -425,7 +425,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 
             JSchema schema = JSchema.Parse(schemaJson);
 
-            JSchemaDiscovery discovery = new JSchemaDiscovery();
+            JSchemaDiscovery discovery = new JSchemaDiscovery(schema);
             discovery.Discover(schema, null);
 
             //for (int i = 0; i < discovery.KnownSchemas.Count; i++)
@@ -504,7 +504,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
                 }
             };
 
-            JSchemaDiscovery discovery = new JSchemaDiscovery();
+            JSchemaDiscovery discovery = new JSchemaDiscovery(root);
             discovery.Discover(root, null);
 
             Assert.AreEqual("#", discovery.KnownSchemas[0].Id.OriginalString);

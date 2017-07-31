@@ -55,6 +55,100 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
             JSchema schema1 = generator.Generate(new Root().GetType());
             string json1 = schema1.ToString();
 
+            StringAssert.AreEqual(@"{
+  ""definitions"": {
+    ""ItemB"": {
+      ""type"": [
+        ""object"",
+        ""null""
+      ],
+      ""properties"": {
+        ""Data"": {
+          ""type"": [
+            ""array"",
+            ""null""
+          ],
+          ""items"": {
+            ""$ref"": ""#/definitions/CustomData""
+          }
+        }
+      },
+      ""required"": [
+        ""Data""
+      ]
+    },
+    ""CustomData"": {
+      ""type"": [
+        ""object"",
+        ""null""
+      ],
+      ""properties"": {
+        ""Key"": {
+          ""type"": [
+            ""string"",
+            ""null""
+          ]
+        },
+        ""Text"": {
+          ""type"": [
+            ""string"",
+            ""null""
+          ]
+        }
+      },
+      ""required"": [
+        ""Key"",
+        ""Text""
+      ]
+    },
+    ""ItemA"": {
+      ""type"": [
+        ""object"",
+        ""null""
+      ],
+      ""properties"": {
+        ""Data"": {
+          ""type"": [
+            ""array"",
+            ""null""
+          ],
+          ""items"": {
+            ""$ref"": ""#/definitions/CustomData""
+          }
+        }
+      },
+      ""required"": [
+        ""Data""
+      ]
+    }
+  },
+  ""type"": ""object"",
+  ""properties"": {
+    ""FirstArray"": {
+      ""type"": [
+        ""array"",
+        ""null""
+      ],
+      ""items"": {
+        ""$ref"": ""#/definitions/ItemA""
+      }
+    },
+    ""SecondArray"": {
+      ""type"": [
+        ""array"",
+        ""null""
+      ],
+      ""items"": {
+        ""$ref"": ""#/definitions/ItemB""
+      }
+    }
+  },
+  ""required"": [
+    ""FirstArray"",
+    ""SecondArray""
+  ]
+}", json1);
+
             JSchema schema2 = JSchema.Parse(json1);
             string json2 = schema2.ToString();
 

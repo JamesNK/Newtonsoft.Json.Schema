@@ -14,6 +14,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
 {
     internal class JSchemaDiscovery
     {
+        private readonly JSchema _rootSchema;
         private readonly KnownSchemaState _state;
         private readonly List<SchemaPath> _pathStack;
         private readonly KnownSchemaCollection _knownSchemas;
@@ -25,13 +26,14 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             get { return _knownSchemas; }
         }
 
-        public JSchemaDiscovery()
-            : this(new KnownSchemaCollection(), KnownSchemaState.External)
+        public JSchemaDiscovery(JSchema rootSchema)
+            : this(rootSchema, new KnownSchemaCollection(), KnownSchemaState.External)
         {
         }
 
-        public JSchemaDiscovery(KnownSchemaCollection knownSchemas, KnownSchemaState state)
+        public JSchemaDiscovery(JSchema rootSchema, KnownSchemaCollection knownSchemas, KnownSchemaState state)
         {
+            _rootSchema = rootSchema;
             _state = state;
             _pathStack = new List<SchemaPath>();
             _knownSchemas = knownSchemas ?? new KnownSchemaCollection();
@@ -48,35 +50,45 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             _pathStack.RemoveAt(_pathStack.Count - 1);
         }
 
-        private void DiscoverInternal(JSchema schema, string latestPath)
+        private void DiscoverInternal(JSchema schema, string latestPath, bool isDefinitionSchema = false)
         {
             if (schema.Reference != null)
             {
                 return;
             }
 
-            if (_knownSchemas.Contains(schema))
-            {
-                return;
-            }
+            // give schemas that are dependencies a special state so they are written as a dependency and not inline
+            KnownSchemaState resolvedSchemaState = (_state == KnownSchemaState.InlinePending && isDefinitionSchema)
+                ? KnownSchemaState.DefinitionPending
+                : _state;
 
             string scopePath = latestPath;
             Uri schemaKnownId = GetSchemaIdAndNewScopeId(schema, ref scopePath, out Uri newScopeId);
+
+            if (_knownSchemas.Contains(schema))
+            {
+                KnownSchema alreadyDiscoveredSchema = _knownSchemas[schema];
+
+                // schema was previously discovered but exists in definitions
+                if (alreadyDiscoveredSchema.State == KnownSchemaState.InlinePending &&
+                    resolvedSchemaState == KnownSchemaState.DefinitionPending &&
+                    _rootSchema != schema)
+                {
+                    int existingKnownSchemaIndex = _knownSchemas.IndexOf(alreadyDiscoveredSchema);
+
+                    _knownSchemas[existingKnownSchemaIndex] = new KnownSchema(schemaKnownId, schema, resolvedSchemaState);
+                }
+
+                return;
+            }
 
             // check whether a schema with the resolved id is already known
             // this will be hit when a schema contains duplicate ids or references a schema with a duplicate id
             bool existingSchema = _knownSchemas.GetById(schemaKnownId) != null;
 
-#if DEBUG
-            if (_knownSchemas.Contains(schema))
-            {
-                throw new InvalidOperationException("Schema with id '{0}' already a known schema.".FormatWith(CultureInfo.InvariantCulture, schemaKnownId));
-            }
-#endif
-
             // add schema to known schemas whether duplicate or not to avoid multiple errors
             // the first schema with a duplicate id will be used
-            _knownSchemas.Add(new KnownSchema(schemaKnownId, schema, _state));
+            _knownSchemas.Add(new KnownSchema(schemaKnownId, schema, resolvedSchemaState));
 
             if (existingSchema)
             {
@@ -94,7 +106,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             {
                 foreach (KeyValuePair<string, JToken> valuePair in schema._extensionData)
                 {
-                    DiscoverTokenSchemas(EscapePath(valuePair.Key), valuePair.Value);
+                    DiscoverTokenSchemas(schema, EscapePath(valuePair.Key), valuePair.Value);
                 }
             }
 
@@ -189,7 +201,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             return knownSchemaId;
         }
 
-        private void DiscoverTokenSchemas(string name, JToken token)
+        private void DiscoverTokenSchemas(JSchema schema, string name, JToken token, bool isDefinitionSchema = false)
         {
             if (token is JObject)
             {
@@ -198,13 +210,15 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                 JSchemaAnnotation annotation = token.Annotation<JSchemaAnnotation>();
                 if (annotation != null)
                 {
-                    DiscoverInternal(annotation.Schema, name);
+                    DiscoverInternal(annotation.Schema, name, isDefinitionSchema);
                 }
                 else
                 {
                     foreach (KeyValuePair<string, JToken> valuePair in o)
                     {
-                        DiscoverTokenSchemas(name + "/" + EscapePath(valuePair.Key), valuePair.Value);
+                        bool isDefinitionsSchema = string.Equals(name, Constants.PropertyNames.Definitions, StringComparison.Ordinal) && schema == _rootSchema;
+
+                        DiscoverTokenSchemas(schema, name + "/" + EscapePath(valuePair.Key), valuePair.Value, isDefinitionsSchema);
                     }
                 }
             }
@@ -214,7 +228,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
 
                 for (int i = 0; i < l.Count; i++)
                 {
-                    DiscoverTokenSchemas(name + "/" + i.ToString(CultureInfo.InvariantCulture), l[i]);
+                    DiscoverTokenSchemas(schema, name + "/" + i.ToString(CultureInfo.InvariantCulture), l[i]);
                 }
             }
         }
