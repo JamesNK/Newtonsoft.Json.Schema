@@ -42,10 +42,9 @@ namespace Newtonsoft.Json.Schema.Generation
                         schema.ExtensionData[Constants.PropertyNames.Definitions] = definitions;
                     }
 
-                    // reverse schemas so schemas are added to definition in the order they were generated in
-                    // means schemas with few/no references to other schemas are first
-                    // avoids definitions that are just a reference to somewhere else
-                    foreach (TypeSchema t in Enumerable.Reverse(_typeSchemas))
+                    Dictionary<string, JSchema> definitionsSchemas = new Dictionary<string, JSchema>();
+
+                    foreach (TypeSchema t in _typeSchemas)
                     {
                         if (t.Schema == schema)
                         {
@@ -70,7 +69,13 @@ namespace Newtonsoft.Json.Schema.Generation
                             }
                         }
 
-                        definitions[id] = t.Schema;
+                        definitionsSchemas[id] = t.Schema;
+                    }
+
+                    // definition schemas alphabetical ordered
+                    foreach (KeyValuePair<string, JSchema> definitionSchema in definitionsSchemas.OrderBy(s => s.Key))
+                    {
+                        definitions[definitionSchema.Key] = definitionSchema.Value;
                     }
                 }
             }

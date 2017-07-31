@@ -57,26 +57,6 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
 
             StringAssert.AreEqual(@"{
   ""definitions"": {
-    ""ItemB"": {
-      ""type"": [
-        ""object"",
-        ""null""
-      ],
-      ""properties"": {
-        ""Data"": {
-          ""type"": [
-            ""array"",
-            ""null""
-          ],
-          ""items"": {
-            ""$ref"": ""#/definitions/CustomData""
-          }
-        }
-      },
-      ""required"": [
-        ""Data""
-      ]
-    },
     ""CustomData"": {
       ""type"": [
         ""object"",
@@ -102,6 +82,26 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
       ]
     },
     ""ItemA"": {
+      ""type"": [
+        ""object"",
+        ""null""
+      ],
+      ""properties"": {
+        ""Data"": {
+          ""type"": [
+            ""array"",
+            ""null""
+          ],
+          ""items"": {
+            ""$ref"": ""#/definitions/CustomData""
+          }
+        }
+      },
+      ""required"": [
+        ""Data""
+      ]
+    },
+    ""ItemB"": {
       ""type"": [
         ""object"",
         ""null""

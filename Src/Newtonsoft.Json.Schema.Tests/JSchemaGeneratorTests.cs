@@ -1708,8 +1708,8 @@ namespace Newtonsoft.Json.Schema.Tests
 
             List<JProperty> t = schema.ExtensionData["definitions"].Cast<JProperty>().ToList();
             int index = 0;
-            Assert.AreEqual("B", t[index++].Name);
             Assert.AreEqual("A", t[index++].Name);
+            Assert.AreEqual("B", t[index++].Name);
             Assert.AreEqual("Item", t[index].Name);
 
             string json = schema.ToString();
@@ -1824,17 +1824,16 @@ namespace Newtonsoft.Json.Schema.Tests
 
             StringAssert.AreEqual(@"{
   ""definitions"": {
-    ""Dictionary<String, BlockBase>"": {
+    ""Block1"": {
       ""type"": ""object"",
-      ""additionalProperties"": false,
-      ""patternProperties"": {
-        ""Block1.*"": {
-          ""$ref"": ""#/definitions/Block1""
-        },
-        ""Block2.*"": {
-          ""$ref"": ""#/definitions/Block2""
+      ""properties"": {
+        ""NestedBlocks"": {
+          ""$ref"": ""#/definitions/Dictionary<String, BlockBase>""
         }
-      }
+      },
+      ""required"": [
+        ""NestedBlocks""
+      ]
     },
     ""Block2"": {
       ""type"": ""object"",
@@ -1847,16 +1846,17 @@ namespace Newtonsoft.Json.Schema.Tests
         ""NestedBlocks""
       ]
     },
-    ""Block1"": {
+    ""Dictionary<String, BlockBase>"": {
       ""type"": ""object"",
-      ""properties"": {
-        ""NestedBlocks"": {
-          ""$ref"": ""#/definitions/Dictionary<String, BlockBase>""
+      ""additionalProperties"": false,
+      ""patternProperties"": {
+        ""Block1.*"": {
+          ""$ref"": ""#/definitions/Block1""
+        },
+        ""Block2.*"": {
+          ""$ref"": ""#/definitions/Block2""
         }
-      },
-      ""required"": [
-        ""NestedBlocks""
-      ]
+      }
     }
   },
   ""type"": ""object"",
