@@ -31,7 +31,6 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
         public void Test()
         {
             var generator = new JSchemaGenerator();
-            //_generator.SchemaIdGenerationHandling = SchemaIdGenerationHandling.TypeName;
             generator.GenerationProviders.Add(new StringEnumGenerationProvider());
             generator.ContractResolver = new CamelCasePropertyNamesContractResolver();
 
@@ -40,7 +39,76 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
             // A process will generate the schema and cache it
             var schemaString = schema.ToString(SchemaVersion.Draft4);
 
-            Console.WriteLine(schemaString);
+            StringAssert.AreEqual(@"{
+  ""$schema"": ""http://json-schema.org/draft-04/schema#"",
+  ""id"": ""typeOne"",
+  ""definitions"": {
+    ""settings"": {
+      ""id"": ""settings"",
+      ""type"": [
+        ""object"",
+        ""null""
+      ],
+      ""properties"": {
+        ""a"": {
+          ""type"": [
+            ""string"",
+            ""null""
+          ]
+        },
+        ""b"": {
+          ""type"": ""integer""
+        }
+      },
+      ""required"": [
+        ""a"",
+        ""b""
+      ]
+    },
+    ""typeTwo"": {
+      ""id"": ""typeTwo"",
+      ""type"": [
+        ""object"",
+        ""null""
+      ],
+      ""properties"": {
+        ""prop2"": {
+          ""type"": [
+            ""string"",
+            ""null""
+          ]
+        },
+        ""common"": {
+          ""$ref"": ""settings""
+        }
+      },
+      ""required"": [
+        ""prop2"",
+        ""common""
+      ]
+    }
+  },
+  ""type"": ""object"",
+  ""properties"": {
+    ""prop1"": {
+      ""type"": [
+        ""string"",
+        ""null""
+      ]
+    },
+    ""prop2"": {
+      ""$ref"": ""settings""
+    },
+    ""prop3"": {
+      ""$ref"": ""typeTwo""
+    }
+  },
+  ""required"": [
+    ""prop1"",
+    ""prop2"",
+    ""prop3""
+  ]
+}", schemaString);
 
             JSchema parsedSchema = JSchema.Parse(schemaString);
 

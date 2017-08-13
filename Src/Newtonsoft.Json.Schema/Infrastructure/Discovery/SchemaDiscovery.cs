@@ -222,7 +222,6 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                                 || !UriComparer.Instance.Equals(reference, fragment))
                             {
                                 resolvedSchema = FindSchema(setSchema, knownSchema.Schema, path, fragment, originalReference, schemaReader, ref discovery);
-
                             }
                             else
                             {
