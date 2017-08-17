@@ -98,6 +98,9 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation.Samples.Generation
             Assert.AreEqual(JSchemaType.Object, schema.Type);
             Assert.AreEqual("Postal Address", schema.Title);
             Assert.AreEqual("The mailing address.", schema.Description);
+
+            Assert.AreEqual("Postal Code", schema.Properties["PostalCode"].Title);
+            Assert.AreEqual("The postal code. For example, 94043.", schema.Properties["PostalCode"].Description);
         }
     }
 }
