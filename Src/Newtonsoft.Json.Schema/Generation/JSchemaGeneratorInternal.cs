@@ -114,29 +114,6 @@ namespace Newtonsoft.Json.Schema.Generation
             return schema;
         }
 
-        private TAttribute GetAttributeFromTypeOrProperty<TAttribute>(Type type, JsonProperty memberProperty)
-            where TAttribute : Attribute
-        {
-            TAttribute attribute = null;
-
-            // check for property attribute first
-            if (memberProperty != null)
-            {
-                attribute = memberProperty.AttributeProvider
-                    .GetAttributes(true)
-                    .OfType<TAttribute>()
-                    .FirstOrDefault();
-            }
-
-            // fall back to type attribute
-            if (attribute == null)
-            {
-                attribute = JsonTypeReflector.GetCachedAttribute<TAttribute>(type);
-            }
-
-            return attribute;
-        }
-
         private string GetTitle(Type type, JsonProperty memberProperty)
         {
             JsonContainerAttribute containerAttribute = JsonTypeReflector.GetCachedAttribute<JsonContainerAttribute>(type);
@@ -145,12 +122,8 @@ namespace Newtonsoft.Json.Schema.Generation
                 return containerAttribute.Title;
             }
 
-#if !(PORTABLE40 || PORTABLE)
-            DisplayNameAttribute displayNameAttribute = GetAttributeFromTypeOrProperty<DisplayNameAttribute>(type, memberProperty);
-            return displayNameAttribute?.DisplayName;
-#else
-            return null;
-#endif
+            AttributeHelpers.GetDisplayName(type, memberProperty, out string displayName);
+            return displayName;
         }
 
         private string GetDescription(Type type, JsonProperty memberProperty)
@@ -161,12 +134,8 @@ namespace Newtonsoft.Json.Schema.Generation
                 return containerAttribute.Description;
             }
 
-#if !(PORTABLE40 || PORTABLE)
-            DescriptionAttribute descriptionAttribute = GetAttributeFromTypeOrProperty<DescriptionAttribute>(type, memberProperty);
-            return descriptionAttribute?.Description;
-#else
-            return null;
-#endif
+            AttributeHelpers.GetDescription(type, memberProperty, out string description);
+            return description;
         }
 
         private Uri GetTypeId(Type type, bool explicitOnly)
@@ -370,8 +339,8 @@ namespace Newtonsoft.Json.Schema.Generation
 
         private TypeSchemaKey CreateKey(Required valueRequired, JsonProperty memberProperty, JsonContract contract)
         {
-            int? minLength = DataAnnotationHelpers.GetMinLength(memberProperty);
-            int? maxLength = DataAnnotationHelpers.GetMaxLength(memberProperty);
+            int? minLength = AttributeHelpers.GetMinLength(memberProperty);
+            int? maxLength = AttributeHelpers.GetMaxLength(memberProperty);
             string title = GetTitle(contract.NonNullableUnderlyingType, memberProperty);
             string description = GetDescription(contract.NonNullableUnderlyingType, memberProperty);
 
@@ -445,8 +414,8 @@ namespace Newtonsoft.Json.Schema.Generation
                         }
 
                         schema.Type = AddNullType(JSchemaType.Array, valueRequired);
-                        schema.MinimumItems = DataAnnotationHelpers.GetMinLength(memberProperty);
-                        schema.MaximumItems = DataAnnotationHelpers.GetMaxLength(memberProperty);
+                        schema.MinimumItems = AttributeHelpers.GetMinLength(memberProperty);
+                        schema.MaximumItems = AttributeHelpers.GetMaxLength(memberProperty);
 
                         JsonArrayAttribute arrayAttribute = JsonTypeReflector.GetCachedAttribute<JsonArrayAttribute>(contract.NonNullableUnderlyingType);
 
@@ -471,13 +440,13 @@ namespace Newtonsoft.Json.Schema.Generation
                             : AddNullType(JSchemaType.String, valueRequired);
 
                         schema.Type = schemaType;
-                        schema.MinimumLength = DataAnnotationHelpers.GetMinLength(memberProperty);
-                        schema.MaximumLength = DataAnnotationHelpers.GetMaxLength(memberProperty);
+                        schema.MinimumLength = AttributeHelpers.GetMinLength(memberProperty);
+                        schema.MaximumLength = AttributeHelpers.GetMaxLength(memberProperty);
                         break;
                     case JsonContractType.Dictionary:
                         schema.Type = AddNullType(JSchemaType.Object, valueRequired);
-                        schema.MinimumProperties = DataAnnotationHelpers.GetMinLength(memberProperty);
-                        schema.MaximumProperties = DataAnnotationHelpers.GetMaxLength(memberProperty);
+                        schema.MinimumProperties = AttributeHelpers.GetMinLength(memberProperty);
+                        schema.MaximumProperties = AttributeHelpers.GetMaxLength(memberProperty);
 
                         ReflectionUtils.GetDictionaryKeyValueTypes(contract.NonNullableUnderlyingType, out Type keyType, out Type valueType);
 
@@ -522,19 +491,19 @@ namespace Newtonsoft.Json.Schema.Generation
 
             if (JSchemaTypeHelpers.HasFlag(schema.Type, JSchemaType.String))
             {
-                if (DataAnnotationHelpers.GetStringLength(memberProperty, out int minimumLength, out int maximumLength))
+                if (AttributeHelpers.GetStringLength(memberProperty, out int minimumLength, out int maximumLength))
                 {
                     schema.MinimumLength = minimumLength;
                     schema.MaximumLength = maximumLength;
                 }
                 else
                 {
-                    schema.MinimumLength = DataAnnotationHelpers.GetMinLength(memberProperty);
-                    schema.MaximumLength = DataAnnotationHelpers.GetMaxLength(memberProperty);
+                    schema.MinimumLength = AttributeHelpers.GetMinLength(memberProperty);
+                    schema.MaximumLength = AttributeHelpers.GetMaxLength(memberProperty);
                 }
 
-                schema.Pattern = DataAnnotationHelpers.GetPattern(memberProperty);
-                schema.Format = DataAnnotationHelpers.GetFormat(memberProperty);
+                schema.Pattern = AttributeHelpers.GetPattern(memberProperty);
+                schema.Format = AttributeHelpers.GetFormat(memberProperty);
 
                 // no format specified, derive from type
                 if (schema.Format == null)
@@ -552,7 +521,7 @@ namespace Newtonsoft.Json.Schema.Generation
             }
             if (JSchemaTypeHelpers.HasFlag(type, JSchemaType.Number) || JSchemaTypeHelpers.HasFlag(type, JSchemaType.Integer))
             {
-                if (DataAnnotationHelpers.GetRange(memberProperty, out double minimum, out double maximum))
+                if (AttributeHelpers.GetRange(memberProperty, out double minimum, out double maximum))
                 {
                     schema.Minimum = minimum;
                     schema.Maximum = maximum;
@@ -577,7 +546,7 @@ namespace Newtonsoft.Json.Schema.Generation
                 }
             }
 
-            Type enumDataType = DataAnnotationHelpers.GetEnumDataType(memberProperty);
+            Type enumDataType = AttributeHelpers.GetEnumDataType(memberProperty);
             if (enumDataType != null && CollectionUtils.IsNullOrEmpty(schema._enum))
             {
                 IList<EnumValue<long>> enumValues = EnumUtils.GetNamesAndValues<long>(enumDataType);
@@ -626,7 +595,7 @@ namespace Newtonsoft.Json.Schema.Generation
                 if (!property.Ignored)
                 {
                     Required? required = property._required;
-                    if (DataAnnotationHelpers.GetRequired(property))
+                    if (AttributeHelpers.GetRequired(property))
                     {
                         required = Required.Always;
                     }
