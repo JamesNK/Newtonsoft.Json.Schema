@@ -297,7 +297,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 }
             }
 
-            if (schema.Type != null)
+            if (schema.Type != null && schema.Type != JSchemaType.None)
             {
                 WriteType(Constants.PropertyNames.Type, _writer, schema.Type.Value);
             }
