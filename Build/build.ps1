@@ -11,7 +11,8 @@
   $buildNuGet = $false
   $treatWarningsAsErrors = $false
   $workingName = if ($workingName) {$workingName} else {"Working"}
-  $netCliVersion = "1.0.4"
+  $netCliChannel = "2.0"
+  $netCliVersion = "2.0.0"
   $nugetUrl = "http://dist.nuget.org/win-x86-commandline/latest/nuget.exe"
   
   $baseDir  = resolve-path ..
@@ -30,7 +31,7 @@
   $nunitConsolePath = "$buildDir\Temp\NUnit.ConsoleRunner.$nunitConsoleVersion"
 
   $builds = @(
-    @{Framework = "netstandard1.3"; TestsFunction = "NetCliTests"; TestFramework = "netcoreapp1.1"; Enabled=$true}
+    @{Framework = "netstandard1.3"; TestsFunction = "NetCliTests"; TestFramework = "netcoreapp2.0"; Enabled=$true}
     @{Framework = "net45"; TestsFunction = "NUnitTests"; NUnitFramework="net-4.0"; Enabled=$true},
     @{Framework = "net40"; TestsFunction = "NUnitTests"; NUnitFramework="net-4.0"; Enabled=$true},
     @{Framework = "net35"; TestsFunction = "NUnitTests"; NUnitFramework="net-2.0"; Enabled=$true},
@@ -211,7 +212,7 @@ function NetCliTests($build)
   $location = "$workingSourceDir\Newtonsoft.Json.Schema.Tests"
   $testDir = if ($build.TestFramework -ne $null) { $build.TestFramework } else { $build.Framework }
 
-  exec { .\Tools\Dotnet\dotnet-install.ps1 -Version $netCliVersion | Out-Default }
+  exec { .\Tools\Dotnet\dotnet-install.ps1 -Channel $netCliChannel -Version $netCliVersion | Out-Default }
 
   try
   {
@@ -222,7 +223,7 @@ function NetCliTests($build)
     Write-Host -ForegroundColor Green "Running tests for $testDir"
     Write-Host
 
-    exec { dotnet test $projectPath -f $testDir -c Release -l trx --no-build | Out-Default }
+    exec { dotnet test $projectPath -f $testDir -c Release -l trx --no-restore --no-build | Out-Default }
     copy-item -Path "$location\TestResults\*.trx" -Destination $workingDir
   }
   finally
