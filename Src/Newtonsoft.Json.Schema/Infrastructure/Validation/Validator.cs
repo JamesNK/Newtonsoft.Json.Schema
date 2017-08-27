@@ -24,6 +24,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
         private readonly ValidatorContext _context;
 
         private bool _knownSchemasPopulated;
+        private SchemaVersion? _schemaVersion;
 
         public JTokenWriter TokenWriter;
         public JSchema Schema;
@@ -85,6 +86,19 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             else
             {
                 throw JSchemaValidationException.Create(error);
+            }
+        }
+
+        public SchemaVersion SchemaVersion
+        {
+            get
+            {
+                if (_schemaVersion == null)
+                {
+                    _schemaVersion = SchemaVersionHelpers.MapSchemaUri(Schema.SchemaVersion);
+                }
+
+                return _schemaVersion.Value;
             }
         }
 

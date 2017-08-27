@@ -327,7 +327,14 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
         private bool ValidateNumber(JSchema schema, object value)
         {
-            if (!TestType(schema, JSchemaType.Number, value))
+            if (JSchemaTypeHelpers.HasFlag(schema.Type, JSchemaType.Integer)
+                && !JSchemaTypeHelpers.HasFlag(schema.Type, JSchemaType.Number)
+                && MathHelpers.IsDoubleMultiple(value, 1)
+                && SchemaVersionHelpers.EnsureVersion(Context.Validator.SchemaVersion, SchemaVersion.Draft6))
+            {
+                // accept values like 1.0 in draft6+
+            }
+            else if (!TestType(schema, JSchemaType.Number, value))
             {
                 return false;
             }

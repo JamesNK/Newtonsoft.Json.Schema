@@ -46,6 +46,7 @@ namespace Newtonsoft.Json.Schema.Tests
                 var resolver = new JSchemaPreloadedResolver();
                 AddSchema(resolver, "draft3.json", "http://json-schema.org/draft-03/schema");
                 AddSchema(resolver, "draft4.json", "http://json-schema.org/draft-04/schema");
+                AddSchema(resolver, "draft6.json", "http://json-schema.org/draft-06/schema");
                 AddSchema(resolver, "integer.json", "http://localhost:1234/integer.json");
                 AddSchema(resolver, "folder/folderInteger.json", "http://localhost:1234/folder/folderInteger.json");
                 AddSchema(resolver, "subSchemas.json", "http://localhost:1234/subSchemas.json");
@@ -67,7 +68,14 @@ namespace Newtonsoft.Json.Schema.Tests
             resolver.Add(new Uri(id), json);
         }
 
-        [TestCaseSourceAttribute("GetSpecTestDetails")]
+        private Uri GetSchemaUri(string version)
+        {
+            SchemaVersion schemaVersion = (SchemaVersion)Enum.Parse(typeof(SchemaVersion), version);
+
+            return SchemaVersionHelpers.MapSchemaVersion(schemaVersion);
+        }
+
+        [TestCaseSource(nameof(GetSpecTestDetails))]
         public void ReadSpecTest(SchemaSpecTest schemaSpecTest)
         {
             Console.WriteLine("Running reader JSON Schema {0} test {1}: {2}", schemaSpecTest.Version, schemaSpecTest.TestNumber, schemaSpecTest);
@@ -77,6 +85,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaPreloadedResolver resolver = GetResolver();
 
             JSchema s = JSchema.Load(schemaSpecTest.Schema.CreateReader(), resolver);
+            s.SchemaVersion = GetSchemaUri(schemaSpecTest.Version);
 
             JsonReader jsonReader = schemaSpecTest.Data.CreateReader();
 
@@ -95,7 +104,7 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(schemaSpecTest.IsValid, isValid, schemaSpecTest.TestCaseDescription + " - " + schemaSpecTest.TestDescription + " - errors: " + StringHelpers.Join(", ", errorMessages));
         }
 
-        [TestCaseSourceAttribute("GetSpecTestDetails")]
+        [TestCaseSource(nameof(GetSpecTestDetails))]
         public void WriteSpecTest(SchemaSpecTest schemaSpecTest)
         {
             Console.WriteLine("Running writer JSON Schema {0} test {1}: {2}", schemaSpecTest.Version, schemaSpecTest.TestNumber, schemaSpecTest);
@@ -105,6 +114,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaPreloadedResolver resolver = GetResolver();
 
             JSchema s = JSchema.Load(schemaSpecTest.Schema.CreateReader(), resolver);
+            s.SchemaVersion = GetSchemaUri(schemaSpecTest.Version);
 
             JsonReader jsonReader = schemaSpecTest.Data.CreateReader();
 

@@ -1,26 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
-  <!--Required for https://github.com/dotnet/roslyn-project-system/issues/1386--> 
-  <!--<Target Name="WorkAroundPackageAndProjectReferenceConflict" BeforeTargets="ResolveLockFileReferences">
-    <ItemGroup>
-      <ResolvedCompileFileDefinitions Remove="@(ResolvedCompileFileDefinitions)" Condition="'%(ResolvedCompileFileDefinitions.FileName)' == 'Newtonsoft.Json'" />
-    </ItemGroup>
-    <Message Text="FileName: %(ResolvedCompileFileDefinitions.FileName)" Importance="high" />
-    <Message Text="ProjectPath: %(PackageDependencies.ProjectPath)" Importance="high" />
-
-    <Message Text="NuGetPackageId: @(PackageDependencies)" Importance="high" />
-    <Message Text="PackageName: %(PackageDependencies.PackageName)" Importance="high" />
-    <Message Text="FileDependencies.asfd: %(FileDependencies.PackageName)" Importance="high" />
-    
-
-    <GetMetadataTask MyItemGroup="@(ResolvedCompileFileDefinitions)">
-      <Output TaskParameter="MetadataString" PropertyName="YourMetadataString" />
-    </GetMetadataTask>
-    <Message Text="NuGetPackageId: $(YourMetadataString)" />
-  </Target>-->
-
-  <!--<Target Name="TestMessage" BeforeTargets="Build">
-  </Target>--> 
   <PropertyGroup>
     <TargetFrameworks Condition="'$(TestFrameworks)'==''">net45;net451;net40;net35</TargetFrameworks>
     <TargetFrameworks Condition="'$(TestFrameworks)'!=''">$(TestFrameworks)</TargetFrameworks>
