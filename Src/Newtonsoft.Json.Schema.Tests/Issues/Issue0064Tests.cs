@@ -23,7 +23,7 @@ using NUnit.Framework;
 namespace Newtonsoft.Json.Schema.Tests.Issues
 {
     [TestFixture]
-    public class Issue64Tests : TestFixtureBase
+    public class Issue0064Tests : TestFixtureBase
     {
         private string schemaJson = @"{
   ""type"": ""object"",

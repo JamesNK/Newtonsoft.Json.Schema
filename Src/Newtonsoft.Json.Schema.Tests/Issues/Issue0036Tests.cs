@@ -20,7 +20,7 @@ using NUnit.Framework;
 namespace Newtonsoft.Json.Schema.Tests.Issues
 {
     [TestFixture]
-    public class Issue36Tests : TestFixtureBase
+    public class Issue0036Tests : TestFixtureBase
     {
         public class User
         {

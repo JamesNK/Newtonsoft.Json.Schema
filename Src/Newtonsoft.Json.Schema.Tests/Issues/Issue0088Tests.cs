@@ -23,7 +23,7 @@ using NUnit.Framework;
 namespace Newtonsoft.Json.Schema.Tests.Issues
 {
     [TestFixture]
-    public class Issue88Tests : TestFixtureBase
+    public class Issue0088Tests : TestFixtureBase
     {
         private string originalSchemaJson = @"{
 

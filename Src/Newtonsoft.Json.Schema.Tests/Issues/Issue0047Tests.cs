@@ -23,7 +23,7 @@ using NUnit.Framework;
 namespace Newtonsoft.Json.Schema.Tests.Issues
 {
     [TestFixture]
-    public class Issue47Tests : TestFixtureBase
+    public class Issue0047Tests : TestFixtureBase
     {
         [DataContract]
         public class HttpBrokeredMessage

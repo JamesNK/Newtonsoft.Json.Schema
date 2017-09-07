@@ -24,7 +24,7 @@ using NUnit.Framework;
 namespace Newtonsoft.Json.Schema.Tests.Issues
 {
     [TestFixture]
-    public class Issue68Tests : TestFixtureBase
+    public class Issue0068Tests : TestFixtureBase
     {
         private string schemaJson = @"{
   ""$schema"": ""http://json-schema.org/draft-04/schema#"",

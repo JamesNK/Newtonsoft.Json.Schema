@@ -7,8 +7,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Schema.Generation;
 using Newtonsoft.Json.Schema.Infrastructure;
 #if DNXCORE50
 using Xunit;
@@ -21,33 +23,26 @@ using NUnit.Framework;
 namespace Newtonsoft.Json.Schema.Tests.Issues
 {
     [TestFixture]
-    public class Issue40Tests : TestFixtureBase
+    public class Issue0095Tests : TestFixtureBase
     {
         [Test]
         public void Test()
         {
-            string json = @"{
-  ""id"": ""TestComplexClass1"",
-  ""definitions"": {
-    ""TestClass1"": {
-      ""id"": ""TestClass1""
-    }
-  },
-  ""type"": ""object"",
-  ""properties"": {
-    ""TestProperty"": {
-      ""$ref"": ""TestClass1""
-    }
-  },
-  ""required"": [
-    ""TestProperty""
-  ]
-}";
+            JSchema s = new JSchema();
+            s.Minimum = 1;
+            s.Maximum = 1000;
 
-            JSchemaReader schemaReader = new JSchemaReader(new JSchemaReaderSettings());
-            JSchema schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
+            StringAssert.AreEqual(@"{
+  ""$schema"": ""http://json-schema.org/draft-04/schema#"",
+  ""minimum"": 1.0,
+  ""maximum"": 1000.0
+}", s.ToString(SchemaVersion.Draft4));
 
-            Assert.AreEqual("TestClass1", schema.Properties["TestProperty"].Id.OriginalString);
+            StringAssert.AreEqual(@"{
+  ""$schema"": ""http://json-schema.org/draft-06/schema#"",
+  ""minimum"": 1.0,
+  ""maximum"": 1000.0
+}", s.ToString(SchemaVersion.Draft6));
         }
     }
 }

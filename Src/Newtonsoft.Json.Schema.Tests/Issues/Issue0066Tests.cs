@@ -23,7 +23,7 @@ using NUnit.Framework;
 namespace Newtonsoft.Json.Schema.Tests.Issues
 {
     [TestFixture]
-    public class Issue66Tests : TestFixtureBase
+    public class Issue0066Tests : TestFixtureBase
     {
         private string schemaJson = @"{
   ""id"": ""schemas/events/Clicked.json"",
