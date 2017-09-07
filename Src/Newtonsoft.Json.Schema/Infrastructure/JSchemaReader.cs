@@ -926,7 +926,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         private bool AddDeferedSchema(Uri resolvedReference, Uri originalReference, JSchema referenceSchema, JSchema target, Action<JSchema> setSchema)
         {
-            if (_resolvedDeferedSchemas.TryGetValue(resolvedReference, out DeferedSchema deferedSchema) && deferedSchema.Success)
+            if (_resolvedDeferedSchemas.TryGetValue(resolvedReference, out DeferedSchema deferedSchema))
             {
                 if (deferedSchema.Success)
                 {
