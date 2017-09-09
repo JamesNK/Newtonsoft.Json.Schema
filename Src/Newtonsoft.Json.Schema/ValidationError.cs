@@ -119,23 +119,31 @@ namespace Newtonsoft.Json.Schema
 
         private void BuildMessages()
         {
-            FormattableString formattableString = (FormattableString) _formattable;
-
-            string format = formattableString.Format;
-            object[] args = formattableString.GetArguments();
-
-            StringBuilder sb = new StringBuilder(format.Length + (args.Length * 8));
-            if (args.Length > 0)
+            if (_formattable is FormattableString formattableString)
             {
-                sb.AppendFormat(CultureInfo.InvariantCulture, format, args);
+                string format = formattableString.Format;
+                object[] args = formattableString.GetArguments();
+
+                StringBuilder sb = new StringBuilder(format.Length + (args.Length * 8));
+                if (args.Length > 0)
+                {
+                    sb.AppendFormat(CultureInfo.InvariantCulture, format, args);
+                }
+                else
+                {
+                    sb.Append(format);
+                }
+
+                _message = sb.ToString();
+                _extendedMessage = JSchemaException.FormatMessage(this, Path, sb);
             }
             else
             {
-                sb.Append(format);
-            }
+                string message = _formattable.ToString(null, CultureInfo.InvariantCulture);
 
-            _message = sb.ToString();
-            _extendedMessage = JSchemaException.FormatMessage(this, Path, sb);
+                _message = message;
+                _extendedMessage = JSchemaException.FormatMessage(this, Path, message);
+            }
 
             _formattable = null;
         }

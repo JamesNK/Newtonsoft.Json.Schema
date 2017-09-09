@@ -1,7 +1,7 @@
 ﻿properties { 
-  $zipFileName = "JsonSchema30r3.zip"
+  $zipFileName = "JsonSchema30r4.zip"
   $majorVersion = "3.0"
-  $majorWithReleaseVersion = "3.0.3"
+  $majorWithReleaseVersion = "3.0.4"
   $nugetPrerelease = $null
   $version = GetVersion $majorWithReleaseVersion
   $packageId = "Newtonsoft.Json.Schema"
@@ -25,14 +25,14 @@
   $workingSourceDir = "$workingDir\Src"
 
   $nugetPath = "$buildDir\Temp\nuget.exe"
-  $vswhereVersion = "1.0.58"
+  $vswhereVersion = "2.1.4"
   $vswherePath = "$buildDir\Temp\vswhere.$vswhereVersion"
-  $nunitConsoleVersion = "3.6.1"
+  $nunitConsoleVersion = "3.7.0"
   $nunitConsolePath = "$buildDir\Temp\NUnit.ConsoleRunner.$nunitConsoleVersion"
 
   $builds = @(
     @{Framework = "netstandard1.3"; TestsFunction = "NetCliTests"; TestFramework = "netcoreapp2.0"; Enabled=$true}
-    @{Framework = "net45"; TestsFunction = "NUnitTests"; NUnitFramework="net-4.0"; Enabled=$true},
+    @{Framework = "net45"; TestsFunction = "NUnitTests"; TestFramework = "net46"; NUnitFramework="net-4.0"; Enabled=$true},
     @{Framework = "net40"; TestsFunction = "NUnitTests"; NUnitFramework="net-4.0"; Enabled=$true},
     @{Framework = "net35"; TestsFunction = "NUnitTests"; NUnitFramework="net-2.0"; Enabled=$true},
     @{Framework = "portable-net45+win8+wpa81+wp8"; TestsFunction = "NUnitTests"; TestFramework = "net451"; NUnitFramework="net-4.0"; Enabled=$true}
@@ -41,7 +41,7 @@
 
 framework '4.6x86'
 
-task default -depends Test
+task default -depends Test,Package
 
 # Ensure a clean working directory
 task Clean {
@@ -73,7 +73,7 @@ task Build -depends Clean {
   Write-Host "MSBuild path $script:msBuildPath"
 
   Write-Host "Copying source to working source directory $workingSourceDir"
-  robocopy $sourceDir $workingSourceDir /MIR /NP /XD bin obj TestResults AppPackages .vs artifacts /XF *.suo *.user *.lock.json | Out-Default
+  robocopy $sourceDir $workingSourceDir /MIR /NFL /NDL /NP /XD bin obj TestResults AppPackages .vs artifacts /XF *.suo *.user *.lock.json | Out-Default
   Copy-Item -Path $baseDir\LICENSE.md -Destination $workingDir\
 
   $xml = [xml](Get-Content "$workingSourceDir\Newtonsoft.Json.Schema\Newtonsoft.Json.Schema.csproj")
@@ -147,13 +147,7 @@ task Package -depends Build {
   Compress-Archive -Path $workingDir\Package\* -DestinationPath $workingDir\$zipFileName
 }
 
-# Unzip package to a location
-task Deploy -depends Package {
-  Expand-Archive -Path $workingDir\$zipFileName -DestinationPath "$workingDir\Deployed" 
-}
-
-# Run tests on deployed files
-task Test -depends Deploy {
+task Test -depends Build {
   foreach ($build in $script:enabledBuilds)
   {
     Write-Host "Calling $($build.TestsFunction)"
@@ -223,8 +217,7 @@ function NetCliTests($build)
     Write-Host -ForegroundColor Green "Running tests for $testDir"
     Write-Host
 
-    exec { dotnet test $projectPath -f $testDir -c Release -l trx --no-restore --no-build | Out-Default }
-    copy-item -Path "$location\TestResults\*.trx" -Destination $workingDir
+    exec { dotnet test $projectPath -f $testDir -c Release -l trx -r $workingDir --no-restore --no-build | Out-Default }
   }
   finally
   {
@@ -236,18 +229,14 @@ function NUnitTests($build)
 {
   $testDir = if ($build.TestFramework -ne $null) { $build.TestFramework } else { $build.Framework }
   $framework = $build.NUnitFramework
-  $testRunDir = "$workingDir\Deployed\Bin\$($build.Framework)"
-
-  Write-Host -ForegroundColor Green "Copying test assembly $testDir to deployed directory"
-  Write-Host
-  robocopy "$workingSourceDir\Newtonsoft.Json.Schema.Tests\bin\Release\$testDir" $testRunDir /MIR /NFL /NDL /NJS /NC /NS /NP /XO | Out-Default
+  $testRunDir = "$workingSourceDir\Newtonsoft.Json.Schema.Tests\bin\Release\$testDir"
 
   Write-Host -ForegroundColor Green "Running NUnit tests $testDir"
   Write-Host
   try
   {
     Set-Location $testRunDir
-    exec { & $nunitConsolePath\tools\nunit3-console.exe "$testRunDir\Newtonsoft.Json.Schema.Tests.dll" --framework=$framework --result=$workingDir\$testDir.xml | Out-Default } "Error running $testDir tests"
+    exec { & $nunitConsolePath\tools\nunit3-console.exe "$testRunDir\Newtonsoft.Json.Schema.Tests.dll" --framework=$framework --result=$workingDir\$testDir.xml --out=$workingDir\$testDir.txt | Out-Default } "Error running $testDir tests"
   }
   finally
   {
