@@ -300,7 +300,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 }
                 case Constants.Formats.DateTime:
                 {
-                    return DateTime.TryParseExact(value, @"yyyy-MM-dd\THH:mm:ss.FFFFFFFK", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime temp);
+                    return DateTime.TryParseExact(value, @"yyyy-MM-dd\THH:mm:ss.FFFFFFFZ", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime temp1) ||
+                        DateTime.TryParseExact(value, @"yyyy-MM-dd\THH:mm:ss.FFFFFFFzzz", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime temp2);
                 }
                 case Constants.Formats.UtcMilliseconds:
                 {
