@@ -127,10 +127,147 @@ namespace Newtonsoft.Json.Schema.Tests
         }
 
         [Test]
-        public void ConstComplex_Valid()
+        public void PropertyNamesEnum_NoMatch_Fails()
         {
             JSchema schema = new JSchema();
             schema.PropertyNames = new JSchema
+            {
+                Enum = { "one", "two" }
+            };
+
+            string json = "{'prop':true}";
+
+            IList<SchemaValidationEventArgs> errors;
+            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out errors);
+
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsFalse(validatingReader.Read());
+
+            Assert.AreEqual(1, errors.Count);
+            Assert.AreEqual("prop", errors[0].ValidationError.Value);
+            Assert.AreEqual(@"Value ""prop"" is not defined in enum.", errors[0].ValidationError.Message);
+        }
+
+        [Test]
+        public void PropertyNamesEnum_Match_Passes()
+        {
+            JSchema schema = new JSchema();
+            schema.PropertyNames = new JSchema
+            {
+                Enum = { "one", "prop" }
+            };
+
+            string json = "{'prop':true}";
+
+            IList<SchemaValidationEventArgs> errors;
+            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out errors);
+
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsFalse(validatingReader.Read());
+
+            Assert.AreEqual(0, errors.Count);
+        }
+
+        [Test]
+        public void PropertyNamesAnyOf_Match_Passes()
+        {
+            JSchema schema = new JSchema();
+            schema.PropertyNames = new JSchema
+            {
+                AnyOf =
+                {
+                    new JSchema
+                    {
+                        Enum = { "one" }
+                    },
+                    new JSchema
+                    {
+                        Enum = { "prop" }
+                    }
+                }
+            };
+
+            string json = "{'prop':true}";
+
+            IList<SchemaValidationEventArgs> errors;
+            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out errors);
+
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsFalse(validatingReader.Read());
+
+            Assert.AreEqual(0, errors.Count);
+        }
+
+        [Test]
+        public void PropertyNamesAnyOf_NoMatch_Fails()
+        {
+            JSchema schema = new JSchema();
+            schema.PropertyNames = new JSchema
+            {
+                AnyOf =
+                {
+                    new JSchema
+                    {
+                        Enum = { "one" }
+                    },
+                    new JSchema
+                    {
+                        Enum = { "two" }
+                    }
+                }
+            };
+
+            string json = "{'prop':true}";
+
+            IList<SchemaValidationEventArgs> errors;
+            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out errors);
+
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsFalse(validatingReader.Read());
+
+            Assert.AreEqual(1, errors.Count);
+            Assert.AreEqual("JSON does not match any schemas from 'anyOf'.", errors[0].ValidationError.Message);
+        }
+
+        [Test]
+        public void PropertyNames_Const_Valid()
+        {
+            JSchema schema = new JSchema();
+            schema.PropertyNames = new JSchema
+            {
+                Const = JToken.Parse("'prop'")
+            };
+
+            string json = "{'prop':true}";
+
+            IList<SchemaValidationEventArgs> errors;
+            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out errors);
+
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsFalse(validatingReader.Read());
+
+            Assert.AreEqual(0, errors.Count);
+        }
+
+        [Test]
+        public void ConstComplex_Valid()
+        {
+            JSchema schema = new JSchema
             {
                 Const = JObject.Parse("{'prop':true}")
             };

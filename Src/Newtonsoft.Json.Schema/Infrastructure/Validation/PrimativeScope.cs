@@ -48,6 +48,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     break;
                 }
                 case JsonToken.String:
+                case JsonToken.PropertyName:
                 {
                     Uri uri = value as Uri;
                     string s = (uri != null) ? uri.OriginalString : value.ToString();
@@ -292,19 +293,19 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 }
                 case Constants.Formats.Date:
                 {
-                    return DateTime.TryParseExact(value, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime temp);
+                    return DateTime.TryParseExact(value, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime _);
                 }
                 case Constants.Formats.Time:
                 {
-                    return DateTime.TryParseExact(value, "HH:mm:ss.FFFFFFFK", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime temp);
+                    return DateTime.TryParseExact(value, "HH:mm:ss.FFFFFFFK", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime _);
                 }
                 case Constants.Formats.DateTime:
                 {
-                    return DateTime.TryParseExact(value, @"yyyy-MM-dd\THH:mm:ss.FFFFFFFK", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime temp);
+                    return DateTime.TryParseExact(value, @"yyyy-MM-dd\THH:mm:ss.FFFFFFFK", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime _);
                 }
                 case Constants.Formats.UtcMilliseconds:
                 {
-                    return Double.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out double temp);
+                    return double.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out double _);
                 }
                 case Constants.Formats.Regex:
                 {

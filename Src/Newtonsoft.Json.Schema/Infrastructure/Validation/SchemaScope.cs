@@ -156,8 +156,16 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                         Context.TokenWriter.WriteToken(token, value);
                     }
                 }
+                else if (token == JsonToken.PropertyName)
+                {
+                    if (Context.TokenWriter == null)
+                    {
+                        Context.TokenWriter = new JTokenWriter();
+                        Context.TokenWriter.WriteToken(JsonToken.String, value);
+                    }
+                }
 
-                if (JsonTokenHelpers.IsPrimitiveOrEndToken(token))
+                if (JsonTokenHelpers.IsPrimitiveOrEndToken(token) || token == JsonToken.PropertyName)
                 {
                     JToken currentToken = Context.TokenWriter.CurrentToken;
 

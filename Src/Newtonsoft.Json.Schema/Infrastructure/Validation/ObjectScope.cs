@@ -173,8 +173,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
                     if (Schema._propertyNames != null)
                     {
-                        EnsureValid(this, Schema._propertyNames, value);
-                        PrimativeScope.ValidateString(this, Schema._propertyNames, _currentPropertyName);
+                        CreateScopesAndEvaluateToken(token, value, depth, Schema._propertyNames);
                     }
 
                     if (!Schema.AllowAdditionalProperties)
