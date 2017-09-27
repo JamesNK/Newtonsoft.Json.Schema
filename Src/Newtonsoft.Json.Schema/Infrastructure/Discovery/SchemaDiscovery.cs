@@ -440,7 +440,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
 
         public static Uri ResolveSchemaId(Uri idScope, Uri schemaId)
         {
-            if (idScope == null || schemaId.IsAbsoluteUri)
+            if (idScope == null || schemaId.IsAbsoluteUri || schemaId.OriginalString.StartsWith("//", StringComparison.Ordinal))
             {
                 idScope = schemaId;
             }
