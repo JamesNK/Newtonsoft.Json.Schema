@@ -4,6 +4,7 @@
     <TargetFramework>net46</TargetFramework>
     <RootNamespace>Newtonsoft.Json.Schema.TestConsole</RootNamespace>
     <AssemblyName>Newtonsoft.Json.Schema.TestConsole</AssemblyName>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="BenchmarkDotNet.Artifacts\**" />
