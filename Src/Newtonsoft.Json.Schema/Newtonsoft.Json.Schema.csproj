@@ -53,6 +53,7 @@
     <DefineConstants>NETSTANDARD1_3;PORTABLE;$(AdditionalConstants)</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'portable-net45+win8+wpa81+wp8'">
+    <AssemblyTitle>Json.NET Schema Portable</AssemblyTitle>
     <DefineConstants>PORTABLE;$(AdditionalConstants)</DefineConstants>
     <TargetFrameworkIdentifier>.NETPortable</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
