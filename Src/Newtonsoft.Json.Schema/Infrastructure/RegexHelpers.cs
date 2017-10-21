@@ -13,6 +13,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 {
     internal static class RegexHelpers
     {
+        private const RegexOptions Options = RegexOptions.ECMAScript;
+
         public static bool IsMatch(Regex regex, string pattern, string value)
         {
 #if !(NET35 || NET40)
@@ -58,9 +60,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 {
                     regex =
 #if !(NET35 || NET40)
-                        (matchTimeout != null) ? new Regex(pattern, RegexOptions.None, matchTimeout.Value) :
+                        (matchTimeout != null) ? new Regex(pattern, Options, matchTimeout.Value) :
 #endif
-                        new Regex(pattern, RegexOptions.None);
+                        new Regex(pattern, Options);
                 }
                 catch (Exception ex)
                 {
