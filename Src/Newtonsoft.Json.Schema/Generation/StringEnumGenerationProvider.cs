@@ -43,6 +43,14 @@ namespace Newtonsoft.Json.Schema.Generation
                 schema.Enum.Add(JValue.CreateNull());
             }
 
+            object defaultValue = context.MemberProperty?.DefaultValue;
+            if (defaultValue != null)
+            {
+                string finalName = EnumUtils.ToEnumName(t, defaultValue.ToString(), CamelCaseText);
+
+                schema.Default = JToken.FromObject(finalName);
+            }
+
             string[] names = Enum.GetNames(t);
 
             foreach (string name in names)

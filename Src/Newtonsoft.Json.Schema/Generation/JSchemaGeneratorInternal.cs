@@ -602,7 +602,8 @@ namespace Newtonsoft.Json.Schema.Generation
 
                     JSchema propertySchema = GenerateInternal(property.PropertyType, required, property, contract, null);
 
-                    if (property.DefaultValue != null)
+                    // the default value might have already been set by the schema generation provider
+                    if (property.DefaultValue != null && propertySchema.Default == null)
                     {
                         propertySchema.Default = JToken.FromObject(property.DefaultValue);
                     }
