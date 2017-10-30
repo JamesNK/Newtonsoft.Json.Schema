@@ -34,6 +34,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         private readonly SchemaValidationEventHandler _validationEventHandler;
         private readonly List<ValidationError> _validationErrors;
         private readonly IList<JsonValidator> _validators;
+        private readonly bool _resolveDeferedSchemas;
 
         private Uri _versionUri;
         private SchemaVersion _version;
@@ -61,6 +62,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             _schemaDiscovery = new JSchemaDiscovery(null);
             _validationEventHandler = settings.GetValidationEventHandler();
             _validators = settings.Validators;
+            _resolveDeferedSchemas = settings.ResolveDeferedSchemas;
 
             if (_validationEventHandler != null)
             {
@@ -69,7 +71,12 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             }
         }
 
-        internal JSchema ReadRoot(JsonReader reader, bool resolveDeferedSchemas = true)
+        internal JSchema ReadRoot(JsonReader reader)
+        {
+            return ReadRoot(reader, _resolveDeferedSchemas);
+        }
+
+        internal JSchema ReadRoot(JsonReader reader, bool resolveDeferedSchemas)
         {
             if (reader.TokenType == JsonToken.None || reader.TokenType == JsonToken.Comment)
             {
@@ -891,7 +898,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                     ReadSchemaProperties(reader, loadingSchema, isRoot);
                 }
 
-                if (loadingSchema.Reference != null)
+                if (loadingSchema.Reference != null && !loadingSchema.IsReferenceResolved)
                 {
                     Uri resolvedReference = ResolveSchemaReference(loadingSchema);
 

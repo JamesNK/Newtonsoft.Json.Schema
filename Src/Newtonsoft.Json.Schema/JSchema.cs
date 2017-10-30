@@ -29,7 +29,6 @@ namespace Newtonsoft.Json.Schema
     [JsonConverter(typeof(JSchemaConverter))]
     public class JSchema : IJsonLineInfo, IIdentiferScope
     {
-        internal Uri Reference { get; set; }
         internal bool DeprecatedRequired { get; set; }
         internal JSchemaReader InternalReader { get; set; }
 
@@ -112,6 +111,16 @@ namespace Newtonsoft.Json.Schema
         /// </summary>
         /// <value>A flag indicating whether this schema is <c>true</c> and always valid, or <c>false</c> and always invalid.</value>
         public bool? Valid { get; set; }
+
+        /// <summary>
+        /// Gets or sets the $ref
+        /// </summary>
+        public Uri Reference { get; set; }
+
+        /// <summary>
+        /// Gets the flag indicating this schema is resolved.
+        /// </summary>
+        public bool IsReferenceResolved { get; internal set; }
 
         /// <summary>
         /// Gets or sets the schema ID.
