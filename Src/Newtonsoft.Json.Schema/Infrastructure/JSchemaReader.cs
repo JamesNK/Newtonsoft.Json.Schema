@@ -991,7 +991,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             {
                 BaseUri = schemaReference.BaseUri,
                 Resolver = _resolver,
-                ValidateVersion = _validateSchema
+                ValidateVersion = _validateSchema,
+                Validators = _validators
             };
             settings.SetValidationEventHandler(_validationEventHandler);
             JSchemaReader schemaReader = new JSchemaReader(settings);

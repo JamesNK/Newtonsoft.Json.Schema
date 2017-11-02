@@ -180,5 +180,88 @@ namespace Newtonsoft.Json.Schema.Tests
                 return (schema.Format == "json");
             }
         }
+
+        [Test]
+        public void ValidateRefSchemaSimpleType()
+        {
+            string json = @"{
+                              ""values"": [
+                                            ""1"",
+                                            ""[1]"",
+                                            ""\""A string!\"""",
+                                            123,
+                                            ""{\""prop1\"":bad!}""
+                                          ],
+                              ""refSchema"": {
+                                              ""values"": [
+                                                            ""1"",
+                                                            ""[1]"",
+                                                            ""\""A string!\"""",
+                                                            123,
+                                                            ""{\""prop1\"":bad!}""
+                                                          ]}
+                            }";
+
+            string refSchema = @"{
+                                  ""type"": ""object"",
+                                  ""properties"": {
+                                                    ""values"": {
+                                                        ""type"": ""array"",
+                                                        ""items"": {
+                                                                    ""type"": ""string"",
+                                                                    ""format"": ""json""
+                                                                   }
+                                                                }
+                                                  }
+                                }";
+
+            JSchemaPreloadedResolver resolver = new JSchemaPreloadedResolver();
+            resolver.Add(new Uri("refSchema.json", UriKind.RelativeOrAbsolute), refSchema);
+
+
+            JSchemaReaderSettings settings = new JSchemaReaderSettings
+            {
+                Validators = new List<JsonValidator> { new JsonFormatValidator() },
+                Resolver = resolver
+            };
+
+            JSchema schema = JSchema.Parse(@"{
+                                              ""type"": ""object"",
+                                              ""properties"": {
+                                                    ""values"": {
+                                                                  ""type"": ""array"",
+                                                                  ""items"": {
+                                                                    ""type"": ""string"",
+                                                                    ""format"": ""json""
+                                                                  }
+                                                                },
+                                                    ""refSchema"": { ""$ref"": ""refSchema.json"" }
+                                              }
+                                            }", settings);
+
+            JObject o = JObject.Parse(json);
+
+            IList<ValidationError> errors;
+            Assert.IsFalse(o.IsValid(schema, out errors));
+
+            Assert.AreEqual(4, errors.Count);
+
+            Assert.AreEqual(@"Invalid type. Expected String but got Integer.", errors[0].Message);
+            Assert.AreEqual(ErrorType.Type, errors[0].ErrorType);
+            Assert.AreEqual("#/properties/values/items", errors[0].SchemaId.OriginalString);
+
+            Assert.AreEqual(@"String is not JSON: Unexpected character encountered while parsing value: b. Path 'prop1', line 1, position 9.", errors[1].Message);
+            Assert.AreEqual(ErrorType.Validator, errors[1].ErrorType);
+            Assert.AreEqual("#/properties/values/items", errors[1].SchemaId.OriginalString);
+
+            Assert.AreEqual(@"Invalid type. Expected String but got Integer.", errors[2].Message);
+            Assert.AreEqual(ErrorType.Type, errors[2].ErrorType);
+            Assert.AreEqual("#/properties/refSchema/properties/values/items", errors[2].SchemaId.OriginalString);
+
+            Assert.AreEqual(@"String is not JSON: Unexpected character encountered while parsing value: b. Path 'prop1', line 1, position 9.", errors[3].Message);
+            Assert.AreEqual(ErrorType.Validator, errors[3].ErrorType);
+            Assert.AreEqual("#/properties/refSchema/properties/values/items", errors[3].SchemaId.OriginalString);
+        }
+
     }
 }
