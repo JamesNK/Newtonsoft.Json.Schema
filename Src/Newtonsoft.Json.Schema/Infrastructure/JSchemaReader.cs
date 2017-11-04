@@ -89,6 +89,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
                 if (s.BaseUri != null)
                 {
+                    s.InternalReader = this;
                     Cache[s.BaseUri] = s;
                 }
             }, true);

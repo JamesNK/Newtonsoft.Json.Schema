@@ -13,6 +13,8 @@ namespace Newtonsoft.Json.Schema
     /// </summary>
     public class JSchemaReaderSettings
     {
+        // IMPORTANT: Any settings added here need to be copied inside JSchemaReader
+
         private SchemaValidationEventHandler _validationEventHandler;
 
         /// <summary>
@@ -35,11 +37,6 @@ namespace Newtonsoft.Json.Schema
         /// </summary>
         /// <value>The converters.</value>
         public IList<JsonValidator> Validators { get; set; }
-
-        /// <summary>
-        /// Gets or sets an optional timeout that will be used when executing regular expressions during validation.
-        /// </summary>
-        public TimeSpan? RegexTimeout { get; set; }
 
         /// <summary>
         /// Sets an event handler for receiving information about receives information about JSON Schema syntax errors. 
