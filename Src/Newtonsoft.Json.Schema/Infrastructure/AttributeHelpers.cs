@@ -22,11 +22,13 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         private static ReflectionObject _enumTypeReflectionObject;
         private static ReflectionObject _stringLengthReflectionObject;
         private static ReflectionObject _rangeReflectionObject;
+        private static ReflectionObject _displayReflectionObject;
         private static ReflectionObject _displayNameReflectionObject;
         private static ReflectionObject _descriptionReflectionObject;
 
         private const string DisplayNameAttributeName = "System.ComponentModel.DisplayNameAttribute";
         private const string DescriptionAttributeName = "System.ComponentModel.DescriptionAttribute";
+        private const string DisplayAttributeName = "System.ComponentModel.DataAnnotations.DisplayAttribute";
         private const string RequiredAttributeName = "System.ComponentModel.DataAnnotations.RequiredAttribute";
         private const string MinLengthAttributeName = "System.ComponentModel.DataAnnotations.MinLengthAttribute";
         private const string MaxLengthAttributeName = "System.ComponentModel.DataAnnotations.MaxLengthAttribute";
@@ -39,8 +41,32 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         private const string StringLengthAttributeName = "System.ComponentModel.DataAnnotations.StringLengthAttribute";
         private const string EnumDataTypeAttributeName = "System.ComponentModel.DataAnnotations.EnumDataTypeAttribute";
 
+        private static bool GetDisplay(Type type, JsonProperty memberProperty, out string name, out string description)
+        {
+            Attribute displayAttribute = GetAttributeByNameFromTypeOrProperty(type, memberProperty, DisplayAttributeName);
+            if (displayAttribute != null)
+            {
+                if (_displayReflectionObject == null)
+                {
+                    _displayReflectionObject = ReflectionObject.Create(displayAttribute.GetType(), "GetName", "GetDescription");
+                }
+                name = (string)_displayReflectionObject.GetValue(displayAttribute, "GetName");
+                description = (string)_displayReflectionObject.GetValue(displayAttribute, "GetDescription");
+                return true;
+            }
+
+            name = null;
+            description = null;
+            return false;
+        }
+
         public static bool GetDisplayName(Type type, JsonProperty memberProperty, out string displayName)
         {
+            if (GetDisplay(type, memberProperty, out displayName, out _) && !string.IsNullOrEmpty(displayName))
+            {
+                return true;
+            }
+
             Attribute displayNameAttribute = GetAttributeByNameFromTypeOrProperty(type, memberProperty, DisplayNameAttributeName);
             if (displayNameAttribute != null)
             {
@@ -58,6 +84,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         public static bool GetDescription(Type type, JsonProperty memberProperty, out string description)
         {
+            if (GetDisplay(type, memberProperty, out _, out description) && !string.IsNullOrEmpty(description))
+            {
+                return true;
+            }
+
             Attribute descriptionAttribute = GetAttributeByNameFromTypeOrProperty(type, memberProperty, DescriptionAttributeName);
             if (descriptionAttribute != null)
             {
