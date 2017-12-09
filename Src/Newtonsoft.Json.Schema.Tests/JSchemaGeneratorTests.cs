@@ -174,6 +174,33 @@ namespace Newtonsoft.Json.Schema.Tests
         }
 #endif
 
+        public class MixNullableRootClass
+        {
+            [JsonProperty(Required = Required.DisallowNull)]
+            public MixNullablePropClass NotNull { get; set; }
+            public MixNullablePropClass Null { get; set; }
+        }
+
+        public class MixNullablePropClass
+        {
+            public string Name { get; set; }
+        }
+
+        [Test]
+        public void Generate_TypeMixedRequired_BothSchemasInDefinitions()
+        {
+            JSchemaGenerator generator = new JSchemaGenerator();
+            generator.SchemaReferenceHandling = SchemaReferenceHandling.All;
+            JSchema schema = generator.Generate(typeof(MixNullableRootClass));
+
+            JObject definitions = (JObject)schema.ExtensionData["definitions"];
+
+            Assert.AreEqual(2, definitions.Count);
+
+            Assert.IsTrue(definitions.Properties().Any(p => schema.Properties["NotNull"] == (JSchema)p.Value));
+            Assert.IsTrue(definitions.Properties().Any(p => schema.Properties["Null"] == (JSchema)p.Value));
+        }
+
         public class FormatTestClass
         {
             public Uri UriProp { get; set; }

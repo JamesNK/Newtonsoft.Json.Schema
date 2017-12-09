@@ -62,7 +62,7 @@ namespace Newtonsoft.Json.Schema.Generation
 
                             id = typeName;
                             int i = 1;
-                            while (definitions[id] != null)
+                            while (definitionsSchemas.ContainsKey(id))
                             {
                                 id = typeName + "-" + i;
                                 i++;
