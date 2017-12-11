@@ -78,13 +78,12 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         public void SetResolvedSchema(JSchema schema)
         {
             // successful
-            if (schema.Reference == null || schema.IsReferenceResolved)
+            if (schema.Reference == null)
             {
                 _success = true;
                 _resolvedSchema = schema;
 
-                schema.Reference = OriginalReference;
-                schema.IsReferenceResolved = true;
+                schema.Reference = null;
 
                 foreach (SetSchema setSchema in SetSchemas)
                 {

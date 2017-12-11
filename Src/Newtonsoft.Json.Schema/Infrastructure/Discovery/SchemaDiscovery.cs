@@ -176,7 +176,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                         resolvedSchema = true;
 
                         // schema is a reference schema and needs to be resolved
-                        if (s.Reference != null && !s.IsReferenceResolved)
+                        if (s.Reference != null)
                         {
                             schemaReader.AddDeferedSchema(null, setSchema, s);
                         }

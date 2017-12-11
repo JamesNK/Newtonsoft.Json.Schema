@@ -34,7 +34,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         private readonly SchemaValidationEventHandler _validationEventHandler;
         private readonly List<ValidationError> _validationErrors;
         private readonly IList<JsonValidator> _validators;
-        private readonly bool _resolveDeferedSchemas;
+        private readonly bool _resolveSchemaReferences;
 
         private Uri _versionUri;
         private SchemaVersion _version;
@@ -62,7 +62,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             _schemaDiscovery = new JSchemaDiscovery(null);
             _validationEventHandler = settings.GetValidationEventHandler();
             _validators = settings.Validators;
-            _resolveDeferedSchemas = settings.ResolveDeferedSchemas;
+            _resolveSchemaReferences = settings.ResolveSchemaReferences;
 
             if (_validationEventHandler != null)
             {
@@ -73,7 +73,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         internal JSchema ReadRoot(JsonReader reader)
         {
-            return ReadRoot(reader, _resolveDeferedSchemas);
+            return ReadRoot(reader, _resolveSchemaReferences);
         }
 
         internal JSchema ReadRoot(JsonReader reader, bool resolveDeferedSchemas)
@@ -899,7 +899,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                     ReadSchemaProperties(reader, loadingSchema, isRoot);
                 }
 
-                if (loadingSchema.Reference != null && !loadingSchema.IsReferenceResolved)
+                if (loadingSchema.Reference != null)
                 {
                     Uri resolvedReference = ResolveSchemaReference(loadingSchema);
 
@@ -1000,7 +1000,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 BaseUri = schemaReference.BaseUri,
                 Resolver = _resolver,
                 ValidateVersion = _validateSchema,
-                Validators = _validators
+                Validators = _validators,
+                ResolveSchemaReferences = _resolveSchemaReferences
             };
             settings.SetValidationEventHandler(_validationEventHandler);
             JSchemaReader schemaReader = new JSchemaReader(settings);

@@ -134,6 +134,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
         internal static void EnsureValid(SchemaScope scope, JSchema schema, object value)
         {
+            if (schema.Reference != null)
+            {
+                throw new JSchemaException("Schema has unresolved reference '{0}'. All references must be resolved before a schema can be validated.".FormatWith(CultureInfo.InvariantCulture, schema.Reference.OriginalString));
+            }
+
             if (schema.Valid != null && !schema.Valid.Value)
             {
                 scope.RaiseError($"Schema always fails validation.", ErrorType.Valid, schema, value, null);

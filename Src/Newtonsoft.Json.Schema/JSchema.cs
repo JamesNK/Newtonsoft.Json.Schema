@@ -113,14 +113,10 @@ namespace Newtonsoft.Json.Schema
         public bool? Valid { get; set; }
 
         /// <summary>
-        /// Gets or sets the $ref
+        /// Gets or sets the $ref. This property is used when reading or writing referenced schemas without resolving them.
+        /// Validating JSON with a schema that has a not null <see cref="Reference"/> value will error.
         /// </summary>
         public Uri Reference { get; set; }
-
-        /// <summary>
-        /// Gets the flag indicating this schema is resolved.
-        /// </summary>
-        public bool IsReferenceResolved { get; internal set; }
 
         /// <summary>
         /// Gets or sets the schema ID.

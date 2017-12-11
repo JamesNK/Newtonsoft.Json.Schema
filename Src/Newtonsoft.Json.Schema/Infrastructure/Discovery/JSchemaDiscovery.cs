@@ -52,7 +52,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
 
         private void DiscoverInternal(JSchema schema, string latestPath, bool isDefinitionSchema = false)
         {
-            if (schema.Reference != null && !schema.IsReferenceResolved)
+            if (schema.Reference != null)
             {
                 return;
             }

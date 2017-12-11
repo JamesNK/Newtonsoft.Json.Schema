@@ -63,7 +63,7 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
         }
 
         [Test]
-        public void JSchemaReader_ReadRoot_Dereferences()
+        public void ReadRoot_ResolveSchemaReferencesTrue_Dereferences()
         {
             // Arrange
             JSchemaReader schemaReader = new JSchemaReader(new JSchemaReaderSettings { Resolver = _resolver });
@@ -72,26 +72,40 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
             JSchema schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(_employeeSchema)));
 
             // Assert
-            Assert.AreEqual(new Uri("person.json", UriKind.Relative), schema.AllOf[0].Reference);
-            Assert.AreEqual(true, schema.AllOf[0].IsReferenceResolved);
-            Assert.AreEqual(new Uri("#/definitions/salary", UriKind.Relative), schema.Properties["salary"].Reference);
-            Assert.AreEqual(true, schema.Properties["salary"].IsReferenceResolved);
+            Assert.AreEqual(null, schema.AllOf[0].Reference);
+            Assert.AreEqual(null, schema.Properties["salary"].Reference);
         }
 
         [Test]
-        public void JSchemaReader_ReadRoot_DoesNotDereference()
+        public void ReadRoot_ResolveSchemaReferencesFalse_DoesNotDereference()
         {
             // Arrange
-            JSchemaReader schemaReader = new JSchemaReader(new JSchemaReaderSettings { ResolveDeferedSchemas = false, Resolver = _resolver });
+            JSchemaReader schemaReader = new JSchemaReader(new JSchemaReaderSettings { ResolveSchemaReferences = false, Resolver = _resolver });
 
             // Act
             JSchema schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(_employeeSchema)));
 
             // Assert
             Assert.AreEqual(new Uri("person.json", UriKind.Relative), schema.AllOf[0].Reference);
-            Assert.AreEqual(false, schema.AllOf[0].IsReferenceResolved);
             Assert.AreEqual(new Uri("#/definitions/salary", UriKind.Relative), schema.Properties["salary"].Reference);
-            Assert.AreEqual(false, schema.Properties["salary"].IsReferenceResolved);
+        }
+
+        [Test]
+        public void Validation_SchemaWithReferences_Errors()
+        {
+            JSchema s = new JSchema();
+            s.Properties["property"] = new JSchema
+            {
+                Reference = new Uri("person.json#hi", UriKind.RelativeOrAbsolute)
+            };
+
+            JObject o = new JObject();
+            o["property"] = 1;
+
+            ExceptionAssert.Throws<JSchemaException>(() =>
+            {
+                o.IsValid(s);
+            }, "Schema has unresolved reference 'person.json#hi'. All references must be resolved before a schema can be validated.");
         }
     }
 }
