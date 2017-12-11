@@ -27,14 +27,7 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
     [TestFixture]
     public class Issue0114Test : TestFixtureBase
     {
-        private string _personSchemaJson;
-        private string _employeeSchema;
-        private JSchemaPreloadedResolver _resolver;
-
-        [SetUp]
-        public void Setup()
-        {
-            _personSchemaJson = @"{
+        private static readonly string _personSchemaJson = @"{
               'type': 'object',
               'properties': {
                 'name': { 'type': 'string' },
@@ -42,9 +35,9 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
               }
             }";
 
-            // the external 'person.json' schema will be found using the resolver
-            // the internal 'salary' schema will be found using the default resolution logic
-            _employeeSchema = @"{
+        // the external 'person.json' schema will be found using the resolver
+        // the internal 'salary' schema will be found using the default resolution logic
+        private static readonly string _employeeSchema = @"{
               'type': 'object',
               'allOf': [
                 { '$ref': 'person.json' }
@@ -58,15 +51,14 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
               }
             }";
 
-            _resolver = new JSchemaPreloadedResolver();
-            _resolver.Add(new Uri("person.json", UriKind.RelativeOrAbsolute), _personSchemaJson);
-        }
-
         [Test]
         public void ReadRoot_ResolveSchemaReferencesTrue_Dereferences()
         {
+            JSchemaPreloadedResolver resolver = new JSchemaPreloadedResolver();
+            resolver.Add(new Uri("person.json", UriKind.RelativeOrAbsolute), _personSchemaJson);
+
             // Arrange
-            JSchemaReader schemaReader = new JSchemaReader(new JSchemaReaderSettings { Resolver = _resolver });
+            JSchemaReader schemaReader = new JSchemaReader(new JSchemaReaderSettings { Resolver = resolver });
 
             // Act
             JSchema schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(_employeeSchema)));
@@ -79,8 +71,11 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
         [Test]
         public void ReadRoot_ResolveSchemaReferencesFalse_DoesNotDereference()
         {
+            JSchemaPreloadedResolver resolver = new JSchemaPreloadedResolver();
+            resolver.Add(new Uri("person.json", UriKind.RelativeOrAbsolute), _personSchemaJson);
+
             // Arrange
-            JSchemaReader schemaReader = new JSchemaReader(new JSchemaReaderSettings { ResolveSchemaReferences = false, Resolver = _resolver });
+            JSchemaReader schemaReader = new JSchemaReader(new JSchemaReaderSettings { ResolveSchemaReferences = false, Resolver = resolver });
 
             // Act
             JSchema schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(_employeeSchema)));
