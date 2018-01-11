@@ -156,7 +156,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                         ConditionalContext containsContext = ConditionalContext.Create(Context);
                         _containsContexts.Add(containsContext);
 
-                        CreateScopesAndEvaluateToken(token, value, depth, Schema.Contains, containsContext);
+                        // contains scope should not have the current scope the parent
+                        // do not want contain failures setting the current scope's IsValid
+                        CreateScopesAndEvaluateToken(token, value, depth, Schema.Contains, null, containsContext);
                     }
                 }
 

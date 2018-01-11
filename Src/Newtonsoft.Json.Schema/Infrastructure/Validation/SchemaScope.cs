@@ -236,14 +236,14 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
         protected void CreateScopesAndEvaluateToken(JsonToken token, object value, int depth, JSchema schema)
         {
-            CreateScopesAndEvaluateToken(token, value, depth, schema, Context);
+            CreateScopesAndEvaluateToken(token, value, depth, schema, this, Context);
         }
 
-        protected void CreateScopesAndEvaluateToken(JsonToken token, object value, int depth, JSchema schema, ContextBase context)
+        protected void CreateScopesAndEvaluateToken(JsonToken token, object value, int depth, JSchema schema, SchemaScope parent, ContextBase context)
         {
             int startCount = Context.Scopes.Count;
 
-            CreateTokenScope(token, schema, context, this, depth);
+            CreateTokenScope(token, schema, context, parent, depth);
 
             int start = Context.Scopes.Count - 1;
             int end = startCount;
