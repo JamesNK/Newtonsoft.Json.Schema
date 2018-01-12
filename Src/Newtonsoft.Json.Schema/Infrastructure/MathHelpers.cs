@@ -5,7 +5,7 @@
 
 using System;
 using System.Globalization;
-#if !(NET20 || NET35 || PORTABLE) || NETSTANDARD1_3
+#if !(NET20 || NET35 || PORTABLE) || NETSTANDARD1_3 || NETSTANDARD2_0
 using System.Numerics;
 #endif
 
@@ -20,7 +20,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         private static readonly decimal DecimalEpsilon;
         private static readonly decimal DecimalTolerance;
         private static readonly double DoubleTolerance;
-#if !(NET20 || NET35 || PORTABLE) || NETSTANDARD1_3
+#if !(NET20 || NET35 || PORTABLE) || NETSTANDARD1_3 || NETSTANDARD2_0
         private static readonly BigInteger BigIntegerDecimalMaxValue;
         private static readonly BigInteger BigIntegerDecimalMinValue;
 
@@ -37,7 +37,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             DecimalDoubleMaxValue = Convert.ToDouble(decimal.MaxValue);
             DecimalDoubleMinValue = Convert.ToDouble(decimal.MinValue);
 
-#if !(NET20 || NET35 || PORTABLE) || NETSTANDARD1_3
+#if !(NET20 || NET35 || PORTABLE) || NETSTANDARD1_3 || NETSTANDARD2_0
             BigIntegerDecimalMaxValue = new BigInteger(decimal.MaxValue);
             BigIntegerDecimalMinValue = new BigInteger(decimal.MinValue);
             BigIntegerDoubleMaxValue = new BigInteger(double.MaxValue);
@@ -52,7 +52,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 double integerAsDouble;
                 bool integerIsInRange;
 
-#if !(NET20 || NET35 || PORTABLE) || NETSTANDARD1_3
+#if !(NET20 || NET35 || PORTABLE) || NETSTANDARD1_3 || NETSTANDARD2_0
                 if (integer is BigInteger)
                 {
                     BigInteger i = (BigInteger) integer;
@@ -88,7 +88,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             }
 
             bool isMultiple;
-#if !(NET20 || NET35 || PORTABLE) || NETSTANDARD1_3
+#if !(NET20 || NET35 || PORTABLE) || NETSTANDARD1_3 || NETSTANDARD2_0
             if (integer is BigInteger)
             {
                 BigInteger i = (BigInteger)integer;
@@ -126,7 +126,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         private static bool IsIntegerMultiple(object integer, decimal multipleOf)
         {
             bool isMultiple;
-#if !(NET20 || NET35 || PORTABLE) || NETSTANDARD1_3
+#if !(NET20 || NET35 || PORTABLE) || NETSTANDARD1_3 || NETSTANDARD2_0
             if (integer is BigInteger)
             {
                 BigInteger i = (BigInteger)integer;

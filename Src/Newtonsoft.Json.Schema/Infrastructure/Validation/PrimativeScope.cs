@@ -6,7 +6,7 @@
 using System;
 using System.Globalization;
 using System.IO;
-#if !(NET35 || PORTABLE) || NETSTANDARD1_3
+#if !(NET35 || PORTABLE) || NETSTANDARD1_3 || NETSTANDARD2_0
 using System.Numerics;
 #endif
 using System.Text.RegularExpressions;
@@ -131,7 +131,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             if (schema.Maximum != null)
             {
                 object v;
-#if !(NET20 || NET35 || PORTABLE) || NETSTANDARD1_3
+#if !(NET20 || NET35 || PORTABLE) || NETSTANDARD1_3 || NETSTANDARD2_0
                 v = (value is BigInteger) ? (double)(BigInteger)value : value;
 #else
                 v = value;
@@ -150,7 +150,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             if (schema.Minimum != null)
             {
                 object v;
-#if !(NET20 || NET35 || PORTABLE) || NETSTANDARD1_3
+#if !(NET20 || NET35 || PORTABLE) || NETSTANDARD1_3 || NETSTANDARD2_0
                 v = (value is BigInteger) ? (double)(BigInteger)value : value;
 #else
                 v = value;

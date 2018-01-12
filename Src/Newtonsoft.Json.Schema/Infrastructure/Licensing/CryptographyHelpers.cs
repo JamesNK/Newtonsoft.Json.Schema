@@ -7,7 +7,7 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Linq;
-#if !PORTABLE || NETSTANDARD1_3
+#if !PORTABLE || NETSTANDARD1_3 || NETSTANDARD2_0
 using System.Security.Cryptography;
 #endif
 
@@ -22,14 +22,14 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Licensing
         {
             bool valid;
 
-#if (NETSTANDARD1_3)
+#if (NETSTANDARD1_3 || NETSTANDARD2_0)
             using (RSA rsa = RSA.Create())
             {
                 rsa.ImportParameters(ToRSAParameters(Convert.FromBase64String(PublicKeyCsp), false));
 
                 valid = rsa.VerifyData(data, signature, HashAlgorithmName.SHA1, RSASignaturePadding.Pkcs1);
             }
-#elif (PORTABLE && !NETSTANDARD1_3)
+#elif (PORTABLE && !NETSTANDARD1_3 && !NETSTANDARD2_0)
             try
             {
                 Type rsaCryptoServiceProviderType = Type.GetType("System.Security.Cryptography.RSACryptoServiceProvider");
@@ -81,7 +81,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Licensing
             return valid;
         }
 
-#if (NETSTANDARD1_3)
+#if (NETSTANDARD1_3 || NETSTANDARD2_0)
         internal const int ALG_TYPE_RSA = (2 << 9);
         internal const int ALG_CLASS_KEY_EXCHANGE = (5 << 13);
         internal const int CALG_RSA_KEYX = (ALG_CLASS_KEY_EXCHANGE | ALG_TYPE_RSA | 0);

@@ -12,7 +12,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-#if !(NET20 || NET35 || PORTABLE || PORTABLE40) || NETSTANDARD1_3
+#if !(NET20 || NET35 || PORTABLE || PORTABLE40) || NETSTANDARD1_3 || NETSTANDARD2_0
 using System.Numerics;
 #endif
 using Newtonsoft.Json.Linq;
@@ -416,7 +416,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         {
             EnsureReadAndToken(reader, name, JsonToken.Integer);
 
-#if !(NET20 || NET35 || PORTABLE || PORTABLE40) || NETSTANDARD1_3
+#if !(NET20 || NET35 || PORTABLE || PORTABLE40) || NETSTANDARD1_3 || NETSTANDARD2_0
             if (reader.Value is BigInteger)
             {
                 BigInteger i = (BigInteger) reader.Value;
@@ -442,7 +442,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         private static double GetDouble(JsonReader reader)
         {
-#if !(NET20 || NET35 || PORTABLE || PORTABLE40) || NETSTANDARD1_3
+#if !(NET20 || NET35 || PORTABLE || PORTABLE40) || NETSTANDARD1_3 || NETSTANDARD2_0
             if (reader.Value is BigInteger)
             {
                 BigInteger i = (BigInteger) reader.Value;

@@ -67,7 +67,7 @@ namespace Newtonsoft.Json.Schema.Tests
 #if !DNXCORE50
             return Path.Combine(TestContext.CurrentContext.TestDirectory, path);
 #else
-            return path;
+            return Path.Combine(Path.GetDirectoryName(typeof(TestFixtureBase).GetTypeInfo().Assembly.Location), path);
 #endif
         }
     }

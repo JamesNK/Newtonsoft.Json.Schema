@@ -81,7 +81,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
     }
 }
 
-#if !NETSTANDARD1_3
+#if !(NETSTANDARD1_3 || NETSTANDARD2_0)
 namespace System.Runtime.CompilerServices
 {
     internal static class FormattableStringFactory

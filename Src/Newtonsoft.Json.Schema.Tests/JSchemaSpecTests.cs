@@ -4,16 +4,23 @@
 #endregion
 
 using Newtonsoft.Json.Schema.Infrastructure;
-#if !(DNXCORE50 || NETFX_CORE)
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using NUnit.Framework;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema;
+#if DNXCORE50
+using Xunit;
+using Test = Xunit.FactAttribute;
+using Assert = Newtonsoft.Json.Schema.Tests.XUnitAssert;
+using TestCaseSource = Xunit.MemberDataAttribute;
+#else
+using NUnit.Framework;
+#endif
 
 namespace Newtonsoft.Json.Schema.Tests
 {
@@ -60,8 +67,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         private static void AddSchema(JSchemaPreloadedResolver resolver, string schemaFileName, string id)
         {
-            string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-            string baseRemotePath = Path.Combine(baseDirectory, Path.Combine("Specs", "remotes"));
+            string baseRemotePath = ResolvePath(Path.Combine("Specs", "remotes"));
 
             string json = File.ReadAllText(Path.Combine(baseRemotePath, schemaFileName));
 
@@ -75,6 +81,9 @@ namespace Newtonsoft.Json.Schema.Tests
             return SchemaVersionHelpers.MapSchemaVersion(schemaVersion);
         }
 
+#if DNXCORE50
+        [Theory]
+#endif
         [TestCaseSource(nameof(GetSpecTestDetails))]
         public void ReadSpecTest(SchemaSpecTest schemaSpecTest)
         {
@@ -104,6 +113,9 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(schemaSpecTest.IsValid, isValid, schemaSpecTest.TestCaseDescription + " - " + schemaSpecTest.TestDescription + " - errors: " + StringHelpers.Join(", ", errorMessages));
         }
 
+#if DNXCORE50
+        [Theory]
+#endif
         [TestCaseSource(nameof(GetSpecTestDetails))]
         public void WriteSpecTest(SchemaSpecTest schemaSpecTest)
         {
@@ -138,62 +150,59 @@ namespace Newtonsoft.Json.Schema.Tests
 
         private static IList<SchemaSpecTest> _specTests;
 
-        public static IList<SchemaSpecTest> GetSpecTestDetails()
+        public static IList<object[]> GetSpecTestDetails()
         {
-            if (_specTests != null)
+            if (_specTests == null)
             {
-                return _specTests;
-            }
+                _specTests = new List<SchemaSpecTest>();
 
-            _specTests = new List<SchemaSpecTest>();
+                // get test files location relative to the test project dll
+                string baseTestPath = ResolvePath(Path.Combine("Specs", "tests")) + @"\";
 
-            // get test files location relative to the test project dll
-            string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-            string baseTestPath = ResolvePath(Path.Combine("Specs", "tests")) + @"\";
-
-            string[] testFiles = Directory.GetFiles(baseTestPath, "*.json", SearchOption.AllDirectories);
+                string[] testFiles = Directory.GetFiles(baseTestPath, "*.json", SearchOption.AllDirectories);
 
 #if (PORTABLE || NET35)
-            testFiles = testFiles.Where(f => !f.EndsWith("bignum.json")).ToArray();
+                testFiles = testFiles.Where(f => !f.EndsWith("bignum.json")).ToArray();
 #endif
 
-            // read through each of the *.json test files and extract the test details
-            foreach (string testFile in testFiles)
-            {
-                string relativePath = MakeRelativePath(baseTestPath, testFile);
-                string version = relativePath.Split('\\').First();
-                string testJson = System.IO.File.ReadAllText(testFile);
-
-                JArray a = JArray.Parse(testJson);
-
-                foreach (JObject testCase in a)
+                // read through each of the *.json test files and extract the test details
+                foreach (string testFile in testFiles)
                 {
-                    foreach (JObject test in testCase["tests"])
+                    string relativePath = MakeRelativePath(baseTestPath, testFile);
+                    string version = relativePath.Split('\\').First();
+                    string testJson = System.IO.File.ReadAllText(testFile);
+
+                    JArray a = JArray.Parse(testJson);
+
+                    foreach (JObject testCase in a)
                     {
-                        SchemaSpecTest schemaSpecTest = new SchemaSpecTest();
+                        foreach (JObject test in testCase["tests"])
+                        {
+                            SchemaSpecTest schemaSpecTest = new SchemaSpecTest();
 
-                        schemaSpecTest.FileName = Path.GetFileName(testFile);
-                        schemaSpecTest.Version = version;
-                        schemaSpecTest.TestCaseDescription = (string) testCase["description"];
-                        schemaSpecTest.Schema = testCase["schema"];
+                            schemaSpecTest.FileName = Path.GetFileName(testFile);
+                            schemaSpecTest.Version = version;
+                            schemaSpecTest.TestCaseDescription = (string)testCase["description"];
+                            schemaSpecTest.Schema = testCase["schema"];
 
-                        schemaSpecTest.TestDescription = (string) test["description"];
-                        schemaSpecTest.Data = test["data"];
-                        schemaSpecTest.IsValid = (bool) test["valid"];
-                        schemaSpecTest.TestNumber = _specTests.Count(t => t.Version == schemaSpecTest.Version) + 1;
+                            schemaSpecTest.TestDescription = (string)test["description"];
+                            schemaSpecTest.Data = test["data"];
+                            schemaSpecTest.IsValid = (bool)test["valid"];
+                            schemaSpecTest.TestNumber = _specTests.Count(t => t.Version == schemaSpecTest.Version) + 1;
 
-                        _specTests.Add(schemaSpecTest);
+                            _specTests.Add(schemaSpecTest);
+                        }
                     }
                 }
             }
 
-            return _specTests;
+            return _specTests.Select(s => new object[] { s }).ToList();
         }
 
         public static string MakeRelativePath(string fromPath, string toPath)
         {
-            Uri fromUri = new Uri(fromPath);
-            Uri toUri = new Uri(toPath);
+            Uri fromUri = new Uri(fromPath, UriKind.RelativeOrAbsolute);
+            Uri toUri = new Uri(toPath, UriKind.RelativeOrAbsolute);
 
             if (fromUri.Scheme != toUri.Scheme)
             {
@@ -212,5 +221,3 @@ namespace Newtonsoft.Json.Schema.Tests
         }
     }
 }
-
-#endif
