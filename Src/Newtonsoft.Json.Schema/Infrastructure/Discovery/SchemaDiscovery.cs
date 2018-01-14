@@ -117,7 +117,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                             }
                             else if (int.TryParse(unescapedPart, NumberStyles.None, CultureInfo.InvariantCulture, out index))
                             {
-                                if (index > l.Count || index < 0)
+                                if (index >= l.Count || index < 0)
                                 {
                                     current = null;
                                 }

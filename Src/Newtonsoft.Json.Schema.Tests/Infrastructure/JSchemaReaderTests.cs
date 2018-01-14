@@ -3226,6 +3226,85 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 #endif
 
         [Test]
+        public void ResolveReference_IndexEqualsLength_ThrowsJSchemaReaderException()
+        {
+            JSchemaPreloadedResolver resolver = new JSchemaPreloadedResolver();
+            resolver.Add(new Uri("https://chharvey.github.io/schemaorg-jsd/schema/Thing.jsd"), TestHelpers.OpenFile(@"resources\schemas\geojson\crs.json"));
+            resolver.Add(new Uri("https://chharvey.github.io/schemaorg-jsd/schema/ContactPoint.jsd"), TestHelpers.OpenFile(@"resources\schemas\geojson\crs.json"));
+
+            string json = @"{
+
+  ""$schema"": ""http://json-schema.org/draft-07/schema#"",
+  ""$id"": ""#"",
+  ""title"": ""Person"",
+  ""description"": ""A person (alive, dead, undead, or fictional)."",
+  ""allOf"": [
+    { ""$ref"": ""https://chharvey.github.io/schemaorg-jsd/schema/Thing.jsd"" },
+    {
+      ""properties"": {
+        ""additionalName"": {
+""$id"": ""#additionalName"",
+""description"": ""An additional name for a Person, can be used for a middle name."",
+""type"": ""string""
+        },
+        ""contactPoint"": {
+""description"": ""A contact point for a person or organization."",
+""anyOf"": [
+  {
+    ""$id"": ""#contactPointtype"",
+    ""$ref"": ""https://chharvey.github.io/schemaorg-jsd/schema/ContactPoint.jsd""
+  },
+  {
+    ""type"": ""array"",
+    ""items"": { ""$ref"": ""#/allOf/2"" }
+  }
+]
+        },
+        ""email"": {
+""$id"": ""#email"",
+""description"": ""Email address."",
+""type"": ""string""
+        },
+        ""familyName"": {
+""$id"": ""#familyName"",
+""description"": ""Family name. In the U.S., the last name of an Person. This can be used along with givenName instead of the name property."",
+""type"": ""string""
+        },
+        ""givenName"": {
+""$id"": ""#givenName"",
+""description"": ""Given name. In the U.S., the first name of a Person. This can be used along with familyName instead of the name property."",
+""type"": ""string""
+        },
+        ""honorificPrefix"": {
+""$id"": ""#honorificPrefix"",
+""description"": ""An honorific prefix preceding a Person’s name such as Dr/Mrs/Mr."",
+""type"": ""string""
+        },
+        ""honorificSuffix"": {
+""$id"": ""#honorificSuffix"",
+""description"": ""An honorific suffix preceding a Person’s name such as M.D. /PhD/MSCSW."",
+""type"": ""string""
+        },
+        ""telephone"": {
+""$id"": ""#telephone"",
+""description"": ""The telephone number."",
+""type"": ""string""
+        }
+      }
+    }
+  ]
+}";
+
+            ExceptionAssert.Throws<JSchemaReaderException>(() =>
+            {
+                JSchema s = JSchema.Parse(json, new JSchemaReaderSettings
+                {
+                    Resolver = resolver
+                });
+            }, "Could not resolve schema reference '#/allOf/2'. Path 'allOf[1].properties.contactPoint.anyOf[1].items', line 25, position 14.");
+        }
+
+        [Test]
         public void ResolvedSchemaSelfReferences()
         {
             string json = @"{
