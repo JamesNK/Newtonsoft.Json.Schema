@@ -54,7 +54,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             }
         }
 
-        internal abstract bool IsValid();
+        internal abstract bool? IsValid();
 
         private SchemaScope GetExistingSchemaScope(JSchema schema, ref int scopeCurrentIndex)
         {
@@ -134,6 +134,21 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             }
 
             return true;
+        }
+
+        protected SchemaScope GetSchemaScopeBySchema(JSchema schema)
+        {
+            for (int i = 0; i < ChildScopes.Count; i++)
+            {
+                SchemaScope schemaScope = ChildScopes[i];
+
+                if (schemaScope.Schema == schema)
+                {
+                    return schemaScope;
+                }
+            }
+
+            return null;
         }
     }
 }

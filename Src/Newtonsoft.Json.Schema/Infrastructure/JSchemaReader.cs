@@ -1148,6 +1148,36 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                         ReadExtensionData(reader, target, name);
                     }
                     break;
+                case Constants.PropertyNames.If:
+                    if (EnsureVersion(SchemaVersion.Draft7))
+                    {
+                        ReadSchema(reader, target, name, s => target.If = s);
+                    }
+                    else
+                    {
+                        ReadExtensionData(reader, target, name);
+                    }
+                    break;
+                case Constants.PropertyNames.Then:
+                    if (EnsureVersion(SchemaVersion.Draft7))
+                    {
+                        ReadSchema(reader, target, name, s => target.Then = s);
+                    }
+                    else
+                    {
+                        ReadExtensionData(reader, target, name);
+                    }
+                    break;
+                case Constants.PropertyNames.Else:
+                    if (EnsureVersion(SchemaVersion.Draft7))
+                    {
+                        ReadSchema(reader, target, name, s => target.Else = s);
+                    }
+                    else
+                    {
+                        ReadExtensionData(reader, target, name);
+                    }
+                    break;
                 case Constants.PropertyNames.Not:
                     if (EnsureVersion(SchemaVersion.Draft4))
                     {
@@ -1403,6 +1433,46 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 case Constants.PropertyNames.Default:
                     EnsureRead(reader, Constants.PropertyNames.Default);
                     target.Default = JToken.ReadFrom(reader);
+                    break;
+                case Constants.PropertyNames.ContentEncoding:
+                    if (EnsureVersion(SchemaVersion.Draft7))
+                    {
+                        target.ContentEncoding = ReadString(reader, name);
+                    }
+                    else
+                    {
+                        ReadExtensionData(reader, target, name);
+                    }
+                    break;
+                case Constants.PropertyNames.ContentMediaType:
+                    if (EnsureVersion(SchemaVersion.Draft7))
+                    {
+                        target.ContentMediaType = ReadString(reader, name);
+                    }
+                    else
+                    {
+                        ReadExtensionData(reader, target, name);
+                    }
+                    break;
+                case Constants.PropertyNames.ReadOnly:
+                    if (EnsureVersion(SchemaVersion.Draft7))
+                    {
+                        target.ReadOnly = ReadBoolean(reader, name);
+                    }
+                    else
+                    {
+                        ReadExtensionData(reader, target, name);
+                    }
+                    break;
+                case Constants.PropertyNames.WriteOnly:
+                    if (EnsureVersion(SchemaVersion.Draft7))
+                    {
+                        target.WriteOnly = ReadBoolean(reader, name);
+                    }
+                    else
+                    {
+                        ReadExtensionData(reader, target, name);
+                    }
                     break;
                 default:
                     if (isRoot && name == Constants.PropertyNames.Schema)

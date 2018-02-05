@@ -359,6 +359,14 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             WritePropertyIfNotNull(_writer, Constants.PropertyNames.MultipleOf, schema.MultipleOf);
             WritePropertyIfNotNull(_writer, Constants.PropertyNames.Pattern, schema.Pattern);
             WritePropertyIfNotNull(_writer, Constants.PropertyNames.Format, schema.Format);
+            if (EnsureVersion(SchemaVersion.Draft7))
+            {
+                WritePropertyIfNotNull(_writer, Constants.PropertyNames.ContentEncoding, schema.ContentEncoding);
+                WritePropertyIfNotNull(_writer, Constants.PropertyNames.ContentMediaType, schema.ContentMediaType);
+                WritePropertyIfNotNull(_writer, Constants.PropertyNames.WriteOnly, schema.WriteOnly);
+                WritePropertyIfNotNull(_writer, Constants.PropertyNames.ReadOnly, schema.ReadOnly);
+            }
+
             if (!schema._enum.IsNullOrEmpty())
             {
                 _writer.WritePropertyName(Constants.PropertyNames.Enum);
@@ -383,6 +391,12 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             WriteSchemas(schema, schema._anyOf, Constants.PropertyNames.AnyOf);
             WriteSchemas(schema, schema._oneOf, Constants.PropertyNames.OneOf);
             WriteSchema(schema, schema.Not, Constants.PropertyNames.Not);
+            if (EnsureVersion(SchemaVersion.Draft7))
+            {
+                WriteSchema(schema, schema.If, Constants.PropertyNames.If);
+                WriteSchema(schema, schema.Then, Constants.PropertyNames.Then);
+                WriteSchema(schema, schema.Else, Constants.PropertyNames.Else);
+            }
 
             _writer.WriteEndObject();
         }

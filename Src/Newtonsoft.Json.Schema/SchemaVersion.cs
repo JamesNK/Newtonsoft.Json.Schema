@@ -27,6 +27,10 @@ namespace Newtonsoft.Json.Schema
         /// <summary>
         /// Draft 6. Schema URI <c>http://json-schema.org/draft-06/schema#</c>.
         /// </summary>
-        Draft6
+        Draft6,
+        /// <summary>
+        /// Draft 7. Schema URI <c>http://json-schema.org/draft-07/schema#</c>.
+        /// </summary>
+        Draft7
     }
 }

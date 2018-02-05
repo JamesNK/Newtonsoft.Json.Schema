@@ -42,7 +42,6 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             public const string MaximumLength = "maxLength";
             public const string MinimumLength = "minLength";
             public const string Enum = "enum";
-            public const string ReadOnly = "readonly";
             public const string Title = "title";
             public const string Description = "description";
             public const string Format = "format";
@@ -62,11 +61,18 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             public const string PropertyNamesSchema = "propertyNames";
             public const string Const = "const";
             public const string Contains = "contains";
+            public const string ContentEncoding = "contentEncoding";
+            public const string ContentMediaType = "contentMediaType";
+            public const string ReadOnly = "readOnly";
+            public const string WriteOnly = "writeOnly";
 
             public const string AnyOf = "anyOf";
             public const string AllOf = "allOf";
             public const string OneOf = "oneOf";
             public const string Not = "not";
+            public const string If = "if";
+            public const string Then = "then";
+            public const string Else = "else";
 
             public const string Ref = "$ref";
             public const string Schema = "$schema";
@@ -109,6 +115,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             public const string Any = "any";
         }
 
+        public static class ContentEncodings
+        {
+            public const string Base64 = "base64";
+        }
+
         public static readonly IDictionary<string, JSchemaType> JSchemaTypeMapping = new Dictionary<string, JSchemaType>(StringComparer.Ordinal)
         {
             { Types.String, JSchemaType.String },
@@ -127,6 +138,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             public static readonly Uri Draft3 = new Uri("http://json-schema.org/draft-03/schema#");
             public static readonly Uri Draft4 = new Uri("http://json-schema.org/draft-04/schema#");
             public static readonly Uri Draft6 = new Uri("http://json-schema.org/draft-06/schema#");
+            public static readonly Uri Draft7 = new Uri("http://json-schema.org/draft-07/schema#");
         }
     }
 }

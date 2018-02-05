@@ -51,6 +51,9 @@ namespace Newtonsoft.Json.Schema
         private string _patternError;
         private Uri _id;
         private bool _itemsPositionValidation;
+        private JSchema _if;
+        private JSchema _then;
+        private JSchema _else;
         private JSchema _not;
         private JSchema _contains;
         internal JSchema _propertyNames;
@@ -268,6 +271,36 @@ namespace Newtonsoft.Json.Schema
         }
 
         /// <summary>
+        /// Gets the If schema.
+        /// </summary>
+        /// <value>The If schema.</value>
+        public JSchema If
+        {
+            get { return _if; }
+            set { SetSchema(ref _if, value); }
+        }
+
+        /// <summary>
+        /// Gets the Then schema.
+        /// </summary>
+        /// <value>The Then schema.</value>
+        public JSchema Then
+        {
+            get { return _then; }
+            set { SetSchema(ref _then, value); }
+        }
+
+        /// <summary>
+        /// Gets the Else schema.
+        /// </summary>
+        /// <value>The Else schema.</value>
+        public JSchema Else
+        {
+            get { return _else; }
+            set { SetSchema(ref _else, value); }
+        }
+
+        /// <summary>
         /// Gets the Not schema.
         /// </summary>
         /// <value>The Not schema.</value>
@@ -401,6 +434,28 @@ namespace Newtonsoft.Json.Schema
         /// </summary>
         /// <value>The maximum number of object properties.</value>
         public long? MaximumProperties { get; set; }
+
+        /// <summary>
+        /// Gets or sets the content encoding of a string.
+        /// </summary>
+        public string ContentEncoding { get; set; }
+
+        /// <summary>
+        /// Gets or sets the content media type of a string.
+        /// </summary>
+        public string ContentMediaType { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value that indicates whether the data is write only.
+        /// Has no no effect on validation.
+        /// </summary>
+        public bool? WriteOnly { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value that indicates whether the data is read only.
+        /// Has no no effect on validation.
+        /// </summary>
+        public bool? ReadOnly { get; set; }
 
         /// <summary>
         /// Gets the extension data for the <see cref="JSchema"/>.

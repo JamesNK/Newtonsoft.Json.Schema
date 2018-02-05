@@ -78,6 +78,52 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
             return sb;
         }
+
+        public static bool IsBase64String(string value)
+        {
+            if (string.IsNullOrEmpty(value) || value.Length % 4 != 0)
+            {
+                return false;
+            }
+            int index = value.Length - 1;
+            if (value[index] == '=')
+            {
+                index--;
+            }
+
+            if (value[index] == '=')
+            {
+                index--;
+            }
+            for (int i = 0; i <= index; i++)
+            {
+                if (IsInvalid(value[i]))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        private static bool IsInvalid(char value)
+        {
+            if (value >= 48 && value <= 57)
+            {
+                return false;
+            }
+
+            if (value >= 65 && value <= 90)
+            {
+                return false;
+            }
+
+            if (value >= 97 && value <= 122)
+            {
+                return false;
+            }
+
+            return value != 43 && value != 47;
+        }
     }
 }
 

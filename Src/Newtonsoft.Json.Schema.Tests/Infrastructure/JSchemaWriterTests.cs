@@ -1046,6 +1046,139 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         }
 
         [Test]
+        public void WriteTo_ReadOnlyAndWriteOnly()
+        {
+            StringWriter writer = new StringWriter();
+            JsonTextWriter jsonWriter = new JsonTextWriter(writer);
+            jsonWriter.Formatting = Formatting.Indented;
+
+            JSchema schema = new JSchema
+            {
+                ReadOnly = true,
+                WriteOnly = false
+            };
+
+            schema.WriteTo(jsonWriter);
+
+            string json = writer.ToString();
+
+            StringAssert.AreEqual(@"{
+  ""writeOnly"": false,
+  ""readOnly"": true
+}", json);
+
+            writer = new StringWriter();
+            jsonWriter = new JsonTextWriter(writer);
+            jsonWriter.Formatting = Formatting.Indented;
+
+            schema.WriteTo(jsonWriter, new JSchemaWriterSettings
+            {
+                Version = SchemaVersion.Draft6
+            });
+
+            json = writer.ToString();
+
+            StringAssert.AreEqual(@"{
+  ""$schema"": ""http://json-schema.org/draft-06/schema#""
+}", json);
+        }
+
+        [Test]
+        public void WriteTo_ContentEncodingAndContentMediaType()
+        {
+            StringWriter writer = new StringWriter();
+            JsonTextWriter jsonWriter = new JsonTextWriter(writer);
+            jsonWriter.Formatting = Formatting.Indented;
+
+            JSchema schema = new JSchema
+            {
+                ContentEncoding = "ContentEncoding!",
+                ContentMediaType = "ContentMediaType!"
+            };
+
+            schema.WriteTo(jsonWriter);
+
+            string json = writer.ToString();
+
+            StringAssert.AreEqual(@"{
+  ""contentEncoding"": ""ContentEncoding!"",
+  ""contentMediaType"": ""ContentMediaType!""
+}", json);
+
+            writer = new StringWriter();
+            jsonWriter = new JsonTextWriter(writer);
+            jsonWriter.Formatting = Formatting.Indented;
+
+            schema.WriteTo(jsonWriter, new JSchemaWriterSettings
+            {
+                Version = SchemaVersion.Draft6
+            });
+
+            json = writer.ToString();
+
+            StringAssert.AreEqual(@"{
+  ""$schema"": ""http://json-schema.org/draft-06/schema#""
+}", json);
+        }
+
+        [Test]
+        public void WriteTo_IfThenElse()
+        {
+            StringWriter writer = new StringWriter();
+            JsonTextWriter jsonWriter = new JsonTextWriter(writer);
+            jsonWriter.Formatting = Formatting.Indented;
+
+            JSchema schema = new JSchema
+            {
+                If = new JSchema
+                {
+                    Title = "If!"
+                },
+                Then = new JSchema
+                {
+                    Title = "Then!"
+                },
+                Else = new JSchema
+                {
+                    Title = "Else!"
+                }
+            };
+
+            schema.WriteTo(jsonWriter);
+
+            string json = writer.ToString();
+
+            Console.WriteLine(json);
+
+            StringAssert.AreEqual(@"{
+  ""if"": {
+    ""title"": ""If!""
+  },
+  ""then"": {
+    ""title"": ""Then!""
+  },
+  ""else"": {
+    ""title"": ""Else!""
+  }
+}", json);
+
+            writer = new StringWriter();
+            jsonWriter = new JsonTextWriter(writer);
+            jsonWriter.Formatting = Formatting.Indented;
+
+            schema.WriteTo(jsonWriter, new JSchemaWriterSettings
+            {
+                Version = SchemaVersion.Draft6
+            });
+
+            json = writer.ToString();
+
+            StringAssert.AreEqual(@"{
+  ""$schema"": ""http://json-schema.org/draft-06/schema#""
+}", json);
+        }
+
+        [Test]
         public void WriteTo_CircularReference_ReferenceHandling_Never()
         {
             string json = @"{

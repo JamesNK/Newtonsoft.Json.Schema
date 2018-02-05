@@ -834,6 +834,58 @@ namespace Newtonsoft.Json.Schema.Tests
         }
 
         [Test]
+        public void IfThenElse_ThenChildErrors()
+        {
+            JSchema s = JSchema.Parse(@"{
+            ""if"": {
+                ""exclusiveMaximum"": 0
+            },
+            ""then"": {
+                ""minimum"": -10
+            },
+            ""else"": {
+                ""type"": ""string""
+            }
+        }");
+
+            JToken t = JToken.Parse("-100");
+
+            Assert.IsFalse(t.IsValid(s, out IList<ValidationError> validationErrors));
+
+            Assert.AreEqual(1, validationErrors.Count);
+            Assert.AreEqual("JSON does not match schema from 'then'.", validationErrors[0].Message);
+            Assert.AreEqual(ErrorType.Then, validationErrors[0].ErrorType);
+            Assert.AreEqual(1, validationErrors[0].ChildErrors.Count);
+            Assert.AreEqual("Integer -100 is less than minimum value of -10.", validationErrors[0].ChildErrors[0].Message);
+        }
+
+        [Test]
+        public void IfThenElse_ElseChildErrors()
+        {
+            JSchema s = JSchema.Parse(@"{
+            ""if"": {
+                ""exclusiveMaximum"": 0
+            },
+            ""then"": {
+                ""minimum"": -10
+            },
+            ""else"": {
+                ""type"": ""string""
+            }
+        }");
+
+            JToken t = JToken.Parse("99");
+
+            Assert.IsFalse(t.IsValid(s, out IList<ValidationError> validationErrors));
+
+            Assert.AreEqual(1, validationErrors.Count);
+            Assert.AreEqual("JSON does not match schema from 'else'.", validationErrors[0].Message);
+            Assert.AreEqual(ErrorType.Else, validationErrors[0].ErrorType);
+            Assert.AreEqual(1, validationErrors[0].ChildErrors.Count);
+            Assert.AreEqual("Invalid type. Expected String but got Integer.", validationErrors[0].ChildErrors[0].Message);
+        }
+
+        [Test]
         public void TV4_Issue_86()
         {
             string schemaJson = @"{

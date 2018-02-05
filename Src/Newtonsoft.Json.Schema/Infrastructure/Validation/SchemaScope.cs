@@ -123,6 +123,23 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
                 notScope.InitializeScopes(token, new List<JSchema> { schema.Not }, context.Scopes.Count - 1);
             }
+            // only makes sense to eval if/then/else when there is an if and either a then or a else
+            if (schema.If != null && (schema.Then != null || schema.Else != null))
+            {
+                IfThenElseScope ifThenElseScope = context.Validator.GetCachedScope<IfThenElseScope>(ScopeType.IfThenElse);
+                if (ifThenElseScope == null)
+                {
+                    ifThenElseScope = new IfThenElseScope();
+                }
+                ifThenElseScope.Initialize(context, scope, depth, ScopeType.IfThenElse);
+                context.Scopes.Add(ifThenElseScope);
+
+                ifThenElseScope.If = schema.If;
+                ifThenElseScope.Then = schema.Then;
+                ifThenElseScope.Else = schema.Else;
+
+                ifThenElseScope.InitializeScopes(token, ifThenElseScope.GetSchemas(), context.Scopes.Count - 1);
+            }
 
             return scope;
         }

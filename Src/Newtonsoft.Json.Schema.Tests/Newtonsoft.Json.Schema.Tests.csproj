@@ -92,6 +92,7 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" />
   </ItemGroup>
+
   <PropertyGroup Condition="'$(TargetFramework)'=='netcoreapp2.0'">
     <AssemblyTitle>Json.NET Schema Tests .NET Standard 2.0</AssemblyTitle>
     <ReferringTargetFrameworkForProjectReferences>.NETStandard,Version=v2.0</ReferringTargetFrameworkForProjectReferences>

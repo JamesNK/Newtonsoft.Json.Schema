@@ -54,6 +54,7 @@ namespace Newtonsoft.Json.Schema.Tests
                 AddSchema(resolver, "draft3.json", "http://json-schema.org/draft-03/schema");
                 AddSchema(resolver, "draft4.json", "http://json-schema.org/draft-04/schema");
                 AddSchema(resolver, "draft6.json", "http://json-schema.org/draft-06/schema");
+                AddSchema(resolver, "draft7.json", "http://json-schema.org/draft-07/schema");
                 AddSchema(resolver, "integer.json", "http://localhost:1234/integer.json");
                 AddSchema(resolver, "folder/folderInteger.json", "http://localhost:1234/folder/folderInteger.json");
                 AddSchema(resolver, "subSchemas.json", "http://localhost:1234/subSchemas.json");
@@ -165,6 +166,14 @@ namespace Newtonsoft.Json.Schema.Tests
                 testFiles = testFiles.Where(f => !f.EndsWith("bignum.json")).ToArray();
 #endif
 
+                // todo - add support for all formats
+                testFiles = testFiles.Where(f => !f.EndsWith("content.json")
+                                                 && !f.EndsWith("idn-email.json")
+                                                 && !f.EndsWith("idn-hostname.json")
+                                                 && !f.EndsWith("iri-reference.json")
+                                                 && !f.EndsWith("iri.json")
+                                                 && !f.EndsWith("relative-json-pointer.json")).ToArray();
+
                 // read through each of the *.json test files and extract the test details
                 foreach (string testFile in testFiles)
                 {
@@ -189,6 +198,15 @@ namespace Newtonsoft.Json.Schema.Tests
                             schemaSpecTest.Data = test["data"];
                             schemaSpecTest.IsValid = (bool)test["valid"];
                             schemaSpecTest.TestNumber = _specTests.Count(t => t.Version == schemaSpecTest.Version) + 1;
+
+#if NET35
+                            // Uri class in .NET Framework 2.0 doesn't like the uri in this test
+                            if (schemaSpecTest.FileName == "uri.json" &&
+                                schemaSpecTest.TestDescription == "a valid URL ")
+                            {
+                                continue;
+                            }
+#endif
 
                             _specTests.Add(schemaSpecTest);
                         }

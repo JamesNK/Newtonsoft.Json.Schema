@@ -190,6 +190,30 @@ namespace Newtonsoft.Json.Schema
         /// A 'contains' error.
         /// </summary>
         [EnumMember(Value = "contains")]
-        Contains = 29
+        Contains = 29,
+
+        /// <summary>
+        /// A 'contentEncoding' error.
+        /// </summary>
+        [EnumMember(Value = "contentEncoding")]
+        ContentEncoding = 30,
+
+        /// <summary>
+        /// A 'contentMediaType' error.
+        /// </summary>
+        [EnumMember(Value = "contentMediaType")]
+        ContentMediaType = 31,
+
+        /// <summary>
+        /// A 'then' error.
+        /// </summary>
+        [EnumMember(Value = "then")]
+        Then = 32,
+
+        /// <summary>
+        /// An 'else' error.
+        /// </summary>
+        [EnumMember(Value = "else")]
+        Else = 33
     }
 }

@@ -50,8 +50,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 case JsonToken.String:
                 case JsonToken.PropertyName:
                 {
-                    Uri uri = value as Uri;
-                    string s = (uri != null) ? uri.OriginalString : value.ToString();
+                    string s = (value is Uri uri) ? uri.OriginalString : value.ToString();
 
                     if (!ValidateString(this, Schema, s))
                     {
@@ -218,6 +217,19 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 else
                 {
                     scope.RaiseError($"Could not validate string with regex pattern '{schema.Pattern}'. There was an error parsing the regex: {errorMessage}", ErrorType.Pattern, schema, value, null);
+                }
+            }
+
+            if (schema.ContentEncoding != null)
+            {
+                if (schema.ContentEncoding == Constants.ContentEncodings.Base64)
+                {
+                    bool valid = StringHelpers.IsBase64String(value);
+
+                    if (!valid)
+                    {
+                        scope.RaiseError($"String '{value}' does not validate against content encoding '{schema.ContentEncoding}'.", ErrorType.ContentEncoding, schema, value, null);
+                    }
                 }
             }
 

@@ -631,6 +631,65 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         }
 
         [Test]
+        public void IfThenElse()
+        {
+            string json = @"{
+            ""if"": {
+                ""exclusiveMaximum"": 0
+            },
+            ""then"": {
+                ""minimum"": -10
+            },
+            ""else"": {
+                ""multipleOf"": 2
+            }
+        }";
+
+            JSchemaReader schemaReader = new JSchemaReader(JSchemaDummyResolver.Instance);
+            JSchema schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
+
+            Assert.IsNotNull(schema.If);
+            Assert.AreEqual(0d, schema.If.Maximum);
+            Assert.AreEqual(true, schema.If.ExclusiveMaximum);
+
+            Assert.IsNotNull(schema.Then);
+            Assert.AreEqual(-10d, schema.Then.Minimum);
+
+            Assert.IsNotNull(schema.Else);
+            Assert.AreEqual(2d, schema.Else.MultipleOf);
+        }
+
+        [Test]
+        public void WriteOnlyReadOnly()
+        {
+            string json = @"{
+  ""writeOnly"":true,
+  ""readOnly"":false
+}";
+
+            JSchemaReader schemaReader = new JSchemaReader(JSchemaDummyResolver.Instance);
+            JSchema schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
+
+            Assert.AreEqual(true, schema.WriteOnly);
+            Assert.AreEqual(false, schema.ReadOnly);
+        }
+
+        [Test]
+        public void ContentEncodingAndContentMediaType()
+        {
+            string json = @"{
+  ""contentEncoding"":""12345"",
+  ""contentMediaType"":""67890""
+}";
+
+            JSchemaReader schemaReader = new JSchemaReader(JSchemaDummyResolver.Instance);
+            JSchema schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
+
+            Assert.AreEqual("12345", schema.ContentEncoding);
+            Assert.AreEqual("67890", schema.ContentMediaType);
+        }
+
+        [Test]
         public void Id()
         {
             string json = @"{
@@ -1450,6 +1509,22 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
                   ""type"": ""any""
                 }", settings);
             }, "Validation error raised by version schema 'http://json-schema.org/draft-04/schema#': JSON does not match any schemas from 'anyOf'. Path 'type', line 3, position 31.");
+        }
+
+        [Test]
+        public void Any_Draft7_ValidateVersion()
+        {
+            ExceptionAssert.Throws<JSchemaReaderException>(() =>
+            {
+                JSchemaReaderSettings settings = new JSchemaReaderSettings
+                {
+                    ValidateVersion = true
+                };
+                JSchema.Parse(@"{
+	              ""$schema"": ""http://json-schema.org/draft-07/schema#"",
+                  ""if"": ""a string""
+                }", settings);
+            }, "Validation error raised by version schema 'http://json-schema.org/draft-07/schema#': Invalid type. Expected Boolean, Object but got String. Path 'if', line 3, position 34.");
         }
 
         [Test]
