@@ -121,6 +121,18 @@ namespace Newtonsoft.Json.Schema.Tests
             s.Dependencies["dep"] = "string!";
 
             Assert.AreEqual(18, i);
+
+            s.If = new JSchema();
+
+            Assert.AreEqual(19, i);
+
+            s.Then = new JSchema();
+
+            Assert.AreEqual(20, i);
+
+            s.Else = new JSchema();
+
+            Assert.AreEqual(21, i);
         }
 
         [Test]
