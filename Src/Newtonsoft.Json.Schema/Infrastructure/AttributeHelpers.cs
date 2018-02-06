@@ -301,7 +301,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 IList<Attribute> attributes = attributeProvider.GetAttributes(true);
                 foreach (Attribute attribute in attributes)
                 {
-                    if (string.Equals(attribute.GetType().FullName, name, StringComparison.Ordinal))
+                    if (IsMatchingAttribute(attribute.GetType(), name))
                     {
                         return attribute;
                     }
@@ -309,6 +309,22 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             }
 
             return null;
+        }
+
+        private static bool IsMatchingAttribute(Type attributeType, string name)
+        {
+            // check that attribute or its base class matches the name
+            // e.g. attribute might inherit from DescriptionAttribute
+            Type currentType = attributeType;
+            do
+            {
+                if (string.Equals(currentType.FullName, name, StringComparison.Ordinal))
+                {
+                    return true;
+                }
+            } while ((currentType = currentType.BaseType()) != null);
+
+            return false;
         }
 
         private static Attribute GetAttributeByNameFromTypeOrProperty(Type type, JsonProperty memberProperty, string name)
