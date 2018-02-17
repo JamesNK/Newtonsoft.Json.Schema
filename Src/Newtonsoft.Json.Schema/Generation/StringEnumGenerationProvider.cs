@@ -46,16 +46,15 @@ namespace Newtonsoft.Json.Schema.Generation
             object defaultValue = context.MemberProperty?.DefaultValue;
             if (defaultValue != null)
             {
-                string finalName = EnumUtils.ToEnumName(t, defaultValue.ToString(), CamelCaseText);
+                EnumUtils.TryToString(t, defaultValue, CamelCaseText, out string finalName);
 
-                schema.Default = JToken.FromObject(finalName);
+                schema.Default = JToken.FromObject(finalName ?? defaultValue.ToString());
             }
 
-            string[] names = Enum.GetNames(t);
-
-            foreach (string name in names)
+            EnumInfo enumValues = EnumUtils.GetEnumValuesAndNames(t);
+            for (int i = 0; i < enumValues.Values.Length; i++)
             {
-                string finalName = EnumUtils.ToEnumName(t, name, CamelCaseText);
+                EnumUtils.TryToString(t, enumValues.Values[i], CamelCaseText, out string finalName);
 
                 schema.Enum.Add(JValue.CreateString(finalName));
             }

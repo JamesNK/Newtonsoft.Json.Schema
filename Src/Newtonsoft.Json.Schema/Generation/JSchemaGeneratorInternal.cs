@@ -537,10 +537,10 @@ namespace Newtonsoft.Json.Schema.Generation
                     schema.Enum.Add(JValue.CreateNull());
                 }
 
-                IList<EnumValue<long>> enumValues = EnumUtils.GetNamesAndValues<long>(contract.NonNullableUnderlyingType);
-                foreach (EnumValue<long> enumValue in enumValues)
+                EnumInfo enumValues = EnumUtils.GetEnumValuesAndNames(contract.NonNullableUnderlyingType);
+                for (int i = 0; i < enumValues.Values.Length; i++)
                 {
-                    JToken value = JToken.FromObject(enumValue.Value);
+                    JToken value = JToken.FromObject(Enum.ToObject(contract.NonNullableUnderlyingType, enumValues.Values[i]));
 
                     schema.Enum.Add(value);
                 }
@@ -549,12 +549,12 @@ namespace Newtonsoft.Json.Schema.Generation
             Type enumDataType = AttributeHelpers.GetEnumDataType(memberProperty);
             if (enumDataType != null && CollectionUtils.IsNullOrEmpty(schema._enum))
             {
-                IList<EnumValue<long>> enumValues = EnumUtils.GetNamesAndValues<long>(enumDataType);
-                foreach (EnumValue<long> enumValue in enumValues)
+                EnumInfo enumValues = EnumUtils.GetEnumValuesAndNames(enumDataType);
+                for (int i = 0; i < enumValues.Values.Length; i++)
                 {
                     JToken value = (JSchemaTypeHelpers.HasFlag(type, JSchemaType.String))
-                        ? enumValue.Name
-                        : JToken.FromObject(enumValue.Value);
+                        ? enumValues.ResolvedNames[i]
+                        : JToken.FromObject(enumValues.Values[i]);
 
                     schema.Enum.Add(value);
                 }
