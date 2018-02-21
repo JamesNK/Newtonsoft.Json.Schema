@@ -86,6 +86,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                         TestType(Schema, JSchemaType.Object);
                         return false;
                     case JsonToken.EndObject:
+                        ValidateConditionalChildren(token, value, depth);
+
                         if (!Schema._required.IsNullOrEmpty() && _requiredProperties.Count > 0)
                         {
                             RaiseError($"Required properties are missing from object: {StringHelpers.Join(", ", _requiredProperties)}.", ErrorType.Required, Schema, _requiredProperties, null);
@@ -149,6 +151,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                                 }
                             }
                         }
+
                         return true;
                     default:
                         throw new InvalidOperationException("Unexpected token when evaluating object: " + token);

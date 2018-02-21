@@ -12,7 +12,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
     {
         protected override bool EvaluateTokenCore(JsonToken token, object value, int depth)
         {
-            if (depth == InitialDepth && JsonTokenHelpers.IsPrimitiveOrEndToken(token))
+            if (depth == InitialDepth)
             {
                 if (!GetChildrenAnyValid())
                 {

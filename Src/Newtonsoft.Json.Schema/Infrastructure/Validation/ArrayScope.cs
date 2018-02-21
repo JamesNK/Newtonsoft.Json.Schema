@@ -76,6 +76,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                         return false;
                     case JsonToken.EndArray:
                     case JsonToken.EndConstructor:
+                        ValidateConditionalChildren(token, value, depth);
+
                         int itemCount = _index + 1;
 
                         if (Schema.MaximumItems != null && itemCount > Schema.MaximumItems)

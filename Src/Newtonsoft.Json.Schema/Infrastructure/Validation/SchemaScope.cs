@@ -19,11 +19,23 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
     {
         public JSchema Schema;
         public bool IsValid;
+        public List<ConditionalScope> Children;
 
         protected void InitializeSchema(JSchema schema)
         {
             Schema = schema;
             IsValid = true;
+            Children?.Clear();
+        }
+
+        private void AddChildScope(ConditionalScope scope)
+        {
+            if (Children == null)
+            {
+                Children = new List<ConditionalScope>();
+            }
+
+            Children.Add(scope);
         }
 
         internal string DebuggerDisplay
@@ -83,7 +95,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     allOfScope = new AllOfScope();
                 }
                 allOfScope.Initialize(context, scope, depth, ScopeType.AllOf);
-                context.Scopes.Add(allOfScope);
+                scope.AddChildScope(allOfScope);
 
                 allOfScope.InitializeScopes(token, schema._allOf.GetInnerList(), context.Scopes.Count - 1);
             }
@@ -95,7 +107,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     anyOfScope = new AnyOfScope();
                 }
                 anyOfScope.Initialize(context, scope, depth, ScopeType.AnyOf);
-                context.Scopes.Add(anyOfScope);
+                scope.AddChildScope(anyOfScope);
 
                 anyOfScope.InitializeScopes(token, schema._anyOf.GetInnerList(), context.Scopes.Count - 1);
             }
@@ -107,7 +119,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     oneOfScope = new OneOfScope();
                 }
                 oneOfScope.Initialize(context, scope, depth, ScopeType.OneOf);
-                context.Scopes.Add(oneOfScope);
+                scope.AddChildScope(oneOfScope);
 
                 oneOfScope.InitializeScopes(token, schema._oneOf.GetInnerList(), context.Scopes.Count - 1);
             }
@@ -119,7 +131,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     notScope = new NotScope();
                 }
                 notScope.Initialize(context, scope, depth, ScopeType.Not);
-                context.Scopes.Add(notScope);
+                scope.AddChildScope(notScope);
 
                 notScope.InitializeScopes(token, new List<JSchema> { schema.Not }, context.Scopes.Count - 1);
             }
@@ -132,7 +144,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     ifThenElseScope = new IfThenElseScope();
                 }
                 ifThenElseScope.Initialize(context, scope, depth, ScopeType.IfThenElse);
-                context.Scopes.Add(ifThenElseScope);
+                scope.AddChildScope(ifThenElseScope);
 
                 ifThenElseScope.If = schema.If;
                 ifThenElseScope.Then = schema.Then;
@@ -159,6 +171,17 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             if (schema.Valid != null && !schema.Valid.Value)
             {
                 scope.RaiseError($"Schema always fails validation.", ErrorType.Valid, schema, value, null);
+            }
+        }
+
+        protected void ValidateConditionalChildren(JsonToken token, object value, int depth)
+        {
+            if (!Children.IsNullOrEmpty())
+            {
+                for (int i = 0; i < Children.Count; i++)
+                {
+                    Children[i].EvaluateToken(token, value, depth);
+                }
             }
         }
 

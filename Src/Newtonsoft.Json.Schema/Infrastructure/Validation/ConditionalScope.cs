@@ -73,6 +73,17 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                                 Context.Scopes.RemoveAt(i);
                                 Context.Scopes.Insert(scopeCurrentIndex, scope);
 
+#if DEBUG
+                                // sanity check that moving the scope won't cause order of evaluation errors
+                                for (int j = scopeCurrentIndex - 1; j >= 0; j--)
+                                {
+                                    if (Context.Scopes[j].Parent == scope)
+                                    {
+                                        throw new Exception("Child will be evaluated after parent.");
+                                    }
+                                }
+#endif
+
                                 // decrement index because the schema before current scope has been moved to after
                                 scopeCurrentIndex--;
                             }

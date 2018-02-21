@@ -106,6 +106,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             }
 
             EnsureEnum(token, value);
+            ValidateConditionalChildren(token, value, depth);
 
             return true;
         }

@@ -1946,13 +1946,17 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.String, reader.TokenType);
             Assert.AreEqual(2, errors.Count);
-            StringAssert.AreEqual(@"JSON does not match all schemas from 'allOf'. Invalid schema indexes: 0. Path '', line 1, position 46.", errors[0].GetExtendedMessage());
-            Assert.AreEqual(null, errors[0].Value);
-            Assert.AreEqual(1, errors[0].ChildErrors.Count);
-            StringAssert.AreEqual(@"String 'The quick brown fox jumps over the lazy dog.' exceeds maximum length of 10. Path '', line 1, position 46.", errors[0].ChildErrors[0].GetExtendedMessage());
-            Assert.AreEqual("The quick brown fox jumps over the lazy dog.", errors[0].ChildErrors[0].Value);
-            Assert.AreEqual("String 'The quick brown fox jumps over the lazy dog.' exceeds maximum length of 9. Path '', line 1, position 46.", errors[1].GetExtendedMessage());
-            Assert.AreEqual("The quick brown fox jumps over the lazy dog.", errors[1].Value);
+
+            ValidationError stringError = errors[0];
+            Assert.AreEqual("String 'The quick brown fox jumps over the lazy dog.' exceeds maximum length of 9. Path '', line 1, position 46.", stringError.GetExtendedMessage());
+            Assert.AreEqual("The quick brown fox jumps over the lazy dog.", stringError.Value);
+
+            ValidationError allOfError = errors[1];
+            StringAssert.AreEqual(@"JSON does not match all schemas from 'allOf'. Invalid schema indexes: 0. Path '', line 1, position 46.", allOfError.GetExtendedMessage());
+            Assert.AreEqual(null, allOfError.Value);
+            Assert.AreEqual(1, allOfError.ChildErrors.Count);
+            StringAssert.AreEqual(@"String 'The quick brown fox jumps over the lazy dog.' exceeds maximum length of 10. Path '', line 1, position 46.", allOfError.ChildErrors[0].GetExtendedMessage());
+            Assert.AreEqual("The quick brown fox jumps over the lazy dog.", allOfError.ChildErrors[0].Value);
 
             Assert.IsNotNull(validationEventArgs);
         }
