@@ -185,5 +185,10 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             }
             return null;
         }
+
+        public void ReturnScopeToCache(Scope scope)
+        {
+            _scopesCache.Add(scope);
+        }
     }
 }

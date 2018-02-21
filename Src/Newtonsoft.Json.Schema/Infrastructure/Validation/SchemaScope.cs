@@ -180,7 +180,10 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             {
                 for (int i = 0; i < Children.Count; i++)
                 {
-                    Children[i].EvaluateToken(token, value, depth);
+                    ConditionalScope conditionalScope = Children[i];
+
+                    conditionalScope.EvaluateToken(token, value, depth);
+                    Context.Validator.ReturnScopeToCache(conditionalScope);
                 }
             }
         }

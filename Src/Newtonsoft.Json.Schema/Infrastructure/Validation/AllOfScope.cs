@@ -15,30 +15,25 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
     {
         protected override bool EvaluateTokenCore(JsonToken token, object value, int depth)
         {
-            if (depth == InitialDepth && JsonTokenHelpers.IsPrimitiveOrEndToken(token))
+            if (!GetChildrenAllValid())
             {
-                if (!GetChildrenAllValid())
+                List<int> invalidIndexes = new List<int>();
+                int index = 0;
+                foreach (SchemaScope schemaScope in ChildScopes)
                 {
-                    List<int> invalidIndexes = new List<int>();
-                    int index = 0;
-                    foreach (SchemaScope schemaScope in ChildScopes)
+                    if (!schemaScope.IsValid)
                     {
-                        if (!schemaScope.IsValid)
-                        {
-                            invalidIndexes.Add(index);
-                        }
-
-                        index++;
+                        invalidIndexes.Add(index);
                     }
 
-                    IFormattable message = $"JSON does not match all schemas from 'allOf'. Invalid schema indexes: {StringHelpers.Join(", ", invalidIndexes)}.";
-                    RaiseError(message, ErrorType.AllOf, ParentSchemaScope.Schema, null, ConditionalContext.Errors);
+                    index++;
                 }
 
-                return true;
+                IFormattable message = $"JSON does not match all schemas from 'allOf'. Invalid schema indexes: {StringHelpers.Join(", ", invalidIndexes)}.";
+                RaiseError(message, ErrorType.AllOf, ParentSchemaScope.Schema, null, ConditionalContext.Errors);
             }
 
-            return false;
+            return true;
         }
 
         internal override bool? IsValid()

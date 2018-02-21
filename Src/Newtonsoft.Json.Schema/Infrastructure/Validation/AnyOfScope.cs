@@ -12,17 +12,12 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
     {
         protected override bool EvaluateTokenCore(JsonToken token, object value, int depth)
         {
-            if (depth == InitialDepth)
+            if (!GetChildrenAnyValid())
             {
-                if (!GetChildrenAnyValid())
-                {
-                    RaiseError($"JSON does not match any schemas from 'anyOf'.", ErrorType.AnyOf, ParentSchemaScope.Schema, null, ConditionalContext.Errors);
-                }
-
-                return true;
+                RaiseError($"JSON does not match any schemas from 'anyOf'.", ErrorType.AnyOf, ParentSchemaScope.Schema, null, ConditionalContext.Errors);
             }
 
-            return false;
+            return true;
         }
 
         internal override bool? IsValid()

@@ -28,37 +28,32 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
         protected override bool EvaluateTokenCore(JsonToken token, object value, int depth)
         {
-            if (depth == InitialDepth && JsonTokenHelpers.IsPrimitiveOrEndToken(token))
+            SchemaScope ifScope = GetSchemaScopeBySchema(If);
+
+            if (ifScope.IsValid)
             {
-                SchemaScope ifScope = GetSchemaScopeBySchema(If);
-
-                if (ifScope.IsValid)
+                if (Then != null)
                 {
-                    if (Then != null)
+                    SchemaScope thenScope = GetSchemaScopeBySchema(Then);
+                    if (!thenScope.IsValid)
                     {
-                        SchemaScope thenScope = GetSchemaScopeBySchema(Then);
-                        if (!thenScope.IsValid)
-                        {
-                            RaiseError($"JSON does not match schema from 'then'.", ErrorType.Then, Then, null, GetSchemaValidationErrors(ConditionalContext.Errors, Then));
-                        }
+                        RaiseError($"JSON does not match schema from 'then'.", ErrorType.Then, Then, null, GetSchemaValidationErrors(ConditionalContext.Errors, Then));
                     }
                 }
-                else
+            }
+            else
+            {
+                if (Else != null)
                 {
-                    if (Else != null)
+                    SchemaScope elseScope = GetSchemaScopeBySchema(Else);
+                    if (!elseScope.IsValid)
                     {
-                        SchemaScope elseScope = GetSchemaScopeBySchema(Else);
-                        if (!elseScope.IsValid)
-                        {
-                            RaiseError($"JSON does not match schema from 'else'.", ErrorType.Else, Else, null, GetSchemaValidationErrors(ConditionalContext.Errors, Else));
-                        }
+                        RaiseError($"JSON does not match schema from 'else'.", ErrorType.Else, Else, null, GetSchemaValidationErrors(ConditionalContext.Errors, Else));
                     }
                 }
-
-                return true;
             }
 
-            return false;
+            return true;
         }
 
         private List<ValidationError> GetSchemaValidationErrors(List<ValidationError> errors, JSchema schema)

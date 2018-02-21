@@ -15,41 +15,36 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
     {
         protected override bool EvaluateTokenCore(JsonToken token, object value, int depth)
         {
-            if (depth == InitialDepth && JsonTokenHelpers.IsPrimitiveOrEndToken(token))
+            int validCount = GetChildrenValidCount();
+
+            if (validCount != 1)
             {
-                int validCount = GetChildrenValidCount();
-
-                if (validCount != 1)
+                List<int> validIndexes = new List<int>();
+                int index = 0;
+                foreach (SchemaScope schemaScope in ChildScopes)
                 {
-                    List<int> validIndexes = new List<int>();
-                    int index = 0;
-                    foreach (SchemaScope schemaScope in ChildScopes)
+                    if (schemaScope.IsValid)
                     {
-                        if (schemaScope.IsValid)
-                        {
-                            validIndexes.Add(index);
-                        }
-
-                        index++;
+                        validIndexes.Add(index);
                     }
 
-                    IFormattable message;
-                    if (validIndexes.Count > 0)
-                    {
-                        message = $"JSON is valid against more than one schema from 'oneOf'. Valid schema indexes: {StringHelpers.Join(", ", validIndexes)}.";
-                    }
-                    else
-                    {
-                        message = $"JSON is valid against no schemas from 'oneOf'.";
-                    }
-
-                    RaiseError(message, ErrorType.OneOf, ParentSchemaScope.Schema, null, ConditionalContext.Errors);
+                    index++;
                 }
 
-                return true;
+                IFormattable message;
+                if (validIndexes.Count > 0)
+                {
+                    message = $"JSON is valid against more than one schema from 'oneOf'. Valid schema indexes: {StringHelpers.Join(", ", validIndexes)}.";
+                }
+                else
+                {
+                    message = $"JSON is valid against no schemas from 'oneOf'.";
+                }
+
+                RaiseError(message, ErrorType.OneOf, ParentSchemaScope.Schema, null, ConditionalContext.Errors);
             }
 
-            return false;
+            return true;
         }
 
         internal override bool? IsValid()
