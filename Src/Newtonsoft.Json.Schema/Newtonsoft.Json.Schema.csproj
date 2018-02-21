@@ -44,7 +44,7 @@
     <AssemblyTitle>Json.NET Schema .NET 3.5</AssemblyTitle>
     <DefineConstants>NET35;$(AdditionalConstants)</DefineConstants>
   </PropertyGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.3' OR '$(TargetFramework)' == 'netstandard2.0'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.3'">
     <PackageReference Include="System.Net.Requests" Version="4.3.0" />
   </ItemGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.3'">
