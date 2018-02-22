@@ -18,15 +18,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Collections
         private Regex _patternRegex;
         private string _patternError;
 
-        public string Pattern
-        {
-            get { return _pattern; }
-        }
+        public string Pattern => _pattern;
 
-        public JSchema Schema
-        {
-            get { return _schema; }
-        }
+        public JSchema Schema => _schema;
 
         public PatternSchema(string pattern, JSchema schema)
         {
@@ -130,15 +124,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Collections
             return _inner.Remove(item.Key);
         }
 
-        public int Count
-        {
-            get { return _inner.Count; }
-        }
+        public int Count => _inner.Count;
 
-        public bool IsReadOnly
-        {
-            get { return ((IDictionary<string, PatternSchema>)_inner).IsReadOnly; }
-        }
+        public bool IsReadOnly => ((IDictionary<string, PatternSchema>)_inner).IsReadOnly;
 
         public bool ContainsKey(string key)
         {
@@ -174,13 +162,10 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Collections
                 PatternSchema patternSchema = _inner[key];
                 return patternSchema.Schema;
             }
-            set { _inner[key] = new PatternSchema(key, value); }
+            set => _inner[key] = new PatternSchema(key, value);
         }
 
-        public ICollection<string> Keys
-        {
-            get { return _inner.Keys; }
-        }
+        public ICollection<string> Keys => _inner.Keys;
 
         public ICollection<JSchema> Values
         {
@@ -243,14 +228,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Collections
             throw new NotImplementedException();
         }
 
-        public int Count
-        {
-            get { return _inner.Count; }
-        }
+        public int Count => _inner.Count;
 
-        public bool IsReadOnly
-        {
-            get { return _inner.IsReadOnly; }
-        }
+        public bool IsReadOnly => _inner.IsReadOnly;
     }
 }

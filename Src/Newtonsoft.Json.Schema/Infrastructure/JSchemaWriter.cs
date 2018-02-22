@@ -149,10 +149,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         private void WriteToken(JSchema context, JsonWriter writer, JToken token, bool isDefinitions = false)
         {
-            if (token is JObject)
+            if (token is JObject o)
             {
-                JObject o = (JObject)token;
-
                 JSchemaAnnotation schemaAnnotation = o.Annotation<JSchemaAnnotation>();
 
                 if (schemaAnnotation != null)

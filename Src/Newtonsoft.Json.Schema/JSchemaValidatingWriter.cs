@@ -45,7 +45,7 @@ namespace Newtonsoft.Json.Schema
         /// <value>The schema.</value>
         public JSchema Schema
         {
-            get { return _validator.Schema; }
+            get => _validator.Schema;
             set
             {
                 if (_writer.WriteState != WriteState.Start)
@@ -74,8 +74,8 @@ namespace Newtonsoft.Json.Schema
         /// </summary>
         public event SchemaValidationEventHandler ValidationEventHandler
         {
-            add { _validator.ValidationEventHandler += value; }
-            remove { _validator.ValidationEventHandler -= value; }
+            add => _validator.ValidationEventHandler += value;
+            remove => _validator.ValidationEventHandler -= value;
         }
 
 #if !(NET35 || NET40)
@@ -84,8 +84,8 @@ namespace Newtonsoft.Json.Schema
         /// </summary>
         public TimeSpan? RegexMatchTimeout
         {
-            get { return _validator.RegexMatchTimeout; }
-            set { _validator.RegexMatchTimeout = value; }
+            get => _validator.RegexMatchTimeout;
+            set => _validator.RegexMatchTimeout = value;
         }
 #endif
 

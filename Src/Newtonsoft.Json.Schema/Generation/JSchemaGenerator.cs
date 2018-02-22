@@ -84,8 +84,8 @@ namespace Newtonsoft.Json.Schema.Generation
         /// </summary>
         public virtual SchemaReferenceHandling SchemaReferenceHandling
         {
-            get { return _schemaReferenceHandling; }
-            set { _schemaReferenceHandling = value; }
+            get => _schemaReferenceHandling;
+            set => _schemaReferenceHandling = value;
         }
 
         /// <summary>
@@ -93,8 +93,8 @@ namespace Newtonsoft.Json.Schema.Generation
         /// </summary>
         public virtual Required DefaultRequired
         {
-            get { return _defaultRequired; }
-            set { _defaultRequired = value; }
+            get => _defaultRequired;
+            set => _defaultRequired = value;
         }
 
         /// <summary>
@@ -128,7 +128,7 @@ namespace Newtonsoft.Json.Schema.Generation
 
                 return _contractResolver;
             }
-            set { _contractResolver = value; }
+            set => _contractResolver = value;
         }
 
         /// <summary>

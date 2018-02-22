@@ -20,19 +20,13 @@ namespace Newtonsoft.Json.Schema.Generation
         /// Gets the <see cref="Type"/> of the provider.
         /// </summary>
         /// <value>The <see cref="Type"/> of the provider.</value>
-        public Type ProviderType
-        {
-            get { return _providerType; }
-        }
+        public Type ProviderType => _providerType;
 
         /// <summary>
         /// The parameter list to use when constructing the <see cref="JSchemaGenerationProvider"/> described by <see cref="ProviderType"/>.
         /// If null, the default constructor is used.
         /// </summary>
-        public object[] ProviderParameters
-        {
-            get { return _providerParameters; }
-        }
+        public object[] ProviderParameters => _providerParameters;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="JSchemaGenerationProviderAttribute"/> class.

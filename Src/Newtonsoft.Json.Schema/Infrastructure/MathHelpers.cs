@@ -53,12 +53,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 bool integerIsInRange;
 
 #if !(NET20 || NET35 || PORTABLE) || NETSTANDARD1_3 || NETSTANDARD2_0
-                if (integer is BigInteger)
+                if (integer is BigInteger i1)
                 {
-                    BigInteger i = (BigInteger) integer;
-                    integerIsInRange = (i < BigIntegerDecimalMaxValue && i > BigIntegerDecimalMinValue);
+                    integerIsInRange = (i1 < BigIntegerDecimalMaxValue && i1 > BigIntegerDecimalMinValue);
 
-                    integerAsDouble = (double) i;
+                    integerAsDouble = (double) i1;
                 }
                 else
                 {
@@ -89,10 +88,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
             bool isMultiple;
 #if !(NET20 || NET35 || PORTABLE) || NETSTANDARD1_3 || NETSTANDARD2_0
-            if (integer is BigInteger)
+            if (integer is BigInteger i2)
             {
-                BigInteger i = (BigInteger)integer;
-
                 bool divisibleNonInteger = !IsZero(Math.Abs(multipleOf - Math.Truncate(multipleOf)));
 
                 if (divisibleNonInteger)
@@ -100,18 +97,18 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                     // biginteger only supports operations against other integers
                     // this will lose any decimal point on MultipleOf
                     // so raise an error if MultipleOf is not an integer and value is not zero
-                    if (i <= BigIntegerDoubleMaxValue)
+                    if (i2 <= BigIntegerDoubleMaxValue)
                     {
-                        isMultiple = IsRemainderMultiple((double)i % multipleOf, multipleOf);
+                        isMultiple = IsRemainderMultiple((double)i2 % multipleOf, multipleOf);
                     }
                     else
                     {
-                        isMultiple = i == 0;
+                        isMultiple = i2 == 0;
                     }
                 }
                 else
                 {
-                    isMultiple = i % new BigInteger(multipleOf) == 0;
+                    isMultiple = i2 % new BigInteger(multipleOf) == 0;
                 }
             }
             else
@@ -127,10 +124,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         {
             bool isMultiple;
 #if !(NET20 || NET35 || PORTABLE) || NETSTANDARD1_3 || NETSTANDARD2_0
-            if (integer is BigInteger)
+            if (integer is BigInteger i)
             {
-                BigInteger i = (BigInteger)integer;
-
                 bool divisibleNonInteger = !IsZero(Math.Abs(multipleOf - Math.Truncate(multipleOf)));
 
                 if (divisibleNonInteger)

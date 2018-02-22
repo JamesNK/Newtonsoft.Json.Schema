@@ -149,10 +149,7 @@ namespace System.Runtime.CompilerServices
             _args = args;
         }
 
-        public string Format
-        {
-            get { return _format; }
-        }
+        public string Format => _format;
 
         public object[] GetArguments()
         {

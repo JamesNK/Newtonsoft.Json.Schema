@@ -22,8 +22,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
         public JTokenWriter TokenWriter
         {
-            get { return Validator.TokenWriter; }
-            set { Validator.TokenWriter = value; }
+            get => Validator.TokenWriter;
+            set => Validator.TokenWriter = value;
         }
 
         protected ContextBase(Validator validator)

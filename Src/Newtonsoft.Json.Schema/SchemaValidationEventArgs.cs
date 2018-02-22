@@ -25,27 +25,18 @@ namespace Newtonsoft.Json.Schema
         /// Gets the <see cref="ValidationError"/> associated with the validation event.
         /// </summary>
         /// <value>The <see cref="ValidationError"/> associated with the validation event.</value>
-        public ValidationError ValidationError
-        {
-            get { return _validationError; }
-        }
+        public ValidationError ValidationError => _validationError;
 
         /// <summary>
         /// Gets the path of the JSON location where the validation event occurred.
         /// </summary>
         /// <value>The path of the JSON location where the validation event occurred.</value>
-        public string Path
-        {
-            get { return _validationError.Path; }
-        }
+        public string Path => _validationError.Path;
 
         /// <summary>
         /// Gets the text description corresponding to the validation event.
         /// </summary>
         /// <value>The text description.</value>
-        public string Message
-        {
-            get { return _validationError.GetExtendedMessage(); }
-        }
+        public string Message => _validationError.GetExtendedMessage();
     }
 }

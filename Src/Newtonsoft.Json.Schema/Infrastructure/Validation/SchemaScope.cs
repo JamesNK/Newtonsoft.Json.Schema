@@ -38,10 +38,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             Children.Add(scope);
         }
 
-        internal string DebuggerDisplay
-        {
-            get { return GetType().Name + " - IsValid=" + IsValid + " - Complete=" + Complete; }
-        }
+        internal string DebuggerDisplay => GetType().Name + " - IsValid=" + IsValid + " - Complete=" + Complete;
 
         public static SchemaScope CreateTokenScope(JsonToken token, JSchema schema, ContextBase context, SchemaScope parent, int depth)
         {

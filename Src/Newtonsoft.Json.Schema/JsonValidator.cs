@@ -29,10 +29,7 @@ namespace Newtonsoft.Json.Schema
         /// <summary>
         /// The current schema.
         /// </summary>
-        public JSchema Schema
-        {
-            get { return _schema; }
-        }
+        public JSchema Schema => _schema;
 
         /// <summary>
         /// Raises a validation error.

@@ -126,7 +126,7 @@ namespace Newtonsoft.Json.Schema
         /// </summary>
         public Uri Id
         {
-            get { return _id; }
+            get => _id;
             set
             {
                 if (!UriComparer.Instance.Equals(value, _id))
@@ -191,7 +191,7 @@ namespace Newtonsoft.Json.Schema
         /// </value>
         public bool ItemsPositionValidation
         {
-            get { return _itemsPositionValidation; }
+            get => _itemsPositionValidation;
             set
             {
                 if (value != _itemsPositionValidation)
@@ -276,8 +276,8 @@ namespace Newtonsoft.Json.Schema
         /// <value>The If schema.</value>
         public JSchema If
         {
-            get { return _if; }
-            set { SetSchema(ref _if, value); }
+            get => _if;
+            set => SetSchema(ref _if, value);
         }
 
         /// <summary>
@@ -286,8 +286,8 @@ namespace Newtonsoft.Json.Schema
         /// <value>The Then schema.</value>
         public JSchema Then
         {
-            get { return _then; }
-            set { SetSchema(ref _then, value); }
+            get => _then;
+            set => SetSchema(ref _then, value);
         }
 
         /// <summary>
@@ -296,8 +296,8 @@ namespace Newtonsoft.Json.Schema
         /// <value>The Else schema.</value>
         public JSchema Else
         {
-            get { return _else; }
-            set { SetSchema(ref _else, value); }
+            get => _else;
+            set => SetSchema(ref _else, value);
         }
 
         /// <summary>
@@ -306,8 +306,8 @@ namespace Newtonsoft.Json.Schema
         /// <value>The Not schema.</value>
         public JSchema Not
         {
-            get { return _not; }
-            set { SetSchema(ref _not, value); }
+            get => _not;
+            set => SetSchema(ref _not, value);
         }
 
         /// <summary>
@@ -316,8 +316,8 @@ namespace Newtonsoft.Json.Schema
         /// <value>The Contains schema.</value>
         public JSchema Contains
         {
-            get { return _contains; }
-            set { SetSchema(ref _contains, value); }
+            get => _contains;
+            set => SetSchema(ref _contains, value);
         }
 
         /// <summary>
@@ -326,8 +326,8 @@ namespace Newtonsoft.Json.Schema
         /// <value>The PropertyNames schema.</value>
         public JSchema PropertyNames
         {
-            get { return _propertyNames; }
-            set { SetSchema(ref _propertyNames, value); }
+            get => _propertyNames;
+            set => SetSchema(ref _propertyNames, value);
         }
 
         private void SetSchema(ref JSchema schema, JSchema newSchema)
@@ -591,7 +591,7 @@ namespace Newtonsoft.Json.Schema
         /// </summary>
         public double? MultipleOf
         {
-            get { return _multipleOf; }
+            get => _multipleOf;
             set
             {
                 if (value <= 0)
@@ -609,7 +609,7 @@ namespace Newtonsoft.Json.Schema
         /// <value>The pattern.</value>
         public string Pattern
         {
-            get { return _pattern; }
+            get => _pattern;
             set
             {
                 if (value != _pattern)
@@ -664,8 +664,8 @@ namespace Newtonsoft.Json.Schema
         /// <value>The <see cref="JSchema"/> for additional properties.</value>
         public JSchema AdditionalProperties
         {
-            get { return _additionalProperties; }
-            set { SetSchema(ref _additionalProperties, value); }
+            get => _additionalProperties;
+            set => SetSchema(ref _additionalProperties, value);
         }
 
         /// <summary>
@@ -700,8 +700,8 @@ namespace Newtonsoft.Json.Schema
         /// <value>The <see cref="JSchema"/> for additional items.</value>
         public JSchema AdditionalItems
         {
-            get { return _additionalItems; }
-            set { SetSchema(ref _additionalItems, value); }
+            get => _additionalItems;
+            set => SetSchema(ref _additionalItems, value);
         }
 
         /// <summary>
@@ -837,15 +837,9 @@ namespace Newtonsoft.Json.Schema
             return _lineNumber != 0;
         }
 
-        int IJsonLineInfo.LineNumber
-        {
-            get { return _lineNumber; }
-        }
+        int IJsonLineInfo.LineNumber => _lineNumber;
 
-        int IJsonLineInfo.LinePosition
-        {
-            get { return _linePosition; }
-        }
+        int IJsonLineInfo.LinePosition => _linePosition;
 
         internal void SetLineInfo(IJsonLineInfo lineInfo)
         {

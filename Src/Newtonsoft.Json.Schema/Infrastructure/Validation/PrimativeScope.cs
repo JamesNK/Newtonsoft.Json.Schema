@@ -132,7 +132,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             {
                 object v;
 #if !(NET20 || NET35 || PORTABLE) || NETSTANDARD1_3 || NETSTANDARD2_0
-                v = (value is BigInteger) ? (double)(BigInteger)value : value;
+                v = (value is BigInteger d) ? (double)d : value;
 #else
                 v = value;
 #endif
@@ -151,7 +151,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             {
                 object v;
 #if !(NET20 || NET35 || PORTABLE) || NETSTANDARD1_3 || NETSTANDARD2_0
-                v = (value is BigInteger) ? (double)(BigInteger)value : value;
+                v = (value is BigInteger d) ? (double)d : value;
 #else
                 v = value;
 #endif

@@ -12,26 +12,17 @@ namespace Newtonsoft.Json.Schema
     /// </summary>
     public class ExternalSchema
     {
-        private readonly Uri _uri;
-        private readonly JSchema _schema;
-
         /// <summary>
         /// Gets the schema URI.
         /// </summary>
         /// <value>The schema URI.</value>
-        public Uri Uri
-        {
-            get { return _uri; }
-        }
+        public Uri Uri { get; }
 
         /// <summary>
         /// Gets the schema.
         /// </summary>
         /// <value>The schema.</value>
-        public JSchema Schema
-        {
-            get { return _schema; }
-        }
+        public JSchema Schema { get; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ExternalSchema"/> class with the specified URI and <see cref="JSchema"/>.
@@ -49,8 +40,8 @@ namespace Newtonsoft.Json.Schema
                 throw new ArgumentNullException(nameof(schema));
             }
 
-            _uri = uri;
-            _schema = schema;
+            Uri = uri;
+            Schema = schema;
         }
 
         /// <summary>
@@ -64,8 +55,8 @@ namespace Newtonsoft.Json.Schema
                 throw new ArgumentNullException(nameof(schema));
             }
 
-            _uri = schema.Id ?? new Uri(string.Empty, UriKind.RelativeOrAbsolute);
-            _schema = schema;
+            Uri = schema.Id ?? new Uri(string.Empty, UriKind.RelativeOrAbsolute);
+            Schema = schema;
         }
     }
 }

@@ -24,25 +24,13 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Collections
                 _e = e;
             }
 
-            public DictionaryEntry Entry
-            {
-                get { return (DictionaryEntry)Current; }
-            }
+            public DictionaryEntry Entry => (DictionaryEntry)Current;
 
-            public object Key
-            {
-                get { return Entry.Key; }
-            }
+            public object Key => Entry.Key;
 
-            public object Value
-            {
-                get { return Entry.Value; }
-            }
+            public object Value => Entry.Value;
 
-            public object Current
-            {
-                get { return new DictionaryEntry(_e.Current.Key, _e.Current.Value); }
-            }
+            public object Current => new DictionaryEntry(_e.Current.Key, _e.Current.Value);
 
             public bool MoveNext()
             {
@@ -88,10 +76,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Collections
             _dictionary = new Dictionary<TKey, TValue>(capacity, comparer);
         }
 
-        protected IDictionary<TKey, TValue> Dictionary
-        {
-            get { return _dictionary; }
-        }
+        protected IDictionary<TKey, TValue> Dictionary => _dictionary;
 
         protected virtual void AddItem(TKey key, TValue value)
         {
@@ -174,19 +159,13 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Collections
 
         public TValue this[TKey key]
         {
-            get { return _dictionary[key]; }
-            set { SetItem(key, value); }
+            get => _dictionary[key];
+            set => SetItem(key, value);
         }
 
-        public ICollection<TKey> Keys
-        {
-            get { return _dictionary.Keys; }
-        }
+        public ICollection<TKey> Keys => _dictionary.Keys;
 
-        public ICollection<TValue> Values
-        {
-            get { return _dictionary.Values; }
-        }
+        public ICollection<TValue> Values => _dictionary.Values;
 
         void ICollection<KeyValuePair<TKey, TValue>>.Add(KeyValuePair<TKey, TValue> keyValuePair)
         {
@@ -221,10 +200,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Collections
             return false;
         }
 
-        public int Count
-        {
-            get { return _dictionary.Count; }
-        }
+        public int Count => _dictionary.Count;
 
         IEnumerator<KeyValuePair<TKey, TValue>> IEnumerable<KeyValuePair<TKey, TValue>>.GetEnumerator()
         {
@@ -281,39 +257,21 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Collections
             }
         }
 
-        ICollection IDictionary.Keys
-        {
-            get { return _dictionary.Keys.ToList(); }
-        }
+        ICollection IDictionary.Keys => _dictionary.Keys.ToList();
 
-        ICollection IDictionary.Values
-        {
-            get { return _dictionary.Values.ToList(); }
-        }
+        ICollection IDictionary.Values => _dictionary.Values.ToList();
 
-        public bool IsFixedSize
-        {
-            get { return false; }
-        }
+        public bool IsFixedSize => false;
 
-        public bool IsReadOnly
-        {
-            get { return false; }
-        }
+        public bool IsReadOnly => false;
 
         void ICollection.CopyTo(Array array, int index)
         {
             _dictionary.CopyTo((KeyValuePair<TKey, TValue>[])array, index);
         }
 
-        object ICollection.SyncRoot
-        {
-            get { return this; }
-        }
+        object ICollection.SyncRoot => this;
 
-        bool ICollection.IsSynchronized
-        {
-            get { return false; }
-        }
+        bool ICollection.IsSynchronized => false;
     }
 }

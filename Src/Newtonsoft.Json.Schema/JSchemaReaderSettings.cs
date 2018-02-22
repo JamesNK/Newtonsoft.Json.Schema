@@ -49,8 +49,8 @@ namespace Newtonsoft.Json.Schema
         /// </summary>
         public event SchemaValidationEventHandler ValidationEventHandler
         {
-            add { _validationEventHandler += value; }
-            remove { _validationEventHandler -= value; }
+            add => _validationEventHandler += value;
+            remove => _validationEventHandler -= value;
         }
 
         internal SchemaValidationEventHandler GetValidationEventHandler()

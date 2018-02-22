@@ -26,43 +26,40 @@ namespace Newtonsoft.Json.Schema.Generation
 
         public override IContractResolver ContractResolver
         {
-            get { return _generator.ContractResolver; }
-            set { _generator.ContractResolver = value; }
+            get => _generator.ContractResolver;
+            set => _generator.ContractResolver = value;
         }
 
         public override Required DefaultRequired
         {
-            get { return _generator.DefaultRequired; }
-            set { _generator.DefaultRequired = value; }
+            get => _generator.DefaultRequired;
+            set => _generator.DefaultRequired = value;
         }
 
-        public override IList<JSchemaGenerationProvider> GenerationProviders
-        {
-            get { return _generator.GenerationProviders; }
-        }
+        public override IList<JSchemaGenerationProvider> GenerationProviders => _generator.GenerationProviders;
 
         public override SchemaIdGenerationHandling SchemaIdGenerationHandling
         {
-            get { return _generator.SchemaIdGenerationHandling; }
-            set { _generator.SchemaIdGenerationHandling = value; }
+            get => _generator.SchemaIdGenerationHandling;
+            set => _generator.SchemaIdGenerationHandling = value;
         }
 
         public override SchemaLocationHandling SchemaLocationHandling
         {
-            get { return _generator.SchemaLocationHandling; }
-            set { _generator.SchemaLocationHandling = value; }
+            get => _generator.SchemaLocationHandling;
+            set => _generator.SchemaLocationHandling = value;
         }
 
         public override SchemaPropertyOrderHandling SchemaPropertyOrderHandling
         {
-            get { return _generator.SchemaPropertyOrderHandling; }
-            set { _generator.SchemaPropertyOrderHandling = value; }
+            get => _generator.SchemaPropertyOrderHandling;
+            set => _generator.SchemaPropertyOrderHandling = value;
         }
 
         public override SchemaReferenceHandling SchemaReferenceHandling
         {
-            get { return _generator.SchemaReferenceHandling; }
-            set { _generator.SchemaReferenceHandling = value; }
+            get => _generator.SchemaReferenceHandling;
+            set => _generator.SchemaReferenceHandling = value;
         }
 
         public override JSchema Generate(Type type)

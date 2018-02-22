@@ -21,10 +21,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             ChildScopes = new List<SchemaScope>();
         }
 
-        internal string DebuggerDisplay
-        {
-            get { return GetType().Name + " - IsValid=" + IsValid() + " - Complete=" + Complete; }
-        }
+        internal string DebuggerDisplay => GetType().Name + " - IsValid=" + IsValid() + " - Complete=" + Complete;
 
         public override void Initialize(ContextBase context, SchemaScope parent, int initialDepth, ScopeType type)
         {

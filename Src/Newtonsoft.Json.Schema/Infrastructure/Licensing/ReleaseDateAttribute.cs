@@ -12,10 +12,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Licensing
     {
         private readonly DateTime _releaseDate;
 
-        public DateTime ReleaseDate
-        {
-            get { return _releaseDate; }
-        }
+        public DateTime ReleaseDate => _releaseDate;
 
         public ReleaseDateAttribute(string releaseDate)
         {

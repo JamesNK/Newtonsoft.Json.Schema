@@ -124,9 +124,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
                     if (Schema.ItemsPositionValidation)
                     {
-                        JSchema itemSchema = (Schema._items != null)
-                            ? Schema._items.ElementAtOrDefault(_index)
-                            : null;
+                        JSchema itemSchema = Schema._items?.ElementAtOrDefault(_index);
 
                         if (itemSchema != null)
                         {
@@ -172,7 +170,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                         bool isDuplicate = JsonTokenHelpers.Contains(_uniqueArrayItems, currentToken);
                         if (isDuplicate)
                         {
-                            object v = (currentToken is JValue) ? ((JValue)currentToken).Value : currentToken;
+                            object v = (currentToken is JValue valueToken) ? valueToken.Value : currentToken;
 
                             RaiseError($"Non-unique array item at index {_index}.", ErrorType.UniqueItems, Schema, v, null);
                         }

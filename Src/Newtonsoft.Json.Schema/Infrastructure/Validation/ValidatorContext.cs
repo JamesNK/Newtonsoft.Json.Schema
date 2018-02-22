@@ -23,9 +23,6 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             Validator.RaiseError(message, errorType, schema, value, childErrors);
         }
 
-        public override bool HasErrors
-        {
-            get { return _hasErrors; }
-        }
+        public override bool HasErrors => _hasErrors;
     }
 }

@@ -417,10 +417,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             EnsureReadAndToken(reader, name, JsonToken.Integer);
 
 #if !(NET20 || NET35 || PORTABLE || PORTABLE40) || NETSTANDARD1_3 || NETSTANDARD2_0
-            if (reader.Value is BigInteger)
+            if (reader.Value is BigInteger i)
             {
-                BigInteger i = (BigInteger) reader.Value;
-
                 if (i > long.MaxValue || i < long.MaxValue)
                 {
                     throw JSchemaReaderException.Create(reader, _baseUri, "Error parsing integer for '{0}'. {1} cannot fit in an Int64.".FormatWith(CultureInfo.InvariantCulture, name, i));
@@ -443,9 +441,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         private static double GetDouble(JsonReader reader)
         {
 #if !(NET20 || NET35 || PORTABLE || PORTABLE40) || NETSTANDARD1_3 || NETSTANDARD2_0
-            if (reader.Value is BigInteger)
+            if (reader.Value is BigInteger i)
             {
-                BigInteger i = (BigInteger) reader.Value;
                 return (double) i;
             }
 #endif
@@ -1034,14 +1031,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
                 if (part != null)
                 {
-                    if (resolvedReference == null)
-                    {
-                        resolvedReference = part;
-                    }
-                    else
-                    {
-                        resolvedReference = SchemaDiscovery.ResolveSchemaId(resolvedReference, part);
-                    }
+                    resolvedReference = resolvedReference == null
+                        ? part
+                        : SchemaDiscovery.ResolveSchemaId(resolvedReference, part);
                 }
             }
 
@@ -1108,9 +1100,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 case Constants.PropertyNames.Type:
                 {
                     object typeResult = ReadType(reader, target, name);
-                    if (typeResult is JSchemaType)
+                    if (typeResult is JSchemaType type)
                     {
-                        target.Type = (JSchemaType) typeResult;
+                        target.Type = type;
                     }
                     else
                     {
@@ -1364,10 +1356,10 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                         }
 
                         object disallowResult = ReadType(reader, target, name);
-                        if (disallowResult is JSchemaType)
+                        if (disallowResult is JSchemaType schemaType)
                         {
                             JSchemaType type = target.Not.Type ?? JSchemaType.None;
-                            target.Not.Type = type | (JSchemaType)disallowResult;
+                            target.Not.Type = type | schemaType;
                         }
                         else
                         {

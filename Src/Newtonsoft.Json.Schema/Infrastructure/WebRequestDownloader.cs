@@ -93,35 +93,23 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             return bytesRead;
         }
 
-        public override bool CanRead
-        {
-            get { return _stream.CanRead; }
-        }
+        public override bool CanRead => _stream.CanRead;
 
-        public override bool CanSeek
-        {
-            get { return _stream.CanSeek; }
-        }
+        public override bool CanSeek => _stream.CanSeek;
 
-        public override bool CanWrite
-        {
-            get { return _stream.CanWrite; }
-        }
+        public override bool CanWrite => _stream.CanWrite;
 
         public override void Flush()
         {
             _stream.Flush();
         }
 
-        public override long Length
-        {
-            get { return _stream.Length; }
-        }
+        public override long Length => _stream.Length;
 
         public override long Position
         {
-            get { return _stream.Position; }
-            set { _stream.Position = value; }
+            get => _stream.Position;
+            set => _stream.Position = value;
         }
 
         public override long Seek(long offset, SeekOrigin origin)

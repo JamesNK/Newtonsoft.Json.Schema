@@ -53,7 +53,7 @@ namespace Newtonsoft.Json.Schema
         /// </summary>
         public override ICredentials Credentials
         {
-            set { _credentials = value; }
+            set => _credentials = value;
         }
 
         /// <summary>

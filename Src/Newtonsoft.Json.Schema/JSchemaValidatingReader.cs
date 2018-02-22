@@ -36,18 +36,15 @@ namespace Newtonsoft.Json.Schema
         private readonly JsonReader _reader;
         private readonly ReaderValidator _validator;
 
-        internal ReaderValidator Validator
-        {
-            get { return _validator; }
-        }
+        internal ReaderValidator Validator => _validator;
 
         /// <summary>
         /// Sets an event handler for receiving schema validation errors.
         /// </summary>
         public event SchemaValidationEventHandler ValidationEventHandler
         {
-            add { _validator.ValidationEventHandler += value; }
-            remove { _validator.ValidationEventHandler -= value; }
+            add => _validator.ValidationEventHandler += value;
+            remove => _validator.ValidationEventHandler -= value;
         }
 
 #if !(NET35 || NET40)
@@ -56,8 +53,8 @@ namespace Newtonsoft.Json.Schema
         /// </summary>
         public TimeSpan? RegexMatchTimeout
         {
-            get { return _validator.RegexMatchTimeout; }
-            set { _validator.RegexMatchTimeout = value; }
+            get => _validator.RegexMatchTimeout;
+            set => _validator.RegexMatchTimeout = value;
         }
 #endif
 
@@ -65,54 +62,36 @@ namespace Newtonsoft.Json.Schema
         /// Gets the text value of the current JSON token.
         /// </summary>
         /// <value></value>
-        public override object Value
-        {
-            get { return _reader.Value; }
-        }
+        public override object Value => _reader.Value;
 
         /// <summary>
         /// Gets the depth of the current token in the JSON document.
         /// </summary>
         /// <value>The depth of the current token in the JSON document.</value>
-        public override int Depth
-        {
-            get { return _reader.Depth; }
-        }
+        public override int Depth => _reader.Depth;
 
         /// <summary>
         /// Gets the path of the current JSON token. 
         /// </summary>
-        public override string Path
-        {
-            get { return _reader.Path; }
-        }
+        public override string Path => _reader.Path;
 
         /// <summary>
         /// Gets the quotation mark character used to enclose the value of a string.
         /// </summary>
         /// <value></value>
-        public override char QuoteChar
-        {
-            get { return _reader.QuoteChar; }
-        }
+        public override char QuoteChar => _reader.QuoteChar;
 
         /// <summary>
         /// Gets the type of the current JSON token.
         /// </summary>
         /// <value></value>
-        public override JsonToken TokenType
-        {
-            get { return _reader.TokenType; }
-        }
+        public override JsonToken TokenType => _reader.TokenType;
 
         /// <summary>
         /// Gets the Common Language Runtime (CLR) type for the current JSON token.
         /// </summary>
         /// <value></value>
-        public override Type ValueType
-        {
-            get { return _reader.ValueType; }
-        }
+        public override Type ValueType => _reader.ValueType;
 
         /// <summary>
         /// Gets or sets the schema.
@@ -120,42 +99,24 @@ namespace Newtonsoft.Json.Schema
         /// <value>The schema.</value>
         public JSchema Schema
         {
-            get { return _validator.Schema; }
-            set { _validator.Schema = value; }
+            get => _validator.Schema;
+            set => _validator.Schema = value;
         }
 
         /// <summary>
         /// Gets the <see cref="JsonReader"/> used to construct this <see cref="JSchemaValidatingReader"/>.
         /// </summary>
         /// <value>The <see cref="JsonReader"/> specified in the constructor.</value>
-        public JsonReader Reader
-        {
-            get { return _reader; }
-        }
+        public JsonReader Reader => _reader;
 
         bool IJsonLineInfo.HasLineInfo()
         {
-            IJsonLineInfo lineInfo = _reader as IJsonLineInfo;
-            return lineInfo != null && lineInfo.HasLineInfo();
+            return _reader is IJsonLineInfo lineInfo && lineInfo.HasLineInfo();
         }
 
-        int IJsonLineInfo.LineNumber
-        {
-            get
-            {
-                IJsonLineInfo lineInfo = _reader as IJsonLineInfo;
-                return (lineInfo != null) ? lineInfo.LineNumber : 0;
-            }
-        }
+        int IJsonLineInfo.LineNumber => (_reader is IJsonLineInfo lineInfo) ? lineInfo.LineNumber : 0;
 
-        int IJsonLineInfo.LinePosition
-        {
-            get
-            {
-                IJsonLineInfo lineInfo = _reader as IJsonLineInfo;
-                return (lineInfo != null) ? lineInfo.LinePosition : 0;
-            }
-        }
+        int IJsonLineInfo.LinePosition => (_reader is IJsonLineInfo lineInfo) ? lineInfo.LinePosition : 0;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="JSchemaValidatingReader"/> class that
@@ -311,10 +272,10 @@ namespace Newtonsoft.Json.Schema
             object value = _reader.Value;
             if (token == JsonToken.Date)
             {
-                if (value is DateTimeOffset)
+                if (value is DateTimeOffset offset)
                 {
                     StringWriter sw = new StringWriter(CultureInfo.InvariantCulture);
-                    DateTimeUtils.WriteDateTimeOffsetString(sw, (DateTimeOffset)value, DateFormatHandling.IsoDateFormat, _reader.DateFormatString, _reader.Culture);
+                    DateTimeUtils.WriteDateTimeOffsetString(sw, offset, DateFormatHandling.IsoDateFormat, _reader.DateFormatString, _reader.Culture);
 
                     value = sw.ToString();
                 }

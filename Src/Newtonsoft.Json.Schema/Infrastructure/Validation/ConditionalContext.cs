@@ -32,9 +32,6 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             return new ConditionalContext(context.Validator);
         }
 
-        public override bool HasErrors
-        {
-            get { return !Errors.IsNullOrEmpty(); }
-        }
+        public override bool HasErrors => !Errors.IsNullOrEmpty();
     }
 }

@@ -26,10 +26,7 @@ namespace Newtonsoft.Json.Schema
         /// <summary>
         /// Gets a collection of preloaded URIs.
         /// </summary>
-        public IEnumerable<Uri> PreloadedUris
-        {
-            get { return _preloadedData.Keys; }
-        }
+        public IEnumerable<Uri> PreloadedUris => _preloadedData.Keys;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="JSchemaPreloadedResolver"/> class with the specified fallback resolver.

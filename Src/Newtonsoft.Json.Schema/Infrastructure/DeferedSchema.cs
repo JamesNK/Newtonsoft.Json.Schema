@@ -52,15 +52,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         private bool _success;
         private JSchema _resolvedSchema;
 
-        public bool Success
-        {
-            get { return _success; }
-        }
+        public bool Success => _success;
 
-        public JSchema ResolvedSchema
-        {
-            get { return _resolvedSchema; }
-        }
+        public JSchema ResolvedSchema => _resolvedSchema;
 
         public DeferedSchema(Uri resolvedReference, Uri originalReference, JSchema referenceSchema)
         {

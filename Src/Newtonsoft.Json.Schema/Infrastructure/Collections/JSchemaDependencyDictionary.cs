@@ -20,10 +20,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Collections
             _parentSchema = parentSchema;
         }
 
-        public bool HasSchemas
-        {
-            get { return _schemasCount > 0; }
-        }
+        public bool HasSchemas => _schemasCount > 0;
 
         public Dictionary<string, object> GetInnerDictionary()
         {

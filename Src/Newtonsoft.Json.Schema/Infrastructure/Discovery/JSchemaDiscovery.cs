@@ -21,10 +21,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
 
         public List<ValidationError> ValidationErrors { get; set; }
 
-        public KnownSchemaCollection KnownSchemas
-        {
-            get { return _knownSchemas; }
-        }
+        public KnownSchemaCollection KnownSchemas => _knownSchemas;
 
         public JSchemaDiscovery(JSchema rootSchema)
             : this(rootSchema, new KnownSchemaCollection(), KnownSchemaState.External)
