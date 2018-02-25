@@ -36,6 +36,9 @@ namespace Newtonsoft.Json.Schema
         private readonly JsonReader _reader;
         private readonly ReaderValidator _validator;
 
+        private object _readAsValue;
+        private JsonToken? _readAsToken;
+
         internal ReaderValidator Validator => _validator;
 
         /// <summary>
@@ -62,7 +65,7 @@ namespace Newtonsoft.Json.Schema
         /// Gets the text value of the current JSON token.
         /// </summary>
         /// <value></value>
-        public override object Value => _reader.Value;
+        public override object Value => _readAsValue ?? _reader.Value;
 
         /// <summary>
         /// Gets the depth of the current token in the JSON document.
@@ -85,13 +88,13 @@ namespace Newtonsoft.Json.Schema
         /// Gets the type of the current JSON token.
         /// </summary>
         /// <value></value>
-        public override JsonToken TokenType => _reader.TokenType;
+        public override JsonToken TokenType => _readAsToken ?? _reader.TokenType;
 
         /// <summary>
         /// Gets the Common Language Runtime (CLR) type for the current JSON token.
         /// </summary>
         /// <value></value>
-        public override Type ValueType => _reader.ValueType;
+        public override Type ValueType => Value?.GetType();
 
         /// <summary>
         /// Gets or sets the schema.
@@ -136,9 +139,14 @@ namespace Newtonsoft.Json.Schema
         /// <returns>A <see cref="Nullable{Int32}"/>.</returns>
         public override int? ReadAsInt32()
         {
-            int? i = _reader.ReadAsInt32();
+            int? i = base.ReadAsInt32();
 
-            ValidateCurrentToken();
+            if (i != null)
+            {
+                _readAsValue = i;
+                _readAsToken = JsonToken.Integer;
+            }
+
             return i;
         }
 
@@ -148,9 +156,14 @@ namespace Newtonsoft.Json.Schema
         /// <returns>A <see cref="Nullable{Boolean}"/>.</returns>
         public override bool? ReadAsBoolean()
         {
-            bool? b = _reader.ReadAsBoolean();
+            bool? b = base.ReadAsBoolean();
 
-            ValidateCurrentToken();
+            if (b != null)
+            {
+                _readAsValue = b;
+                _readAsToken = JsonToken.Boolean;
+            }
+
             return b;
         }
 
@@ -162,9 +175,14 @@ namespace Newtonsoft.Json.Schema
         /// </returns>
         public override byte[] ReadAsBytes()
         {
-            byte[] data = _reader.ReadAsBytes();
+            byte[] data = base.ReadAsBytes();
 
-            ValidateCurrentToken();
+            if (data != null)
+            {
+                _readAsValue = data;
+                _readAsToken = JsonToken.Bytes;
+            }
+
             return data;
         }
 
@@ -174,9 +192,14 @@ namespace Newtonsoft.Json.Schema
         /// <returns>A <see cref="Nullable{Decimal}"/>.</returns>
         public override decimal? ReadAsDecimal()
         {
-            decimal? d = _reader.ReadAsDecimal();
+            decimal? d = base.ReadAsDecimal();
 
-            ValidateCurrentToken();
+            if (d != null)
+            {
+                _readAsValue = d;
+                _readAsToken = JsonToken.Float;
+            }
+
             return d;
         }
 
@@ -186,9 +209,14 @@ namespace Newtonsoft.Json.Schema
         /// <returns>A <see cref="Nullable{Decimal}"/>.</returns>
         public override double? ReadAsDouble()
         {
-            double? d = _reader.ReadAsDouble();
+            double? d = base.ReadAsDouble();
 
-            ValidateCurrentToken();
+            if (d != null)
+            {
+                _readAsValue = d;
+                _readAsToken = JsonToken.Float;
+            }
+
             return d;
         }
 
@@ -198,9 +226,26 @@ namespace Newtonsoft.Json.Schema
         /// <returns>A <see cref="String"/>. This method will return <c>null</c> at the end of an array.</returns>
         public override string ReadAsString()
         {
-            string s = _reader.ReadAsString();
+            string s;
+            DateParseHandling initialDateParseHandling = _reader.DateParseHandling;
 
-            ValidateCurrentToken();
+            try
+            {
+                _reader.DateParseHandling = DateParseHandling.None;
+
+                s = base.ReadAsString();
+            }
+            finally
+            {
+                _reader.DateParseHandling = initialDateParseHandling;
+            }
+
+            if (s != null)
+            {
+                _readAsValue = s;
+                _readAsToken = JsonToken.String;
+            }
+
             return s;
         }
 
@@ -210,9 +255,14 @@ namespace Newtonsoft.Json.Schema
         /// <returns>A <see cref="String"/>. This method will return <c>null</c> at the end of an array.</returns>
         public override DateTime? ReadAsDateTime()
         {
-            DateTime? dateTime = _reader.ReadAsDateTime();
+            DateTime? dateTime = base.ReadAsDateTime();
 
-            ValidateCurrentToken();
+            if (dateTime != null)
+            {
+                _readAsValue = dateTime;
+                _readAsToken = JsonToken.Date;
+            }
+
             return dateTime;
         }
 
@@ -225,7 +275,12 @@ namespace Newtonsoft.Json.Schema
         {
             DateTimeOffset? dateTimeOffset = _reader.ReadAsDateTimeOffset();
 
-            ValidateCurrentToken();
+            if (dateTimeOffset != null)
+            {
+                _readAsValue = dateTimeOffset;
+                _readAsToken = JsonToken.Date;
+            }
+
             return dateTimeOffset;
         }
 #endif
@@ -238,13 +293,18 @@ namespace Newtonsoft.Json.Schema
         /// </returns>
         public override bool Read()
         {
-            if (!_reader.Read())
+            // clear out exlicit value and token so inner reader values are used
+            _readAsValue = null;
+            _readAsToken = null;
+
+            bool success = _reader.Read();
+
+            if (success)
             {
-                return false;
+                ValidateCurrentToken();
             }
 
-            ValidateCurrentToken();
-            return true;
+            return success;
         }
 
         /// <summary>
