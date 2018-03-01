@@ -37,7 +37,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     SchemaScope thenScope = GetSchemaScopeBySchema(Then);
                     if (!thenScope.IsValid)
                     {
-                        RaiseError($"JSON does not match schema from 'then'.", ErrorType.Then, Then, null, GetSchemaValidationErrors(ConditionalContext.Errors, Then));
+                        ConditionalContext context = (ConditionalContext)thenScope.Context;
+                        RaiseError($"JSON does not match schema from 'then'.", ErrorType.Then, Then, null, GetSchemaValidationErrors(context.Errors, Then));
                     }
                 }
             }
@@ -48,7 +49,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     SchemaScope elseScope = GetSchemaScopeBySchema(Else);
                     if (!elseScope.IsValid)
                     {
-                        RaiseError($"JSON does not match schema from 'else'.", ErrorType.Else, Else, null, GetSchemaValidationErrors(ConditionalContext.Errors, Else));
+                        ConditionalContext context = (ConditionalContext)elseScope.Context;
+                        RaiseError($"JSON does not match schema from 'else'.", ErrorType.Else, Else, null, GetSchemaValidationErrors(context.Errors, Else));
                     }
                 }
             }
