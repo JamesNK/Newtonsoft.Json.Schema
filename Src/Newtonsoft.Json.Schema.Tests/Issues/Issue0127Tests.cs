@@ -48,7 +48,7 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
             Assert.AreEqual(2, errors[0].ChildErrors[0].ChildErrors.Count);
 
             Assert.AreEqual("JSON does not match schema from 'then'.", errors[0].ChildErrors[0].ChildErrors[0].Message);
-            Assert.AreEqual(new Uri("foo#/definitions/generic/anyOf/1/then", UriKind.RelativeOrAbsolute), errors[0].ChildErrors[0].ChildErrors[0].SchemaId);
+            Assert.AreEqual(new Uri("foo#/definitions/generic2", UriKind.RelativeOrAbsolute), errors[0].ChildErrors[0].ChildErrors[0].SchemaId);
 
             Assert.AreEqual("JSON does not match schema from 'else'.", errors[0].ChildErrors[0].ChildErrors[1].Message);
             Assert.AreEqual(new Uri("foo#/definitions/generic/anyOf/0/else", UriKind.RelativeOrAbsolute), errors[0].ChildErrors[0].ChildErrors[1].SchemaId);

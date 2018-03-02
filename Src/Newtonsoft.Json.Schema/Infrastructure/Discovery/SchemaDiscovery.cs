@@ -103,19 +103,15 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                             current = GetCurrentFromToken(t, unescapedPart);
                             break;
                         case IDictionary<string, JSchema> d:
-                            JSchema temp;
-                            d.TryGetValue(unescapedPart, out temp);
+                            d.TryGetValue(unescapedPart, out JSchema temp);
                             current = temp;
                             break;
                         case IList<JSchema> l:
-                            int index;
-
-                            JSchema itemsSchema;
-                            if (TryGetImplicitItemsSchema(parent, l, out itemsSchema))
+                            if (TryGetImplicitItemsSchema(parent, l, out JSchema itemsSchema))
                             {
                                 current = GetCurrentFromSchema(itemsSchema, unescapedPart);
                             }
-                            else if (int.TryParse(unescapedPart, NumberStyles.None, CultureInfo.InvariantCulture, out index))
+                            else if (int.TryParse(unescapedPart, NumberStyles.None, CultureInfo.InvariantCulture, out int index))
                             {
                                 if (index >= l.Count || index < 0)
                                 {
@@ -161,13 +157,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                             JSchema inlineSchema = schemaReader.ReadInlineSchema(setSchema, t);
                             inlineSchema._referencedAs = originalReference;
 
-                            string path = reference.OriginalString;
-                            if (path.StartsWith("#/", StringComparison.Ordinal))
-                            {
-                                path = path.Substring(2, path.Length - 2);
-                            }
-
-                            discovery.Discover(inlineSchema, rootSchemaId, path);
+                            discovery.Discover(inlineSchema, rootSchemaId);
 
                             resolvedSchema = true;
                         }

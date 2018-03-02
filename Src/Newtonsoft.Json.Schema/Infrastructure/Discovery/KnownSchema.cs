@@ -9,7 +9,7 @@ using System.Diagnostics;
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
 {
-    [DebuggerDisplay("{Id}")]
+    [DebuggerDisplay("{" + nameof(Id) + "}")]
     internal class KnownSchema
     {
         public readonly Uri Id;

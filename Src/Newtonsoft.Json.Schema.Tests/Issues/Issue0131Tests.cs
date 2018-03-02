@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Schema.Infrastructure.Discovery;
 #if DNXCORE50
 using Xunit;
 using Test = Xunit.FactAttribute;
@@ -31,35 +32,15 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
 
             Assert.AreEqual(1, errorMessages.Count);
             Assert.AreEqual("JSON does not match all schemas from 'allOf'. Invalid schema indexes: 1. Path '', line 1, position 1.", errorMessages[0].GetExtendedMessage());
-            Assert.AreEqual(new Uri("#", UriKind.RelativeOrAbsolute), errorMessages[0].SchemaId);
+            Assert.AreEqual(new Uri("#/definitions/Bundle", UriKind.RelativeOrAbsolute), errorMessages[0].SchemaId);
 
             Assert.AreEqual(1, errorMessages[0].ChildErrors.Count);
             Assert.AreEqual("JSON does not match all schemas from 'allOf'. Invalid schema indexes: 1. Path 'entry[0]', line 5, position 5.", errorMessages[0].ChildErrors[0].GetExtendedMessage());
-            Assert.AreEqual(new Uri("#/definitions/Bundle/definitions/Bundle_Entry", UriKind.RelativeOrAbsolute), errorMessages[0].ChildErrors[0].SchemaId);
+            Assert.AreEqual(new Uri("#/definitions/Bundle_Entry", UriKind.RelativeOrAbsolute), errorMessages[0].ChildErrors[0].SchemaId);
 
             Assert.AreEqual(1, errorMessages[0].ChildErrors[0].ChildErrors.Count);
             Assert.AreEqual("JSON is valid against more than one schema from 'oneOf'. Valid schema indexes: 38, 80, 81, 87, 101. Path 'entry[0].resource', line 7, position 19.", errorMessages[0].ChildErrors[0].ChildErrors[0].GetExtendedMessage());
-            Assert.AreEqual(new Uri("#/definitions/DomainResource/allOf/1/properties/contained/items", UriKind.RelativeOrAbsolute), errorMessages[0].ChildErrors[0].ChildErrors[0].SchemaId);
-
-            //PrintErrors(errorMessages);
-
-            //Assert.AreEqual(3, errorMessages.Count);
-            //Assert.AreEqual("JSON does not match schema from 'then'. Path 'pages[0].sections.default[12].widgetContainerOptions', line 261, position 39.", errorMessages[2].GetExtendedMessage());
-            //Assert.AreEqual("Required properties are missing from object: collapsableOptions. Path 'pages[0].sections.default[12].widgetContainerOptions', line 261, position 39.", errorMessages[2].ChildErrors[0].GetExtendedMessage());
-        }
-
-        private void PrintErrors(IList<ValidationError> errorMessages)
-        {
-            foreach (ValidationError validationError in errorMessages)
-            {
-                Console.WriteLine(validationError.GetExtendedMessage());
-                Console.WriteLine(validationError.SchemaId);
-                Console.WriteLine();
-
-                PrintErrors(validationError.ChildErrors);
-
-                Console.WriteLine();
-            }
+            Assert.AreEqual(new Uri("#/definitions/ResourceList", UriKind.RelativeOrAbsolute), errorMessages[0].ChildErrors[0].ChildErrors[0].SchemaId);
         }
 
         #region JSON

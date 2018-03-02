@@ -255,7 +255,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             discovery.Discover(schema, null);
 
             // ensure the path does not contain multiple #'s
-            Assert.AreEqual("http://www.example.org/IntegralLifeProduct#/definitions/ProductType/allOf/0", discovery.KnownSchemas[3].Id.OriginalString);
+            Assert.AreEqual("http://www.example.org/IntegralLifeProduct#/definitions/BasicContractDetailsType", discovery.KnownSchemas[3].Id.OriginalString);
         }
 
         [Test]
@@ -432,7 +432,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             //{
             //    KnownSchema knownSchema = discovery.KnownSchemas[i];
 
-            //    Console.WriteLine(string.Format(@"Assert.AreEqual(""{0}"", discovery.KnownSchemas[{1}].Id.OriginalString);", knownSchema.Id, i));
+            //    Console.WriteLine($@"Assert.AreEqual(""{knownSchema.Id}"", discovery.KnownSchemas[{i}].Id.OriginalString);");
             //}
 
             Assert.AreEqual("#", discovery.KnownSchemas[0].Id.OriginalString);

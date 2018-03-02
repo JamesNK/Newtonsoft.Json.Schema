@@ -1920,7 +1920,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         [Test]
         public void NestedRef()
         {
-            JSchema schema = JSchema.Parse(@"{
+            JSchema s1 = JSchema.Parse(@"{
                 ""definitions"": {
                     ""a"": {""type"": ""integer""},
                     ""b"": {""$ref"": ""#/definitions/a""},
@@ -1929,7 +1929,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
                 ""$ref"": ""#/definitions/c""
             }");
 
-            Assert.AreEqual(JSchemaType.Integer, schema.Type);
+            Assert.AreEqual(JSchemaType.Integer, s1.Type);
 
             StringAssert.AreEqual(@"{
   ""definitions"": {
@@ -1944,7 +1944,26 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
     }
   },
   ""type"": ""integer""
-}", schema.ToString());
+}", s1.ToString());
+
+            JSchema s2 = JSchema.Parse(s1.ToString());
+
+            Assert.AreEqual(JSchemaType.Integer, s2.Type);
+
+            StringAssert.AreEqual(@"{
+  ""definitions"": {
+    ""a"": {
+      ""$ref"": ""#""
+    },
+    ""b"": {
+      ""$ref"": ""#""
+    },
+    ""c"": {
+      ""$ref"": ""#""
+    }
+  },
+  ""type"": ""integer""
+}", s2.ToString());
         }
 
         [Test]

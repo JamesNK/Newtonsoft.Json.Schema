@@ -138,32 +138,48 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             Uri currentScopeId = _pathStack[_pathStack.Count - 1].ScopeId;
 
             string currentPath;
-            if (schema.Id == null)
+            if (schema.Id != null)
             {
+                bool parentHash = _pathStack.Any(p => p.ScopeId == currentScopeId && p.Path != null && p.Path.IndexOf('#') != -1);
+                if (parentHash)
+                {
+                    latestPath = string.Empty;
+                    currentPath = string.Empty;
+                }
+                else
+                {
+                    latestPath = "#";
+                    currentPath = "#";
+                }
+            }
+            else if (schema._referencedAs != null && _state != KnownSchemaState.InlinePending)
+            {
+                currentPath = GetFragment(schema._referencedAs);
+            }
+            else
+            {
+                bool firstInScope = true;
                 List<string> currentParts = new List<string>();
                 for (int i = 0; i < _pathStack.Count; i++)
                 {
                     SchemaPath p = _pathStack[i];
 
-                    if (p.ScopeId == currentScopeId && !string.IsNullOrEmpty(p.Path))
+                    if (p.ScopeId == currentScopeId)
                     {
-                        if (p.ReferencedAs == null)
-                        {
-                            currentParts.Add(p.Path);
-                        }
-                        else
+                        if (p.ReferencedAs != null && !firstInScope && _state != KnownSchemaState.InlinePending)
                         {
                             currentParts.Clear();
 
-                            string reference = p.ReferencedAs.OriginalString;
-                            int fragmentIndex = reference.IndexOf('#');
-                            if (fragmentIndex > 0)
-                            {
-                                reference = reference.Substring(fragmentIndex);
-                            }
+                            string reference = GetFragment(p.ReferencedAs);
 
                             currentParts.Add(reference);
                         }
+                        else if (!string.IsNullOrEmpty(p.Path))
+                        {
+                            currentParts.Add(p.Path);
+                        }
+
+                        firstInScope = false;
                     }
                 }
 
@@ -183,23 +199,21 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
 
                 currentPath += latestPath;
             }
-            else
-            {
-                bool parentHash = _pathStack.Any(p => p.ScopeId == currentScopeId && p.Path != null && p.Path.IndexOf('#') != -1);
-                if (parentHash)
-                {
-                    latestPath = string.Empty;
-                    currentPath = string.Empty;
-                }
-                else
-                {
-                    latestPath = "#";
-                    currentPath = "#";
-                }
-            }
 
             Uri schemaKnownId = ResolveSchemaIdAndScopeId(currentScopeId, schema.Id, currentPath, out newScopeId);
             return schemaKnownId;
+        }
+
+        private static string GetFragment(Uri referencedAs)
+        {
+            string reference = referencedAs.OriginalString;
+            int fragmentIndex = reference.IndexOf('#');
+            if (fragmentIndex > 0)
+            {
+                reference = reference.Substring(fragmentIndex);
+            }
+
+            return reference;
         }
 
         public static Uri ResolveSchemaIdAndScopeId(Uri idScope, Uri schemaId, string path, out Uri newScope)
@@ -230,10 +244,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
 
         private void DiscoverTokenSchemas(JSchema schema, string name, JToken token, bool isDefinitionSchema = false)
         {
-            if (token is JObject)
+            if (token is JObject o)
             {
-                JObject o = (JObject)token;
-
                 JSchemaAnnotation annotation = token.Annotation<JSchemaAnnotation>();
                 if (annotation != null)
                 {
