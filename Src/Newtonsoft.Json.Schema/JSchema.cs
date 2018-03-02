@@ -46,6 +46,11 @@ namespace Newtonsoft.Json.Schema
 
         private int _lineNumber;
         private int _linePosition;
+
+        // this is used when the schema path is built
+        // store the original reference to reset nested path back to this "root"
+        internal Uri _referencedAs;
+
         private string _pattern;
         private Regex _patternRegex;
         private string _patternError;

@@ -77,8 +77,6 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 _success = true;
                 _resolvedSchema = schema;
 
-                schema.Reference = null;
-
                 foreach (SetSchema setSchema in SetSchemas)
                 {
                     setSchema.Execute(schema);

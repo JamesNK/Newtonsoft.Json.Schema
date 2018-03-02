@@ -36,11 +36,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             _knownSchemas = knownSchemas ?? new KnownSchemaCollection();
         }
 
-        public void Discover(JSchema schema, Uri uri, string path = "#")
+        public void Discover(JSchema schema, Uri scopedUri, string path = "#")
         {
-            Uri resolvedUri = uri ?? schema.Id ?? new Uri(string.Empty, UriKind.RelativeOrAbsolute);
+            Uri resolvedScopeUri = scopedUri ?? schema.Id ?? new Uri(string.Empty, UriKind.RelativeOrAbsolute);
 
-            _pathStack.Add(new SchemaPath(resolvedUri, string.Empty));
+            _pathStack.Add(new SchemaPath(resolvedScopeUri, schema._referencedAs, string.Empty));
 
             DiscoverInternal(schema, path);
 
@@ -96,7 +96,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                 }
             }
 
-            _pathStack.Add(new SchemaPath(newScopeId, scopePath));
+            _pathStack.Add(new SchemaPath(newScopeId, schema._referencedAs, scopePath));
 
             // discover should happen in the same order as writer except extension data (e.g. definitions)
             if (schema._extensionData != null)
@@ -135,12 +135,39 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
 
         private Uri GetSchemaIdAndNewScopeId(JSchema schema, ref string latestPath, out Uri newScopeId)
         {
-            Uri currentScopeId = _pathStack[_pathStack.Count - 1].Id;
+            Uri currentScopeId = _pathStack[_pathStack.Count - 1].ScopeId;
 
             string currentPath;
             if (schema.Id == null)
             {
-                currentPath = StringHelpers.Join("/", _pathStack.Where(p => p.Id == currentScopeId && !string.IsNullOrEmpty(p.Path)).Select(p => p.Path));
+                List<string> currentParts = new List<string>();
+                for (int i = 0; i < _pathStack.Count; i++)
+                {
+                    SchemaPath p = _pathStack[i];
+
+                    if (p.ScopeId == currentScopeId && !string.IsNullOrEmpty(p.Path))
+                    {
+                        if (p.ReferencedAs == null)
+                        {
+                            currentParts.Add(p.Path);
+                        }
+                        else
+                        {
+                            currentParts.Clear();
+
+                            string reference = p.ReferencedAs.OriginalString;
+                            int fragmentIndex = reference.IndexOf('#');
+                            if (fragmentIndex > 0)
+                            {
+                                reference = reference.Substring(fragmentIndex);
+                            }
+
+                            currentParts.Add(reference);
+                        }
+                    }
+                }
+
+                currentPath = StringHelpers.Join("/", currentParts);
 
                 if (!string.IsNullOrEmpty(currentScopeId.OriginalString)
                     && !currentPath.StartsWith("#", StringComparison.Ordinal))
@@ -158,7 +185,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             }
             else
             {
-                bool parentHash = _pathStack.Any(p => p.Id == currentScopeId && p.Path != null && p.Path.IndexOf('#') != -1);
+                bool parentHash = _pathStack.Any(p => p.ScopeId == currentScopeId && p.Path != null && p.Path.IndexOf('#') != -1);
                 if (parentHash)
                 {
                     latestPath = string.Empty;

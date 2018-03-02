@@ -8,15 +8,17 @@ using System.Diagnostics;
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
 {
-    [DebuggerDisplay("Id = {Id}, Path = {Path}")]
+    [DebuggerDisplay("Id = {ScopeId}, Path = {Path}")]
     internal class SchemaPath
     {
-        public readonly Uri Id;
+        public readonly Uri ScopeId;
+        public readonly Uri ReferencedAs;
         public readonly string Path;
 
-        public SchemaPath(Uri id, string path)
+        public SchemaPath(Uri scopeId, Uri referencedAs, string path)
         {
-            Id = id;
+            ScopeId = scopeId;
+            ReferencedAs = referencedAs;
             Path = path;
         }
     }

@@ -159,6 +159,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                         else
                         {
                             JSchema inlineSchema = schemaReader.ReadInlineSchema(setSchema, t);
+                            inlineSchema._referencedAs = originalReference;
 
                             string path = reference.OriginalString;
                             if (path.StartsWith("#/", StringComparison.Ordinal))

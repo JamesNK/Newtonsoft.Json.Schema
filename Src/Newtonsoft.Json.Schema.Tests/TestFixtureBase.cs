@@ -52,6 +52,20 @@ namespace Newtonsoft.Json.Schema.Tests
             LicenseHelpers.ResetCounts(null);
         }
 
+        protected void WriteErrors(IList<ValidationError> errorMessages)
+        {
+            foreach (ValidationError validationError in errorMessages)
+            {
+                Console.WriteLine(validationError.GetExtendedMessage());
+                Console.WriteLine(validationError.SchemaId);
+                Console.WriteLine();
+
+                WriteErrors(validationError.ChildErrors);
+
+                Console.WriteLine();
+            }
+        }
+
         protected void WriteEscapedJson(string json)
         {
             Console.WriteLine(EscapeJson(json));
