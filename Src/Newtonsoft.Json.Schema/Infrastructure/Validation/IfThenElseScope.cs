@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using Newtonsoft.Json.Utilities;
@@ -28,13 +29,14 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
         protected override bool EvaluateTokenCore(JsonToken token, object value, int depth)
         {
-            SchemaScope ifScope = GetSchemaScopeBySchema(If);
+            SchemaScope ifScope = GetSchemaScopeBySchema(If, token, value, depth);
 
             if (ifScope.IsValid)
             {
                 if (Then != null)
                 {
-                    SchemaScope thenScope = GetSchemaScopeBySchema(Then);
+                    SchemaScope thenScope = GetSchemaScopeBySchema(Then, token, value, depth);
+
                     if (!thenScope.IsValid)
                     {
                         ConditionalContext context = (ConditionalContext)thenScope.Context;
@@ -46,7 +48,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             {
                 if (Else != null)
                 {
-                    SchemaScope elseScope = GetSchemaScopeBySchema(Else);
+                    SchemaScope elseScope = GetSchemaScopeBySchema(Else, token, value, depth);
+
                     if (!elseScope.IsValid)
                     {
                         ConditionalContext context = (ConditionalContext)elseScope.Context;
@@ -70,11 +73,6 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             }
 
             return schemaValidationErrors;
-        }
-
-        internal override bool? IsValid()
-        {
-            return null;
         }
 
         public List<JSchema> GetSchemas()

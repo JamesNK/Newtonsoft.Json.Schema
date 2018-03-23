@@ -15,7 +15,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
     {
         protected override bool EvaluateTokenCore(JsonToken token, object value, int depth)
         {
-            int validCount = GetChildrenValidCount();
+            int validCount = GetChildrenValidCount(token, value, depth);
 
             if (validCount != 1)
             {
@@ -45,13 +45,6 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             }
 
             return true;
-        }
-
-        internal override bool? IsValid()
-        {
-            int validCount = GetChildrenValidCount();
-
-            return validCount == 1;
         }
     }
 }

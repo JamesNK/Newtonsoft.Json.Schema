@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Threading;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema.Infrastructure;
 using Newtonsoft.Json.Schema.Infrastructure.Collections;
@@ -29,6 +30,11 @@ namespace Newtonsoft.Json.Schema
     [JsonConverter(typeof(JSchemaConverter))]
     public class JSchema : IJsonLineInfo, IIdentiferScope
     {
+#if DEBUG
+        internal static long LastDebugId;
+        internal long DebugId { get; set; }
+#endif
+
         internal bool DeprecatedRequired { get; set; }
         internal JSchemaReader InternalReader { get; set; }
 
@@ -487,6 +493,10 @@ namespace Newtonsoft.Json.Schema
             AllowAdditionalProperties = true;
             AllowAdditionalItems = true;
             KnownSchemas = new KnownSchemaCollection();
+#if DEBUG
+            Interlocked.Increment(ref LastDebugId);
+            DebugId = LastDebugId;
+#endif
         }
 
         /// <summary>

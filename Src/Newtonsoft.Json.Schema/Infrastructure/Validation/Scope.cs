@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 {
@@ -22,6 +23,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
     internal abstract class Scope
     {
+#if DEBUG
+        internal static long LastDebugId;
+        internal long DebugId { get; set; }
+#endif
+
         public int InitialDepth;
         public ContextBase Context;
         public SchemaScope Parent;
@@ -35,6 +41,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             InitialDepth = initialDepth;
             Type = type;
             Complete = false;
+
+#if DEBUG
+            Interlocked.Increment(ref LastDebugId);
+            DebugId = LastDebugId;
+#endif
         }
 
         internal virtual void RaiseError(IFormattable message, ErrorType errorType, JSchema schema, object value, IList<ValidationError> childErrors)

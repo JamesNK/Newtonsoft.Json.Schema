@@ -19,26 +19,51 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
     {
         public JSchema Schema;
         public bool IsValid;
-        public List<ConditionalScope> Children;
+        public List<ConditionalScope> ConditionalChildren;
+#if DEBUG
+        internal List<SchemaScope> SchemaChildren = new List<SchemaScope>();
+        internal List<ConditionalScope> ConditionalParents = new List<ConditionalScope>();
+#endif
 
         protected void InitializeSchema(JSchema schema)
         {
             Schema = schema;
             IsValid = true;
-            Children?.Clear();
+            ConditionalChildren?.Clear();
+#if DEBUG
+            SchemaChildren.Clear();
+            ConditionalParents.Clear();
+#endif
         }
+
+#if DEBUG
+        public override void Initialize(ContextBase context, SchemaScope parent, int initialDepth, ScopeType type)
+        {
+            base.Initialize(context, parent, initialDepth, type);
+
+            if (parent != null)
+            {
+                parent.SchemaChildren.Add(this);
+            }
+        }
+#endif
 
         private void AddChildScope(ConditionalScope scope)
         {
-            if (Children == null)
+            if (ConditionalChildren == null)
             {
-                Children = new List<ConditionalScope>();
+                ConditionalChildren = new List<ConditionalScope>();
             }
 
-            Children.Add(scope);
+            ConditionalChildren.Add(scope);
         }
 
-        internal string DebuggerDisplay => GetType().Name + " - IsValid=" + IsValid + " - Complete=" + Complete;
+        internal string DebuggerDisplay => GetType().Name + " - IsValid=" + IsValid + " - Complete=" + Complete
+#if DEBUG
+                                           + " - SchemaId=" + Schema.DebugId
+                                           + " - ScopeId=" + DebugId
+#endif
+        ;
 
         public static SchemaScope CreateTokenScope(JsonToken token, JSchema schema, ContextBase context, SchemaScope parent, int depth)
         {
@@ -173,11 +198,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
         protected void ValidateConditionalChildren(JsonToken token, object value, int depth)
         {
-            if (!Children.IsNullOrEmpty())
+            if (!ConditionalChildren.IsNullOrEmpty())
             {
-                for (int i = 0; i < Children.Count; i++)
+                for (int i = 0; i < ConditionalChildren.Count; i++)
                 {
-                    ConditionalScope conditionalScope = Children[i];
+                    ConditionalScope conditionalScope = ConditionalChildren[i];
 
                     conditionalScope.EvaluateToken(token, value, depth);
                     Context.Validator.ReturnScopeToCache(conditionalScope);

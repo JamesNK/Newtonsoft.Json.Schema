@@ -6,6 +6,8 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
+using Newtonsoft.Json.Utilities;
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 {
@@ -21,7 +23,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             ChildScopes = new List<SchemaScope>();
         }
 
-        internal string DebuggerDisplay => GetType().Name + " - IsValid=" + IsValid() + " - Complete=" + Complete;
+        internal string DebuggerDisplay => GetType().Name + " - Complete=" + Complete
+#if DEBUG
+                                           + " - ScopeId=" + DebugId
+#endif
+        ;
 
         public override void Initialize(ContextBase context, SchemaScope parent, int initialDepth, ScopeType type)
         {
@@ -47,11 +53,13 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     childScope = SchemaScope.CreateTokenScope(token, schema, ConditionalContext, null, InitialDepth);
                 }
 
+#if DEBUG
+                childScope.ConditionalParents.Add(this);
+#endif
+
                 ChildScopes.Add(childScope);
             }
         }
-
-        internal abstract bool? IsValid();
 
         private SchemaScope GetExistingSchemaScope(JSchema schema, ref int scopeCurrentIndex)
         {
@@ -98,12 +106,13 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             return null;
         }
 
-        protected int GetChildrenValidCount()
+        protected int GetChildrenValidCount(JsonToken token, object value, int depth)
         {
             int count = 0;
             for (int i = 0; i < ChildScopes.Count; i++)
             {
                 SchemaScope schemaScope = ChildScopes[i];
+                AssertScopeComplete(schemaScope, token, value, depth);
 
                 if (schemaScope.IsValid)
                 {
@@ -114,11 +123,12 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             return count;
         }
 
-        protected bool GetChildrenAnyValid()
+        protected bool GetChildrenAnyValid(JsonToken token, object value, int depth)
         {
             for (int i = 0; i < ChildScopes.Count; i++)
             {
                 SchemaScope schemaScope = ChildScopes[i];
+                AssertScopeComplete(schemaScope, token, value, depth);
 
                 if (schemaScope.IsValid)
                 {
@@ -129,11 +139,12 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             return false;
         }
 
-        protected bool GetChildrenAllValid()
+        protected bool GetChildrenAllValid(JsonToken token, object value, int depth)
         {
             for (int i = 0; i < ChildScopes.Count; i++)
             {
                 SchemaScope schemaScope = ChildScopes[i];
+                AssertScopeComplete(schemaScope, token, value, depth);
 
                 if (!schemaScope.IsValid)
                 {
@@ -144,7 +155,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             return true;
         }
 
-        protected SchemaScope GetSchemaScopeBySchema(JSchema schema)
+        protected SchemaScope GetSchemaScopeBySchema(JSchema schema, JsonToken token, object value, int depth)
         {
             for (int i = 0; i < ChildScopes.Count; i++)
             {
@@ -152,11 +163,29 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
                 if (schemaScope.Schema == schema)
                 {
+                    AssertScopeComplete(schemaScope, token, value, depth);
                     return schemaScope;
                 }
             }
 
             return null;
+        }
+
+        private void AssertScopeComplete(SchemaScope schemaScope, JsonToken token, object value, int depth)
+        {
+            // the schema scope that the conditional scope depends on may not be complete because it has be re-ordered
+            // schema scope will be at the same depth at the conditional so evaluate it immediately
+            if (!schemaScope.Complete)
+            {
+                schemaScope.EvaluateToken(token, value, depth);
+
+#if DEBUG
+                if (!schemaScope.Complete)
+                {
+                    throw new Exception("Schema scope {0} is not complete.".FormatWith(CultureInfo.InvariantCulture, schemaScope.DebugId));
+                }
+#endif
+            }
         }
     }
 }

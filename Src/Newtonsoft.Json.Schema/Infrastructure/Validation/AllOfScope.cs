@@ -15,7 +15,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
     {
         protected override bool EvaluateTokenCore(JsonToken token, object value, int depth)
         {
-            if (!GetChildrenAllValid())
+            if (!GetChildrenAllValid(token, value, depth))
             {
                 List<int> invalidIndexes = new List<int>();
                 int index = 0;
@@ -34,11 +34,6 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             }
 
             return true;
-        }
-
-        internal override bool? IsValid()
-        {
-            return GetChildrenAllValid();
         }
     }
 }
