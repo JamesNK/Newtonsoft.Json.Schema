@@ -791,9 +791,20 @@ namespace Newtonsoft.Json.Schema
             ValidationUtils.ArgumentNotNull(settings, nameof(settings));
 
             JSchemaReader schemaReader = new JSchemaReader(settings);
-            JSchema schema = schemaReader.ReadRoot(reader);
 
-            return schema;
+            DateParseHandling initialDateParseHandling = reader.DateParseHandling;
+            try
+            {
+                // So ISO date string enum values as parsed as strings
+                reader.DateParseHandling = DateParseHandling.None;
+
+                JSchema schema = schemaReader.ReadRoot(reader);
+                return schema;
+            }
+            finally
+            {
+                reader.DateParseHandling = initialDateParseHandling;
+            }
         }
 
         /// <summary>
