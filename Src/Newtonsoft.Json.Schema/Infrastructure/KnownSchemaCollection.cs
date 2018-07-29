@@ -14,6 +14,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure
     {
         private Dictionary<Uri, KnownSchema> _uriKnownSchemaLookup;
 
+        private Dictionary<JSchema, KnownSchema> _jSchemaKnownSchemaLookup;
+
         internal Dictionary<Uri, KnownSchema> UriKnownSchemaLookup
         {
             get
@@ -27,9 +29,23 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             }
         }
 
+        internal Dictionary<JSchema, KnownSchema> JSchemaKnownSchemaLookup
+        {
+            get
+            {
+                if (_jSchemaKnownSchemaLookup == null)
+                {
+                    _jSchemaKnownSchemaLookup = new Dictionary<JSchema, KnownSchema>();
+                }
+
+                return _jSchemaKnownSchemaLookup;
+            }
+        }
+
         protected override void InsertItem(int index, KnownSchema item)
         {
             UriKnownSchemaLookup[item.Id] = item;
+            JSchemaKnownSchemaLookup[item.Schema] = item;
 
             base.InsertItem(index, item);
         }
@@ -42,6 +58,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             {
                 UriKnownSchemaLookup.Remove(knownSchema.Id);
                 UriKnownSchemaLookup[item.Id] = item;
+                JSchemaKnownSchemaLookup.Remove(knownSchema.Schema);
+                JSchemaKnownSchemaLookup[item.Schema] = item;
             }
 
             base.SetItem(index, item);
@@ -51,6 +69,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         {
             KnownSchema knownSchema = Items[index];
             _uriKnownSchemaLookup?.Remove(knownSchema.Id);
+            _jSchemaKnownSchemaLookup?.Remove(knownSchema.Schema);
 
             base.RemoveItem(index);
         }
@@ -58,6 +77,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         protected override void ClearItems()
         {
             _uriKnownSchemaLookup?.Clear();
+            _jSchemaKnownSchemaLookup?.Clear();
 
             base.ClearItems();
         }
@@ -75,6 +95,18 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             }
 
             _uriKnownSchemaLookup.TryGetValue(id, out KnownSchema knownSchema);
+
+            return knownSchema;
+        }
+
+        public KnownSchema GetByJSchema(JSchema jSchema)
+        {
+            if (_jSchemaKnownSchemaLookup == null)
+            {
+                return null;
+            }
+
+            _jSchemaKnownSchemaLookup.TryGetValue(jSchema, out KnownSchema knownSchema);
 
             return knownSchema;
         }

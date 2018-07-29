@@ -54,7 +54,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         private void ReferenceOrWriteSchema(JSchema context, JSchema schema, string propertyName, bool isDefinitions = false)
         {
-            KnownSchema knownSchema = _knownSchemas.SingleOrDefault(s => s.Schema == schema);
+            KnownSchema knownSchema = _knownSchemas.GetByJSchema(schema);
             if (knownSchema == null)
             {
                 return;
@@ -67,7 +67,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
             if (ShouldWriteReference(knownSchema, isDefinitions))
             {
-                KnownSchema currentKnownSchema = _knownSchemas.Single(s => s.Schema == context);
+                KnownSchema currentKnownSchema = _knownSchemas.GetByJSchema(context);
 
                 Uri reference;
 
