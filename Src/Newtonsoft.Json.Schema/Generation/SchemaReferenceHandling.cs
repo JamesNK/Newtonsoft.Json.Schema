@@ -31,7 +31,7 @@ namespace Newtonsoft.Json.Schema.Generation
         /// <summary>
         /// Dictionary schemas can be referenced.
         /// </summary>
-        Dictionaries = 3,
+        Dictionaries = 4,
 
         /// <summary>
         /// All schemas can be referenced.
