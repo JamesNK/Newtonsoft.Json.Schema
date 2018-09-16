@@ -50,6 +50,13 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 case JsonToken.String:
                 case JsonToken.PropertyName:
                 {
+                    if (value == null)
+                    {
+                        // This can happen with a JTokenReader when a JValue has a String type
+                        // and a null value
+                        goto case JsonToken.Null;
+                    }
+
                     string s = (value is Uri uri) ? uri.OriginalString : value.ToString();
 
                     if (!ValidateString(this, Schema, s))
