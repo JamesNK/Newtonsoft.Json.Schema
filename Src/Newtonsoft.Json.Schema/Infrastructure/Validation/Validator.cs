@@ -25,6 +25,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
         private bool _knownSchemasPopulated;
         private SchemaVersion? _schemaVersion;
+        private bool _hasValidatedLicense;
 
         public JTokenWriter TokenWriter;
         public JSchema Schema;
@@ -138,6 +139,12 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
         public void ValidateCurrentToken(JsonToken token, object value, int depth)
         {
+            if (depth == 0)
+            {
+                // Handle validating multiple content
+                RemoveCompletedScopes();
+            }
+
             if (_scopes.Count == 0)
             {
                 if (Schema == null)
@@ -145,7 +152,12 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     throw new JSchemaException("No schema has been set for the validator.");
                 }
 
-                LicenseHelpers.IncrementAndCheckValidationCount();
+                if (!_hasValidatedLicense)
+                {
+                    LicenseHelpers.IncrementAndCheckValidationCount();
+                    _hasValidatedLicense = true;
+                }
+
                 SchemaScope.CreateTokenScope(token, Schema, _context, null, depth);
             }
 
@@ -169,6 +181,20 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             if (TokenWriter != null && TokenWriter.Top == 0)
             {
                 TokenWriter = null;
+            }
+        }
+
+        private void RemoveCompletedScopes()
+        {
+            for (int i = _scopes.Count - 1; i >= 0; i--)
+            {
+                Scope scope = _scopes[i];
+
+                if (scope.Complete)
+                {
+                    _scopes.RemoveAt(i);
+                    _scopesCache.Add(scope);
+                }
             }
         }
 
