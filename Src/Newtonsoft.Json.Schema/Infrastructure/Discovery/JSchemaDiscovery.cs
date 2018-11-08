@@ -17,11 +17,10 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
         private readonly JSchema _rootSchema;
         private readonly KnownSchemaState _state;
         private readonly List<SchemaPath> _pathStack;
-        private readonly KnownSchemaCollection _knownSchemas;
 
         public List<ValidationError> ValidationErrors { get; set; }
 
-        public KnownSchemaCollection KnownSchemas => _knownSchemas;
+        public KnownSchemaCollection KnownSchemas { get; }
 
         public JSchemaDiscovery(JSchema rootSchema)
             : this(rootSchema, new KnownSchemaCollection(), KnownSchemaState.External)
@@ -33,7 +32,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             _rootSchema = rootSchema;
             _state = state;
             _pathStack = new List<SchemaPath>();
-            _knownSchemas = knownSchemas ?? new KnownSchemaCollection();
+            KnownSchemas = knownSchemas ?? new KnownSchemaCollection();
         }
 
         public void Discover(JSchema schema, Uri scopedUri, string path = "#")
@@ -62,18 +61,18 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             string scopePath = latestPath;
             Uri schemaKnownId = GetSchemaIdAndNewScopeId(schema, ref scopePath, out Uri newScopeId);
 
-            if (_knownSchemas.Contains(schema))
+            if (KnownSchemas.Contains(schema))
             {
-                KnownSchema alreadyDiscoveredSchema = _knownSchemas[schema];
+                KnownSchema alreadyDiscoveredSchema = KnownSchemas[schema];
 
                 // schema was previously discovered but exists in definitions
                 if (alreadyDiscoveredSchema.State == KnownSchemaState.InlinePending &&
                     resolvedSchemaState == KnownSchemaState.DefinitionPending &&
                     _rootSchema != schema)
                 {
-                    int existingKnownSchemaIndex = _knownSchemas.IndexOf(alreadyDiscoveredSchema);
+                    int existingKnownSchemaIndex = KnownSchemas.IndexOf(alreadyDiscoveredSchema);
 
-                    _knownSchemas[existingKnownSchemaIndex] = new KnownSchema(schemaKnownId, schema, resolvedSchemaState);
+                    KnownSchemas[existingKnownSchemaIndex] = new KnownSchema(schemaKnownId, schema, resolvedSchemaState);
                 }
 
                 return;
@@ -81,11 +80,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
 
             // check whether a schema with the resolved id is already known
             // this will be hit when a schema contains duplicate ids or references a schema with a duplicate id
-            bool existingSchema = _knownSchemas.GetById(schemaKnownId) != null;
+            bool existingSchema = KnownSchemas.GetById(schemaKnownId) != null;
 
             // add schema to known schemas whether duplicate or not to avoid multiple errors
             // the first schema with a duplicate id will be used
-            _knownSchemas.Add(new KnownSchema(schemaKnownId, schema, resolvedSchemaState));
+            KnownSchemas.Add(new KnownSchema(schemaKnownId, schema, resolvedSchemaState));
 
             if (existingSchema)
             {
@@ -200,7 +199,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                 currentPath += latestPath;
             }
 
-            Uri schemaKnownId = ResolveSchemaIdAndScopeId(currentScopeId, schema.Id, currentPath, out newScopeId);
+            Uri schemaKnownId = ResolveSchemaIdAndScopeId(currentScopeId, schema, currentPath, out newScopeId);
             return schemaKnownId;
         }
 
@@ -216,12 +215,22 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             return reference;
         }
 
-        public static Uri ResolveSchemaIdAndScopeId(Uri idScope, Uri schemaId, string path, out Uri newScope)
+        public static Uri ResolveSchemaIdAndScopeId(Uri idScope, JSchema schema, string path, out Uri newScope)
         {
+            Uri schemaId = schema.Id;
             Uri knownSchemaId;
             if (schemaId != null)
             {
-                newScope = SchemaDiscovery.ResolveSchemaId(idScope, schemaId);
+                try
+                {
+                    newScope = SchemaDiscovery.ResolveSchemaId(idScope, schemaId);
+                }
+                catch (Exception ex)
+                {
+                    string message = "Error resolving schema ID '{0}' in the current scope. The resolved ID must be a valid URI.".FormatWith(CultureInfo.InvariantCulture, schemaId);
+
+                    throw new JSchemaException(JSchemaException.FormatMessage(schema, schema.Path, message), ex);
+                }
 
                 knownSchemaId = newScope;
             }

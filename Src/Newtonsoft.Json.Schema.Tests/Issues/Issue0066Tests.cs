@@ -255,7 +255,7 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
 
                 IList<string> errors;
                 o.IsValid(s, out errors);
-            }, "Invalid URI error while resolving schema ID. Scope URI: 'schemas/events/schemas/events/Clicked.json', schema URI: 'file:components/EntityItems.json'");
+            }, "Error resolving schema ID 'file:components/EntityItems.json' in the current scope. The resolved ID must be a valid URI. Path 'properties.eventPayload.properties.items', line 132, position 18.");
         }
     }
 }

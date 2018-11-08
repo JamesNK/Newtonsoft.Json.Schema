@@ -437,23 +437,23 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             }
             else
             {
-                Uri tempRoot;
-                Uri resolvedId;
-                if (!idScope.IsAbsoluteUri)
-                {
-                    tempRoot = new Uri("http://localhost/");
-                    resolvedId = new Uri(tempRoot, idScope);
-                }
-                else
-                {
-                    tempRoot = null;
-                    resolvedId = idScope;
-                }
-
                 Uri newId;
+                Uri tempRoot;
 
                 try
                 {
+                    Uri resolvedId;
+                    if (!idScope.IsAbsoluteUri)
+                    {
+                        tempRoot = new Uri("http://localhost/");
+                        resolvedId = new Uri(tempRoot, idScope);
+                    }
+                    else
+                    {
+                        tempRoot = null;
+                        resolvedId = idScope;
+                    }
+
                     newId = new Uri(resolvedId, schemaId);
                 }
                 catch (Exception ex)
