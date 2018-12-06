@@ -305,7 +305,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             Assert.AreEqual(1, errors.Count);
             Assert.AreEqual(ErrorType.Const, errors[0].ValidationError.ErrorType);
-            Assert.AreEqual(@"Value {""prop"":true} does not match const.", errors[0].ValidationError.Message);
+            Assert.AreEqual(@"Value {""prop"":true} does not match const {""prop"":null}.", errors[0].ValidationError.Message);
         }
 
         [Test]
@@ -541,16 +541,16 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(ErrorType.Contains, errors[0].ValidationError.ErrorType);
             Assert.AreEqual(4, errors[0].ValidationError.ChildErrors.Count);
 
-            Assert.AreEqual("Value 1 does not match const.", errors[0].ValidationError.ChildErrors[0].Message);
+            Assert.AreEqual("Value 1 does not match const false.", errors[0].ValidationError.ChildErrors[0].Message);
             Assert.AreEqual("[0]", errors[0].ValidationError.ChildErrors[0].Path);
 
-            Assert.AreEqual("Value true does not match const.", errors[0].ValidationError.ChildErrors[1].Message);
+            Assert.AreEqual("Value true does not match const false.", errors[0].ValidationError.ChildErrors[1].Message);
             Assert.AreEqual("[1]", errors[0].ValidationError.ChildErrors[1].Path);
 
-            Assert.AreEqual("Value 2 does not match const.", errors[0].ValidationError.ChildErrors[2].Message);
+            Assert.AreEqual("Value 2 does not match const false.", errors[0].ValidationError.ChildErrors[2].Message);
             Assert.AreEqual("[2]", errors[0].ValidationError.ChildErrors[2].Path);
 
-            Assert.AreEqual(@"Value ""hi"" does not match const.", errors[0].ValidationError.ChildErrors[3].Message);
+            Assert.AreEqual(@"Value ""hi"" does not match const false.", errors[0].ValidationError.ChildErrors[3].Message);
             Assert.AreEqual("[3]", errors[0].ValidationError.ChildErrors[3].Path);
         }
 
@@ -585,16 +585,16 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(ErrorType.Contains, errors[0].ValidationError.ErrorType);
             Assert.AreEqual(4, errors[0].ValidationError.ChildErrors.Count);
 
-            Assert.AreEqual("Value 1 does not match const.", errors[0].ValidationError.ChildErrors[0].Message);
+            Assert.AreEqual("Value 1 does not match const [1].", errors[0].ValidationError.ChildErrors[0].Message);
             Assert.AreEqual("[0]", errors[0].ValidationError.ChildErrors[0].Path);
 
-            Assert.AreEqual("Value [1,2] does not match const.", errors[0].ValidationError.ChildErrors[1].Message);
+            Assert.AreEqual("Value [1,2] does not match const [1].", errors[0].ValidationError.ChildErrors[1].Message);
             Assert.AreEqual("[1]", errors[0].ValidationError.ChildErrors[1].Path);
 
-            Assert.AreEqual("Value 2 does not match const.", errors[0].ValidationError.ChildErrors[2].Message);
+            Assert.AreEqual("Value 2 does not match const [1].", errors[0].ValidationError.ChildErrors[2].Message);
             Assert.AreEqual("[2]", errors[0].ValidationError.ChildErrors[2].Path);
 
-            Assert.AreEqual(@"Value ""hi"" does not match const.", errors[0].ValidationError.ChildErrors[3].Message);
+            Assert.AreEqual(@"Value ""hi"" does not match const [1].", errors[0].ValidationError.ChildErrors[3].Message);
             Assert.AreEqual("[3]", errors[0].ValidationError.ChildErrors[3].Path);
         }
 

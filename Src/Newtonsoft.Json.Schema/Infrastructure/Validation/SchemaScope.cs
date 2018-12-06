@@ -261,7 +261,10 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                             StringWriter sw = new StringWriter(CultureInfo.InvariantCulture);
                             currentToken.WriteTo(new JsonTextWriter(sw));
 
-                            RaiseError($"Value {sw.ToString()} does not match const.", ErrorType.Const, Schema, value, null);
+                            StringWriter swConst = new StringWriter(CultureInfo.InvariantCulture);
+                            Schema.Const.WriteTo(new JsonTextWriter(swConst));
+
+                            RaiseError($"Value {sw.ToString()} does not match const {swConst.ToString()}.", ErrorType.Const, Schema, value, null);
                         }
                     }
 
