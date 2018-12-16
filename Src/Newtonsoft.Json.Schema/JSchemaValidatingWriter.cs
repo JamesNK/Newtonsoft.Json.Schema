@@ -7,11 +7,12 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-#if !(NET20 || NET35 || PORTABLE || PORTABLE40) || NETSTANDARD1_3 || NETSTANDARD2_0
+using Newtonsoft.Json.Schema.Infrastructure;
+#if HAVE_BIG_INTEGER
 using System.Numerics;
 #endif
 using Newtonsoft.Json.Schema.Infrastructure.Validation;
-using Newtonsoft.Json.Utilities;
+using Newtonsoft.Json.Schema.Utilities;
 
 namespace Newtonsoft.Json.Schema
 {
@@ -106,7 +107,7 @@ namespace Newtonsoft.Json.Schema
             _writer.WriteComment(text);
 
             base.WriteComment(text);
-            ValidateCurrentToken(JsonToken.Comment, null, _writer.Top);
+            ValidateCurrentToken(JsonToken.Comment, null, Top);
         }
 
         /// <summary>
@@ -118,7 +119,7 @@ namespace Newtonsoft.Json.Schema
             _writer.WriteStartConstructor(name);
 
             base.WriteStartConstructor(name);
-            ValidateCurrentToken(JsonToken.StartConstructor, null, _writer.Top - 1);
+            ValidateCurrentToken(JsonToken.StartConstructor, null, Top - 1);
         }
 
         /// <summary>
@@ -130,7 +131,7 @@ namespace Newtonsoft.Json.Schema
             _writer.WriteRaw(json);
 
             base.WriteRaw(json);
-            ValidateCurrentToken(JsonToken.Raw, null, _writer.Top);
+            ValidateCurrentToken(JsonToken.Raw, null, Top);
         }
 
         /// <summary>
@@ -142,7 +143,7 @@ namespace Newtonsoft.Json.Schema
             _writer.WriteRawValue(json);
 
             base.WriteRawValue(json);
-            ValidateCurrentToken(JsonToken.Raw, null, _writer.Top);
+            ValidateCurrentToken(JsonToken.Raw, null, Top);
         }
 
         /// <summary>
@@ -153,7 +154,7 @@ namespace Newtonsoft.Json.Schema
             _writer.WriteStartArray();
 
             base.WriteStartArray();
-            ValidateCurrentToken(JsonToken.StartArray, null, _writer.Top - 1);
+            ValidateCurrentToken(JsonToken.StartArray, null, Top - 1);
         }
 
         /// <summary>
@@ -164,7 +165,7 @@ namespace Newtonsoft.Json.Schema
             _writer.WriteStartObject();
 
             base.WriteStartObject();
-            ValidateCurrentToken(JsonToken.StartObject, null, _writer.Top - 1);
+            ValidateCurrentToken(JsonToken.StartObject, null, Top - 1);
         }
 
         /// <summary>
@@ -176,7 +177,7 @@ namespace Newtonsoft.Json.Schema
             _writer.WritePropertyName(name);
 
             base.WritePropertyName(name);
-            ValidateCurrentToken(JsonToken.PropertyName, name, _writer.Top);
+            ValidateCurrentToken(JsonToken.PropertyName, name, Top);
         }
 
         /// <summary>
@@ -202,20 +203,20 @@ namespace Newtonsoft.Json.Schema
                 case JsonToken.EndObject:
                     _writer.WriteEndObject();
 
-                    ValidateCurrentToken(JsonToken.EndObject, null, _writer.Top);
+                    ValidateCurrentToken(JsonToken.EndObject, null, Top);
                     break;
                 case JsonToken.EndArray:
                     _writer.WriteEndArray();
 
-                    ValidateCurrentToken(JsonToken.EndArray, null, _writer.Top);
+                    ValidateCurrentToken(JsonToken.EndArray, null, Top);
                     break;
                 case JsonToken.EndConstructor:
                     _writer.WriteEndConstructor();
 
-                    ValidateCurrentToken(JsonToken.EndConstructor, null, _writer.Top);
+                    ValidateCurrentToken(JsonToken.EndConstructor, null, Top);
                     break;
                 default:
-                    throw JsonWriterException.Create(this, "Invalid JsonToken: " + token, null);
+                    throw new JsonWriterException("Invalid JsonToken: " + token, Path, null);
             }
         }
 
@@ -228,7 +229,7 @@ namespace Newtonsoft.Json.Schema
             _writer.WriteNull();
 
             base.WriteNull();
-            ValidateCurrentToken(JsonToken.Null, null, _writer.Top);
+            ValidateCurrentToken(JsonToken.Null, null, Top);
         }
 
         /// <summary>
@@ -239,7 +240,7 @@ namespace Newtonsoft.Json.Schema
             _writer.WriteUndefined();
 
             base.WriteUndefined();
-            ValidateCurrentToken(JsonToken.Undefined, null, _writer.Top);
+            ValidateCurrentToken(JsonToken.Undefined, null, Top);
         }
 
         /// <summary>
@@ -249,13 +250,13 @@ namespace Newtonsoft.Json.Schema
         /// <param name="value">The <see cref="Object"/> value to write.</param>
         public override void WriteValue(object value)
         {
-#if !(NET20 || NET35 || PORTABLE || PORTABLE40) || NETSTANDARD1_3 || NETSTANDARD2_0
+#if HAVE_BIG_INTEGER
             if (value is BigInteger)
             {
                 _writer.WriteValue(value);
 
                 InternalWriteValue(JsonToken.Integer);
-                ValidateCurrentToken(JsonToken.Integer, value, _writer.Top);
+                ValidateCurrentToken(JsonToken.Integer, value, Top);
             }
             else
 #endif
@@ -276,11 +277,11 @@ namespace Newtonsoft.Json.Schema
 
             if (value != null)
             {
-                ValidateCurrentToken(JsonToken.String, value, _writer.Top);
+                ValidateCurrentToken(JsonToken.String, value, Top);
             }
             else
             {
-                ValidateCurrentToken(JsonToken.Null, null, _writer.Top);
+                ValidateCurrentToken(JsonToken.Null, null, Top);
             }
         }
 
@@ -293,7 +294,7 @@ namespace Newtonsoft.Json.Schema
             _writer.WriteValue(value);
 
             base.WriteValue(value);
-            ValidateCurrentToken(JsonToken.Integer, value, _writer.Top);
+            ValidateCurrentToken(JsonToken.Integer, value, Top);
         }
 
         /// <summary>
@@ -306,7 +307,7 @@ namespace Newtonsoft.Json.Schema
             _writer.WriteValue(value);
 
             base.WriteValue(value);
-            ValidateCurrentToken(JsonToken.Integer, value, _writer.Top);
+            ValidateCurrentToken(JsonToken.Integer, value, Top);
         }
 
         /// <summary>
@@ -318,7 +319,7 @@ namespace Newtonsoft.Json.Schema
             _writer.WriteValue(value);
 
             base.WriteValue(value);
-            ValidateCurrentToken(JsonToken.Integer, value, _writer.Top);
+            ValidateCurrentToken(JsonToken.Integer, value, Top);
         }
 
         /// <summary>
@@ -331,7 +332,7 @@ namespace Newtonsoft.Json.Schema
             _writer.WriteValue(value);
 
             base.WriteValue(value);
-            ValidateCurrentToken(JsonToken.Integer, value, _writer.Top);
+            ValidateCurrentToken(JsonToken.Integer, value, Top);
         }
 
         /// <summary>
@@ -343,7 +344,7 @@ namespace Newtonsoft.Json.Schema
             _writer.WriteValue(value);
 
             base.WriteValue(value);
-            ValidateCurrentToken(JsonToken.Float, value, _writer.Top);
+            ValidateCurrentToken(JsonToken.Float, value, Top);
         }
 
         /// <summary>
@@ -355,7 +356,7 @@ namespace Newtonsoft.Json.Schema
             _writer.WriteValue(value);
 
             base.WriteValue(value);
-            ValidateCurrentToken(JsonToken.Float, value, _writer.Top);
+            ValidateCurrentToken(JsonToken.Float, value, Top);
         }
 
         /// <summary>
@@ -367,7 +368,7 @@ namespace Newtonsoft.Json.Schema
             _writer.WriteValue(value);
 
             base.WriteValue(value);
-            ValidateCurrentToken(JsonToken.Boolean, value, _writer.Top);
+            ValidateCurrentToken(JsonToken.Boolean, value, Top);
         }
 
         /// <summary>
@@ -379,7 +380,7 @@ namespace Newtonsoft.Json.Schema
             _writer.WriteValue(value);
 
             base.WriteValue(value);
-            ValidateCurrentToken(JsonToken.Integer, value, _writer.Top);
+            ValidateCurrentToken(JsonToken.Integer, value, Top);
         }
 
         /// <summary>
@@ -392,7 +393,7 @@ namespace Newtonsoft.Json.Schema
             _writer.WriteValue(value);
 
             base.WriteValue(value);
-            ValidateCurrentToken(JsonToken.Integer, value, _writer.Top);
+            ValidateCurrentToken(JsonToken.Integer, value, Top);
         }
 
         /// <summary>
@@ -404,7 +405,7 @@ namespace Newtonsoft.Json.Schema
             _writer.WriteValue(value);
 
             base.WriteValue(value);
-            ValidateCurrentToken(JsonToken.String, value, _writer.Top);
+            ValidateCurrentToken(JsonToken.String, value, Top);
         }
 
         /// <summary>
@@ -416,7 +417,7 @@ namespace Newtonsoft.Json.Schema
             _writer.WriteValue(value);
 
             base.WriteValue(value);
-            ValidateCurrentToken(JsonToken.Integer, value, _writer.Top);
+            ValidateCurrentToken(JsonToken.Integer, value, Top);
         }
 
         /// <summary>
@@ -429,7 +430,7 @@ namespace Newtonsoft.Json.Schema
             _writer.WriteValue(value);
 
             base.WriteValue(value);
-            ValidateCurrentToken(JsonToken.Integer, value, _writer.Top);
+            ValidateCurrentToken(JsonToken.Integer, value, Top);
         }
 
         /// <summary>
@@ -441,7 +442,7 @@ namespace Newtonsoft.Json.Schema
             _writer.WriteValue(value);
 
             base.WriteValue(value);
-            ValidateCurrentToken(JsonToken.Float, value, _writer.Top);
+            ValidateCurrentToken(JsonToken.Float, value, Top);
         }
 
         /// <summary>
@@ -460,7 +461,7 @@ namespace Newtonsoft.Json.Schema
             DateTimeUtils.WriteDateTimeString(sw, resolvedDate, _writer.DateFormatHandling, _writer.DateFormatString, _writer.Culture);
 
             string dateText = sw.ToString();
-            ValidateCurrentToken(JsonToken.String, dateText, _writer.Top);
+            ValidateCurrentToken(JsonToken.String, dateText, Top);
         }
 
         /// <summary>
@@ -477,7 +478,7 @@ namespace Newtonsoft.Json.Schema
             DateTimeUtils.WriteDateTimeOffsetString(sw, value, DateFormatHandling, DateFormatString, Culture);
 
             string dateText = sw.ToString();
-            ValidateCurrentToken(JsonToken.String, dateText, _writer.Top);
+            ValidateCurrentToken(JsonToken.String, dateText, Top);
         }
 
         /// <summary>
@@ -489,7 +490,7 @@ namespace Newtonsoft.Json.Schema
             _writer.WriteValue(value);
 
             base.WriteValue(value);
-            ValidateCurrentToken(JsonToken.Bytes, value, _writer.Top);
+            ValidateCurrentToken(JsonToken.Bytes, value, Top);
         }
 
         /// <summary>
@@ -501,7 +502,7 @@ namespace Newtonsoft.Json.Schema
             _writer.WriteValue(value);
 
             base.WriteValue(value);
-            ValidateCurrentToken(JsonToken.String, value, _writer.Top);
+            ValidateCurrentToken(JsonToken.String, value, Top);
         }
 
         /// <summary>
@@ -513,7 +514,7 @@ namespace Newtonsoft.Json.Schema
             _writer.WriteValue(value);
 
             base.WriteValue(value);
-            ValidateCurrentToken(JsonToken.String, value, _writer.Top);
+            ValidateCurrentToken(JsonToken.String, value, Top);
         }
 
         /// <summary>
@@ -525,7 +526,7 @@ namespace Newtonsoft.Json.Schema
             _writer.WriteValue(value);
 
             base.WriteValue(value);
-            ValidateCurrentToken(JsonToken.String, value, _writer.Top);
+            ValidateCurrentToken(JsonToken.String, value, Top);
         }
 #endregion
 

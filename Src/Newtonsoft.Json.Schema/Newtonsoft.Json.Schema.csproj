@@ -26,38 +26,39 @@
     <AssemblyName>Newtonsoft.Json.Schema</AssemblyName>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <MinClientVersion>2.12</MinClientVersion>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json.Unsigned" Version="11.0.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
     <EmbeddedResource Include="Resources\*.json" />
     <None Include="..\..\LICENSE.md" Pack="true" PackagePath="LICENSE.md" />
   </ItemGroup>
   <PropertyGroup Condition="'$(TargetFramework)'=='net45'">
     <AssemblyTitle>Json.NET Schema</AssemblyTitle>
-    <DefineConstants>$(AdditionalConstants)</DefineConstants>
+    <DefineConstants>HAVE_ADO_NET;HAVE_BIG_INTEGER;HAVE_DATE_TIME_OFFSET;HAVE_FULL_REFLECTION;$(AdditionalConstants)</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)'=='net40'">
     <AssemblyTitle>Json.NET Schema .NET 4.0</AssemblyTitle>
-    <DefineConstants>NET40;$(AdditionalConstants)</DefineConstants>
+    <DefineConstants>HAVE_ADO_NET;HAVE_BIG_INTEGER;HAVE_DATE_TIME_OFFSET;HAVE_FULL_REFLECTION;NET40;$(AdditionalConstants)</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)'=='net35'">
     <AssemblyTitle>Json.NET Schema .NET 3.5</AssemblyTitle>
-    <DefineConstants>NET35;$(AdditionalConstants)</DefineConstants>
+    <DefineConstants>HAVE_ADO_NET;HAVE_DATE_TIME_OFFSET;HAVE_FULL_REFLECTION;NET35;$(AdditionalConstants)</DefineConstants>
   </PropertyGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.3'">
     <PackageReference Include="System.Net.Requests" Version="4.3.0" />
   </ItemGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.3'">
     <AssemblyTitle>Json.NET Schema .NET Standard 1.3</AssemblyTitle>
-    <DefineConstants>NETSTANDARD1_3;PORTABLE;$(AdditionalConstants)</DefineConstants>
+    <DefineConstants>HAVE_BIG_INTEGER;HAVE_DATE_TIME_OFFSET;NETSTANDARD1_3;PORTABLE;$(AdditionalConstants)</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <AssemblyTitle>Json.NET Schema .NET Standard 2.0</AssemblyTitle>
-    <DefineConstants>NETSTANDARD2_0;PORTABLE;$(AdditionalConstants)</DefineConstants>
+    <DefineConstants>HAVE_ADO_NET;HAVE_BIG_INTEGER;HAVE_DATE_TIME_OFFSET;HAVE_FULL_REFLECTION;NETSTANDARD2_0;PORTABLE;$(AdditionalConstants)</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'portable-net45+win8+wpa81+wp8'">
     <AssemblyTitle>Json.NET Schema Portable</AssemblyTitle>
-    <DefineConstants>PORTABLE;$(AdditionalConstants)</DefineConstants>
+    <DefineConstants>HAVE_DATE_TIME_OFFSET;PORTABLE;$(AdditionalConstants)</DefineConstants>
     <TargetFrameworkIdentifier>.NETPortable</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Profile259</TargetFrameworkProfile>

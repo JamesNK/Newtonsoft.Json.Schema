@@ -16,7 +16,6 @@ using Newtonsoft.Json.Schema.Generation;
 using Newtonsoft.Json.Schema.Tests.TestObjects;
 using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json.Schema.Tests;
-using Newtonsoft.Json.Utilities;
 #if DNXCORE50
 using Xunit;
 using Test = Xunit.FactAttribute;
@@ -29,12 +28,7 @@ using System.IO;
 using System.Reflection;
 using Newtonsoft.Json.Linq;
 using System.Text;
-#if NET20
-using Newtonsoft.Json.Utilities.LinqBridge;
-#else
 using System.Linq;
-
-#endif
 
 namespace Newtonsoft.Json.Schema.Tests
 {

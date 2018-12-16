@@ -13,7 +13,6 @@ using System.Text;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema.Infrastructure;
 using Newtonsoft.Json.Serialization;
-using Newtonsoft.Json.Utilities;
 
 namespace Newtonsoft.Json.Schema.Generation
 {
@@ -116,7 +115,7 @@ namespace Newtonsoft.Json.Schema.Generation
 
         private string GetTitle(Type type, JsonProperty memberProperty)
         {
-            JsonContainerAttribute containerAttribute = JsonTypeReflector.GetCachedAttribute<JsonContainerAttribute>(type);
+            JsonContainerAttribute containerAttribute = ReflectionUtils.GetAttribute<JsonContainerAttribute>(type);
             if (!string.IsNullOrEmpty(containerAttribute?.Title))
             {
                 return containerAttribute.Title;
@@ -128,7 +127,7 @@ namespace Newtonsoft.Json.Schema.Generation
 
         private string GetDescription(Type type, JsonProperty memberProperty)
         {
-            JsonContainerAttribute containerAttribute = JsonTypeReflector.GetCachedAttribute<JsonContainerAttribute>(type);
+            JsonContainerAttribute containerAttribute = ReflectionUtils.GetAttribute<JsonContainerAttribute>(type);
             if (!string.IsNullOrEmpty(containerAttribute?.Description))
             {
                 return containerAttribute.Description;
@@ -140,7 +139,7 @@ namespace Newtonsoft.Json.Schema.Generation
 
         private Uri GetTypeId(Type type, bool explicitOnly)
         {
-            JsonContainerAttribute containerAttribute = JsonTypeReflector.GetCachedAttribute<JsonContainerAttribute>(type);
+            JsonContainerAttribute containerAttribute = ReflectionUtils.GetAttribute<JsonContainerAttribute>(type);
 
             Uri typeId;
 
@@ -319,18 +318,18 @@ namespace Newtonsoft.Json.Schema.Generation
 
         private bool ShouldReferenceType(JsonContract contract)
         {
-            switch (contract.ContractType)
+            switch (contract)
             {
-                case JsonContractType.Object:
-                    if (contract.NonNullableUnderlyingType == typeof(object))
+                case JsonObjectContract objectContract:
+                    if (objectContract.UnderlyingType == typeof(object))
                     {
                         return false;
                     }
 
                     return (_generator.SchemaReferenceHandling & SchemaReferenceHandling.Objects) == SchemaReferenceHandling.Objects;
-                case JsonContractType.Array:
+                case JsonArrayContract arrayContract:
                     return (_generator.SchemaReferenceHandling & SchemaReferenceHandling.Arrays) == SchemaReferenceHandling.Arrays;
-                case JsonContractType.Dictionary:
+                case JsonDictionaryContract dictionaryContract:
                     return (_generator.SchemaReferenceHandling & SchemaReferenceHandling.Dictionaries) == SchemaReferenceHandling.Dictionaries;
                 default:
                     return false;
@@ -339,10 +338,12 @@ namespace Newtonsoft.Json.Schema.Generation
 
         private TypeSchemaKey CreateKey(Required valueRequired, JsonProperty memberProperty, JsonContract contract)
         {
+            Type nonNullableUnderlyingType = GetNonNullableUnderlyingType(contract);
+
             int? minLength = AttributeHelpers.GetMinLength(memberProperty);
             int? maxLength = AttributeHelpers.GetMaxLength(memberProperty);
-            string title = GetTitle(contract.NonNullableUnderlyingType, memberProperty);
-            string description = GetDescription(contract.NonNullableUnderlyingType, memberProperty);
+            string title = GetTitle(nonNullableUnderlyingType, memberProperty);
+            string description = GetDescription(nonNullableUnderlyingType, memberProperty);
 
             Required resolvedRequired;
             switch (valueRequired)
@@ -366,8 +367,10 @@ namespace Newtonsoft.Json.Schema.Generation
 
         private void PopulateSchema(JSchema schema, JsonContract contract, JsonProperty memberProperty, Required valueRequired)
         {
-            schema.Title = GetTitle(contract.NonNullableUnderlyingType, memberProperty);
-            schema.Description = GetDescription(contract.NonNullableUnderlyingType, memberProperty);
+            Type nonNullableUnderlyingType = GetNonNullableUnderlyingType(contract);
+
+            schema.Title = GetTitle(nonNullableUnderlyingType, memberProperty);
+            schema.Description = GetDescription(nonNullableUnderlyingType, memberProperty);
 
             JsonConverter converter;
             if (contract.Converter != null && contract.Converter.CanWrite)
@@ -389,10 +392,10 @@ namespace Newtonsoft.Json.Schema.Generation
             }
             else
             {
-                switch (contract.ContractType)
+                switch (contract)
                 {
-                    case JsonContractType.Object:
-                        if (contract.NonNullableUnderlyingType == typeof(object))
+                    case JsonObjectContract objectContract:
+                        if (nonNullableUnderlyingType == typeof(object))
                         {
                             PopulatePrimativeSchema(schema, contract, memberProperty, valueRequired);
                         }
@@ -400,24 +403,24 @@ namespace Newtonsoft.Json.Schema.Generation
                         {
                             if (schema.Id == null)
                             {
-                                schema.Id = GetTypeId(contract.NonNullableUnderlyingType, false);
+                                schema.Id = GetTypeId(nonNullableUnderlyingType, false);
                             }
 
                             schema.Type = AddNullType(JSchemaType.Object, valueRequired);
-                            GenerateObjectSchema(schema, contract.NonNullableUnderlyingType, (JsonObjectContract) contract);
+                            GenerateObjectSchema(schema, nonNullableUnderlyingType, (JsonObjectContract) contract);
                         }
                         break;
-                    case JsonContractType.Array:
+                    case JsonArrayContract arrayContract:
                         if (schema.Id == null)
                         {
-                            schema.Id = GetTypeId(contract.NonNullableUnderlyingType, false);
+                            schema.Id = GetTypeId(nonNullableUnderlyingType, false);
                         }
 
                         schema.Type = AddNullType(JSchemaType.Array, valueRequired);
                         schema.MinimumItems = AttributeHelpers.GetMinLength(memberProperty);
                         schema.MaximumItems = AttributeHelpers.GetMaxLength(memberProperty);
 
-                        JsonArrayAttribute arrayAttribute = JsonTypeReflector.GetCachedAttribute<JsonArrayAttribute>(contract.NonNullableUnderlyingType);
+                        JsonArrayAttribute arrayAttribute = ReflectionUtils.GetAttribute<JsonArrayAttribute>(nonNullableUnderlyingType);
 
                         Required? required = null;
                         if (arrayAttribute != null && !arrayAttribute.AllowNullItems)
@@ -425,16 +428,13 @@ namespace Newtonsoft.Json.Schema.Generation
                             required = Required.Always;
                         }
 
-                        Type collectionItemType = ReflectionUtils.GetCollectionItemType(contract.NonNullableUnderlyingType);
+                        Type collectionItemType = ReflectionUtils.GetCollectionItemType(nonNullableUnderlyingType);
                         if (collectionItemType != null)
                         {
                             schema.Items.Add(GenerateInternal(collectionItemType, required, null, (JsonArrayContract)contract, null));
                         }
                         break;
-                    case JsonContractType.Primitive:
-                        PopulatePrimativeSchema(schema, contract, memberProperty, valueRequired);
-                        break;
-                    case JsonContractType.String:
+                    case JsonStringContract stringContract:
                         JSchemaType schemaType = (!ReflectionUtils.IsNullable(contract.UnderlyingType))
                             ? JSchemaType.String
                             : AddNullType(JSchemaType.String, valueRequired);
@@ -443,35 +443,38 @@ namespace Newtonsoft.Json.Schema.Generation
                         schema.MinimumLength = AttributeHelpers.GetMinLength(memberProperty);
                         schema.MaximumLength = AttributeHelpers.GetMaxLength(memberProperty);
                         break;
-                    case JsonContractType.Dictionary:
+                    case JsonPrimitiveContract primitiveContract:
+                        PopulatePrimativeSchema(schema, contract, memberProperty, valueRequired);
+                        break;
+                    case JsonDictionaryContract dictionaryContract:
                         schema.Type = AddNullType(JSchemaType.Object, valueRequired);
                         schema.MinimumProperties = AttributeHelpers.GetMinLength(memberProperty);
                         schema.MaximumProperties = AttributeHelpers.GetMaxLength(memberProperty);
 
-                        ReflectionUtils.GetDictionaryKeyValueTypes(contract.NonNullableUnderlyingType, out Type keyType, out Type valueType);
+                        ReflectionUtils.GetDictionaryKeyValueTypes(nonNullableUnderlyingType, out Type keyType, out Type valueType);
 
                         if (keyType != null)
                         {
                             JsonContract keyContract = _generator.ContractResolver.ResolveContract(keyType);
 
                             // can be converted to a string
-                            if (keyContract.ContractType == JsonContractType.Primitive)
+                            if (keyContract is JsonPrimitiveContract)
                             {
-                                schema.AdditionalProperties = GenerateInternal(valueType, _generator.DefaultRequired, null, (JsonDictionaryContract)contract, null);
+                                schema.AdditionalProperties = GenerateInternal(valueType, _generator.DefaultRequired, null, dictionaryContract, null);
                             }
                         }
                         break;
-                    case JsonContractType.Serializable:
+                    case JsonISerializableContract serializableContract:
                         if (schema.Id == null)
                         {
-                            schema.Id = GetTypeId(contract.NonNullableUnderlyingType, false);
+                            schema.Id = GetTypeId(nonNullableUnderlyingType, false);
                         }
 
                         schema.Type = AddNullType(JSchemaType.Object, valueRequired);
                         schema.AllowAdditionalProperties = true;
                         break;
-                    case JsonContractType.Dynamic:
-                    case JsonContractType.Linq:
+                    case JsonDynamicContract dynamicContract:
+                    case JsonLinqContract linqContract:
                         schema.Type = null;
                         break;
                     default:
@@ -482,7 +485,8 @@ namespace Newtonsoft.Json.Schema.Generation
 
         private void PopulatePrimativeSchema(JSchema schema, JsonContract contract, JsonProperty memberProperty, Required valueRequired)
         {
-            JSchemaType type = GetJSchemaType(contract.UnderlyingType, valueRequired);
+            Type nonNullableUnderlyingType = GetNonNullableUnderlyingType(contract);
+            JSchemaType type = GetJSchemaType(nonNullableUnderlyingType, valueRequired);
 
             if (type != Constants.AnyType)
             {
@@ -508,12 +512,12 @@ namespace Newtonsoft.Json.Schema.Generation
                 // no format specified, derive from type
                 if (schema.Format == null)
                 {
-                    if (contract.NonNullableUnderlyingType == typeof(DateTime)
-                        || contract.NonNullableUnderlyingType == typeof(DateTimeOffset))
+                    if (nonNullableUnderlyingType == typeof(DateTime)
+                        || nonNullableUnderlyingType == typeof(DateTimeOffset))
                     {
                         schema.Format = Constants.Formats.DateTime;
                     }
-                    else if (contract.NonNullableUnderlyingType == typeof(Uri))
+                    else if (nonNullableUnderlyingType == typeof(Uri))
                     {
                         schema.Format = Constants.Formats.Uri;
                     }
@@ -529,18 +533,18 @@ namespace Newtonsoft.Json.Schema.Generation
             }
 
             if (JSchemaTypeHelpers.HasFlag(type, JSchemaType.Integer)
-                && contract.NonNullableUnderlyingType.IsEnum()
-                && ReflectionUtils.GetAttribute<FlagsAttribute>(contract.NonNullableUnderlyingType) == null)
+                && nonNullableUnderlyingType.IsEnum()
+                && ReflectionUtils.GetAttribute<FlagsAttribute>(nonNullableUnderlyingType) == null)
             {
                 if ((type & JSchemaType.Null) == JSchemaType.Null)
                 {
                     schema.Enum.Add(JValue.CreateNull());
                 }
 
-                EnumInfo enumValues = EnumUtils.GetEnumValuesAndNames(contract.NonNullableUnderlyingType);
+                EnumInfo enumValues = EnumUtils.GetEnumValuesAndNames(nonNullableUnderlyingType);
                 for (int i = 0; i < enumValues.Values.Length; i++)
                 {
-                    JToken value = JToken.FromObject(Enum.ToObject(contract.NonNullableUnderlyingType, enumValues.Values[i]));
+                    JToken value = JToken.FromObject(Enum.ToObject(nonNullableUnderlyingType, enumValues.Values[i]));
 
                     schema.Enum.Add(value);
                 }
@@ -720,6 +724,13 @@ namespace Newtonsoft.Json.Schema.Generation
                 default:
                     throw new JSchemaException("Unexpected type code '{0}' for type '{1}'.".FormatWith(CultureInfo.InvariantCulture, typeCode, type));
             }
+        }
+
+        private Type GetNonNullableUnderlyingType(JsonContract contract)
+        {
+            return (ReflectionUtils.IsNullable(contract.UnderlyingType) && ReflectionUtils.IsNullableType(contract.UnderlyingType))
+                ? Nullable.GetUnderlyingType(contract.UnderlyingType)
+                : contract.UnderlyingType;
         }
     }
 }

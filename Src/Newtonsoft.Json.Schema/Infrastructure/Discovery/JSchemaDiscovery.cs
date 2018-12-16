@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Utilities;
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
 {
@@ -191,7 +190,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                 }
 
                 if (!string.IsNullOrEmpty(currentPath)
-                    && !currentPath.EndsWith('/'))
+                    && !currentPath.EndsWith("/", StringComparison.Ordinal))
                 {
                     currentPath += "/";
                 }

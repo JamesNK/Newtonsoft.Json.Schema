@@ -10,7 +10,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Utilities;
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 {
@@ -258,7 +257,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
                     if (hasConst)
                     {
-                        bool defined = Schema.Const.DeepEquals(currentToken);
+                        bool defined = JToken.DeepEquals(Schema.Const, currentToken);
 
                         if (!defined)
                         {

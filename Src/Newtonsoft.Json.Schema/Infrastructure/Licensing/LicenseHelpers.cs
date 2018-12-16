@@ -9,7 +9,6 @@ using System.IO;
 using System.Security;
 using System.Text;
 using System.Threading;
-using Newtonsoft.Json.Utilities;
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Licensing
 {

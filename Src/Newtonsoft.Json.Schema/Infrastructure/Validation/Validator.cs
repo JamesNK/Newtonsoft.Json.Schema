@@ -12,7 +12,6 @@ using System.Text;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema.Infrastructure.Discovery;
 using Newtonsoft.Json.Schema.Infrastructure.Licensing;
-using Newtonsoft.Json.Utilities;
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 {
@@ -178,7 +177,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 }
             }
 
-            if (TokenWriter != null && TokenWriter.Top == 0)
+            if (TokenWriter != null && TokenWriter.WriteState == WriteState.Closed)
             {
                 TokenWriter = null;
             }

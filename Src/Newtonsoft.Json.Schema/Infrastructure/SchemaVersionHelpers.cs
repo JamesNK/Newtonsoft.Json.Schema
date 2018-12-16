@@ -5,7 +5,6 @@
 
 using System;
 using System.IO;
-using Newtonsoft.Json.Utilities;
 
 namespace Newtonsoft.Json.Schema.Infrastructure
 {
