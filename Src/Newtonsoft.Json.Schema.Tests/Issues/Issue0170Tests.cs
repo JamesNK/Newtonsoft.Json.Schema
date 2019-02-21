@@ -24,7 +24,16 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
         [Test]
         public void Test()
         {
-            string schemaJson = @"{
+            JSchema schema = JSchema.Parse(SchemaJson);
+
+            JArray a = JArray.Parse(Json);
+
+            bool result = a.IsValid(schema);
+
+            Assert.IsTrue(result);
+        }
+
+        private const string SchemaJson = @"{
   ""type"": ""array"",
   ""items"": {
     ""oneOf"": [
@@ -48,15 +57,6 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
   }
 }";
 
-            JSchema schema = JSchema.Parse(schemaJson);
-
-            JArray a = JArray.Parse(Json);
-
-            bool result = a.IsValid(schema);
-
-            Assert.IsTrue(result);
-        }
-
         private const string Json = @"[
   {
     ""validName"": {
@@ -64,9 +64,5 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
     }
   }
 ]";
-
-        private void OnValidate(object sender, SchemaValidationEventArgs e)
-        {
-        }
     }
 }
