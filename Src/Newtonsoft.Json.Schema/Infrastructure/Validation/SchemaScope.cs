@@ -241,7 +241,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
                     if (isEnum)
                     {
-                        bool defined = JsonTokenHelpers.Contains(Schema._enum, currentToken);
+                        JToken resolvedToken = (currentToken is JProperty property)
+                            ? new JValue(property.Name)
+                            : currentToken;
+
+                        bool defined = JsonTokenHelpers.Contains(Schema._enum, resolvedToken);
 
                         if (!defined)
                         {
