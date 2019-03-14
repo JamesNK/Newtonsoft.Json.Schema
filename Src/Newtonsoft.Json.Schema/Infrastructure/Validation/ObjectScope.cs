@@ -90,7 +90,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
                         if (!Schema._required.IsNullOrEmpty() && _requiredProperties.Count > 0)
                         {
-                            RaiseError($"Required properties are missing from object: {StringHelpers.Join(", ", _requiredProperties)}.", ErrorType.Required, Schema, _requiredProperties, null);
+                            //capture required properties at current depth as we may clear _requiredProperties later on
+                            List<string> capturedRequiredProperties = _requiredProperties.ToList();
+                            RaiseError($"Required properties are missing from object: {StringHelpers.Join(", ", capturedRequiredProperties)}.", ErrorType.Required, Schema, capturedRequiredProperties, null);
                         }
 
                         if (Schema.MaximumProperties != null && _propertyCount > Schema.MaximumProperties)
