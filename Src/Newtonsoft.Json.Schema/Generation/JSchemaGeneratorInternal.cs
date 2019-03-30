@@ -490,7 +490,7 @@ namespace Newtonsoft.Json.Schema.Generation
         private void PopulatePrimativeSchema(JSchema schema, JsonContract contract, JsonProperty memberProperty, Required valueRequired)
         {
             Type nonNullableUnderlyingType = GetNonNullableUnderlyingType(contract);
-            JSchemaType type = GetJSchemaType(nonNullableUnderlyingType, valueRequired);
+            JSchemaType type = GetJSchemaType(contract.UnderlyingType, valueRequired);
 
             if (type != Constants.AnyType)
             {
