@@ -84,10 +84,6 @@ task Build -depends Clean {
   Edit-XmlNodes -doc $xml -xpath "/Project/PropertyGroup/VersionSuffix" -value $nugetPrerelease
   Edit-XmlNodes -doc $xml -xpath "/Project/PropertyGroup/AssemblyVersion" -value ($majorVersion + '.0.0')
   Edit-XmlNodes -doc $xml -xpath "/Project/PropertyGroup/FileVersion" -value $version
-  if ($signAssemblies)
-  {
-    Edit-XmlNodes -doc $xml -xpath "/Project/ItemGroup/PackageReference[@Include = 'Newtonsoft.Json.Unsigned']/@Include" -value "Newtonsoft.Json"
-  }
   $xml.save("$workingSourceDir\Newtonsoft.Json.Schema\Newtonsoft.Json.Schema.csproj")
 
   NetCliBuild
