@@ -65,7 +65,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             }
         }
 
-        public static ReflectionDelegateFactory Instance
+        public static ReflectionDelegateFactory SupportedInstance
         {
             get
             {

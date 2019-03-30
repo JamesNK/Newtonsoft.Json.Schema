@@ -1152,6 +1152,7 @@ namespace Newtonsoft.Json.Schema.Tests
         }
 
 #if !DNXCORE50
+#if !PORTABLE || NETSTANDARD1_3 || NETSTANDARD2_0
         [Test]
         public void GenerateSchemaForISerializable()
         {
@@ -1175,6 +1176,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             Assert.AreEqual(JSchemaType.Null, schema.Type);
         }
+#endif
 
         [Test]
         public void GenerateSchemaForObject()

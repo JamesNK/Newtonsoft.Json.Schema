@@ -61,7 +61,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         public static ReflectionObject Create(Type t, MethodBase creator, params string[] memberNames)
         {
-            ReflectionDelegateFactory delegateFactory = ReflectionDelegateFactory.Instance;
+            ReflectionDelegateFactory delegateFactory = ReflectionDelegateFactory.SupportedInstance;
 
             ObjectConstructor<object> creatorConstructor = null;
             if (creator != null)

@@ -159,7 +159,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 path = inlineToken.Path;
             }
 
-            JsonReader reader = new JTokenReader(inlineToken);
+            JsonReader reader = new JTokenReader(inlineToken, path);
 
             if (_validatingSchema != null)
             {
