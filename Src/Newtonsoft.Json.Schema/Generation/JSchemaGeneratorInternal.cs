@@ -464,6 +464,7 @@ namespace Newtonsoft.Json.Schema.Generation
                             }
                         }
                         break;
+#if !PORTABLE || NETSTANDARD1_3 || NETSTANDARD2_0
                     case JsonISerializableContract serializableContract:
                         if (schema.Id == null)
                         {
@@ -473,7 +474,10 @@ namespace Newtonsoft.Json.Schema.Generation
                         schema.Type = AddNullType(JSchemaType.Object, valueRequired);
                         schema.AllowAdditionalProperties = true;
                         break;
+#endif
+#if !NET35
                     case JsonDynamicContract dynamicContract:
+#endif
                     case JsonLinqContract linqContract:
                         schema.Type = null;
                         break;
@@ -598,7 +602,7 @@ namespace Newtonsoft.Json.Schema.Generation
             {
                 if (!property.Ignored)
                 {
-                    Required? required = property._required;
+                    Required? required = property.IsRequiredSpecified ? (Required?)property.Required : null;
                     if (AttributeHelpers.GetRequired(property))
                     {
                         required = Required.Always;

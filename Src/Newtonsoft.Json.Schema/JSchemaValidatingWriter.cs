@@ -255,7 +255,7 @@ namespace Newtonsoft.Json.Schema
             {
                 _writer.WriteValue(value);
 
-                InternalWriteValue(JsonToken.Integer);
+                base.WriteValue(default(int));
                 ValidateCurrentToken(JsonToken.Integer, value, Top);
             }
             else

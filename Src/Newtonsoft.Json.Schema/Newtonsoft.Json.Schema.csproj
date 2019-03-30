@@ -29,7 +29,7 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.2-build000232" />
     <EmbeddedResource Include="Resources\*.json" />
     <None Include="..\..\LICENSE.md" Pack="true" PackagePath="LICENSE.md" />
   </ItemGroup>
