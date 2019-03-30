@@ -177,7 +177,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 }
             }
 
-            if (TokenWriter != null && TokenWriter.WriteState == WriteState.Closed)
+            if (TokenWriter != null && (TokenWriter.WriteState == WriteState.Start || TokenWriter.WriteState == WriteState.Closed))
             {
                 TokenWriter = null;
             }
