@@ -18,7 +18,7 @@ namespace Newtonsoft.Json.Schema.Generation
     /// </summary>
     public class JSchemaGenerator
     {
-        private static IContractResolver _defaultInstance;
+        private static readonly IContractResolver _defaultInstance = new DefaultContractResolver();
 
         private IContractResolver _contractResolver;
         internal List<JSchemaGenerationProvider> _generationProviders;
@@ -27,43 +27,7 @@ namespace Newtonsoft.Json.Schema.Generation
 
         private static IContractResolver DefaultInstance
         {
-            get
-            {
-                const string InstanceName = "Instance";
-
-                if (_defaultInstance == null)
-                {
-                    FieldInfo field =
-#if !PORTABLE
-                        typeof(DefaultContractResolver).GetField(InstanceName, BindingFlags.Static);
-#else
-                        typeof(DefaultContractResolver).GetTypeInfo().DeclaredFields.SingleOrDefault(f => f.IsStatic && f.Name == InstanceName);
-#endif
-                    if (field != null)
-                    {
-                        _defaultInstance = (IContractResolver)field.GetValue(null);
-                    }
-                    else
-                    {
-                        PropertyInfo property =
-#if !PORTABLE
-                            typeof(DefaultContractResolver).GetProperty(InstanceName, BindingFlags.Static);
-#else
-                            typeof(DefaultContractResolver).GetTypeInfo().DeclaredProperties.SingleOrDefault(f => (f.GetMethod?.IsStatic ?? false) && f.Name == InstanceName);
-#endif
-                        if (property != null)
-                        {
-                            _defaultInstance = (IContractResolver)property.GetValue(null, null);
-                        }
-                        else
-                        {
-                            _defaultInstance = new DefaultContractResolver();
-                        }
-                    }
-                }
-
-                return _defaultInstance;
-            }
+            get => _defaultInstance;
         }
 
         /// <summary>

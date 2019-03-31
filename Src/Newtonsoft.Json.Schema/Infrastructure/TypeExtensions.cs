@@ -249,22 +249,6 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         }
 
 #if !DOTNET
-
-        //public static MethodInfo GetMethod(this Type type, string name)
-        //{
-        //    return type.GetMethod(name, DefaultFlags);
-        //}
-
-        //public static MethodInfo GetMethod(this Type type, string name, BindingFlags bindingFlags)
-        //{
-        //    return type.GetTypeInfo().GetDeclaredMethod(name);
-        //}
-
-        //public static MethodInfo GetMethod(this Type type, IList<Type> parameterTypes)
-        //{
-        //    return type.GetMethod(null, parameterTypes);
-        //}
-
         public static MethodInfo GetMethod(this Type type, string name, IList<Type> parameterTypes)
         {
             return type.GetMethod(name, DefaultFlags, null, parameterTypes, null);
@@ -288,11 +272,6 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                     return m.GetParameters().Select(p => p.ParameterType).SequenceEqual(parameterTypes);
                 }).SingleOrDefault();
         }
-
-        //public static MethodInfo GetMethod(this Type type, string name, BindingFlags bindingFlags, object placeHolder1, IList<Type> parameterTypes, object placeHolder2)
-        //{
-        //    return MethodBinder.SelectMethod(type.GetTypeInfo().DeclaredMethods.Where(m => (name == null || m.Name == name) && TestAccessibility(m, bindingFlags)), parameterTypes);
-        //}
 
         public static IEnumerable<ConstructorInfo> GetConstructors(this Type type)
         {

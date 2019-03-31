@@ -555,7 +555,7 @@ namespace Newtonsoft.Json.Schema.Generation
             }
 
             Type enumDataType = AttributeHelpers.GetEnumDataType(memberProperty);
-            if (enumDataType != null && CollectionUtils.IsNullOrEmpty(schema._enum))
+            if (enumDataType != null && CollectionHelpers.IsNullOrEmpty(schema._enum))
             {
                 EnumInfo enumValues = EnumUtils.GetEnumValuesAndNames(enumDataType);
                 for (int i = 0; i < enumValues.Values.Length; i++)
