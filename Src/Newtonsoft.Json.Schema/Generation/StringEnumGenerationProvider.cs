@@ -6,6 +6,7 @@
 using System;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema.Infrastructure;
+using Newtonsoft.Json.Serialization;
 
 namespace Newtonsoft.Json.Schema.Generation
 {
@@ -14,6 +15,8 @@ namespace Newtonsoft.Json.Schema.Generation
     /// </summary>
     public class StringEnumGenerationProvider : JSchemaGenerationProvider
     {
+        private static readonly CamelCaseNamingStrategy _camelCaseNamingStrategy = new CamelCaseNamingStrategy();
+
         /// <summary>
         /// Gets or sets a value indicating whether the written enum text should be camel case.
         /// </summary>
@@ -46,20 +49,26 @@ namespace Newtonsoft.Json.Schema.Generation
             object defaultValue = context.MemberProperty?.DefaultValue;
             if (defaultValue != null)
             {
-                EnumUtils.TryToString(t, defaultValue, CamelCaseText, out string finalName);
+                EnumUtils.TryToString(t, defaultValue, GetResolveNamingStrategy(), out string finalName);
 
                 schema.Default = JToken.FromObject(finalName ?? defaultValue.ToString());
             }
 
-            EnumInfo enumValues = EnumUtils.GetEnumValuesAndNames(t);
+            EnumInfo enumValues = EnumUtils.GetEnumValuesAndNames(t, GetResolveNamingStrategy());
+
             for (int i = 0; i < enumValues.Values.Length; i++)
             {
-                EnumUtils.TryToString(t, enumValues.Values[i], CamelCaseText, out string finalName);
+                string finalName = enumValues.ResolvedNames[i];
 
                 schema.Enum.Add(JValue.CreateString(finalName));
             }
 
             return schema;
+        }
+
+        private NamingStrategy GetResolveNamingStrategy()
+        {
+            return CamelCaseText ? _camelCaseNamingStrategy : null;
         }
 
         /// <summary>

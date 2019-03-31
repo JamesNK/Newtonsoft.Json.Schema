@@ -67,7 +67,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             Type underlyingType = Enum.GetUnderlyingType(value.GetType());
 
             ulong num = ToUInt64(value);
-            EnumInfo enumNameValues = GetEnumValuesAndNames(enumType);
+            EnumInfo enumNameValues = GetEnumValuesAndNames(enumType, null);
             IList<T> selectedFlagsValues = new List<T>();
 
             for (int i = 0; i < enumNameValues.Values.Length; i++)
@@ -86,13 +86,6 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             }
 
             return selectedFlagsValues;
-        }
-
-        // Used by Newtonsoft.Json.Schema
-        private static CamelCaseNamingStrategy _camelCaseNamingStrategy = new CamelCaseNamingStrategy();
-        public static bool TryToString(Type enumType, object value, bool camelCase, out string name)
-        {
-            return TryToString(enumType, value, camelCase ? _camelCaseNamingStrategy : null, out name);
         }
 
         public static bool TryToString(Type enumType, object value, NamingStrategy namingStrategy, out string name)
@@ -182,9 +175,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             return returnString;
         }
 
-        public static EnumInfo GetEnumValuesAndNames(Type enumType)
+        public static EnumInfo GetEnumValuesAndNames(Type enumType, NamingStrategy namingStrategy)
         {
-            return ValuesAndNamesPerEnum.Get(new StructMultiKey<Type, NamingStrategy>(enumType, null));
+            return ValuesAndNamesPerEnum.Get(new StructMultiKey<Type, NamingStrategy>(enumType, namingStrategy));
         }
 
         private static ulong ToUInt64(object value)
