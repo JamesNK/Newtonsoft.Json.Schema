@@ -25,13 +25,24 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
         [Test]
         public void Test()
         {
-            var generator = new JSchemaGenerator();
+            JSchemaGenerator generator = new JSchemaGenerator();
             generator.GenerationProviders.Add(new StringEnumGenerationProvider());
 
-            var schema = generator.Generate(typeof(SwitchPosition));
-            Console.WriteLine(schema.ToString());
+            JSchema schema = generator.Generate(typeof(SwitchPosition));
+
+            StringAssert.AreEqual(@"{
+  ""type"": ""string"",
+  ""enum"": [
+    ""UNKNOWN"",
+    ""ON"",
+    ""A"",
+    ""OFF"",
+    ""B""
+  ]
+}", schema.ToString());
         }
 
+        [Flags]
         public enum SwitchPosition
         {
             UNKNOWN = 0,
