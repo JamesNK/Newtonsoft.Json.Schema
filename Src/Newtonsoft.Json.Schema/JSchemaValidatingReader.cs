@@ -7,8 +7,9 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using Newtonsoft.Json.Schema.Infrastructure;
 using Newtonsoft.Json.Schema.Infrastructure.Validation;
-using Newtonsoft.Json.Utilities;
+using Newtonsoft.Json.Schema.Utilities;
 
 namespace Newtonsoft.Json.Schema
 {

@@ -10,7 +10,6 @@ using System.Globalization;
 using System.Runtime.Serialization;
 using System.Text;
 using Newtonsoft.Json.Schema.Infrastructure;
-using Newtonsoft.Json.Utilities;
 
 namespace Newtonsoft.Json.Schema
 {

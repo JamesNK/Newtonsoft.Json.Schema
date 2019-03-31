@@ -4,7 +4,7 @@
 #endregion
 
 using System;
-using Newtonsoft.Json.Utilities;
+using Newtonsoft.Json.Schema.Infrastructure;
 
 namespace Newtonsoft.Json.Schema
 {

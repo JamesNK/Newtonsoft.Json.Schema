@@ -5,7 +5,7 @@
 
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Utilities;
+using Newtonsoft.Json.Schema.Infrastructure;
 
 namespace Newtonsoft.Json.Schema
 {

@@ -11,7 +11,6 @@ using System.Linq;
 using System.Text;
 using Newtonsoft.Json.Schema.Infrastructure;
 using Newtonsoft.Json.Schema.Infrastructure.Discovery;
-using Newtonsoft.Json.Utilities;
 
 namespace Newtonsoft.Json.Schema
 {

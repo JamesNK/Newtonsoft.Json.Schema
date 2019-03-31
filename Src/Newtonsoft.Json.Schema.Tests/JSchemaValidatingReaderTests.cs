@@ -6,9 +6,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-#if NET20
-using Newtonsoft.Json.Utilities.LinqBridge;
-#endif
 using Newtonsoft.Json.Schema.Infrastructure;
 #if !(NET20 || NET35 || PORTABLE) || DNXCORE50
 using System.Numerics;
@@ -26,7 +23,6 @@ using System.Xml.Schema;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema;
 using Newtonsoft.Json.Schema.Generation;
-using Newtonsoft.Json.Utilities;
 
 namespace Newtonsoft.Json.Schema.Tests
 {

@@ -74,7 +74,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         {
             for (int i = 0; i < enums.Count; i++)
             {
-                if (enums[i].DeepEquals(value))
+                if (JToken.DeepEquals(enums[i], value))
                 {
                     return true;
                 }

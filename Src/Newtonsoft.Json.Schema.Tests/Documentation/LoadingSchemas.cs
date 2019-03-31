@@ -25,7 +25,6 @@ using NUnit.Framework;
 using Newtonsoft.Json.Schema;
 using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json.Schema.Tests.TestObjects;
-using Newtonsoft.Json.Utilities;
 using System.Globalization;
 using ErrorEventArgs = Newtonsoft.Json.Serialization.ErrorEventArgs;
 using File = Newtonsoft.Json.Schema.Tests.Documentation.Samples.File;

@@ -12,13 +12,12 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-#if !(NET20 || NET35 || PORTABLE || PORTABLE40) || NETSTANDARD1_3 || NETSTANDARD2_0
+#if HAVE_BIG_INTEGER
 using System.Numerics;
 #endif
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema.Infrastructure.Collections;
 using Newtonsoft.Json.Schema.Infrastructure.Discovery;
-using Newtonsoft.Json.Utilities;
 
 namespace Newtonsoft.Json.Schema.Infrastructure
 {
@@ -416,7 +415,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         {
             EnsureReadAndToken(reader, name, JsonToken.Integer);
 
-#if !(NET20 || NET35 || PORTABLE || PORTABLE40) || NETSTANDARD1_3 || NETSTANDARD2_0
+#if HAVE_BIG_INTEGER
             if (reader.Value is BigInteger i)
             {
                 if (i > long.MaxValue || i < long.MaxValue)
@@ -440,7 +439,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         private static double GetDouble(JsonReader reader)
         {
-#if !(NET20 || NET35 || PORTABLE || PORTABLE40) || NETSTANDARD1_3 || NETSTANDARD2_0
+#if HAVE_BIG_INTEGER
             if (reader.Value is BigInteger i)
             {
                 return (double) i;

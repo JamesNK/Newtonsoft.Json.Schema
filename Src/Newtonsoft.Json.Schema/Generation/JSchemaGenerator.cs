@@ -7,9 +7,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Newtonsoft.Json.Schema.Infrastructure;
 using Newtonsoft.Json.Schema.Infrastructure.Licensing;
 using Newtonsoft.Json.Serialization;
-using Newtonsoft.Json.Utilities;
 
 namespace Newtonsoft.Json.Schema.Generation
 {
@@ -18,7 +18,7 @@ namespace Newtonsoft.Json.Schema.Generation
     /// </summary>
     public class JSchemaGenerator
     {
-        private static IContractResolver _defaultInstance;
+        private static readonly IContractResolver _defaultInstance = new DefaultContractResolver();
 
         private IContractResolver _contractResolver;
         internal List<JSchemaGenerationProvider> _generationProviders;
@@ -27,41 +27,7 @@ namespace Newtonsoft.Json.Schema.Generation
 
         private static IContractResolver DefaultInstance
         {
-            get
-            {
-                if (_defaultInstance == null)
-                {
-                    FieldInfo field =
-#if !PORTABLE
-                        typeof(DefaultContractResolver).GetField(nameof(DefaultContractResolver.Instance), BindingFlags.Static);
-#else
-                        typeof(DefaultContractResolver).GetTypeInfo().DeclaredFields.SingleOrDefault(f => f.IsStatic && f.Name == nameof(DefaultContractResolver.Instance));
-#endif
-                    if (field != null)
-                    {
-                        _defaultInstance = (IContractResolver)field.GetValue(null);
-                    }
-                    else
-                    {
-                        PropertyInfo property =
-#if !PORTABLE
-                            typeof(DefaultContractResolver).GetProperty(nameof(DefaultContractResolver.Instance), BindingFlags.Static);
-#else
-                            typeof(DefaultContractResolver).GetTypeInfo().DeclaredProperties.SingleOrDefault(f => (f.GetMethod?.IsStatic ?? false) && f.Name == nameof(DefaultContractResolver.Instance));
-#endif
-                        if (property != null)
-                        {
-                            _defaultInstance = (IContractResolver)property.GetValue(null, null);
-                        }
-                        else
-                        {
-                            _defaultInstance = new DefaultContractResolver();
-                        }
-                    }
-                }
-
-                return _defaultInstance;
-            }
+            get => _defaultInstance;
         }
 
         /// <summary>

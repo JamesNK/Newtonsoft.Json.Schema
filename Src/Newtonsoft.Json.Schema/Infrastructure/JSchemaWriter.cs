@@ -10,7 +10,6 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema.Infrastructure.Collections;
 using Newtonsoft.Json.Schema.Infrastructure.Discovery;
 using Newtonsoft.Json.Serialization;
-using Newtonsoft.Json.Utilities;
 
 namespace Newtonsoft.Json.Schema.Infrastructure
 {
@@ -142,7 +141,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         private void WriteReferenceObject(Uri reference)
         {
             _writer.WriteStartObject();
-            _writer.WritePropertyName(JsonTypeReflector.RefPropertyName);
+            _writer.WritePropertyName("$ref");
             _writer.WriteValue(reference);
             _writer.WriteEndObject();
         }

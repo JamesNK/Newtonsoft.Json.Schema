@@ -6,12 +6,11 @@
 using System;
 using System.Globalization;
 using System.IO;
-#if !(NET35 || PORTABLE) || NETSTANDARD1_3 || NETSTANDARD2_0
+#if HAVE_BIG_INTEGER
 using System.Numerics;
 #endif
 using System.Text.RegularExpressions;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Utilities;
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 {
@@ -138,17 +137,17 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             if (schema.Maximum != null)
             {
                 object v;
-#if !(NET20 || NET35 || PORTABLE) || NETSTANDARD1_3 || NETSTANDARD2_0
+#if HAVE_BIG_INTEGER
                 v = (value is BigInteger d) ? (double)d : value;
 #else
                 v = value;
 #endif
 
-                if (JValue.Compare(JTokenType.Integer, v, schema.Maximum) > 0)
+                if (CompareUtils.CompareInteger(v, schema.Maximum) > 0)
                 {
                     RaiseError($"Integer {value} exceeds maximum value of {schema.Maximum}.", ErrorType.Maximum, schema, value, null);
                 }
-                if (schema.ExclusiveMaximum && JValue.Compare(JTokenType.Integer, v, schema.Maximum) == 0)
+                if (schema.ExclusiveMaximum && CompareUtils.CompareInteger(v, schema.Maximum) == 0)
                 {
                     RaiseError($"Integer {value} equals maximum value of {schema.Maximum} and exclusive maximum is true.", ErrorType.Maximum, schema, value, null);
                 }
@@ -157,17 +156,17 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             if (schema.Minimum != null)
             {
                 object v;
-#if !(NET20 || NET35 || PORTABLE) || NETSTANDARD1_3 || NETSTANDARD2_0
+#if HAVE_BIG_INTEGER
                 v = (value is BigInteger d) ? (double)d : value;
 #else
                 v = value;
 #endif
 
-                if (JValue.Compare(JTokenType.Integer, v, schema.Minimum) < 0)
+                if (CompareUtils.CompareInteger(v, schema.Minimum) < 0)
                 {
                     RaiseError($"Integer {value} is less than minimum value of {schema.Minimum}.", ErrorType.Minimum, schema, value, null);
                 }
-                if (schema.ExclusiveMinimum && JValue.Compare(JTokenType.Integer, v, schema.Minimum) == 0)
+                if (schema.ExclusiveMinimum && CompareUtils.CompareInteger(v, schema.Minimum) == 0)
                 {
                     RaiseError($"Integer {value} equals minimum value of {schema.Minimum} and exclusive minimum is true.", ErrorType.Minimum, schema, value, null);
                 }
