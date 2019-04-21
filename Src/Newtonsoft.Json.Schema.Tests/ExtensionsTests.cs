@@ -860,6 +860,40 @@ namespace Newtonsoft.Json.Schema.Tests
         }
 
         [Test]
+        public void IfThenElse_ComplexThenChildErrors()
+        {
+            JSchema s = JSchema.Parse(@"{
+  ""if"": {
+    ""properties"": {
+      ""value"": {
+        ""type"": ""integer""
+      }
+    }
+  },
+  ""then"": {
+    ""properties"": {
+      ""value"": {
+        ""maximum"": -10
+      }
+    }
+  },
+  ""else"": {
+    ""type"": ""null""
+  }
+}");
+
+            JToken t = JToken.Parse(@"{""value"":1}");
+
+            Assert.IsFalse(t.IsValid(s, out IList<ValidationError> validationErrors));
+
+            Assert.AreEqual(1, validationErrors.Count);
+            Assert.AreEqual("JSON does not match schema from 'then'.", validationErrors[0].Message);
+            Assert.AreEqual(ErrorType.Then, validationErrors[0].ErrorType);
+            Assert.AreEqual(1, validationErrors[0].ChildErrors.Count);
+            Assert.AreEqual("Integer 1 exceeds maximum value of -10.", validationErrors[0].ChildErrors[0].Message);
+        }
+
+        [Test]
         public void IfThenElse_ElseChildErrors()
         {
             JSchema s = JSchema.Parse(@"{

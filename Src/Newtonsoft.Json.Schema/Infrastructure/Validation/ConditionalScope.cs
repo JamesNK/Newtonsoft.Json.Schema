@@ -41,26 +41,31 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
         {
             foreach (JSchema schema in schemas)
             {
-                // cache this for performance
-                int scopeCurrentIndex = scopeIndex;
-
-                // check to see whether a scope with the same schema exists
-                SchemaScope childScope = GetExistingSchemaScope(schema, ref scopeCurrentIndex);
-
-                if (childScope == null)
-                {
-                    childScope = SchemaScope.CreateTokenScope(token, schema, ConditionalContext, null, InitialDepth);
-                }
-
-#if DEBUG
-                childScope.ConditionalParents.Add(this);
-#endif
-
-                ChildScopes.Add(childScope);
+                InitializeScope(token, scopeIndex, schema, ConditionalContext);
             }
         }
 
-        private SchemaScope GetExistingSchemaScope(JSchema schema, ref int scopeCurrentIndex)
+        public void InitializeScope(JsonToken token, int scopeIndex, JSchema schema, ContextBase context)
+        {
+            // cache this for performance
+            int scopeCurrentIndex = scopeIndex;
+
+            // check to see whether a scope with the same schema exists
+            SchemaScope childScope = GetExistingSchemaScope(schema, ref scopeCurrentIndex);
+
+            if (childScope == null)
+            {
+                childScope = SchemaScope.CreateTokenScope(token, schema, context, null, InitialDepth);
+            }
+
+#if DEBUG
+            childScope.ConditionalParents.Add(this);
+#endif
+
+            ChildScopes.Add(childScope);
+        }
+
+        protected SchemaScope GetExistingSchemaScope(JSchema schema, ref int scopeCurrentIndex)
         {
             for (int i = Context.Scopes.Count - 1; i >= 0; i--)
             {
