@@ -168,10 +168,18 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 scope.AddChildScope(ifThenElseScope);
 
                 ifThenElseScope.If = schema.If;
-                ifThenElseScope.Then = schema.Then;
-                ifThenElseScope.Else = schema.Else;
+                if (schema.Then != null)
+                {
+                    ifThenElseScope.Then = schema.Then;
+                    ifThenElseScope.ThenContext = ConditionalContext.Create(context);
+                }
+                if (schema.Else != null)
+                {
+                    ifThenElseScope.Else = schema.Else;
+                    ifThenElseScope.ElseContext = ConditionalContext.Create(context);
+                }
 
-                ifThenElseScope.InitializeScopes(token, ifThenElseScope.GetSchemas(), context.Scopes.Count - 1);
+                ifThenElseScope.InitializeScopes(token, context.Scopes.Count - 1);
             }
 
             return scope;

@@ -13,6 +13,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 {
     internal class IfThenElseScope : ConditionalScope
     {
+        public ConditionalContext ThenContext;
+        public ConditionalContext ElseContext;
+
         public JSchema If;
         public JSchema Then;
         public JSchema Else;
@@ -24,6 +27,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             If = null;
             Then = null;
             Else = null;
+
+            ThenContext = null;
+            ElseContext = null;
         }
 
         protected override bool EvaluateTokenCore(JsonToken token, object value, int depth)
@@ -39,7 +45,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     if (!thenScope.IsValid)
                     {
                         ConditionalContext context = (ConditionalContext)thenScope.Context;
-                        RaiseError($"JSON does not match schema from 'then'.", ErrorType.Then, Then, null, GetSchemaValidationErrors(context.Errors, Then));
+                        RaiseError($"JSON does not match schema from 'then'.", ErrorType.Then, Then, null, context.Errors);
                     }
                 }
             }
@@ -52,7 +58,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     if (!elseScope.IsValid)
                     {
                         ConditionalContext context = (ConditionalContext)elseScope.Context;
-                        RaiseError($"JSON does not match schema from 'else'.", ErrorType.Else, Else, null, GetSchemaValidationErrors(context.Errors, Else));
+                        RaiseError($"JSON does not match schema from 'else'.", ErrorType.Else, Else, null, context.Errors);
                     }
                 }
             }
@@ -60,33 +66,37 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             return true;
         }
 
-        private List<ValidationError> GetSchemaValidationErrors(List<ValidationError> errors, JSchema schema)
+        public void InitializeScopes(JsonToken token, int scopeIndex)
         {
-            List<ValidationError> schemaValidationErrors = new List<ValidationError>();
-            foreach (ValidationError validationError in errors)
-            {
-                if (validationError.Schema == schema)
-                {
-                    schemaValidationErrors.Add(validationError);
-                }
-            }
-
-            return schemaValidationErrors;
-        }
-
-        public List<JSchema> GetSchemas()
-        {
-            List<JSchema> schemas = new List<JSchema> { If };
+            InitializeScope(token, scopeIndex, If, ConditionalContext);
             if (Then != null)
             {
-                schemas.Add(Then);
+                InitializeScope(token, scopeIndex, Then, ThenContext);
             }
             if (Else != null)
             {
-                schemas.Add(Else);
+                InitializeScope(token, scopeIndex, Else, ElseContext);
+            }
+        }
+
+        private void InitializeScope(JsonToken token, int scopeIndex, JSchema schema, ConditionalContext context)
+        {
+            // cache this for performance
+            int scopeCurrentIndex = scopeIndex;
+
+            // check to see whether a scope with the same schema exists
+            SchemaScope childScope = GetExistingSchemaScope(schema, ref scopeCurrentIndex);
+
+            if (childScope == null)
+            {
+                childScope = SchemaScope.CreateTokenScope(token, schema, context, null, InitialDepth);
             }
 
-            return schemas;
+#if DEBUG
+            childScope.ConditionalParents.Add(this);
+#endif
+
+            ChildScopes.Add(childScope);
         }
     }
 }
