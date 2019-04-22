@@ -34,7 +34,7 @@
     <NamingMethod>MemberName</NamingMethod>
     <HelpTitle>A Sandcastle Documented Class Library</HelpTitle>
     <ContentPlacement>AboveNamespaces</ContentPlacement>
-    <DocumentationSourcePath>..\Working\Src\Newtonsoft.Json.Schema\bin\Release\Net45</DocumentationSourcePath>
+    <DocumentationSourcePath>..\Src\Newtonsoft.Json.Schema\bin\Release\Net45</DocumentationSourcePath>
     <DocumentationSources>
       <DocumentationSource sourceFile="$(DocumentationSourcePath)\Newtonsoft.Json.dll" />
       <DocumentationSource sourceFile="$(DocumentationSourcePath)\Newtonsoft.Json.xml" />
