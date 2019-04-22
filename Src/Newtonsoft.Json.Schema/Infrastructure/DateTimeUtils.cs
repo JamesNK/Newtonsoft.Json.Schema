@@ -13,7 +13,6 @@ namespace Newtonsoft.Json.Schema.Utilities
     internal static class DateTimeUtils
     {
         internal static readonly long InitialJavaScriptDateTicks = 621355968000000000;
-        private const string IsoDateFormat = "yyyy-MM-ddTHH:mm:ss.FFFFFFFK";
 
         private const int DaysPer100Years = 36524;
         private const int DaysPer400Years = 146097;

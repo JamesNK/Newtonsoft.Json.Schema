@@ -287,7 +287,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             {
                 foreach (KeyValuePair<string, JToken> extensionDataPair in schema._extensionData)
                 {
-                    bool isDefinitions = schema == _rootSchema && string.Equals(extensionDataPair.Key, Constants.PropertyNames.Definitions);
+                    bool isDefinitions = schema == _rootSchema && string.Equals(extensionDataPair.Key, Constants.PropertyNames.Definitions, StringComparison.Ordinal);
 
                     _writer.WritePropertyName(extensionDataPair.Key);
                     WriteToken(schema, _writer, extensionDataPair.Value, isDefinitions);
