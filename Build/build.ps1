@@ -8,7 +8,7 @@
   $signAssemblies = $false
   $signKeyPath = "C:\Development\Releases\newtonsoft.snk"
   $buildDocumentation = $false
-  $buildNuGet = $false
+  $buildNuGet = $true
   $msbuildVerbosity = 'minimal'
   $treatWarningsAsErrors = $false
   $workingName = if ($workingName) {$workingName} else {"Working"}
@@ -63,7 +63,7 @@ task Clean {
 
 # Build each solution, optionally signed
 task Build -depends Clean {
-  $script:enabledBuilds = $builds | ? {$_.Enabled} | ? {$signAssemblies -or $_.TestsFunction -ne "NetCliTests"}
+  $script:enabledBuilds = $builds | ? {$_.Enabled}
   Write-Host -ForegroundColor Green "Found $($script:enabledBuilds.Length) enabled builds"
 
   mkdir "$buildDir\Temp" -Force
@@ -115,6 +115,7 @@ task Package -depends Build {
 
     mkdir $workingDir\NuGet
     move -Path $workingSourceDir\Newtonsoft.Json.Schema\bin\Release\*.nupkg -Destination $workingDir\NuGet
+    move -Path $workingSourceDir\Newtonsoft.Json.Schema\bin\Release\*.snupkg -Destination $workingDir\NuGet
   }
 
   Write-Host "Build documentation: $buildDocumentation"
