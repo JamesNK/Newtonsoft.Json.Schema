@@ -23,7 +23,6 @@
   $docDir = "$baseDir\Doc"
   $releaseDir = "$baseDir\Release"
   $workingDir = "$baseDir\$workingName"
-  $workingSourceDir = "$workingDir\Src"
 
   $nugetPath = "$buildDir\Temp\nuget.exe"
   $vswhereVersion = "2.3.2"
@@ -74,18 +73,6 @@ task Build -depends Clean {
   $script:msBuildPath = GetMsBuildPath
   Write-Host "MSBuild path $script:msBuildPath"
 
-  Write-Host "Copying source to working source directory $workingSourceDir"
-  robocopy $sourceDir $workingSourceDir /MIR /NFL /NDL /NP /XD bin obj TestResults AppPackages .vs artifacts /XF *.suo *.user *.lock.json | Out-Default
-  Copy-Item -Path $baseDir\LICENSE.md -Destination $workingDir\
-
-  $xml = [xml](Get-Content "$workingSourceDir\Newtonsoft.Json.Schema\Newtonsoft.Json.Schema.csproj")
-  Edit-XmlNodes -doc $xml -xpath "/Project/PropertyGroup/PackageId" -value $packageId
-  Edit-XmlNodes -doc $xml -xpath "/Project/PropertyGroup/VersionPrefix" -value $majorWithReleaseVersion
-  Edit-XmlNodes -doc $xml -xpath "/Project/PropertyGroup/VersionSuffix" -value $nugetPrerelease
-  Edit-XmlNodes -doc $xml -xpath "/Project/PropertyGroup/AssemblyVersion" -value ($majorVersion + '.0.0')
-  Edit-XmlNodes -doc $xml -xpath "/Project/PropertyGroup/FileVersion" -value $version
-  $xml.save("$workingSourceDir\Newtonsoft.Json.Schema\Newtonsoft.Json.Schema.csproj")
-
   NetCliBuild
 }
 
@@ -95,7 +82,7 @@ task Package -depends Build {
   {
     $finalDir = $build.Framework
 
-    $sourcePath = "$workingSourceDir\Newtonsoft.Json.Schema\bin\Release\$finalDir"
+    $sourcePath = "$sourceDir\Newtonsoft.Json.Schema\bin\Release\$finalDir"
 
     if (!(Test-Path -path $sourcePath))
     {
@@ -104,18 +91,14 @@ task Package -depends Build {
 
     robocopy $sourcePath $workingDir\Package\Bin\$finalDir Newtonsoft.Json.Schema.dll Newtonsoft.Json.Schema.pdb Newtonsoft.Json.Schema.xml /NFL /NDL /NJS /NC /NS /NP /XO /XF *.CodeAnalysisLog.xml | Out-Default
   }
-  
+
   if ($buildNuGet)
   {
-    Write-Host -ForegroundColor Green "Creating NuGet package"
-
-    $targetFrameworks = ($script:enabledBuilds | Select-Object @{Name="Framework";Expression={$_.Framework}} | select -expand Framework) -join ";"
-
-    exec { & $script:msBuildPath "/t:pack" "/v:$msbuildVerbosity" "/p:IncludeSource=true" "/p:Configuration=Release" "/p:TargetFrameworks=`"$targetFrameworks`"" "$workingSourceDir\Newtonsoft.Json.Schema\Newtonsoft.Json.Schema.csproj" }
+    Write-Host -ForegroundColor Green "Copy NuGet package"
 
     mkdir $workingDir\NuGet
-    move -Path $workingSourceDir\Newtonsoft.Json.Schema\bin\Release\*.nupkg -Destination $workingDir\NuGet
-    move -Path $workingSourceDir\Newtonsoft.Json.Schema\bin\Release\*.snupkg -Destination $workingDir\NuGet
+    move -Path $sourceDir\Newtonsoft.Json.Schema\bin\Release\*.nupkg -Destination $workingDir\NuGet
+    move -Path $sourceDir\Newtonsoft.Json.Schema\bin\Release\*.snupkg -Destination $workingDir\NuGet
   }
 
   Write-Host "Build documentation: $buildDocumentation"
@@ -124,7 +107,7 @@ task Package -depends Build {
   {
     $mainBuild = $script:enabledBuilds | where { $_.Framework -eq "net45" } | select -first 1
     $mainBuildFinalDir = if ($mainBuild.TestFramework -ne $null) { $mainBuild.TestFramework } else { $build.Framework }
-    $documentationSourcePath = "$workingSourceDir\Newtonsoft.Json.Schema.Tests\bin\Release\$mainBuildFinalDir"
+    $documentationSourcePath = "$sourceDir\Newtonsoft.Json.Schema.Tests\bin\Release\$mainBuildFinalDir"
     $docOutputPath = "$workingDir\Documentation\"
     Write-Host -ForegroundColor Green "Building documentation from $documentationSourcePath"
     Write-Host "Documentation output to $docOutputPath"
@@ -138,7 +121,7 @@ task Package -depends Build {
   Copy-Item -Path $docDir\readme.txt -Destination $workingDir\Package\
   Copy-Item -Path $docDir\license.txt -Destination $workingDir\Package\
 
-  robocopy $workingSourceDir $workingDir\Package\Source\Src /MIR /NFL /NDL /NJS /NC /NS /NP /XD bin obj TestResults AppPackages .vs artifacts /XF *.suo *.user *.lock.json | Out-Default
+  robocopy $sourceDir $workingDir\Package\Source\Src /MIR /NFL /NDL /NJS /NC /NS /NP /XD bin obj TestResults AppPackages .vs artifacts /XF *.suo *.user *.lock.json | Out-Default
   robocopy $buildDir $workingDir\Package\Source\Build /MIR /NFL /NDL /NJS /NC /NS /NP /XD Temp | Out-Default
   robocopy $docDir $workingDir\Package\Source\Doc /MIR /NFL /NDL /NJS /NC /NS /NP | Out-Default
   robocopy $toolsDir $workingDir\Package\Source\Tools /MIR /NFL /NDL /NJS /NC /NS /NP | Out-Default
@@ -156,7 +139,7 @@ task Test -depends Build {
 
 function NetCliBuild()
 {
-  $projectPath = "$workingSourceDir\Newtonsoft.Json.Schema.sln"
+  $projectPath = "$sourceDir\Newtonsoft.Json.Schema.sln"
   $libraryFrameworks = ($script:enabledBuilds | Select-Object @{Name="Framework";Expression={$_.Framework}} | select -expand Framework) -join ";"
   $testFrameworks = ($script:enabledBuilds | Select-Object @{Name="Resolved";Expression={if ($_.TestFramework -ne $null) { $_.TestFramework } else { $_.Framework }}} | select -expand Resolved) -join ";"
 
@@ -170,7 +153,9 @@ function NetCliBuild()
   Write-Host -ForegroundColor Green "Building $libraryFrameworks in $projectPath"
   Write-Host
 
-  exec { & $script:msBuildPath "/t:build" "/v:$msbuildVerbosity" $projectPath "/p:Configuration=Release" "/p:LibraryFrameworks=`"$libraryFrameworks`"" "/p:TestFrameworks=`"$testFrameworks`"" "/p:AssemblyOriginatorKeyFile=$signKeyPath" "/p:SignAssembly=$signAssemblies" "/p:TreatWarningsAsErrors=$treatWarningsAsErrors" "/p:AdditionalConstants=$additionalConstants" }
+  $assemblyVersion = $majorVersion + '.0.0'
+
+  exec { & $script:msBuildPath "/t:build" "/v:$msbuildVerbosity" $projectPath "/p:Configuration=Release" "/p:LibraryFrameworks=`"$libraryFrameworks`"" "/p:TestFrameworks=`"$testFrameworks`"" "/p:AssemblyOriginatorKeyFile=$signKeyPath" "/p:SignAssembly=$signAssemblies" "/p:TreatWarningsAsErrors=$treatWarningsAsErrors" "/p:AdditionalConstants=$additionalConstants" "/p:GeneratePackageOnBuild=$buildNuGet" "/p:ContinuousIntegrationBuild=true" "/p:PackageId=$packageId" "/p:VersionPrefix=$majorWithReleaseVersion" "/p:VersionSuffix=$nugetPrerelease" "/p:AssemblyVersion=$assemblyVersion" "/p:FileVersion=$version" "/m" }
 }
 
 function EnsureNuGetExists()
@@ -215,8 +200,8 @@ function GetMsBuildPath()
 
 function NetCliTests($build)
 {
-  $projectPath = "$workingSourceDir\Newtonsoft.Json.Schema.Tests\Newtonsoft.Json.Schema.Tests.csproj"
-  $location = "$workingSourceDir\Newtonsoft.Json.Schema.Tests"
+  $projectPath = "$sourceDir\Newtonsoft.Json.Schema.Tests\Newtonsoft.Json.Schema.Tests.csproj"
+  $location = "$sourceDir\Newtonsoft.Json.Schema.Tests"
   $testDir = if ($build.TestFramework -ne $null) { $build.TestFramework } else { $build.Framework }
 
   exec { .\Tools\Dotnet\dotnet-install.ps1 -Channel $netCliChannel -Version $netCliVersion | Out-Default }
@@ -242,7 +227,7 @@ function NUnitTests($build)
 {
   $testDir = if ($build.TestFramework -ne $null) { $build.TestFramework } else { $build.Framework }
   $framework = $build.NUnitFramework
-  $testRunDir = "$workingSourceDir\Newtonsoft.Json.Schema.Tests\bin\Release\$testDir"
+  $testRunDir = "$sourceDir\Newtonsoft.Json.Schema.Tests\bin\Release\$testDir"
 
   Write-Host -ForegroundColor Green "Running NUnit tests $testDir"
   Write-Host
