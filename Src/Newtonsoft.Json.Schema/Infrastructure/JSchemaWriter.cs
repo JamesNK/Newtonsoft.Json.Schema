@@ -394,6 +394,29 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 WriteSchema(schema, schema.Then, Constants.PropertyNames.Then);
                 WriteSchema(schema, schema.Else, Constants.PropertyNames.Else);
             }
+            if (schema._dependencies != null)
+            {
+                _writer.WritePropertyName(Constants.PropertyNames.Dependencies);
+                _writer.WriteStartObject();
+                foreach (KeyValuePair<string, object> dependency in schema._dependencies)
+                {
+                    _writer.WritePropertyName(dependency.Key);
+                    if (dependency.Value is JSchema s)
+                    {
+                        s.WriteTo(_writer);
+                    }
+                    else if (dependency.Value is IList<string> a)
+                    {
+                        _writer.WriteStartArray();
+                        for (int i = 0; i < a.Count; i++)
+                        {
+                            _writer.WriteValue(a[i]);
+                        }
+                        _writer.WriteEndArray();
+                    }
+                }
+                _writer.WriteEndObject();
+            }
 
             _writer.WriteEndObject();
         }
