@@ -202,7 +202,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
 #if NET35
                             // Uri class in .NET Framework 2.0 doesn't like the uri in this test
-                            if (schemaSpecTest.FileName == "format.json" &&
+                            if ((schemaSpecTest.FileName == "format.json" || schemaSpecTest.FileName == "uri.json") &&
                                 schemaSpecTest.TestDescription == "a valid URL ")
                             {
                                 continue;
