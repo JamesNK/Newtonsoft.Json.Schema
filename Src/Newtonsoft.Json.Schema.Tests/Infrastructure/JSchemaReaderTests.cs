@@ -864,6 +864,34 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         }
 
         [Test]
+        public void LocationIndependentIdentifiersInNestedDefinitions()
+        {
+            string json = @"{
+                ""id"": ""http://localhost:1234/root"",
+                ""allOf"": [{
+                    ""$ref"": ""http://localhost:1234/nested.json#foo""
+                }],
+                ""definitions"": {
+                    ""A"": {
+                        ""id"": ""nested.json"",
+                        ""definitions"": {
+                            ""B"": {
+                                ""id"": ""#foo"",
+                                ""type"": ""integer""
+                            }
+                        }
+                    }
+                }
+            }";
+
+            JSchemaReader schemaReader = new JSchemaReader(JSchemaDummyResolver.Instance);
+            JSchema schema = schemaReader.ReadRoot(new JsonTextReader(new StringReader(json)));
+
+            JSchema nestedDefinitionSchema = schema.AllOf[0];
+            Assert.AreEqual(JSchemaType.Integer, nestedDefinitionSchema.Type);
+        }
+
+        [Test]
         public void ReferenceToNestedSchemaWithIdInResolvedSchema()
         {
             JSchema nested = new JSchema();

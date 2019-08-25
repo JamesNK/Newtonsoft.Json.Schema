@@ -265,7 +265,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
                     if (hasConst)
                     {
-                        bool defined = JToken.DeepEquals(Schema.Const, currentToken);
+                        bool defined = JsonTokenHelpers.ImplicitDeepEquals(Schema.Const, currentToken);
 
                         if (!defined)
                         {

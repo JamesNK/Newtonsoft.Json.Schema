@@ -271,20 +271,51 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                     }
                     else
                     {
-                        foreach (KeyValuePair<string, JToken> property in definitionsObject)
+                        return CheckDefinitionSchemaIds(setSchema, rootSchemaId, schemaReader, discovery, resolvedReference, definitionsObject);
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        private static bool CheckDefinitionSchemaIds(Action<JSchema> setSchema, Uri rootSchemaId, JSchemaReader schemaReader, JSchemaDiscovery discovery, Uri resolvedReference, JObject definitionsObject)
+        {
+            foreach (KeyValuePair<string, JToken> property in definitionsObject)
+            {
+                if (property.Value is JObject obj)
+                {
+                    if (IsIdMatch(schemaReader, resolvedReference, obj, rootSchemaId))
+                    {
+                        JSchema inlineSchema = schemaReader.ReadInlineSchema(setSchema, obj);
+
+                        discovery.Discover(inlineSchema, rootSchemaId, Constants.PropertyNames.Definitions + "/" + property.Key);
+
+                        return true;
+                    }
+                    else
+                    {
+                        // Definition object doesn't match but one of its nested definitions might
+                        // Recurse into nested definitions using the current definition scope
+                        var nestedDefinitions = obj[Constants.PropertyNames.Definitions] as JObject;
+                        if (nestedDefinitions != null)
                         {
-                            if (property.Value is JObject obj)
+                            Uri id = GetTokenId(obj, schemaReader);
+                            Uri resolvedId = null;
+
+                            if (id != null)
                             {
-                                if (IsIdMatch(schemaReader, resolvedReference, obj, rootSchemaId))
-                                {
-                                    JSchema inlineSchema = schemaReader.ReadInlineSchema(setSchema, obj);
-
-                                    discovery.Discover(inlineSchema, rootSchemaId, Constants.PropertyNames.Definitions + "/" + property.Key);
-
-                                    return true;
-                                }
+                                resolvedId = ResolveSchemaId(rootSchemaId, id);
+                            }
+                            else
+                            {
+                                resolvedId = rootSchemaId;
                             }
 
+                            if (CheckDefinitionSchemaIds(setSchema, resolvedId, schemaReader, discovery, resolvedReference, nestedDefinitions))
+                            {
+                                return true;
+                            }
                         }
                     }
                 }

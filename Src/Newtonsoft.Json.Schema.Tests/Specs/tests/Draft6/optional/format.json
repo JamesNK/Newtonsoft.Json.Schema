@@ -9,9 +9,44 @@
                 "valid": true
             },
             {
+                "description": "a valid date-time string without second fraction",
+                "data": "1963-06-19T08:30:06Z",
+                "valid": true
+            },
+            {
+                "description": "a valid date-time string with plus offset",
+                "data": "1937-01-01T12:00:27.87+00:20",
+                "valid": true
+            },
+            {
+                "description": "a valid date-time string with minus offset",
+                "data": "1990-12-31T15:59:50.123-08:00",
+                "valid": true
+            },
+            {
+                "description": "a invalid day in date-time string",
+                "data": "1990-02-31T15:59:60.123-08:00",
+                "valid": false
+            },
+            {
+                "description": "an invalid offset in date-time string",
+                "data": "1990-12-31T15:59:60-24:00",
+                "valid": false
+            },
+            {
+                "description": "an invalid closing Z after time-zone offset",
+                "data": "1963-06-19T08:30:06.28123+01:00Z",
+                "valid": false
+            },            
+            {
                 "description": "an invalid date-time string",
                 "data": "06/19/1963 08:30:06 PST",
                 "valid": false
+            },
+            {
+                "description": "case-insensitive T and Z",
+                "data": "1963-06-19t08:30:06.283185z",
+                "valid": true
             },
             {
                 "description": "only RFC3339 not all of ISO 8601 are valid",
@@ -25,8 +60,68 @@
         "schema": {"format": "uri"},
         "tests": [
             {
-                "description": "a valid URI",
+                "description": "a valid URL with anchor tag",
                 "data": "http://foo.bar/?baz=qux#quux",
+                "valid": true
+            },
+            {
+                "description": "a valid URL with anchor tag and parantheses",
+                "data": "http://foo.com/blah_(wikipedia)_blah#cite-1",
+                "valid": true
+            },
+            {
+                "description": "a valid URL with URL-encoded stuff",
+                "data": "http://foo.bar/?q=Test%20URL-encoded%20stuff",
+                "valid": true
+            },
+            {
+                "description": "a valid puny-coded URL ",
+                "data": "http://xn--nw2a.xn--j6w193g/",
+                "valid": true
+            },
+            {
+                "description": "a valid URL with many special characters",
+                "data": "http://-.~_!$&'()*+,;=:%40:80%2f::::::@example.com",
+                "valid": true
+            },
+            {
+                "description": "a valid URL based on IPv4",
+                "data": "http://223.255.255.254",
+                "valid": true
+            },
+            {
+                "description": "a valid URL with ftp scheme",
+                "data": "ftp://ftp.is.co.za/rfc/rfc1808.txt",
+                "valid": true
+            },
+            {
+                "description": "a valid URL for a simple text file",
+                "data": "http://www.ietf.org/rfc/rfc2396.txt",
+                "valid": true
+            },
+            {
+                "description": "a valid URL ",
+                "data": "ldap://[2001:db8::7]/c=GB?objectClass?one",
+                "valid": true
+            },
+            {
+                "description": "a valid mailto URI",
+                "data": "mailto:John.Doe@example.com",
+                "valid": true
+            },
+            {
+                "description": "a valid newsgroup URI",
+                "data": "news:comp.infosystems.www.servers.unix",
+                "valid": true
+            },
+            {
+                "description": "a valid tel URI",
+                "data": "tel:+1-816-555-1212",
+                "valid": true
+            },
+            {
+                "description": "a valid URN",
+                "data": "urn:oasis:names:specification:docbook:dtd:xml:4.1.2",
                 "valid": true
             },
             {
@@ -47,6 +142,16 @@
             {
                 "description": "an invalid URI though valid URI reference",
                 "data": "abc",
+                "valid": false
+            },
+            {
+                "description": "an invalid URI with spaces",
+                "data": "http:// shouldfail.com",
+                "valid": false
+            },
+            {
+                "description": "an invalid URI with spaces and missing scheme",
+                "data": ":// should fail",
                 "valid": false
             }
         ]

@@ -834,6 +834,15 @@ namespace Newtonsoft.Json.Schema.Tests
         }
 
         [Test]
+        public void Format_DateTime_Lowercase()
+        {
+            JSchema s = JSchema.Parse(@"{""format"": ""date-time""}");
+            JToken t = JToken.Parse("'1963-06-19t08:30:06.283185z'");
+
+            Assert.IsTrue(t.IsValid(s));
+        }
+
+        [Test]
         public void IfThenElse_ThenChildErrors()
         {
             JSchema s = JSchema.Parse(@"{
