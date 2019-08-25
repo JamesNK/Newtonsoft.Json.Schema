@@ -253,6 +253,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             return true;
         }
 
+        private static readonly char[] CaseInsensitiveDateTimeChars = new[] { 't', 'z' };
+
         private static bool ValidateFormat(string format, string value)
         {
             switch (format)
@@ -320,6 +322,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 }
                 case Constants.Formats.DateTime:
                 {
+                    // RFC 3339 states that the T and Z characters in the "date-time" format are case insensitive.
+                    if (value.IndexOfAny(CaseInsensitiveDateTimeChars) != -1)
+                    {
+                        value = value.ToUpperInvariant();
+                    }
                     return DateTime.TryParseExact(value, @"yyyy-MM-dd\THH:mm:ss.FFFFFFFK", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime _);
                 }
                 case Constants.Formats.UtcMilliseconds:

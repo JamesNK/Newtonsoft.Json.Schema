@@ -164,6 +164,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
 #if (PORTABLE || NET35)
                 testFiles = testFiles.Where(f => !f.EndsWith("bignum.json")).ToArray();
+                testFiles = testFiles.Where(f => !f.EndsWith("format.json")).ToArray();
 #endif
 
                 // todo - add support for all formats
@@ -201,7 +202,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
 #if NET35
                             // Uri class in .NET Framework 2.0 doesn't like the uri in this test
-                            if (schemaSpecTest.FileName == "uri.json" &&
+                            if ((schemaSpecTest.FileName == "format.json" || schemaSpecTest.FileName == "uri.json") &&
                                 schemaSpecTest.TestDescription == "a valid URL ")
                             {
                                 continue;
