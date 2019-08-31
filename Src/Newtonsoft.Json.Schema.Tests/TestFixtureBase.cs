@@ -239,6 +239,16 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(expected, actual);
         }
 
+        public static void AreEqual(ICollection<string> oneOfExpected, string actual)
+        {
+            bool match = oneOfExpected.Any(s => s == actual);
+
+            if (!match)
+            {
+                Assert.Fail("Could not find match for actual value: {0}", actual);
+            }
+        }
+
         private static string EscapeText(string t)
         {
             if (t == null)

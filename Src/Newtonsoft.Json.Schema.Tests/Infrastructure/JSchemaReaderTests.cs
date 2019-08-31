@@ -333,9 +333,14 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             new JValue("j").IsValid(s, out errors);
 
             Assert.AreEqual(1, errors.Count);
-            Assert.IsTrue(
-                errors[0].Message == @"Could not validate string with regex pattern '^[01][0-9]:[\d$'. There was an error parsing the regex: parsing ""^[01][0-9]:[\d$"" - Unterminated [] set." ||
-                errors[0].Message == @"Could not validate string with regex pattern '^[01][0-9]:[\d$'. There was an error parsing the regex: parsing '^[01][0-9]:[\d$' - Unterminated [] set.");
+            StringAssert.AreEqual(
+                new[]
+                {
+                    @"Could not validate string with regex pattern '^[01][0-9]:[\d$'. There was an error parsing the regex: parsing ""^[01][0-9]:[\d$"" - Unterminated [] set.",
+                    @"Could not validate string with regex pattern '^[01][0-9]:[\d$'. There was an error parsing the regex: parsing '^[01][0-9]:[\d$' - Unterminated [] set.",
+                    @"Could not validate string with regex pattern '^[01][0-9]:[\d$'. There was an error parsing the regex: Invalid pattern '^[01][0-9]:[\d$' at offset 15. Unterminated [] set."
+                },
+                errors[0].Message);
         }
 
         [Test]
@@ -2570,9 +2575,14 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 
             Assert.AreEqual(1, errors.Count);
 
-            Assert.IsTrue(
-                errors[0].Message == @"Could not parse regex pattern '^[0-2][0-9]{3}-((0[1-9])|(1[0-2]))-(([0-2][0-9])|3[0-1]T[0)$'. Regex parser error: parsing ""^[0-2][0-9]{3}-((0[1-9])|(1[0-2]))-(([0-2][0-9])|3[0-1]T[0)$"" - Unterminated [] set." ||
-                errors[0].Message == @"Could not parse regex pattern '^[0-2][0-9]{3}-((0[1-9])|(1[0-2]))-(([0-2][0-9])|3[0-1]T[0)$'. Regex parser error: parsing '^[0-2][0-9]{3}-((0[1-9])|(1[0-2]))-(([0-2][0-9])|3[0-1]T[0)$' - Unterminated [] set.");
+            StringAssert.AreEqual(
+                new[]
+                {
+                    @"Could not parse regex pattern '^[0-2][0-9]{3}-((0[1-9])|(1[0-2]))-(([0-2][0-9])|3[0-1]T[0)$'. Regex parser error: parsing ""^[0-2][0-9]{3}-((0[1-9])|(1[0-2]))-(([0-2][0-9])|3[0-1]T[0)$"" - Unterminated [] set.",
+                    @"Could not parse regex pattern '^[0-2][0-9]{3}-((0[1-9])|(1[0-2]))-(([0-2][0-9])|3[0-1]T[0)$'. Regex parser error: parsing '^[0-2][0-9]{3}-((0[1-9])|(1[0-2]))-(([0-2][0-9])|3[0-1]T[0)$' - Unterminated [] set.",
+                    @"Could not parse regex pattern '^[0-2][0-9]{3}-((0[1-9])|(1[0-2]))-(([0-2][0-9])|3[0-1]T[0)$'. Regex parser error: Invalid pattern '^[0-2][0-9]{3}-((0[1-9])|(1[0-2]))-(([0-2][0-9])|3[0-1]T[0)$' at offset 60. Unterminated [] set."
+                },
+                errors[0].Message);
             Assert.AreEqual(ErrorType.Pattern, errors[0].ErrorType);
             Assert.AreEqual("http://goshes.com/format/schema#/definitions/Date/properties/name", errors[0].SchemaId.OriginalString);
             Assert.AreEqual(s.Items[0].OneOf[0].Properties["data"].Properties["createDate"].Properties["name"], errors[0].Schema);
@@ -2608,9 +2618,14 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 
             Assert.AreEqual(1, errors.Count);
 
-            Assert.IsTrue(
-                errors[0].Message == @"Could not parse regex pattern '[]'. Regex parser error: parsing ""[]"" - Unterminated [] set." ||
-                errors[0].Message == @"Could not parse regex pattern '[]'. Regex parser error: parsing '[]' - Unterminated [] set.");
+            StringAssert.AreEqual(
+                new[]
+                {
+                    @"Could not parse regex pattern '[]'. Regex parser error: parsing ""[]"" - Unterminated [] set.",
+                    @"Could not parse regex pattern '[]'. Regex parser error: parsing '[]' - Unterminated [] set.",
+                    @"Could not parse regex pattern '[]'. Regex parser error: Invalid pattern '[]' at offset 2. Unterminated [] set."
+                },
+                errors[0].Message);
             Assert.AreEqual(ErrorType.Pattern, errors[0].ErrorType);
             Assert.AreEqual("#/properties/authors/items", errors[0].SchemaId.OriginalString);
             Assert.AreEqual(s.Properties["authors"].Items[0], errors[0].Schema);
@@ -2658,9 +2673,14 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 
             Assert.AreEqual(1, errors.Count);
 
-            Assert.IsTrue(
-                errors[0].Message == @"Could not parse regex pattern '[]'. Regex parser error: parsing ""[]"" - Unterminated [] set." ||
-                errors[0].Message == @"Could not parse regex pattern '[]'. Regex parser error: parsing '[]' - Unterminated [] set.");
+            StringAssert.AreEqual(
+                new[]
+                {
+                    @"Could not parse regex pattern '[]'. Regex parser error: parsing ""[]"" - Unterminated [] set.",
+                    @"Could not parse regex pattern '[]'. Regex parser error: parsing '[]' - Unterminated [] set.",
+                    @"Could not parse regex pattern '[]'. Regex parser error: Invalid pattern '[]' at offset 2. Unterminated [] set."
+                },
+                errors[0].Message);
             Assert.AreEqual(ErrorType.Pattern, errors[0].ErrorType);
             Assert.AreEqual("http://test/#/properties/name", errors[0].SchemaId.OriginalString);
             Assert.AreEqual(s.Properties["authors"].Properties["name"], errors[0].Schema);
@@ -2714,9 +2734,14 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 
             Assert.AreEqual(2, errors.Count);
 
-            Assert.IsTrue(
-                errors[0].Message == @"Could not parse regex pattern '[]'. Regex parser error: parsing ""[]"" - Unterminated [] set." ||
-                errors[0].Message == @"Could not parse regex pattern '[]'. Regex parser error: parsing '[]' - Unterminated [] set.");
+            StringAssert.AreEqual(
+                new[]
+                {
+                    @"Could not parse regex pattern '[]'. Regex parser error: parsing ""[]"" - Unterminated [] set.",
+                    @"Could not parse regex pattern '[]'. Regex parser error: parsing '[]' - Unterminated [] set.",
+                    @"Could not parse regex pattern '[]'. Regex parser error: Invalid pattern '[]' at offset 2. Unterminated [] set."
+                },
+                errors[0].Message);
             Assert.AreEqual(ErrorType.Pattern, errors[0].ErrorType);
             Assert.AreEqual("http://test/#/definitions/authors/items", errors[0].SchemaId.OriginalString);
             Assert.AreEqual(s.Properties["authors"].Items[0], errors[0].Schema);
@@ -3225,9 +3250,14 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             JSchema.Parse(schemaJson, settings);
 
             Assert.AreEqual(1, errors.Count);
-            Assert.IsTrue(
-                errors[0].Message == @"Could not parse regex pattern '[]'. Regex parser error: parsing ""[]"" - Unterminated [] set." ||
-                errors[0].Message == @"Could not parse regex pattern '[]'. Regex parser error: parsing '[]' - Unterminated [] set.");
+            StringAssert.AreEqual(
+                new[]
+                {
+                    @"Could not parse regex pattern '[]'. Regex parser error: parsing ""[]"" - Unterminated [] set.",
+                    @"Could not parse regex pattern '[]'. Regex parser error: parsing '[]' - Unterminated [] set.",
+                    @"Could not parse regex pattern '[]'. Regex parser error: Invalid pattern '[]' at offset 2. Unterminated [] set."
+                },
+                errors[0].Message);
             Assert.AreEqual(new Uri("#/properties/paises", UriKind.Relative), errors[0].SchemaId);
             Assert.AreEqual(ErrorType.PatternProperties, errors[0].ErrorType);
         }

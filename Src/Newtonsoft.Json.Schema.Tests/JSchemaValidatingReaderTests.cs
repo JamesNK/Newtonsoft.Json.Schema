@@ -2745,9 +2745,14 @@ namespace Newtonsoft.Json.Schema.Tests
             }
 
             Assert.AreEqual(1, errors.Count);
-            Assert.IsTrue(
-                errors[0].Message == @"Could not test property names with regex pattern '[]'. There was an error parsing the regex: parsing ""[]"" - Unterminated [] set." ||
-                errors[0].Message == @"Could not test property names with regex pattern '[]'. There was an error parsing the regex: parsing '[]' - Unterminated [] set.", errors[0].Message);
+            StringAssert.AreEqual(
+                new []
+                {
+                    @"Could not test property names with regex pattern '[]'. There was an error parsing the regex: parsing ""[]"" - Unterminated [] set.",
+                    @"Could not test property names with regex pattern '[]'. There was an error parsing the regex: parsing '[]' - Unterminated [] set.",
+                    @"Could not test property names with regex pattern '[]'. There was an error parsing the regex: Invalid pattern '[]' at offset 2. Unterminated [] set."
+                },
+                errors[0].Message);
             Assert.AreEqual(new Uri("#/properties/paises", UriKind.Relative), errors[0].SchemaId);
             Assert.AreEqual(ErrorType.PatternProperties, errors[0].ErrorType);
         }

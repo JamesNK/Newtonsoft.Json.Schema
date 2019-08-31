@@ -1259,13 +1259,13 @@ namespace Newtonsoft.Json.Schema.Tests
 #endif
             };
 
-            JSchema schema = generator.Generate(typeof(Version), true);
+            JSchema schema = generator.Generate(typeof(TestObject), true);
 
             string json = schema.ToString(SchemaVersion.Draft4);
 
             StringAssert.AreEqual(@"{
   ""$schema"": ""http://json-schema.org/draft-04/schema#"",
-  ""id"": ""Version"",
+  ""id"": ""TestObject"",
   ""type"": [
     ""object"",
     ""null""
@@ -1300,6 +1300,16 @@ namespace Newtonsoft.Json.Schema.Tests
     ""minorRevision""
   ]
 }", json);
+        }
+
+        private sealed class TestObject
+        {
+            public int Major { get; set; }
+            public int Minor { get; set; }
+            public int Build { get; set; }
+            public int Revision { get; set; }
+            public int MajorRevision { get; set; }
+            public int MinorRevision { get; set; }
         }
 
 #if !(PORTABLE40 || DNXCORE50)
