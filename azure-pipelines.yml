@@ -5,6 +5,9 @@ trigger:
 pool:
   vmImage: 'windows-2019'
 
+variables:
+- group: Newtonsoft
+
 steps:
 - powershell: |
     dotnet --info
