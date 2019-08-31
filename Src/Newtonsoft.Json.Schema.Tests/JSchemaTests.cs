@@ -203,11 +203,14 @@ namespace Newtonsoft.Json.Schema.Tests
         {
             JSchema s = new JSchema();
 
-            ExceptionAssert.Throws<ArgumentNullException>(() =>
-            {
-                s.Properties["prop1"] = null;
-            }, @"Value cannot be null.
-Parameter name: value");
+            ExceptionAssert.Throws<ArgumentNullException>(
+                () =>
+                {
+                    s.Properties["prop1"] = null;
+                },
+                @"Value cannot be null.
+Parameter name: value",
+                "Value cannot be null. (Parameter 'value')");
         }
 
         [Test]
@@ -215,11 +218,14 @@ Parameter name: value");
         {
             JSchema s = new JSchema();
 
-            ExceptionAssert.Throws<ArgumentNullException>(() =>
-            {
-                s.Properties[null] = new JSchema();
-            }, @"Value cannot be null.
-Parameter name: key");
+            ExceptionAssert.Throws<ArgumentNullException>(
+                () =>
+                {
+                    s.Properties[null] = new JSchema();
+                },
+                @"Value cannot be null.
+Parameter name: key",
+                "Value cannot be null. (Parameter 'key')");
         }
 
         [Test]
@@ -227,11 +233,14 @@ Parameter name: key");
         {
             JSchema s = new JSchema();
 
-            ExceptionAssert.Throws<ArgumentNullException>(() =>
-            {
-                s.Properties.Add("prop1", null);
-            }, @"Value cannot be null.
-Parameter name: value");
+            ExceptionAssert.Throws<ArgumentNullException>(
+                () =>
+                {
+                    s.Properties.Add("prop1", null);
+                },
+                @"Value cannot be null.
+Parameter name: value",
+                "Value cannot be null. (Parameter 'value')");
         }
 
         [Test]
@@ -239,11 +248,14 @@ Parameter name: value");
         {
             JSchema s = new JSchema();
 
-            ExceptionAssert.Throws<ArgumentNullException>(() =>
-            {
-                s.Properties.Add(null, new JSchema());
-            }, @"Value cannot be null.
-Parameter name: key");
+            ExceptionAssert.Throws<ArgumentNullException>(
+                () =>
+                {
+                    s.Properties.Add(null, new JSchema());
+                },
+                @"Value cannot be null.
+Parameter name: key",
+                "Value cannot be null. (Parameter 'key')");
         }
 
         [Test]
@@ -251,11 +263,14 @@ Parameter name: key");
         {
             JSchema s = new JSchema();
 
-            ExceptionAssert.Throws<ArgumentNullException>(() =>
-            {
-                s.Properties.Remove(null);
-            }, @"Value cannot be null.
-Parameter name: key");
+            ExceptionAssert.Throws<ArgumentNullException>(
+                () =>
+                {
+                    s.Properties.Remove(null);
+                },
+                @"Value cannot be null.
+Parameter name: key",
+                "Value cannot be null. (Parameter 'key')");
         }
 
         [Test]
@@ -263,11 +278,14 @@ Parameter name: key");
         {
             JSchema s = new JSchema();
 
-            ExceptionAssert.Throws<ArgumentNullException>(() =>
-            {
-                s.PatternProperties["prop1"] = null;
-            }, @"Value cannot be null.
-Parameter name: value");
+            ExceptionAssert.Throws<ArgumentNullException>(
+                () =>
+                {
+                    s.PatternProperties["prop1"] = null;
+                },
+                @"Value cannot be null.
+Parameter name: value",
+                "Value cannot be null. (Parameter 'value')");
         }
 
         [Test]
@@ -275,11 +293,14 @@ Parameter name: value");
         {
             JSchema s = new JSchema();
 
-            ExceptionAssert.Throws<ArgumentNullException>(() =>
-            {
-                s.PatternProperties[null] = new JSchema();
-            }, @"Value cannot be null.
-Parameter name: key");
+            ExceptionAssert.Throws<ArgumentNullException>(
+                () =>
+                {
+                    s.PatternProperties[null] = new JSchema();
+                },
+                @"Value cannot be null.
+Parameter name: key",
+                "Value cannot be null. (Parameter 'key')");
         }
 
         [Test]
@@ -287,11 +308,14 @@ Parameter name: key");
         {
             JSchema s = new JSchema();
 
-            ExceptionAssert.Throws<ArgumentNullException>(() =>
-            {
-                s.PatternProperties.Add("prop1", null);
-            }, @"Value cannot be null.
-Parameter name: value");
+            ExceptionAssert.Throws<ArgumentNullException>(
+                () =>
+                {
+                    s.PatternProperties.Add("prop1", null);
+                },
+                @"Value cannot be null.
+Parameter name: value",
+                "Value cannot be null. (Parameter 'value')");
         }
 
         [Test]
@@ -299,11 +323,13 @@ Parameter name: value");
         {
             JSchema s = new JSchema();
 
-            ExceptionAssert.Throws<ArgumentNullException>(() =>
-            {
-                s.PatternProperties.Add(null, new JSchema());
-            }, @"Value cannot be null.
-Parameter name: key");
+            ExceptionAssert.Throws<ArgumentNullException>(
+                () =>
+                {
+                    s.PatternProperties.Add(null, new JSchema());
+                }, @"Value cannot be null.
+Parameter name: key",
+                "Value cannot be null. (Parameter 'key')");
         }
 
         [Test]
@@ -311,11 +337,14 @@ Parameter name: key");
         {
             JSchema s = new JSchema();
 
-            ExceptionAssert.Throws<ArgumentNullException>(() =>
-            {
-                s.PatternProperties.Remove(null);
-            }, @"Value cannot be null.
-Parameter name: key");
+            ExceptionAssert.Throws<ArgumentNullException>(
+                () =>
+                {
+                    s.PatternProperties.Remove(null);
+                },
+                @"Value cannot be null.
+Parameter name: key",
+                "Value cannot be null. (Parameter 'key')");
         }
     }
 }

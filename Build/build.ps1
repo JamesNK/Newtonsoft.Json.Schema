@@ -1,7 +1,7 @@
 ﻿properties { 
-  $zipFileName = "JsonSchema30r11.zip"
+  $zipFileName = "JsonSchema30r12.zip"
   $majorVersion = "3.0"
-  $majorWithReleaseVersion = "3.0.11"
+  $majorWithReleaseVersion = "3.0.12"
   $nugetPrerelease = $null
   $version = GetVersion $majorWithReleaseVersion
   $packageId = "Newtonsoft.Json.Schema"
@@ -12,9 +12,10 @@
   $msbuildVerbosity = 'minimal'
   $treatWarningsAsErrors = $false
   $workingName = if ($workingName) {$workingName} else {"Working"}
+  $assemblyVersion = if ($assemblyVersion) {$assemblyVersion} else {$majorVersion + '.0.0'}
   $netCliChannel = "2.0"
-  $netCliVersion = "2.1.4"
-  $nugetUrl = "http://dist.nuget.org/win-x86-commandline/latest/nuget.exe"
+  $netCliVersion = "3.0.100-preview9-013927"
+  $nugetUrl = "https://dist.nuget.org/win-x86-commandline/latest/nuget.exe"
   
   $baseDir  = resolve-path ..
   $buildDir = "$baseDir\Build"
@@ -32,7 +33,7 @@
 
   $builds = @(
     @{Framework = "netstandard1.3"; TestsFunction = "NetCliTests"; TestFramework = "netcoreapp1.1"; Enabled=$true}
-    @{Framework = "netstandard2.0"; TestsFunction = "NetCliTests"; TestFramework = "netcoreapp2.0"; Enabled=$true}
+    @{Framework = "netstandard2.0"; TestsFunction = "NetCliTests"; TestFramework = "netcoreapp3.0"; Enabled=$true}
     @{Framework = "net45"; TestsFunction = "NUnitTests"; TestFramework = "net46"; NUnitFramework="net-4.0"; Enabled=$true},
     @{Framework = "net40"; TestsFunction = "NUnitTests"; NUnitFramework="net-4.0"; Enabled=$true},
     @{Framework = "net35"; TestsFunction = "NUnitTests"; NUnitFramework="net-2.0"; Enabled=$true},
@@ -66,6 +67,8 @@ task Build -depends Clean {
   Write-Host -ForegroundColor Green "Found $($script:enabledBuilds.Length) enabled builds"
 
   mkdir "$buildDir\Temp" -Force
+
+  EnsureDotNetCli
   EnsureNuGetExists
   EnsureNuGetPackage "vswhere" $vswherePath $vswhereVersion
   EnsureNuGetPackage "NUnit.ConsoleRunner" $nunitConsolePath $nunitConsoleVersion
@@ -150,12 +153,23 @@ function NetCliBuild()
 
   exec { & $script:msBuildPath "/t:restore" "/v:$msbuildVerbosity" "/p:Configuration=Release" "/p:LibraryFrameworks=`"$libraryFrameworks`"" "/p:TestFrameworks=`"$testFrameworks`"" $projectPath | Out-Default } "Error restoring $projectPath"
 
-  Write-Host -ForegroundColor Green "Building $libraryFrameworks in $projectPath"
+  Write-Host -ForegroundColor Green "Building $libraryFrameworks $assemblyVersion in $projectPath"
   Write-Host
 
-  $assemblyVersion = $majorVersion + '.0.0'
-
   exec { & $script:msBuildPath "/t:build" "/v:$msbuildVerbosity" $projectPath "/p:Configuration=Release" "/p:LibraryFrameworks=`"$libraryFrameworks`"" "/p:TestFrameworks=`"$testFrameworks`"" "/p:AssemblyOriginatorKeyFile=$signKeyPath" "/p:SignAssembly=$signAssemblies" "/p:TreatWarningsAsErrors=$treatWarningsAsErrors" "/p:AdditionalConstants=$additionalConstants" "/p:GeneratePackageOnBuild=$buildNuGet" "/p:ContinuousIntegrationBuild=true" "/p:PackageId=$packageId" "/p:VersionPrefix=$majorWithReleaseVersion" "/p:VersionSuffix=$nugetPrerelease" "/p:AssemblyVersion=$assemblyVersion" "/p:FileVersion=$version" "/m" }
+}
+
+function EnsureDotnetCli()
+{
+  Write-Host "Downloading dotnet-install.ps1"
+
+  # https://stackoverflow.com/questions/36265534/invoke-webrequest-ssl-fails
+  [Net.ServicePointManager]::SecurityProtocol = 'TLS12'
+  Invoke-WebRequest `
+    -Uri "https://dot.net/v1/dotnet-install.ps1" `
+    -OutFile "$buildDir\Temp\dotnet-install.ps1"
+
+  exec { & $buildDir\Temp\dotnet-install.ps1 -Channel $netCliChannel -Version $netCliVersion | Out-Default }
 }
 
 function EnsureNuGetExists()
@@ -204,8 +218,6 @@ function NetCliTests($build)
   $location = "$sourceDir\Newtonsoft.Json.Schema.Tests"
   $testDir = if ($build.TestFramework -ne $null) { $build.TestFramework } else { $build.Framework }
 
-  exec { .\Tools\Dotnet\dotnet-install.ps1 -Channel $netCliChannel -Version $netCliVersion | Out-Default }
-
   try
   {
     Set-Location $location
@@ -213,6 +225,8 @@ function NetCliTests($build)
     exec { dotnet --version | Out-Default }
 
     Write-Host -ForegroundColor Green "Running tests for $testDir"
+    Write-Host "Location: $location"
+    Write-Host "Project path: $projectPath"
     Write-Host
 
     exec { dotnet test $projectPath -f $testDir -c Release -l trx -r $workingDir --no-restore --no-build | Out-Default }
