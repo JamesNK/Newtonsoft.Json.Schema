@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks Condition="'$(TestFrameworks)'==''">net46;net451;net40;net35;netcoreapp1.1;netcoreapp3.0</TargetFrameworks>
+    <TargetFrameworks Condition="'$(TestFrameworks)'==''">net46;net40;net35;netcoreapp1.1;netcoreapp3.0</TargetFrameworks>
     <TargetFrameworks Condition="'$(TestFrameworks)'!=''">$(TestFrameworks)</TargetFrameworks>
     <VersionPrefix>1.0</VersionPrefix>
     <Authors>Newtonsoft</Authors>
@@ -37,18 +37,6 @@
   <PropertyGroup Condition="'$(TargetFramework)'=='net45'">
     <AssemblyTitle>Json.NET Schema Tests</AssemblyTitle>
     <DefineConstants>NET45;HAVE_BENCHMARKS;$(AdditionalConstants)</DefineConstants>
-  </PropertyGroup>
-  
-  <ItemGroup Condition="'$(TargetFramework)'=='net451'">
-    <PackageReference Include="NUnit" Version="3.11.0" />
-    <PackageReference Include="NUnit3TestAdapter" Version="3.11.2" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.ComponentModel.DataAnnotations" />
-  </ItemGroup>
-  <PropertyGroup Condition="'$(TargetFramework)'=='net451'">
-    <AssemblyTitle>Json.NET Schema Tests Portable</AssemblyTitle>
-    <ReferringTargetFrameworkForProjectReferences>.NETPortable,Version=v0.0,Profile=Profile259</ReferringTargetFrameworkForProjectReferences>
-    <DefineConstants>PORTABLE;$(AdditionalConstants)</DefineConstants>
   </PropertyGroup>
   
   <ItemGroup Condition="'$(TargetFramework)'=='net40'">

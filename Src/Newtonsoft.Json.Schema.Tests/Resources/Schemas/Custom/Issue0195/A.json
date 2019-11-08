@@ -1,0 +1,13 @@
+﻿{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "a": {
+      "type": "array",
+      "items": {
+        "$ref": "./B.json"
+      }
+    }
+  }
+}
