@@ -1018,7 +1018,10 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             // stackoverflow on circular references
             schemaReader.ResolveDeferedSchemas();
 
-            return _resolver.GetSubschema(schemaReference, rootSchema);
+            // root schema might have been a reference so update cache again
+            Cache[schemaReference.BaseUri] = schemaReader.RootSchema;
+
+            return _resolver.GetSubschema(schemaReference, schemaReader.RootSchema);
         }
 
         private Uri ResolveSchemaReference(JSchema schema)
