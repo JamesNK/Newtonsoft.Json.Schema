@@ -1,0 +1,21 @@
+﻿{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "sample.json#",
+  "type": "object",
+  "allOf": [
+    { "$ref": "types.json#/definitions/Location" },
+    {
+      "properties": {
+        "subLocations": {
+          "type": "array",
+          "items": { "$ref": "types.json#/definitions/Location" }
+        }
+      },
+      "required": [
+        "address",
+        "location",
+        "subLocations"
+      ]
+    }
+  ]
+}
