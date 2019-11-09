@@ -68,7 +68,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
 
             bool resolvedSchema;
 
-            if (parts.Length > 0 && (parts[0] == "#" || parts[0] == rootSchemaId + "#"))
+            if (parts.Length > 0 && IsInternalSchemaReference(parts[0], rootSchemaId))
             {
                 schemaReader._identiferScopeStack.Add(schema);
 
@@ -236,6 +236,27 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             }
 
             return resolvedSchema;
+        }
+
+        private static bool IsInternalSchemaReference(string firstPart, Uri rootSchemaId)
+        {
+            if (firstPart == "#")
+            {
+                return true;
+            }
+
+            if (rootSchemaId != null)
+            {
+                string id = rootSchemaId.ToString();
+                if (!id.EndsWith("#", StringComparison.Ordinal))
+                {
+                    id += "#";
+                }
+
+                return firstPart == id;
+            }
+
+            return false;
         }
 
         private static bool TryFindSchemaInDefinitions(Action<JSchema> setSchema, JSchema schema, Uri rootSchemaId,
