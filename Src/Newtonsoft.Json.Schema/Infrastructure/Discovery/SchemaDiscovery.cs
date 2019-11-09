@@ -245,13 +245,18 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                 return true;
             }
 
-            string id = rootSchemaId.ToString();
-            if (!id.EndsWith("#", StringComparison.Ordinal))
+            if (rootSchemaId != null)
             {
-                id += "#";
+                string id = rootSchemaId.ToString();
+                if (!id.EndsWith("#", StringComparison.Ordinal))
+                {
+                    id += "#";
+                }
+
+                return firstPart == id;
             }
 
-            return firstPart == id;
+            return false;
         }
 
         private static bool TryFindSchemaInDefinitions(Action<JSchema> setSchema, JSchema schema, Uri rootSchemaId,
