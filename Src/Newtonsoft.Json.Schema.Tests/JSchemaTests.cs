@@ -346,5 +346,27 @@ Parameter name: key",
 Parameter name: key",
                 "Value cannot be null. (Parameter 'key')");
         }
+
+        [Test]
+        public void ToString_JsonWriterSettings()
+        {
+            JSchema propertySchema = new JSchema();
+
+            JSchema s = new JSchema();
+            s.Properties["one"] = propertySchema;
+            s.Properties["two"] = propertySchema;
+
+            string json = s.ToString(new JSchemaWriterSettings
+            {
+                ReferenceHandling = JSchemaWriterReferenceHandling.Never
+            });
+
+            StringAssert.AreEqual(@"{
+  ""properties"": {
+    ""one"": {},
+    ""two"": {}
+  }
+}", json);
+        }
     }
 }

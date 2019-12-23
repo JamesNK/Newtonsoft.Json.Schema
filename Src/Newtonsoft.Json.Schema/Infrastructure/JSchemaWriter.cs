@@ -400,13 +400,13 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 _writer.WriteStartObject();
                 foreach (KeyValuePair<string, object> dependency in schema._dependencies)
                 {
-                    _writer.WritePropertyName(dependency.Key);
                     if (dependency.Value is JSchema s)
                     {
-                        s.WriteTo(_writer);
+                        ReferenceOrWriteSchema(schema, s, dependency.Key);
                     }
                     else if (dependency.Value is IList<string> a)
                     {
+                        _writer.WritePropertyName(dependency.Key);
                         _writer.WriteStartArray();
                         for (int i = 0; i < a.Count; i++)
                         {
