@@ -17,6 +17,7 @@ using System.IO;
 using System.Reflection;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema.Infrastructure;
+using System.Text;
 
 namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 {
@@ -346,6 +347,17 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         [Test]
         public void ReadAllResourceSchemas()
         {
+            JSchemaPreloadedResolver resolver = new JSchemaPreloadedResolver();
+            resolver.Add(
+                new Uri("http://json-schema.org/draft-04/schema"),
+                Encoding.UTF8.GetBytes(TestHelpers.OpenFileText("Resources/Schemas/schema-draft-v4.json")));
+            resolver.Add(
+                new Uri("http://json.schemastore.org/grunt-task"),
+                Encoding.UTF8.GetBytes(TestHelpers.OpenFileText("Resources/Schemas/grunt-task.json")));
+            resolver.Add(
+                new Uri("http://json.schemastore.org/jshintrc"),
+                Encoding.UTF8.GetBytes(TestHelpers.OpenFileText("Resources/Schemas/jshintrc.json")));
+
             string schemaDir = TestHelpers.ResolveFilePath(@"resources\schemas");
 
             string[] schemaFilePaths = Directory.GetFiles(schemaDir, "*.json");
@@ -357,7 +369,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
                     using (StreamReader sr = File.OpenText(schemaFilePath))
                     using (JsonTextReader reader = new JsonTextReader(sr))
                     {
-                        JSchema schema = JSchema.Load(reader, new JSchemaUrlResolver());
+                        JSchema schema = JSchema.Load(reader, resolver);
                     }
                 }
                 catch (Exception ex)

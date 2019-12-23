@@ -26,7 +26,10 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
         {
             string swaggerJson = TestHelpers.OpenFileText("Resources/Schemas/swagger-2.0.json");
 
-            JSchemaUrlResolver resolver = new JSchemaUrlResolver();
+            JSchemaPreloadedResolver resolver = new JSchemaPreloadedResolver();
+            resolver.Add(
+                new Uri("http://json-schema.org/draft-04/schema"),
+                Encoding.UTF8.GetBytes(TestHelpers.OpenFileText("Resources/Schemas/schema-draft-v4.json")));
 
             JSchema swagger = JSchema.Parse(swaggerJson, resolver);
 

@@ -579,6 +579,18 @@ namespace Newtonsoft.Json.Schema
             return ToStringInternal(settings);
         }
 
+        /// <summary>
+        /// Returns the JSON for this schema using the specified <see cref="JSchemaWriterSettings"/>.
+        /// </summary>
+        /// <param name="settings">The settings used to write the schema.</param>
+        /// <returns>The JSON for this schema.</returns>
+        public string ToString(JSchemaWriterSettings settings)
+        {
+            ValidationUtils.ArgumentNotNull(settings, nameof(settings));
+
+            return ToStringInternal(settings);
+        }
+
         private string ToStringInternal(JSchemaWriterSettings settings)
         {
             StringWriter writer = new StringWriter(CultureInfo.InvariantCulture);
