@@ -63,7 +63,9 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation.Samples.Generation
             #endregion
 
             Assert.IsTrue(schema.Properties["DiskIds"].UniqueItems);
+#if !NET35
             Assert.IsTrue(schema.Properties["ScreenIds"].UniqueItems);
+#endif
         }
     }
 }

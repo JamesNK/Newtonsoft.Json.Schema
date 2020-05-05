@@ -1814,6 +1814,12 @@ namespace Newtonsoft.Json.Schema.Tests
             public IEnumerable<string> UniqueItemsProperty { get; set; }
         }
 
+        internal class UniqueItemsClassWithAttributeButWithoutCollection
+        {
+            [UniqueItems]
+            public string UniqueItemsProperty { get; set; }
+        }
+
         [Test]
         public void GenerateUniqueItemsWithAttribute()
         {
@@ -1824,6 +1830,7 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsTrue(schema.Properties["UniqueItemsProperty"].UniqueItems);
         }
 
+#if !NET35
         [Test]
         public void GenerateUniqueItemsWithHashSet()
         {
@@ -1833,12 +1840,23 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsNotNull(schema.Properties["UniqueItemsProperty"]);
             Assert.IsTrue(schema.Properties["UniqueItemsProperty"].UniqueItems);
         }
+#endif
 
         [Test]
         public void GenerateUniqueItemsWithoutAttribute()
         {
             JSchemaGenerator generator = new JSchemaGenerator();
             JSchema schema = generator.Generate(typeof(UniqueItemsClassWithoutAttribute));
+
+            Assert.IsNotNull(schema.Properties["UniqueItemsProperty"]);
+            Assert.IsFalse(schema.Properties["UniqueItemsProperty"].UniqueItems);
+        }
+
+        [Test]
+        public void GenerateUniqueItemsWithtAttributeButWithoutCollection()
+        {
+            JSchemaGenerator generator = new JSchemaGenerator();
+            JSchema schema = generator.Generate(typeof(UniqueItemsClassWithAttributeButWithoutCollection));
 
             Assert.IsNotNull(schema.Properties["UniqueItemsProperty"]);
             Assert.IsFalse(schema.Properties["UniqueItemsProperty"].UniqueItems);
