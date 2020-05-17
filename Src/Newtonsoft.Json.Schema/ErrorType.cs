@@ -214,6 +214,36 @@ namespace Newtonsoft.Json.Schema
         /// An 'else' error.
         /// </summary>
         [EnumMember(Value = "else")]
-        Else = 33
+        Else = 33,
+
+        /// <summary>
+        /// A 'maxContains' error.
+        /// </summary>
+        [EnumMember(Value = "maxContains")]
+        MaximumContains = 34,
+
+        /// <summary>
+        /// A 'minContains' error.
+        /// </summary>
+        [EnumMember(Value = "minContains")]
+        MinimumContains = 35,
+
+        /// <summary>
+        /// An 'unevaluatedItems' error.
+        /// </summary>
+        [EnumMember(Value = "unevaluatedItems")]
+        UnevaluatedItems = 36,
+
+        /// <summary>
+        /// An 'unevaluatedProperties' error.
+        /// </summary>
+        [EnumMember(Value = "unevaluatedProperties")]
+        UnevaluatedProperties = 37,
+
+        /// <summary>
+        /// A 'ref' error.
+        /// </summary>
+        [EnumMember(Value = "ref")]
+        Ref = 38,
     }
 }

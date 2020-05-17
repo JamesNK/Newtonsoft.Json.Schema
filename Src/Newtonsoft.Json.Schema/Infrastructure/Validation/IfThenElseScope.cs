@@ -11,7 +11,7 @@ using System.Linq;
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 {
-    internal class IfThenElseScope : ConditionalScope
+    internal sealed class IfThenElseScope : ConditionalScope
     {
         public ConditionalContext ThenContext;
         public ConditionalContext ElseContext;
@@ -38,6 +38,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
             if (ifScope.IsValid)
             {
+                ConditionalContext.TrackEvaluatedSchema(ifScope.Schema);
+
                 if (Then != null)
                 {
                     SchemaScope thenScope = GetSchemaScopeBySchema(Then, token, value, depth);
@@ -46,6 +48,10 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     {
                         ConditionalContext context = (ConditionalContext)thenScope.Context;
                         RaiseError($"JSON does not match schema from 'then'.", ErrorType.Then, Then, null, context.Errors);
+                    }
+                    else
+                    {
+                        ConditionalContext.TrackEvaluatedSchema(thenScope.Schema);
                     }
                 }
             }
@@ -59,6 +65,10 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     {
                         ConditionalContext context = (ConditionalContext)elseScope.Context;
                         RaiseError($"JSON does not match schema from 'else'.", ErrorType.Else, Else, null, context.Errors);
+                    }
+                    else
+                    {
+                        ConditionalContext.TrackEvaluatedSchema(elseScope.Schema);
                     }
                 }
             }

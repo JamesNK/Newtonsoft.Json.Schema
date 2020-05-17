@@ -55,7 +55,7 @@ namespace Newtonsoft.Json.Schema
                 throw new ArgumentNullException(nameof(schema));
             }
 
-            Uri = schema.Id ?? new Uri(string.Empty, UriKind.RelativeOrAbsolute);
+            Uri = schema.ResolvedId ?? new Uri(string.Empty, UriKind.RelativeOrAbsolute);
             Schema = schema;
         }
     }

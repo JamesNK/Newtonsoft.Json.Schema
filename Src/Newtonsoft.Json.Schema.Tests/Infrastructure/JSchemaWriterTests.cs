@@ -1270,5 +1270,323 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
   }
 }", writer.ToString());
         }
+
+        [Test]
+        public void WriteTo_AllowAdditionalItems_True()
+        {
+            JSchema schema = new JSchema
+            {
+                AllowAdditionalItems = true,
+                AllowAdditionalProperties = true
+            };
+
+            StringWriter writer = new StringWriter();
+            JsonTextWriter jsonWriter = new JsonTextWriter(writer);
+            jsonWriter.Formatting = Formatting.Indented;
+
+            schema.WriteTo(jsonWriter);
+
+            Console.WriteLine(writer.ToString());
+
+            StringAssert.AreEqual(@"{
+  ""additionalProperties"": true,
+  ""additionalItems"": true
+}", writer.ToString());
+        }
+
+        [Test]
+        public void WriteTo_AllowAdditional_True()
+        {
+            JSchema schema = new JSchema
+            {
+                AllowAdditionalItems = true,
+                AllowAdditionalProperties = true
+            };
+
+            StringWriter writer = new StringWriter();
+            JsonTextWriter jsonWriter = new JsonTextWriter(writer);
+            jsonWriter.Formatting = Formatting.Indented;
+
+            schema.WriteTo(jsonWriter);
+
+            Console.WriteLine(writer.ToString());
+
+            StringAssert.AreEqual(@"{
+  ""additionalProperties"": true,
+  ""additionalItems"": true
+}", writer.ToString());
+        }
+
+        [Test]
+        public void WriteTo_AllowUnevaluated_True()
+        {
+            JSchema schema = new JSchema
+            {
+                AllowUnevaluatedItems = true,
+                AllowUnevaluatedProperties = true
+            };
+
+            StringWriter writer = new StringWriter();
+            JsonTextWriter jsonWriter = new JsonTextWriter(writer);
+            jsonWriter.Formatting = Formatting.Indented;
+
+            schema.WriteTo(jsonWriter);
+
+            Console.WriteLine(writer.ToString());
+
+            StringAssert.AreEqual(@"{
+  ""unevaluatedProperties"": true,
+  ""unevaluatedItems"": true
+}", writer.ToString());
+        }
+
+        [Test]
+        public void WriteTo_AllowUnevaluated_Schema()
+        {
+            JSchema schema = new JSchema
+            {
+                UnevaluatedItems = new JSchema { Type = JSchemaType.Boolean },
+                UnevaluatedProperties = new JSchema { Type = JSchemaType.String }
+            };
+
+            StringWriter writer = new StringWriter();
+            JsonTextWriter jsonWriter = new JsonTextWriter(writer);
+            jsonWriter.Formatting = Formatting.Indented;
+
+            schema.WriteTo(jsonWriter);
+
+            Console.WriteLine(writer.ToString());
+
+            StringAssert.AreEqual(@"{
+  ""unevaluatedProperties"": {
+    ""type"": ""string""
+  },
+  ""unevaluatedItems"": {
+    ""type"": ""boolean""
+  }
+}", writer.ToString());
+        }
+
+        [Test]
+        public void WriteTo_ContainsMinMax_ValuesSet()
+        {
+            JSchema schema = new JSchema
+            {
+                MinimumContains = 1,
+                MaximumContains = 2
+            };
+
+            StringWriter writer = new StringWriter();
+            JsonTextWriter jsonWriter = new JsonTextWriter(writer);
+            jsonWriter.Formatting = Formatting.Indented;
+
+            schema.WriteTo(jsonWriter);
+
+            Console.WriteLine(writer.ToString());
+
+            StringAssert.AreEqual(@"{
+  ""minContains"": 1,
+  ""maxContains"": 2
+}", writer.ToString());
+        }
+
+        [Test]
+        public void WriteTo_DependentSchemas_HasSchemas()
+        {
+            JSchema schema = new JSchema
+            {
+                DependentSchemas =
+                {
+                    ["One"] = new JSchema { Type = JSchemaType.Integer }
+                }
+            };
+
+            StringWriter writer = new StringWriter();
+            JsonTextWriter jsonWriter = new JsonTextWriter(writer);
+            jsonWriter.Formatting = Formatting.Indented;
+
+            schema.WriteTo(jsonWriter);
+
+            Console.WriteLine(writer.ToString());
+
+            StringAssert.AreEqual(@"{
+  ""dependentSchemas"": {
+    ""One"": {
+      ""type"": ""integer""
+    }
+  }
+}", writer.ToString());
+        }
+
+        [Test]
+        public void WriteTo_DependentRequired_HasValues()
+        {
+            JSchema schema = new JSchema
+            {
+                DependentRequired =
+                {
+                    ["One"] = new List<string> { "Value1", "Value2" }
+                }
+            };
+
+            StringWriter writer = new StringWriter();
+            JsonTextWriter jsonWriter = new JsonTextWriter(writer);
+            jsonWriter.Formatting = Formatting.Indented;
+
+            schema.WriteTo(jsonWriter);
+
+            Console.WriteLine(writer.ToString());
+
+            StringAssert.AreEqual(@"{
+  ""dependentRequired"": {
+    ""One"": [
+      ""Value1"",
+      ""Value2""
+    ]
+  }
+}", writer.ToString());
+        }
+
+        [Test]
+        public void WriteTo_Anchor()
+        {
+            string json = @"{
+                ""allOf"": [{
+                    ""$ref"": ""#foo""
+                }],
+                ""$defs"": {
+                    ""A"": {
+                        ""$anchor"": ""foo"",
+                        ""type"": ""integer""
+                    }
+                }
+            }";
+
+            JSchema schema = JSchema.Parse(json);
+
+            StringWriter writer = new StringWriter();
+            JsonTextWriter jsonWriter = new JsonTextWriter(writer);
+            jsonWriter.Formatting = Formatting.Indented;
+
+            schema.WriteTo(jsonWriter);
+
+            StringAssert.AreEqual(@"{
+  ""$defs"": {
+    ""A"": {
+      ""$anchor"": ""foo"",
+      ""type"": ""integer""
+    }
+  },
+  ""allOf"": [
+    {
+      ""$ref"": ""#foo""
+    }
+  ]
+}", writer.ToString());
+        }
+
+        [Test]
+        public void WriteTo_Ref()
+        {
+            string json = @"{
+                ""$defs"": {
+                    ""reffed"": {
+                        ""type"": ""array""
+                    }
+                },
+                ""properties"": {
+                    ""foo"": {
+                        ""$ref"": ""#/$defs/reffed"",
+                        ""maxItems"": 2
+                    }
+                }
+            }";
+
+            JSchema schema = JSchema.Parse(json);
+
+            StringWriter writer = new StringWriter();
+            JsonTextWriter jsonWriter = new JsonTextWriter(writer);
+            jsonWriter.Formatting = Formatting.Indented;
+
+            schema.WriteTo(jsonWriter);
+
+            StringAssert.AreEqual(@"{
+  ""$defs"": {
+    ""reffed"": {
+      ""type"": ""array""
+    }
+  },
+  ""properties"": {
+    ""foo"": {
+      ""maxItems"": 2,
+      ""$ref"": ""#/$defs/reffed""
+    }
+  }
+}", writer.ToString());
+        }
+
+        [Test]
+        public void WriteTo_Draft201909()
+        {
+            var defs = new JSchema { Title = "$defs" };
+
+            JSchema schema = new JSchema
+            {
+                UnevaluatedItems = new JSchema { Title = "UnevaluatedItems" },
+                UnevaluatedProperties = new JSchema { Title = "UnevaluatedProperties" },
+                DependentSchemas =
+                {
+                    ["key"] = new JSchema(),
+                    ["ref"] = defs
+                },
+                DependentRequired =
+                {
+                    ["key"] = new [] { "value" }
+                },
+                MinimumContains = 1,
+                MaximumContains = 2,
+                Anchor = "Anchor",
+                ExtensionData =
+                {
+                    ["$defs"] = new JObject
+                    {
+                        ["name"] = defs
+                    }
+                },
+                Ref = defs
+            };
+            string json = schema.ToString();
+
+            string expected = @"{
+  ""$anchor"": ""Anchor"",
+  ""$defs"": {
+    ""name"": {
+      ""title"": ""$defs""
+    }
+  },
+  ""unevaluatedProperties"": {
+    ""title"": ""UnevaluatedProperties""
+  },
+  ""unevaluatedItems"": {
+    ""title"": ""UnevaluatedItems""
+  },
+  ""minContains"": 1,
+  ""maxContains"": 2,
+  ""dependentSchemas"": {
+    ""key"": {},
+    ""ref"": {
+      ""$ref"": ""#/$defs/name""
+    }
+  },
+  ""dependentRequired"": {
+    ""key"": [
+      ""value""
+    ]
+  },
+  ""$ref"": ""#/$defs/name""
+}";
+
+            StringAssert.AreEqual(expected, json);
+        }
     }
 }

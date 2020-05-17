@@ -18,7 +18,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
         AnyOf,
         OneOf,
         Not,
-        IfThenElse
+        IfThenElse,
+        Ref
     }
 
     internal abstract class Scope

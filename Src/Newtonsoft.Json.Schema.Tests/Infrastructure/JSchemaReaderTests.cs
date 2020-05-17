@@ -185,6 +185,34 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         }
 
         [Test]
+        public void ExtenalSchemaReferenceFromDefinitions()
+        {
+            JSchemaPreloadedResolver resolver = new JSchemaPreloadedResolver();
+            resolver.Add(new Uri("http://localhost/ext.json"), "{'type':'string'}");
+
+            JSchema s = JSchema.Parse(@"{
+    ""$schema"": ""http://json-schema.org/draft-04/schema#"",
+    ""oneOf"": [
+        { ""$ref"": ""http://localhost/ext.json#"" },
+        { ""$ref"": ""#/definitions/geometryCollection"" }
+    ],
+    ""definitions"": {
+        ""geometryCollection"": {
+            ""properties"": {
+                ""geometries"": {
+                    ""type"": ""array"",
+                    ""items"": { ""$ref"": ""http://localhost/ext.json#"" }
+                }
+            }
+        }
+    }
+}", resolver);
+
+            Assert.AreEqual(JSchemaType.String, s.OneOf[0].Type);
+            Assert.AreEqual(s.OneOf[0], s.OneOf[1].Properties["geometries"].Items[0]);
+        }
+
+        [Test]
         public void GeoJson()
         {
             JSchemaPreloadedResolver resolver = new JSchemaPreloadedResolver();
@@ -194,6 +222,17 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             resolver.Add(new Uri("http://json-schema.org/geojson/geometry.json"), TestHelpers.OpenFile(@"resources\schemas\geojson\geometry.json"));
 
             JSchema schema = OpenSchemaFile(@"resources\schemas\geojson\geojson.json", resolver, new Uri("http://json-schema.org/geojson/geojson.json"));
+
+            Assert.AreEqual(JSchemaType.Object, schema.Type);
+            Assert.AreEqual("crs", schema.Properties["crs"].Title);
+
+            var geometry = schema.OneOf[0];
+            Assert.AreEqual("geometry", geometry.Title);
+
+            var geometryCollection = schema.OneOf[1];
+            Assert.AreEqual("GeometryCollection", geometryCollection.Title);
+
+            Assert.AreEqual(geometry, geometryCollection.Properties["geometries"].Items[0]);
 
             JObject o = JObject.Parse(@"{
               ""type"": ""Feature"",
@@ -228,7 +267,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             Assert.AreEqual(new Uri("http://json-schema.org/geojson/bbox.json"), errors[0].SchemaBaseUri);
             Assert.AreEqual(new Uri("http://json-schema.org/geojson/geojson.json"), errors[1].SchemaBaseUri);
 
-            //PrintErrorsRecursive(errors, 0);
+            PrintErrorsRecursive(errors, 0);
         }
 
         private void PrintErrorsRecursive(IList<ValidationError> errors, int depth)
@@ -1965,6 +2004,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         public void NestedRef()
         {
             JSchema s1 = JSchema.Parse(@"{
+                ""$schema"": ""http://json-schema.org/draft-04/schema#"",
                 ""definitions"": {
                     ""a"": {""type"": ""integer""},
                     ""b"": {""$ref"": ""#/definitions/a""},
@@ -2074,6 +2114,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         public void NestedCircularRef()
         {
             ExceptionAssert.Throws<JSchemaReaderException>(() => { JSchema.Parse(@"{
+                  ""$schema"": ""http://json-schema.org/draft-04/schema#"",
                   ""$ref"": ""#/a"",
                   ""a"": { ""$ref"": ""#/b"" },
                   ""b"": { ""$ref"": ""#/a"" }
@@ -3351,6 +3392,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             Assert.AreEqual(JSchemaType.Array, s.Properties["list"].Type);
             Assert.AreEqual(JSchemaType.Integer, s.Properties["list"].Items[0].Type);
         }
+#endif
 
         private static void AddSchema(JSchemaPreloadedResolver resolver, string schemaFileName, string id)
         {
@@ -3361,7 +3403,6 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 
             resolver.Add(new Uri(id), json);
         }
-#endif
 
         [Test]
         public void LargeMaxLength()
@@ -3519,6 +3560,595 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             Assert.AreEqual("TestSchemaReference", referencedSchema.Id.OriginalString);
             
             Assert.AreEqual(referencedSchema, referencedSchema.Properties["SelfreferencedArray"].Items[0]);
+        }
+
+        [Test]
+        public void Anchor()
+        {
+            string json = @"{
+                ""allOf"": [{
+                    ""$ref"": ""#foo""
+                }],
+                ""$defs"": {
+                    ""A"": {
+                        ""$anchor"": ""foo"",
+                        ""type"": ""integer""
+                    }
+                }
+            }";
+
+            JSchema s = JSchema.Parse(json);
+            JSchema foo = (JSchema)s.ExtensionData["$defs"]["A"];
+
+            Assert.AreEqual(foo, s.AllOf[0]);
+        }
+
+        [Test]
+        public void RecursiveRef()
+        {
+            string json = @"{
+                ""allOf"": [{
+                    ""$recursiveRef"": ""#""
+                }]
+            }";
+
+            JSchema s = JSchema.Parse(json);
+
+            Assert.AreEqual(s, s.AllOf[0]);
+        }
+
+        [Test]
+        public void RecursiveAnchor()
+        {
+            string json = @"{
+                ""$recursiveAnchor"": false
+            }";
+
+            JSchema s = JSchema.Parse(json);
+            Assert.AreEqual(false, s.RecursiveAnchor);
+        }
+
+        [Test]
+        public void RecursiveAnchor_OnBothLevels_OuterSchemaResolved()
+        {
+            string json = @"{
+                ""$schema"": ""https://json-schema.org/draft/2019-09/schema"",
+                ""$id"": ""https://example.com/root"",
+                ""$recursiveAnchor"": true,
+                ""properties"": {
+                    ""prop1"": { ""$ref"": ""tree"" }
+                }
+            }";
+
+            JSchemaPreloadedResolver resolver = new JSchemaPreloadedResolver();
+            resolver.Add(new Uri("https://example.com/tree", UriKind.RelativeOrAbsolute), @"{
+                ""$schema"": ""https://json-schema.org/draft/2019-09/schema"",
+                ""$id"": ""https://example.com/tree"",
+                ""$recursiveAnchor"": true,
+
+                ""type"": ""object"",
+                ""properties"": {
+                    ""data"": true,
+                    ""children"": {
+                        ""type"": ""array"",
+                        ""items"": {
+                            ""$recursiveRef"": ""#""
+                        }
+                    }
+                }
+            }");
+
+            JSchema s = JSchema.Parse(json, resolver);
+            Assert.AreEqual(true, s.RecursiveAnchor);
+
+            JSchema prop1 = s.Properties["prop1"];
+
+            Assert.AreEqual("https://example.com/tree", prop1.Id.OriginalString);
+            Assert.AreEqual(true, prop1.RecursiveAnchor);
+
+            JSchema items = prop1.Properties["children"].Items[0];
+            Assert.AreEqual(s, items);
+        }
+
+        [Test]
+        public void RecursiveAnchor_SingleLevel_InnerSchemaResolved()
+        {
+            string json = @"{
+                ""$schema"": ""https://json-schema.org/draft/2019-09/schema"",
+                ""$id"": ""https://example.com/root"",
+
+                ""properties"": {
+                    ""prop1"": { ""$ref"": ""tree"" }
+                }
+            }";
+
+            JSchemaPreloadedResolver resolver = new JSchemaPreloadedResolver();
+            resolver.Add(new Uri("https://example.com/tree", UriKind.RelativeOrAbsolute), @"{
+                ""$schema"": ""https://json-schema.org/draft/2019-09/schema"",
+                ""$id"": ""https://example.com/tree"",
+                ""$recursiveAnchor"": true,
+
+                ""type"": ""object"",
+                ""properties"": {
+                    ""data"": true,
+                    ""children"": {
+                        ""type"": ""array"",
+                        ""items"": {
+                            ""$recursiveRef"": ""#""
+                        }
+                    }
+                }
+            }");
+
+            JSchema s = JSchema.Parse(json, resolver);
+            JSchema prop1 = s.Properties["prop1"];
+
+            Assert.AreEqual("https://example.com/tree", prop1.Id.OriginalString);
+            Assert.AreEqual(true, prop1.RecursiveAnchor);
+
+            JSchema items = prop1.Properties["children"].Items[0];
+            Assert.AreEqual(prop1, items);
+        }
+
+        [Test]
+        public void LoadSchemaSpec201909()
+        {
+            var resolver = new JSchemaPreloadedResolver();
+            AddSchema(resolver, "draft2019-09/draft2019-09.json", "https://json-schema.org/draft/2019-09/schema");
+            AddSchema(resolver, "draft2019-09/meta/applicator.json", "https://json-schema.org/draft/2019-09/meta/applicator");
+            AddSchema(resolver, "draft2019-09/meta/content.json", "https://json-schema.org/draft/2019-09/meta/content");
+            AddSchema(resolver, "draft2019-09/meta/core.json", "https://json-schema.org/draft/2019-09/meta/core");
+            AddSchema(resolver, "draft2019-09/meta/format.json", "https://json-schema.org/draft/2019-09/meta/format");
+            AddSchema(resolver, "draft2019-09/meta/hyper-schema.json", "https://json-schema.org/draft/2019-09/meta/hyper-schema");
+            AddSchema(resolver, "draft2019-09/meta/meta-data.json", "https://json-schema.org/draft/2019-09/meta/meta-data");
+            AddSchema(resolver, "draft2019-09/meta/validation.json", "https://json-schema.org/draft/2019-09/meta/validation");
+            
+            JSchema root = JSchema.Parse(@"{""$ref"": ""https://json-schema.org/draft/2019-09/schema""}", resolver);
+
+            Assert.AreEqual("Core and Validation specifications meta-schema", root.Title);
+            Assert.AreEqual(true, root.RecursiveAnchor);
+            Assert.AreEqual(JSchemaType.Object, root.Properties["definitions"].Type);
+            Assert.AreEqual(root, root.Properties["definitions"].AdditionalProperties);
+            Assert.AreEqual(JSchemaType.Object, root.Properties["dependencies"].Type);
+            Assert.AreEqual(root, root.Properties["dependencies"].AdditionalProperties.AnyOf[0]);
+            Assert.AreEqual(JSchemaType.Array, root.Properties["dependencies"].AdditionalProperties.AnyOf[1].Type);
+
+            JSchema core = root.AllOf[0];
+
+            Assert.AreEqual("Core vocabulary meta-schema", core.Title);
+            Assert.AreEqual(true, core.RecursiveAnchor);
+            Assert.AreEqual(JSchemaType.Object, core.Properties["$defs"].Type);
+            Assert.AreEqual(root, core.Properties["$defs"].AdditionalProperties);
+            Assert.AreEqual(JTokenType.Object, core.Properties["$defs"].Default.Type);
+
+            JSchema applicator = root.AllOf[1];
+
+            Assert.AreEqual("Applicator vocabulary meta-schema", applicator.Title);
+            Assert.AreEqual(true, applicator.RecursiveAnchor);
+            Assert.AreEqual(root, applicator.Properties["additionalItems"]);
+            Assert.AreEqual(root, applicator.Properties["items"].AnyOf[0]);
+            Assert.AreEqual(JSchemaType.Array, applicator.Properties["items"].AnyOf[1].Type);
+            Assert.AreEqual(root, applicator.Properties["items"].AnyOf[1].Items[0]);
+            Assert.AreEqual(applicator.Properties["items"].AnyOf[1], (JSchema)applicator.ExtensionData["$defs"]["schemaArray"]);
+
+            JSchema validation = root.AllOf[2];
+
+            Assert.AreEqual("Validation vocabulary meta-schema", validation.Title);
+            Assert.AreEqual(true, validation.RecursiveAnchor);
+            Assert.AreEqual("properties.minContains", validation.Properties["minContains"].Path);
+            Assert.AreEqual("$defs.nonNegativeInteger", validation.Properties["minContains"].Ref.Path);            
+            Assert.AreEqual("$defs.nonNegativeInteger", validation.Properties["maxLength"].Path);
+            Assert.AreEqual(JSchemaType.Integer, validation.Properties["maxLength"].Type);
+            Assert.AreEqual(0, validation.Properties["maxLength"].Minimum);
+            Assert.AreEqual(null, validation.Properties["maxLength"].Default);
+            Assert.AreEqual("$defs.nonNegativeIntegerDefault0", validation.Properties["minLength"].Path);
+            Assert.AreEqual(null, validation.Properties["minLength"].Minimum);
+            Assert.AreEqual(0, (int)validation.Properties["minLength"].Default);
+            Assert.AreEqual("$defs.nonNegativeInteger", validation.Properties["minLength"].Ref.Path);
+            Assert.AreEqual(JSchemaType.Integer, validation.Properties["minLength"].Ref.Type);
+
+            Assert.AreEqual(validation.Properties["maxLength"], (JSchema)validation.ExtensionData["$defs"]["nonNegativeInteger"]);
+            Assert.AreEqual(validation.Properties["minLength"], (JSchema)validation.ExtensionData["$defs"]["nonNegativeIntegerDefault0"]);
+        }
+
+        [Test]
+        public void DependentRequired()
+        {
+            string json = @"{""dependentRequired"": {""bar"": [""foo""]}}";
+            JSchema s = JSchema.Parse(json);
+
+            Assert.AreEqual(1, s.DependentRequired.Count);
+            Assert.AreEqual("foo", s.DependentRequired["bar"][0]);
+        }
+
+        [Test]
+        public void DependentRequiredMultiple()
+        {
+            string json = @"{""dependentRequired"": {""bar"": [""foo"",""baz""],""boo"": []}}";
+            JSchema s = JSchema.Parse(json);
+
+            Assert.AreEqual(2, s.DependentRequired.Count);
+            Assert.AreEqual("foo", s.DependentRequired["bar"][0]);
+            Assert.AreEqual("baz", s.DependentRequired["bar"][1]);
+            Assert.AreEqual(0, s.DependentRequired["boo"].Count);
+        }
+
+        [Test]
+        public void DependentSchemas()
+        {
+            string json = @"{
+                ""dependentSchemas"": {
+                    ""bar"": {
+                        ""properties"": {
+                            ""foo"": {""type"": ""integer""},
+                            ""bar"": {""type"": ""integer""}
+                        }
+                    }
+                }
+            }";
+            JSchema s = JSchema.Parse(json);
+
+            Assert.AreEqual(1, s.DependentSchemas.Count);
+            Assert.AreEqual(2, s.DependentSchemas["bar"].Properties.Count);
+            Assert.AreEqual(JSchemaType.Integer, s.DependentSchemas["bar"].Properties["foo"].Type);
+            Assert.AreEqual(JSchemaType.Integer, s.DependentSchemas["bar"].Properties["bar"].Type);
+        }
+
+        [Test]
+        public void MaxContains()
+        {
+            string json = @"{
+                ""maxContains"": 1
+            }";
+            JSchema s = JSchema.Parse(json);
+
+            Assert.AreEqual(1, s.MaximumContains);
+        }
+
+        [Test]
+        public void MinContains()
+        {
+            string json = @"{
+                ""minContains"": 1
+            }";
+            JSchema s = JSchema.Parse(json);
+
+            Assert.AreEqual(1, s.MinimumContains);
+        }
+
+        [Test]
+        public void UnevaluatedProperties_False()
+        {
+            string json = @"{
+                ""unevaluatedProperties"": false
+            }";
+            JSchema s = JSchema.Parse(json);
+
+            Assert.AreEqual(false, s.AllowUnevaluatedProperties);
+        }
+
+        [Test]
+        public void UnevaluatedProperties_Schema()
+        {
+            string json = @"{
+                ""unevaluatedProperties"": { ""type"": ""string"" }
+            }";
+            JSchema s = JSchema.Parse(json);
+
+            Assert.AreEqual(JSchemaType.String, s.UnevaluatedProperties.Type);
+        }
+
+        [Test]
+        public void UnevaluatedItems_False()
+        {
+            string json = @"{
+                ""unevaluatedItems"": false
+            }";
+            JSchema s = JSchema.Parse(json);
+
+            Assert.AreEqual(false, s.AllowUnevaluatedItems);
+        }
+
+        [Test]
+        public void UnevaluatedItems_Schema()
+        {
+            string json = @"{
+                ""unevaluatedItems"": { ""type"": ""string"" }
+            }";
+            JSchema s = JSchema.Parse(json);
+
+            Assert.AreEqual(JSchemaType.String, s.UnevaluatedItems.Type);
+        }
+
+        [Test]
+        public void BaseUriChange_ChangeFolder_ReferenceId()
+        {
+            string json = @"{
+                ""$id"": ""http://localhost:1234/scope_change_defs1.json"",
+                ""type"" : ""object"",
+                ""properties"": {""list"": {""$ref"": ""folder/""}},
+                ""$defs"": {
+                    ""baz"": {
+                        ""$id"": ""folder/"",
+                        ""type"": ""array"",
+                        ""items"": {""$ref"": ""folderInteger.json""}
+                    }
+                }
+            }";
+
+            JSchemaPreloadedResolver resolver = new JSchemaPreloadedResolver();
+            resolver.Add(new Uri("http://localhost:1234/folder/folderInteger.json"), "{'type':'integer'}");
+            JSchema s = JSchema.Parse(json, resolver);
+
+            Assert.AreEqual(JSchemaType.Integer, s.Properties["list"].Items[0].Type);
+        }
+
+        [Test]
+        public void BaseUriChange_ChangeFolder_ReferencePath()
+        {
+            string json = @"{
+                ""id"": ""http://localhost:1234/scope_change_defs1.json"",
+                ""type"" : ""object"",
+                ""properties"": {
+                    ""list"": {""$ref"": ""#/definitions/baz""}
+                },
+                ""definitions"": {
+                    ""baz"": {
+                        ""id"": ""folder/"",
+                        ""type"": ""array"",
+                        ""items"": {""$ref"": ""folderInteger.json""}
+                    }
+                }
+            }";
+
+            JSchemaPreloadedResolver resolver = new JSchemaPreloadedResolver();
+            resolver.Add(new Uri("http://localhost:1234/folder/folderInteger.json"), "{'type':'integer'}");
+            JSchema s = JSchema.Parse(json, resolver);
+
+            Assert.AreEqual(JSchemaType.Integer, s.Properties["list"].Items[0].Type);
+        }
+
+        [Test]
+        public void BaseUriChange_ChangeFolderInSubSchema()
+        {
+            string json = @"{
+                ""$id"": ""http://localhost:1234/scope_change_defs2.json"",
+                ""type"" : ""object"",
+                ""properties"": {""list"": {""$ref"": ""folder/#/$defs/bar""}},
+                ""$defs"": {
+                    ""baz"": {
+                        ""$id"": ""folder/"",
+                        ""$defs"": {
+                            ""bar"": {
+                                ""type"": ""array"",
+                                ""items"": {""$ref"": ""folderInteger.json""}
+                            }
+                        }
+                    }
+                }
+            }";
+
+            JSchemaPreloadedResolver resolver = new JSchemaPreloadedResolver();
+            resolver.Add(new Uri("http://localhost:1234/folder/folderInteger.json"), "{'type':'integer'}");
+            JSchema s = JSchema.Parse(json, resolver);
+
+            Assert.AreEqual(JSchemaType.Array, s.Properties["list"].Type);
+            Assert.AreEqual("$defs.baz.$defs.bar", s.Properties["list"].Path);
+
+            Assert.AreEqual(JSchemaType.Integer, s.Properties["list"].Items[0].Type);
+            Assert.AreEqual("", s.Properties["list"].Items[0].Path);
+        }
+
+        [Test]
+        public void Ref_AlongsideContent()
+        {
+            string json = @"{
+                ""$defs"": {
+                    ""reffed"": {
+                        ""type"": ""array""
+                    }
+                },
+                ""properties"": {
+                    ""foo"": {
+                        ""$ref"": ""#/$defs/reffed"",
+                        ""maxItems"": 2
+                    }
+                }
+            }";
+
+            JObject o = JObject.Parse(json);
+
+            JSchema s = JSchema.Load(o.CreateReader());
+
+            Assert.AreEqual(2, s.Properties["foo"].MaximumItems);
+            Assert.IsNotNull(s.Properties["foo"].Ref);
+
+            Assert.AreEqual(JSchemaType.Array, s.Properties["foo"].Ref.Type);
+
+            s = JSchema.Load(o.CreateReader());
+
+            Assert.AreEqual(2, s.Properties["foo"].MaximumItems);
+            Assert.IsNotNull(s.Properties["foo"].Ref);
+
+            Assert.AreEqual(JSchemaType.Array, s.Properties["foo"].Ref.Type);
+        }
+
+        [Test]
+        public void Ref_Root()
+        {
+            string json = @"{
+                ""type"": ""object"",
+                ""$ref"": ""#/$defs/bar"",
+                ""properties"": {
+                    ""foo"": { ""type"": ""string"" }
+                },
+                ""unevaluatedProperties"": false,
+                ""$defs"": {
+                    ""bar"": {
+                        ""properties"": {
+                            ""bar"": { ""type"": ""string"" }
+                        }
+                    }
+                }
+            }";
+
+            JSchema s = JSchema.Parse(json);
+
+            Assert.AreEqual(JSchemaType.Object, s.Type);
+            Assert.AreEqual(JSchemaType.String, s.Properties["foo"].Type);
+
+            Assert.IsNotNull(s.Ref);
+            Assert.AreEqual(JSchemaType.String, s.Ref.Properties["bar"].Type);
+        }
+
+        [Test]
+        public void Ref_Self()
+        {
+            string json = @"{
+
+  ""type"": ""object"",
+  ""$ref"":""#"",
+  ""definitions"": {
+  }
+}";
+
+            // This is weird but the validator won't error when validating it.
+            JSchema s = JSchema.Parse(json);
+            Assert.AreEqual(s, s.Ref);
+        }
+
+        [Test]
+        public void Ref_AnotherRef()
+        {
+            string json = @"{
+                ""title"": ""root"",
+                ""allOf"": [{
+                    ""title"": ""allOf"",
+                    ""type"": ""string"",
+                    ""$ref"": ""#/$defs/A""
+                }],
+                ""$defs"": {
+                    ""A"": {
+                        ""$ref"": ""#/$defs/B""
+                    },
+                    ""B"": {
+                        ""title"": ""B"",
+                        ""type"": ""array""
+                    }
+                }
+            }";
+
+            JSchema s = JSchema.Parse(json);
+            JSchema b = (JSchema)s.ExtensionData["$defs"]["A"];
+
+            Assert.AreEqual("allOf", s.AllOf[0].Title);
+            Assert.AreEqual("B", s.AllOf[0].Ref.Title);
+            Assert.AreEqual(b, s.AllOf[0].Ref);
+        }
+
+        [Test]
+        public void Ref_Anchor()
+        {
+            string json = @"{
+                ""title"": ""root"",
+                ""allOf"": [{
+                    ""title"": ""allOf"",
+                    ""type"": ""string"",
+                    ""$ref"": ""#foo""
+                }],
+                ""$defs"": {
+                    ""A"": {
+                        ""title"": ""A"",
+                        ""$anchor"": ""foo"",
+                        ""type"": ""integer"",
+                        ""$ref"": ""#/$defs/B""
+                    },
+                    ""B"": {
+                        ""title"": ""B"",
+                        ""type"": ""array""
+                    }
+                }
+            }";
+
+            JSchema s = JSchema.Parse(json);
+            JSchema a = (JSchema)s.ExtensionData["$defs"]["A"];
+            JSchema b = (JSchema)s.ExtensionData["$defs"]["B"];
+
+            Assert.AreEqual(JSchemaType.String, s.AllOf[0].Type);
+            Assert.AreEqual(JSchemaType.Integer, s.AllOf[0].Ref.Type);
+            Assert.AreEqual(a, s.AllOf[0].Ref);
+            Assert.AreEqual(b, a.Ref);
+        }
+
+        [Test]
+        public void Ref_AlreadyReferenced()
+        {
+            string json = @"{
+                ""title"": ""root"",
+                ""allOf"": [
+                    { ""$ref"": ""#/$defs/A"" },
+                    {
+                        ""title"": ""allOf"",
+                        ""type"": ""string"",
+                        ""$ref"": ""#/$defs/A""
+                    }
+                ],
+                ""$defs"": {
+                    ""A"": {
+                        ""title"": ""A"",
+                        ""type"": ""integer""
+                    },
+                    ""B"": {
+                        ""title"": ""B"",
+                        ""type"": ""array""
+                    }
+                }
+            }";
+
+            JSchema s = JSchema.Parse(json);
+            JSchema a = (JSchema)s.ExtensionData["$defs"]["A"];
+
+            Assert.AreEqual("A", s.AllOf[0].Title);
+            Assert.AreEqual("allOf", s.AllOf[1].Title);
+            Assert.AreEqual(a, s.AllOf[1].Ref);
+        }
+
+        [Test]
+        public void Ref_AlreadyReferenced_Nested()
+        {
+            string json = @"{
+                ""title"": ""root"",
+                ""allOf"": [
+                    { ""$ref"": ""#/$defs/A"" },
+                    {
+                        ""title"": ""allOf"",
+                        ""type"": ""string"",
+                        ""$ref"": ""#/$defs/A""
+                    }
+                ],
+                ""$defs"": {
+                    ""A"": {
+                        ""title"": ""A"",
+                        ""type"": ""integer"",
+                        ""$ref"": ""#/$defs/B""
+                    },
+                    ""B"": {
+                        ""title"": ""B"",
+                        ""type"": ""array""
+                    }
+                }
+            }";
+
+            JSchema s = JSchema.Parse(json);
+            JSchema a = (JSchema)s.ExtensionData["$defs"]["A"];
+            JSchema b = (JSchema)s.ExtensionData["$defs"]["B"];
+
+            Assert.AreEqual("A", s.AllOf[0].Title);
+            Assert.AreEqual("allOf", s.AllOf[1].Title);
+            Assert.AreEqual("A", s.AllOf[1].Ref.Title);
+            Assert.AreEqual("B", s.AllOf[1].Ref.Ref.Title);
+            Assert.AreEqual(a, s.AllOf[1].Ref);
+            Assert.AreEqual(b, a.Ref);
         }
     }
 }

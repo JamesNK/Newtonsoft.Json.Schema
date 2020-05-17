@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 {
-    internal class ValidatorContext : ContextBase
+    internal sealed class ValidatorContext : ContextBase
     {
         private bool _hasErrors;
 

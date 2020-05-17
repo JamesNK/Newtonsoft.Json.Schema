@@ -10,7 +10,7 @@ using System.Linq;
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 {
-    internal class AllOfScope : ConditionalScope
+    internal sealed class AllOfScope : ConditionalScope
     {
         protected override bool EvaluateTokenCore(JsonToken token, object value, int depth)
         {
@@ -24,6 +24,10 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     {
                         invalidIndexes.Add(index);
                     }
+                    else
+                    {
+                        ConditionalContext.TrackEvaluatedSchema(schemaScope.Schema);
+                    }
 
                     index++;
                 }
@@ -31,7 +35,14 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 IFormattable message = $"JSON does not match all schemas from 'allOf'. Invalid schema indexes: {StringHelpers.Join(", ", invalidIndexes)}.";
                 RaiseError(message, ErrorType.AllOf, ParentSchemaScope.Schema, null, ConditionalContext.Errors);
             }
-
+            else
+            {
+                for (int i = 0; i < ChildScopes.Count; i++)
+                {
+                    ConditionalContext.TrackEvaluatedSchema(ChildScopes[i].Schema);
+                }
+            }
+            
             return true;
         }
     }

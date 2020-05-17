@@ -5,20 +5,20 @@
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json.Schema.Infrastructure.Collections;
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 {
-    internal class ObjectScope : SchemaScope
+    internal sealed class ObjectScope : SchemaScope
     {
         private int _propertyCount;
         private string _currentPropertyName;
         private List<string> _requiredProperties;
         private List<string> _readProperties;
         private Dictionary<string, SchemaScope> _dependencyScopes;
+        private Dictionary<string, UnevaluatedContext> _unevaluatedScopes;
 
         public void Initialize(ContextBase context, SchemaScope parent, int initialDepth, JSchema schema)
         {
@@ -45,7 +45,10 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 }
             }
 
-            if (!schema._dependencies.IsNullOrEmpty())
+            // Need to track the properties read when:
+            //  - Schema has dependencies or,
+            //  - Need to validate unevaluated properties
+            if (HasDependencies())
             {
                 if (_readProperties != null)
                 {
@@ -56,7 +59,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     _readProperties = new List<string>();
                 }
 
-                if (schema._dependencies.HasSchemas)
+                if ((schema._dependencies != null && schema._dependencies.HasSchemas)
+                    || !schema._dependentSchemas.IsNullOrEmpty())
                 {
                     if (_dependencyScopes != null)
                     {
@@ -65,6 +69,54 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     else
                     {
                         _dependencyScopes = new Dictionary<string, SchemaScope>(StringComparer.Ordinal);
+                    }
+                }
+            }
+
+            if (ShouldValidateUnevaluated())
+            {
+                if (_unevaluatedScopes != null)
+                {
+                    _unevaluatedScopes.Clear();
+                }
+                else
+                {
+                    _unevaluatedScopes = new Dictionary<string, UnevaluatedContext>(StringComparer.Ordinal);
+                }
+            }
+        }
+
+        public override bool ShouldValidateUnevaluated()
+        {
+            // If additional items are validated then there are no unevaluated properties
+            if (Schema.HasAdditionalProperties)
+            {
+                return false;
+            }
+
+            return !(Schema.AllowUnevaluatedProperties ?? true) || Schema.UnevaluatedProperties != null;
+        }
+
+        protected override void OnConditionalScopeValidated(ConditionalScope conditionalScope)
+        {
+            if (ShouldValidateUnevaluated())
+            {
+                if (!conditionalScope.EvaluatedSchemas.IsNullOrEmpty())
+                {
+                    foreach (KeyValuePair<string, UnevaluatedContext> unevaluatedScope in _unevaluatedScopes)
+                    {
+                        UnevaluatedContext context = unevaluatedScope.Value;
+
+                        if (!context.Evaluated && !context.ValidScopes.IsNullOrEmpty())
+                        {
+                            foreach (JSchema validScopes in context.ValidScopes)
+                            {
+                                if (conditionalScope.EvaluatedSchemas.Contains(validScopes))
+                                {
+                                    context.Evaluated = true;
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -104,31 +156,46 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                             RaiseError($"Object property count {_propertyCount} is less than minimum count of {Schema.MinimumProperties}.", ErrorType.MinimumProperties, Schema, _propertyCount, null);
                         }
 
-                        if (!Schema._dependencies.IsNullOrEmpty())
+                        if (HasDependencies())
                         {
                             foreach (string readProperty in _readProperties)
                             {
-                                if (Schema._dependencies.TryGetValue(readProperty, out object dependency))
+                                object dependency = null;
+                                IList<string> requiredProperties = null;
+                                if (Schema._dependencies?.TryGetValue(readProperty, out dependency) ?? false)
                                 {
-                                    if (dependency is List<string> requiredProperties)
+                                    requiredProperties = dependency as IList<string>;
+                                    if (requiredProperties != null)
                                     {
-                                        if (!requiredProperties.All(r => _readProperties.Contains(r)))
-                                        {
-                                            IEnumerable<string> missingRequiredProperties = requiredProperties.Where(r => !_readProperties.Contains(r));
-                                            IFormattable message = $"Dependencies for property '{readProperty}' failed. Missing required keys: {StringHelpers.Join(", ", missingRequiredProperties)}.";
-
-                                            RaiseError(message, ErrorType.Dependencies, Schema, readProperty, null);
-                                        }
+                                        ValidateDependantProperties(readProperty, requiredProperties);
                                     }
                                     else
                                     {
-                                        SchemaScope dependencyScope = _dependencyScopes[readProperty];
-                                        if (dependencyScope.Context.HasErrors)
-                                        {
-                                            IFormattable message = $"Dependencies for property '{readProperty}' failed.";
-                                            RaiseError(message, ErrorType.Dependencies, Schema, readProperty, ((ConditionalContext)dependencyScope.Context).Errors);
-                                        }
+                                        ValidateDependantSchema(readProperty);
                                     }
+                                }
+
+                                if (Schema._dependentRequired?.TryGetValue(readProperty, out requiredProperties) ?? false)
+                                {
+                                    ValidateDependantProperties(readProperty, requiredProperties);
+                                }
+
+                                if (Schema._dependentSchemas?.TryGetValue(readProperty, out _) ?? false)
+                                {
+                                    ValidateDependantSchema(readProperty);
+                                }
+                            }
+                        }
+
+                        // Evaluate after dependency schemas have been validated
+                        if (!_unevaluatedScopes.IsNullOrEmpty())
+                        {
+                            foreach (KeyValuePair<string, UnevaluatedContext> item in _unevaluatedScopes)
+                            {
+                                if (!item.Value.Evaluated)
+                                {
+                                    IFormattable message = $"Property '{item.Key}' has not been successfully evaluated and the schema does not allow unevaluated properties.";
+                                    RaiseError(message, ErrorType.UnevaluatedProperties, Schema, item.Key, ((ConditionalContext) item.Value.SchemaScope.Context)?.Errors);
                                 }
                             }
                         }
@@ -170,7 +237,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     {
                         _requiredProperties.Remove(_currentPropertyName);
                     }
-                    if (!Schema._dependencies.IsNullOrEmpty())
+                    if (HasDependencies())
                     {
                         _readProperties.Add(_currentPropertyName);
                     }
@@ -182,7 +249,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
                     if (!Schema.AllowAdditionalProperties)
                     {
-                        if (!IsPropertyDefinied(Schema, _currentPropertyName))
+                        if (!IsPropertyDefined(Schema, _currentPropertyName))
                         {
                             IFormattable message = $"Property '{_currentPropertyName}' has not been defined and the schema does not allow additional properties.";
                             RaiseError(message, ErrorType.AdditionalProperties, Schema, _currentPropertyName, null);
@@ -229,6 +296,61 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                             {
                                 CreateScopesAndEvaluateToken(token, value, depth, Schema.AdditionalProperties);
                             }
+
+                            if (ShouldValidateUnevaluated())
+                            {
+                                _unevaluatedScopes[_currentPropertyName] = Schema.UnevaluatedProperties != null
+                                    ? new UnevaluatedContext(CreateScopesAndEvaluateToken(token, value, depth, Schema.UnevaluatedProperties, this, CreateConditionalContext()))
+                                    : new UnevaluatedContext(AlwaysFalseScope.Instance);
+                            }
+                        }
+                    }
+
+                    if (JsonTokenHelpers.IsPrimitiveOrEndToken(token))
+                    {
+                        if (ShouldValidateUnevaluated() &&
+                            _unevaluatedScopes.TryGetValue(_currentPropertyName, out UnevaluatedContext unevaluatedContext))
+                        {
+                            // Property is valid against unevaluatedProperties schema so no need to search further
+                            bool isValid = unevaluatedContext.SchemaScope.IsValid;
+                            unevaluatedContext.Evaluated = isValid;
+
+                            if (!isValid)
+                            {
+                                for (int i = Context.Scopes.Count - 1; i >= 0; i--)
+                                {
+                                    Scope scope = Context.Scopes[i];
+                                    if (scope.InitialDepth == InitialDepth + 1)
+                                    {
+                                        // Schema for a property
+                                        if (scope is SchemaScope schemaScope)
+                                        {
+                                            if (schemaScope.IsValid)
+                                            {
+                                                unevaluatedContext.AddValidScope(schemaScope.Parent.Schema);
+                                            }
+                                        }
+                                    }
+                                    else if (scope.InitialDepth == InitialDepth)
+                                    {
+                                        // Schema for the current object.
+                                        // Need to check these for oneOf, allOf, etc.
+                                        if (scope is SchemaScope schemaScope)
+                                        {
+                                            if (schemaScope.Schema._allowAdditionalProperties.GetValueOrDefault() ||
+                                                schemaScope.Schema.AdditionalProperties != null ||
+                                                schemaScope.Schema.AllowUnevaluatedProperties.GetValueOrDefault())
+                                            {
+                                                unevaluatedContext.AddValidScope(schemaScope.Schema);
+                                            }
+                                        }
+                                    }
+                                    else if (scope.InitialDepth < InitialDepth)
+                                    {
+                                        break;
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -237,7 +359,49 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             return false;
         }
 
-        private bool IsPropertyDefinied(JSchema schema, string propertyName)
+        private bool HasDependencies()
+        {
+            return !Schema._dependencies.IsNullOrEmpty()
+                || !Schema._dependentRequired.IsNullOrEmpty()
+                || !Schema._dependentSchemas.IsNullOrEmpty();
+        }
+
+        private void ValidateDependantSchema(string readProperty)
+        {
+            SchemaScope dependencyScope = _dependencyScopes[readProperty];
+            if (dependencyScope.Context.HasErrors)
+            {
+                IFormattable message = $"Dependencies for property '{readProperty}' failed.";
+                RaiseError(message, ErrorType.Dependencies, Schema, readProperty, ((ConditionalContext)dependencyScope.Context).Errors);
+            }
+            else
+            {
+                if (!_unevaluatedScopes.IsNullOrEmpty())
+                {
+                    foreach (KeyValuePair<string, UnevaluatedContext> item in _unevaluatedScopes)
+                    {
+                        if (!item.Value.Evaluated && IsPropertyDefined(dependencyScope.Schema, item.Key))
+                        {
+                            item.Value.Evaluated = true;
+                        }
+                    }
+                }
+            }
+            
+        }
+
+        private void ValidateDependantProperties(string readProperty, IList<string> requiredProperties)
+        {
+            if (!requiredProperties.All(r => _readProperties.Contains(r)))
+            {
+                IEnumerable<string> missingRequiredProperties = requiredProperties.Where(r => !_readProperties.Contains(r));
+                IFormattable message = $"Dependencies for property '{readProperty}' failed. Missing required keys: {StringHelpers.Join(", ", missingRequiredProperties)}.";
+
+                RaiseError(message, ErrorType.Dependencies, Schema, readProperty, null);
+            }
+        }
+
+        private bool IsPropertyDefined(JSchema schema, string propertyName)
         {
             if (schema._properties != null && schema._properties.ContainsKey(propertyName))
             {
@@ -274,7 +438,18 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 {
                     if (dependency.Value is JSchema dependencySchema)
                     {
-                        SchemaScope scope = CreateTokenScope(token, dependencySchema, ConditionalContext.Create(Context), null, InitialDepth);
+                        SchemaScope scope = CreateTokenScope(token, dependencySchema, CreateConditionalContext(), null, InitialDepth);
+                        _dependencyScopes.Add(dependency.Key, scope);
+                    }
+                }
+            }
+            if (!Schema._dependentSchemas.IsNullOrEmpty())
+            {
+                foreach (KeyValuePair<string, JSchema> dependency in Schema._dependentSchemas)
+                {
+                    if (dependency.Value is JSchema dependencySchema)
+                    {
+                        SchemaScope scope = CreateTokenScope(token, dependencySchema, CreateConditionalContext(), null, InitialDepth);
                         _dependencyScopes.Add(dependency.Key, scope);
                     }
                 }

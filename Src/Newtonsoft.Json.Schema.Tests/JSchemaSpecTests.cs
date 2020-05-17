@@ -55,10 +55,20 @@ namespace Newtonsoft.Json.Schema.Tests
                 AddSchema(resolver, "draft4.json", "http://json-schema.org/draft-04/schema");
                 AddSchema(resolver, "draft6.json", "http://json-schema.org/draft-06/schema");
                 AddSchema(resolver, "draft7.json", "http://json-schema.org/draft-07/schema");
+                AddSchema(resolver, "draft2019-09/draft2019-09.json", "https://json-schema.org/draft/2019-09/schema");
+                AddSchema(resolver, "draft2019-09/meta/applicator.json", "https://json-schema.org/draft/2019-09/meta/applicator");
+                AddSchema(resolver, "draft2019-09/meta/content.json", "https://json-schema.org/draft/2019-09/meta/content");
+                AddSchema(resolver, "draft2019-09/meta/core.json", "https://json-schema.org/draft/2019-09/meta/core");
+                AddSchema(resolver, "draft2019-09/meta/format.json", "https://json-schema.org/draft/2019-09/meta/format");
+                AddSchema(resolver, "draft2019-09/meta/hyper-schema.json", "https://json-schema.org/draft/2019-09/meta/hyper-schema");
+                AddSchema(resolver, "draft2019-09/meta/meta-data.json", "https://json-schema.org/draft/2019-09/meta/meta-data");
+                AddSchema(resolver, "draft2019-09/meta/validation.json", "https://json-schema.org/draft/2019-09/meta/validation");
                 AddSchema(resolver, "integer.json", "http://localhost:1234/integer.json");
                 AddSchema(resolver, "folder/folderInteger.json", "http://localhost:1234/folder/folderInteger.json");
                 AddSchema(resolver, "subSchemas.json", "http://localhost:1234/subSchemas.json");
+                AddSchema(resolver, "subSchemas-defs.json", "http://localhost:1234/subSchemas-defs.json");
                 AddSchema(resolver, "name.json", "http://localhost:1234/name.json");
+                AddSchema(resolver, "name-defs.json", "http://localhost:1234/name-defs.json");
 
                 _resolver = resolver;
             }
@@ -77,7 +87,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         private Uri GetSchemaUri(string version)
         {
-            SchemaVersion schemaVersion = (SchemaVersion)Enum.Parse(typeof(SchemaVersion), version);
+            SchemaVersion schemaVersion = (SchemaVersion)Enum.Parse(typeof(SchemaVersion), version.Replace('-', '_'));
 
             return SchemaVersionHelpers.MapSchemaVersion(schemaVersion);
         }
@@ -94,8 +104,16 @@ namespace Newtonsoft.Json.Schema.Tests
 
             JSchemaPreloadedResolver resolver = GetResolver();
 
-            JSchema s = JSchema.Load(schemaSpecTest.Schema.CreateReader(), resolver);
-            s.SchemaVersion = GetSchemaUri(schemaSpecTest.Version);
+            var schemaToken = schemaSpecTest.Schema.DeepClone();
+            if (schemaToken.Type == JTokenType.Object)
+            {
+                schemaToken["$schema"] = GetSchemaUri(schemaSpecTest.Version);
+            }
+
+            JSchema s = JSchema.Load(schemaToken.CreateReader(), new JSchemaReaderSettings
+            {
+                Resolver = resolver
+            });
 
             JsonReader jsonReader = schemaSpecTest.Data.CreateReader();
 
@@ -126,7 +144,13 @@ namespace Newtonsoft.Json.Schema.Tests
 
             JSchemaPreloadedResolver resolver = GetResolver();
 
-            JSchema s = JSchema.Load(schemaSpecTest.Schema.CreateReader(), resolver);
+            var schemaToken = schemaSpecTest.Schema.DeepClone();
+            if (schemaToken.Type == JTokenType.Object)
+            {
+                schemaToken["$schema"] = GetSchemaUri(schemaSpecTest.Version);
+            }
+
+            JSchema s = JSchema.Load(schemaToken.CreateReader(), resolver);
             s.SchemaVersion = GetSchemaUri(schemaSpecTest.Version);
 
             JsonReader jsonReader = schemaSpecTest.Data.CreateReader();

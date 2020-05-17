@@ -9,7 +9,7 @@ using System.Linq;
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 {
-    internal class NotScope : ConditionalScope
+    internal sealed class NotScope : ConditionalScope
     {
         protected override bool EvaluateTokenCore(JsonToken token, object value, int depth)
         {
@@ -17,6 +17,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             {
                 RaiseError($"JSON is valid against schema from 'not'.", ErrorType.Not, ParentSchemaScope.Schema, null, ConditionalContext.Errors);
             }
+
+            // Note: Schema in not can never be used to indicate evaluated properties/items
 
             return true;
         }
