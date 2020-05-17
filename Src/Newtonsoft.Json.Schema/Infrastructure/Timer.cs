@@ -30,7 +30,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 #pragma warning disable 4014
                     Task.Run(() => tuple.Item1(tuple.Item2));
 #pragma warning restore 4014
-                    await Task.Delay(period);
+                    await Task.Delay(period).ConfigureAwait(false);
                 }
 
             }, Tuple.Create(callback, state), CancellationToken.None, TaskContinuationOptions.ExecuteSynchronously | TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.Default);
