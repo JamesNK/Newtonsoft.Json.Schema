@@ -166,6 +166,8 @@ namespace Newtonsoft.Json.Schema.Tests
                 testFiles = testFiles.Where(f => !f.EndsWith("bignum.json")).ToArray();
                 testFiles = testFiles.Where(f => !f.EndsWith("format.json")).ToArray();
 #endif
+                testFiles = testFiles.Where(f => !f.EndsWith("non-bmp-regex.json")).ToArray();
+                testFiles = testFiles.Where(f => !f.EndsWith("ecmascript-regex.json")).ToArray();
 
                 // todo - add support for all formats
                 testFiles = testFiles.Where(f => !f.EndsWith("content.json")
@@ -182,7 +184,10 @@ namespace Newtonsoft.Json.Schema.Tests
                     string version = relativePath.Split('\\').First();
                     string testJson = System.IO.File.ReadAllText(testFile);
 
-                    JArray a = JArray.Parse(testJson);
+                    JsonTextReader testJsonReader = new JsonTextReader(new StringReader(testJson));
+                    testJsonReader.FloatParseHandling = FloatParseHandling.Decimal;
+
+                    JArray a = (JArray)JToken.ReadFrom(testJsonReader);
 
                     foreach (JObject testCase in a)
                     {
