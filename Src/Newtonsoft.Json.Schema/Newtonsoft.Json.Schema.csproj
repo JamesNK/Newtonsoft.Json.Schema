@@ -16,9 +16,10 @@
     <Title>Json.NET Schema</Title>
     <PackageId>Newtonsoft.Json.Schema</PackageId>
     <PackageTags>json;schema;jsonschema</PackageTags>
-    <PackageIconUrl>https://www.newtonsoft.com/content/images/nugeticon.png</PackageIconUrl>
+    <PackageIcon>packageIcon.png</PackageIcon>
+    <PackageIconFullPath>$(MSBuildThisFileDirectory)packageIcon.png</PackageIconFullPath>
     <PackageProjectUrl>https://www.newtonsoft.com/jsonschema</PackageProjectUrl>
-    <PackageLicenseUrl>https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md</PackageLicenseUrl>
+    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <RootNamespace>Newtonsoft.Json.Schema</RootNamespace>
@@ -36,6 +37,7 @@
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="$(MicrosoftSourceLinkGitHubPackageVersion)" PrivateAssets="All" />
     <EmbeddedResource Include="Resources\*.json" />
     <None Include="..\..\LICENSE.md" Pack="true" PackagePath="LICENSE.md" />
+    <None Include="$(PackageIconFullPath)" Pack="true" PackagePath="\"/>
   </ItemGroup>
   <PropertyGroup Condition="'$(TargetFramework)'=='net45'">
     <AssemblyTitle>Json.NET Schema</AssemblyTitle>
