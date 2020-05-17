@@ -305,6 +305,24 @@ namespace Newtonsoft.Json.Schema.Tests
         }
 
         [Test]
+        public void ConstLarge_Invalid()
+        {
+            JSchema schema = new JSchema();
+            schema.Const = JObject.Parse("{'const': 9007199254740992}");
+
+            string json = "9007199254740991";
+
+            IList<SchemaValidationEventArgs> errors;
+            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out errors);
+
+            Assert.IsTrue(validatingReader.Read());
+
+            Assert.AreEqual(1, errors.Count);
+            Assert.AreEqual(ErrorType.Const, errors[0].ValidationError.ErrorType);
+            Assert.AreEqual("Value 9007199254740991 does not match const.", errors[0].ValidationError.Message);
+        }
+
+        [Test]
         public void ValidateInteger()
         {
             JSchema schema = new JSchema();
