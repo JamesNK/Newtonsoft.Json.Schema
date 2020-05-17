@@ -368,5 +368,17 @@ Parameter name: key",
   }
 }", json);
         }
+
+        [Test]
+        public void ToString_Dependencies()
+        {
+            JSchema s = new JSchema();
+            s.Dependencies.Add("Key", new JSchema());
+            s.Dependencies.Remove("Key");
+
+            string json = s.ToString();
+
+            StringAssert.AreEqual(@"{}", json);
+        }
     }
 }

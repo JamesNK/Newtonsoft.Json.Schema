@@ -394,7 +394,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 WriteSchema(schema, schema.Then, Constants.PropertyNames.Then);
                 WriteSchema(schema, schema.Else, Constants.PropertyNames.Else);
             }
-            if (schema._dependencies != null)
+            if (!schema._dependencies.IsNullOrEmpty())
             {
                 _writer.WritePropertyName(Constants.PropertyNames.Dependencies);
                 _writer.WriteStartObject();
