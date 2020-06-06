@@ -1,7 +1,7 @@
 ﻿properties { 
-  $zipFileName = "JsonSchema30r13.zip"
+  $zipFileName = "JsonSchema30r14.zip"
   $majorVersion = "3.0"
-  $majorWithReleaseVersion = "3.0.13"
+  $majorWithReleaseVersion = "3.0.14"
   $nugetPrerelease = $null
   $version = GetVersion $majorWithReleaseVersion
   $packageId = "Newtonsoft.Json.Schema"
@@ -14,7 +14,7 @@
   $workingName = if ($workingName) {$workingName} else {"Working"}
   $assemblyVersion = if ($assemblyVersion) {$assemblyVersion} else {$majorVersion + '.0.0'}
   $netCliChannel = "Current"
-  $netCliVersion = "3.1.100"
+  $netCliVersion = "3.1.300"
   $nugetUrl = "https://dist.nuget.org/win-x86-commandline/latest/nuget.exe"
   
   $baseDir  = resolve-path ..

@@ -10,19 +10,19 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 {
     internal class ConditionalContext : ContextBase, ISchemaTracker
     {
-        public List<ValidationError> Errors;
+        private readonly ISchemaTracker _parentSchemaTracker;
 
+        public List<ValidationError> Errors;
         public List<JSchema> EvaluatedSchemas { get; private set; }
         public bool TrackEvaluatedSchemas { get; }
-        private readonly ISchemaTracker _parentConditionalContext;
 
         public ConditionalContext(Validator validator, ContextBase parentContext, bool trackEvaluatedSchemas)
             : base(validator)
         {
-            _parentConditionalContext = parentContext as ISchemaTracker;
+            _parentSchemaTracker = parentContext as ISchemaTracker;
 
             // Track evaluated schemas if requested, or the parent context is already tracking.
-            TrackEvaluatedSchemas = trackEvaluatedSchemas || (_parentConditionalContext?.TrackEvaluatedSchemas ?? false);
+            TrackEvaluatedSchemas = trackEvaluatedSchemas || (_parentSchemaTracker?.TrackEvaluatedSchemas ?? false);
         }
 
         public override void RaiseError(IFormattable message, ErrorType errorType, JSchema schema, object value, IList<ValidationError> childErrors)
@@ -40,9 +40,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             if (TrackEvaluatedSchemas)
             {
                 // If a parent is available then only store schemas in parent for efficency
-                if (_parentConditionalContext != null && _parentConditionalContext.TrackEvaluatedSchemas)
+                if (_parentSchemaTracker != null && _parentSchemaTracker.TrackEvaluatedSchemas)
                 {
-                    _parentConditionalContext.TrackEvaluatedSchema(schema);
+                    _parentSchemaTracker.TrackEvaluatedSchema(schema);
                 }
                 else
                 {
