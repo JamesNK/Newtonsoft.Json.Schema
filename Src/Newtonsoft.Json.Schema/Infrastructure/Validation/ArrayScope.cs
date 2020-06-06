@@ -11,12 +11,13 @@ using Newtonsoft.Json.Linq;
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 {
-    internal class ArrayScope : SchemaScope
+    internal sealed class ArrayScope : SchemaScope
     {
         private int _index;
-        private bool _matchContains;
+        private int _matchCount;
         private List<JToken> _uniqueArrayItems;
-        private IList<ConditionalContext> _containsContexts;
+        private List<ConditionalContext> _containsContexts;
+        private Dictionary<int, UnevaluatedContext> _unevaluatedScopes;
 
         public void Initialize(ContextBase context, SchemaScope parent, int initialDepth, JSchema schema)
         {
@@ -24,7 +25,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             InitializeSchema(schema);
 
             _index = -1;
-            _matchContains = false;
+            _matchCount = 0;
 
             if (schema.Contains != null)
             {
@@ -47,6 +48,54 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 else
                 {
                     _uniqueArrayItems = new List<JToken>();
+                }
+            }
+
+            if (ShouldValidateUnevaluated())
+            {
+                if (_unevaluatedScopes != null)
+                {
+                    _unevaluatedScopes.Clear();
+                }
+                else
+                {
+                    _unevaluatedScopes = new Dictionary<int, UnevaluatedContext>();
+                }
+            }
+        }
+
+        public override bool ShouldValidateUnevaluated()
+        {
+            // If additional items are validated then there are no unevaluated items
+            if (Schema.HasAdditionalItems)
+            {
+                return false;
+            }
+
+            return !(Schema.AllowUnevaluatedItems ?? true) || Schema.UnevaluatedItems != null;
+        }
+
+        protected override void OnConditionalScopeValidated(ConditionalScope conditionalScope)
+        {
+            if (ShouldValidateUnevaluated())
+            {
+                if (!conditionalScope.EvaluatedSchemas.IsNullOrEmpty())
+                {
+                    foreach (KeyValuePair<int, UnevaluatedContext> unevaluatedScope in _unevaluatedScopes)
+                    {
+                        UnevaluatedContext context = unevaluatedScope.Value;
+
+                        if (!context.Evaluated && !context.ValidScopes.IsNullOrEmpty())
+                        {
+                            foreach (JSchema validScopes in context.ValidScopes)
+                            {
+                                if (conditionalScope.EvaluatedSchemas.Contains(validScopes))
+                                {
+                                    context.Evaluated = true;
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -89,15 +138,40 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                             RaiseError($"Array item count {itemCount} is less than minimum count of {Schema.MinimumItems}.", ErrorType.MinimumItems, Schema, itemCount, null);
                         }
 
-                        if (Schema.Contains != null && !_matchContains)
+                        if (Schema.Contains != null)
                         {
-                            List<ValidationError> containsErrors = new List<ValidationError>();
-                            foreach (ConditionalContext containsContext in _containsContexts)
+                            // MinimumContains overrides default contains behavior
+                            if (Schema.MinimumContains != null)
                             {
-                                containsErrors.AddRange(containsContext.Errors);
+                                if (_matchCount < Schema.MinimumContains)
+                                {
+                                    RaiseError($"Contains match count {_matchCount} is less than minimum contains count of {Schema.MinimumContains}.", ErrorType.MinimumContains, Schema, null, GetValidationErrors(_containsContexts));
+                                }
+                            }
+                            else
+                            {
+                                if (_matchCount == 0)
+                                {
+                                    RaiseError($"No items match contains.", ErrorType.Contains, Schema, null, GetValidationErrors(_containsContexts));
+                                }
                             }
 
-                            RaiseError($"No items match contains.", ErrorType.Contains, Schema, null, containsErrors);
+                            if (_matchCount > Schema.MaximumContains)
+                            {
+                                RaiseError($"Contains match count {_matchCount} exceeds maximum contains count of {Schema.MaximumContains}.", ErrorType.MaximumContains, Schema, null, GetValidationErrors(_containsContexts));
+                            }
+                        }
+
+                        if (!_unevaluatedScopes.IsNullOrEmpty())
+                        {
+                            foreach (KeyValuePair<int, UnevaluatedContext> item in _unevaluatedScopes)
+                            {
+                                if (!item.Value.Evaluated)
+                                {
+                                    IFormattable message = $"Item at index {item.Key} has not been successfully evaluated and the schema does not allow unevaluated items.";
+                                    RaiseError(message, ErrorType.UnevaluatedItems, Schema, item.Key, ((ConditionalContext) item.Value.SchemaScope.Context)?.Errors);
+                                }
+                            }
                         }
 
                         return true;
@@ -121,13 +195,17 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                         }
                     }
 
+                    bool matched = false;
+
                     if (Schema.ItemsPositionValidation)
                     {
+                        // TODO: Remove LINQ
                         JSchema itemSchema = Schema._items?.ElementAtOrDefault(_index);
 
                         if (itemSchema != null)
                         {
                             CreateScopesAndEvaluateToken(token, value, depth, itemSchema);
+                            matched = true;
                         }
                         else
                         {
@@ -138,6 +216,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                             else if (Schema.AdditionalItems != null)
                             {
                                 CreateScopesAndEvaluateToken(token, value, depth, Schema.AdditionalItems);
+                                matched = true;
                             }
                         }
                     }
@@ -146,18 +225,28 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                         if (!Schema._items.IsNullOrEmpty())
                         {
                             CreateScopesAndEvaluateToken(token, value, depth, Schema._items[0]);
+                            matched = true;
                         }
                     }
 
-                    // no longer need to check contains schema after match
-                    if (Schema.Contains != null && !_matchContains)
+                    if (ShouldEvaluateContains())
                     {
-                        ConditionalContext containsContext = ConditionalContext.Create(Context);
+                        ConditionalContext containsContext = CreateConditionalContext();
                         _containsContexts.Add(containsContext);
 
                         // contains scope should not have the current scope the parent
                         // do not want contain failures setting the current scope's IsValid
                         CreateScopesAndEvaluateToken(token, value, depth, Schema.Contains, null, containsContext);
+                    }
+
+                    if (!matched)
+                    {
+                        if (ShouldValidateUnevaluated())
+                        {
+                            _unevaluatedScopes[_index] = Schema.UnevaluatedItems != null
+                                ? new UnevaluatedContext(CreateScopesAndEvaluateToken(token, value, depth, Schema.UnevaluatedItems, this, CreateConditionalContext()))
+                                : new UnevaluatedContext(AlwaysFalseScope.Instance);
+                        }
                     }
                 }
 
@@ -179,17 +268,95 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                         }
                     }
 
-                    if (Schema.Contains != null && !_matchContains)
+                    if (ShouldEvaluateContains())
                     {
                         ConditionalContext currentContainsContext = _containsContexts[_containsContexts.Count - 1];
                         if (!currentContainsContext.HasErrors)
                         {
-                            _matchContains = true;
-
-                            // no longer need previous errors after match
-                            _containsContexts.Clear();
+                            _matchCount++;
                         }
                     }
+
+                    if (ShouldValidateUnevaluated() &&
+                        _unevaluatedScopes.TryGetValue(_index, out UnevaluatedContext unevaluatedContext))
+                    {
+                        // Property is valid against unevaluatedItems schema so no need to search further
+                        bool isValid = unevaluatedContext.SchemaScope.IsValid;
+                        unevaluatedContext.Evaluated = isValid;
+
+                        if (!isValid)
+                        {
+                            for (int i = Context.Scopes.Count - 1; i >= 0; i--)
+                            {
+                                Scope scope = Context.Scopes[i];
+                                if (scope.InitialDepth == InitialDepth + 1)
+                                {
+                                    // Schema for a item
+                                    if (scope is SchemaScope schemaScope)
+                                    {
+                                        if (schemaScope.IsValid)
+                                        {
+                                            unevaluatedContext.AddValidScope(schemaScope.Parent.Schema);
+                                        }
+                                    }
+                                }
+                                else if (scope.InitialDepth == InitialDepth)
+                                {
+                                    // Schema for the current array.
+                                    // Need to check these for oneOf, allOf, etc.
+                                    if (scope is SchemaScope schemaScope)
+                                    {
+                                        if (schemaScope.Schema._allowAdditionalItems.GetValueOrDefault() ||
+                                            schemaScope.Schema.AdditionalItems != null ||
+                                            schemaScope.Schema.AllowUnevaluatedItems.GetValueOrDefault())
+                                        {
+                                            unevaluatedContext.AddValidScope(schemaScope.Schema);
+                                        }
+                                    }
+                                }
+                                else if (scope.InitialDepth < InitialDepth)
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                }
+            }
+
+            return false;
+        }
+
+        private List<ValidationError> GetValidationErrors(IList<ConditionalContext> contexts)
+        {
+            List<ValidationError> containsErrors = new List<ValidationError>();
+            foreach (ConditionalContext containsContext in contexts)
+            {
+                if (containsContext.Errors != null)
+                {
+                    containsErrors.AddRange(containsContext.Errors);
+                }
+            }
+
+            return containsErrors;
+        }
+
+        private bool ShouldEvaluateContains()
+        {
+            if (Schema.Contains != null)
+            {
+                // Match count is less than minimum
+                if (_matchCount < (Schema.MinimumContains ?? 1))
+                {
+                    return true;
+                }
+
+                // Always evaluate contains when there is a max so
+                // the number of matches is accurate
+                if (Schema.MaximumContains != null)
+                {
+                    return true;
                 }
             }
 

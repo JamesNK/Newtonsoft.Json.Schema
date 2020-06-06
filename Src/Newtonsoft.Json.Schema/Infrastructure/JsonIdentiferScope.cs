@@ -13,11 +13,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure
     {
         public static readonly JsonIdentiferScope Empty = new JsonIdentiferScope(null);
 
-        public Uri Id { get; }
+        public Uri ScopeId { get; }
 
         public JsonIdentiferScope(Uri id)
         {
-            Id = id;
+            ScopeId = id;
         }
     }
 }

@@ -33,13 +33,57 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
   }
 }";
 
+        private string originalSchemaJsonDraft7 = @"{
+  ""$schema"": ""http://json-schema.org/draft-07/schema#"",
+  ""type"": ""object"",
+  ""$ref"":""#"",
+  ""definitions"": {
+  }
+}";
+
         [Test]
-        public void Test()
+        public void Test_Draft7()
         {
             ExceptionAssert.Throws<JSchemaReaderException>(() =>
             {
-                JSchema.Parse(originalSchemaJson);
+                JSchema.Parse(originalSchemaJsonDraft7);
             }, "Could not resolve schema reference '#'. Path '', line 1, position 1.");
+        }
+
+        [Test]
+        public void Test_DraftUnset_Match()
+        {
+            var s = JSchema.Parse(originalSchemaJson);
+
+            var writtenJson = s.ToString();
+
+            StringAssert.AreEqual(@"{
+  ""definitions"": {},
+  ""type"": ""object"",
+  ""$ref"": ""#""
+}", writtenJson);
+
+            JToken t = JToken.Parse("{'test':'value'}");
+
+            Assert.IsTrue(t.IsValid(s));
+        }
+
+        [Test]
+        public void Test_DraftUnset_NoMatch()
+        {
+            var s = JSchema.Parse(originalSchemaJson);
+
+            var writtenJson = s.ToString();
+
+            StringAssert.AreEqual(@"{
+  ""definitions"": {},
+  ""type"": ""object"",
+  ""$ref"": ""#""
+}", writtenJson);
+
+            JToken t = JToken.Parse("[]");
+
+            Assert.IsFalse(t.IsValid(s));
         }
     }
 }

@@ -10,7 +10,7 @@ using System.Linq;
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 {
-    internal class OneOfScope : ConditionalScope
+    internal sealed class OneOfScope : ConditionalScope
     {
         protected override bool EvaluateTokenCore(JsonToken token, object value, int depth)
         {
@@ -41,6 +41,17 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 }
 
                 RaiseError(message, ErrorType.OneOf, ParentSchemaScope.Schema, null, ConditionalContext.Errors);
+            }
+            else
+            {
+                // TODO: A little inefficent to find the valid child again
+                foreach (SchemaScope childScope in ChildScopes)
+                {
+                    if (childScope.IsValid)
+                    {
+                        ConditionalContext.TrackEvaluatedSchema(childScope.Schema);
+                    }
+                }
             }
 
             return true;

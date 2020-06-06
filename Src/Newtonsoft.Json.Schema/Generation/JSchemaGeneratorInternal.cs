@@ -35,6 +35,7 @@ namespace Newtonsoft.Json.Schema.Generation
             {
                 if (_typeSchemas.Count > 1)
                 {
+                    // TODO: Support $defs
                     if (!schema.ExtensionData.TryGetValue(Constants.PropertyNames.Definitions, out JToken definitions))
                     {
                         definitions = new JObject();
@@ -472,7 +473,7 @@ namespace Newtonsoft.Json.Schema.Generation
                         }
 
                         schema.Type = AddNullType(JSchemaType.Object, valueRequired);
-                        schema.AllowAdditionalProperties = true;
+                        schema.AllowAdditionalPropertiesSpecified = false;
                         break;
 #endif
 #if !NET35

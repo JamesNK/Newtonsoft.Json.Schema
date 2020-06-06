@@ -26,17 +26,23 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             public const string Properties = "properties";
             public const string Items = "items";
             public const string AdditionalItems = "additionalItems";
+            public const string UnevaluatedItems = "unevaluatedItems";
             public const string Required = "required";
             public const string PatternProperties = "patternProperties";
             public const string AdditionalProperties = "additionalProperties";
+            public const string UnevaluatedProperties = "unevaluatedProperties";
             public const string Requires = "requires";
             public const string Dependencies = "dependencies";
+            public const string DependentSchemas = "dependentSchemas";
+            public const string DependentRequired = "dependentRequired";
             public const string Minimum = "minimum";
             public const string Maximum = "maximum";
             public const string ExclusiveMinimum = "exclusiveMinimum";
             public const string ExclusiveMaximum = "exclusiveMaximum";
             public const string MinimumItems = "minItems";
             public const string MaximumItems = "maxItems";
+            public const string MinimumContains = "minContains";
+            public const string MaximumContains = "maxContains";
             public const string Pattern = "pattern";
             public const string MaximumLength = "maxLength";
             public const string MinimumLength = "minLength";
@@ -52,6 +58,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             public const string Disallow = "disallow";
             public const string Extends = "extends";
             public const string Id = "$id";
+            public const string Anchor = "$anchor";
             public const string IdDraft4 = "id";
             public const string UniqueItems = "uniqueItems";
             public const string MinimumProperties = "minProperties";
@@ -74,9 +81,18 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             public const string Else = "else";
 
             public const string Ref = "$ref";
+            public const string RecursiveRef = "$recursiveRef";
+            public const string RecursiveAnchor = "$recursiveAnchor";
             public const string Schema = "$schema";
 
             public const string Definitions = "definitions";
+            public const string Defs = "$defs";
+
+            public static bool IsDefinition(string name)
+            {
+                return string.Equals(name, Definitions, StringComparison.Ordinal)
+                    || string.Equals(name, Defs, StringComparison.Ordinal);
+            }
         }
 
         public static class Formats
@@ -99,6 +115,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             public const string IPv6 = "ipv6";
             public const string IPv4 = "ipv4";
             public const string Email = "email";
+            public const string Duration = "duration";
         }
 
         public static class Types
@@ -138,6 +155,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             public static readonly Uri Draft4 = new Uri("http://json-schema.org/draft-04/schema#");
             public static readonly Uri Draft6 = new Uri("http://json-schema.org/draft-06/schema#");
             public static readonly Uri Draft7 = new Uri("http://json-schema.org/draft-07/schema#");
+            public static readonly Uri Draft2019_09 = new Uri("https://json-schema.org/draft/2019-09/schema");
         }
     }
 }

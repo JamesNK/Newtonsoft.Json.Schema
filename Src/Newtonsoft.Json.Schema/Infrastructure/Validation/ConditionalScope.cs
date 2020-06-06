@@ -34,8 +34,10 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
             ChildScopes.Clear();
             ParentSchemaScope = parent;
-            ConditionalContext = ConditionalContext.Create(context);
+            ConditionalContext = ConditionalContext.Create(context, parent.ShouldValidateUnevaluated());
         }
+
+        public List<JSchema> EvaluatedSchemas => ConditionalContext.EvaluatedSchemas;
 
         public void InitializeScopes(JsonToken token, List<JSchema> schemas, int scopeIndex)
         {
@@ -56,6 +58,30 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             if (childScope == null)
             {
                 childScope = SchemaScope.CreateTokenScope(token, schema, context, null, InitialDepth);
+            }
+            else
+            {
+                if (childScope.Context != context)
+                {
+                    // The schema scope needs to be part of a different conditional contexts.
+                    // We need to create a composite so that errors are raised to both.
+                    CompositeContext compositeContext = childScope.Context as CompositeContext;
+                    if (compositeContext == null)
+                    {
+                        compositeContext = new CompositeContext(context.Validator);
+                        compositeContext.Contexts.Add(childScope.Context);
+                        compositeContext.Contexts.Add(context);
+
+                        childScope.Context = compositeContext;
+                    }
+                    else
+                    {
+                        if (!compositeContext.Contexts.Contains(context))
+                        {
+                            compositeContext.Contexts.Add(context);
+                        }
+                    }
+                }
             }
 
 #if DEBUG

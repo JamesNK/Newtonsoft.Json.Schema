@@ -8,13 +8,21 @@ using System.Collections.Generic;
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 {
-    internal class ConditionalContext : ContextBase
+    internal class ConditionalContext : ContextBase, ISchemaTracker
     {
-        public List<ValidationError> Errors;
+        private readonly ISchemaTracker _parentSchemaTracker;
 
-        public ConditionalContext(Validator validator)
+        public List<ValidationError> Errors;
+        public List<JSchema> EvaluatedSchemas { get; private set; }
+        public bool TrackEvaluatedSchemas { get; }
+
+        public ConditionalContext(Validator validator, ContextBase parentContext, bool trackEvaluatedSchemas)
             : base(validator)
         {
+            _parentSchemaTracker = parentContext as ISchemaTracker;
+
+            // Track evaluated schemas if requested, or the parent context is already tracking.
+            TrackEvaluatedSchemas = trackEvaluatedSchemas || (_parentSchemaTracker?.TrackEvaluatedSchemas ?? false);
         }
 
         public override void RaiseError(IFormattable message, ErrorType errorType, JSchema schema, object value, IList<ValidationError> childErrors)
@@ -27,9 +35,30 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             Errors.Add(Validator.CreateError(message, errorType, schema, value, childErrors));
         }
 
-        public static ConditionalContext Create(ContextBase context)
+        public void TrackEvaluatedSchema(JSchema schema)
         {
-            return new ConditionalContext(context.Validator);
+            if (TrackEvaluatedSchemas)
+            {
+                // If a parent is available then only store schemas in parent for efficency
+                if (_parentSchemaTracker != null && _parentSchemaTracker.TrackEvaluatedSchemas)
+                {
+                    _parentSchemaTracker.TrackEvaluatedSchema(schema);
+                }
+                else
+                {
+                    if (EvaluatedSchemas == null)
+                    {
+                        EvaluatedSchemas = new List<JSchema>();
+                    }
+
+                    EvaluatedSchemas.Add(schema);
+                }
+            }
+        }
+
+        public static ConditionalContext Create(ContextBase context, bool trackEvaluatedSchemas)
+        {
+            return new ConditionalContext(context.Validator, context, trackEvaluatedSchemas);
         }
 
         public override bool HasErrors => !Errors.IsNullOrEmpty();

@@ -41,13 +41,15 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         }
     }
 
-    [DebuggerDisplay("Reference = {ResolvedReference}, Success = {Success}")]
-    internal class DeferedSchema
+    [DebuggerDisplay("Reference = {ResolvedReference}, IsRecursive = {IsRecursiveReference}, Success = {Success}")]
+    internal class DeferedSchema : IIdentiferScope
     {
         public readonly Uri OriginalReference;
         public readonly Uri ResolvedReference;
         public readonly JSchema ReferenceSchema;
+        private readonly bool _supportsRef;
         public readonly List<SetSchema> SetSchemas;
+        public readonly bool IsRecursiveReference;
 
         private bool _success;
         private JSchema _resolvedSchema;
@@ -56,12 +58,17 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         public JSchema ResolvedSchema => _resolvedSchema;
 
-        public DeferedSchema(Uri resolvedReference, Uri originalReference, JSchema referenceSchema)
+        public Uri ScopeId { get; }
+
+        public DeferedSchema(Uri resolvedReference, Uri originalReference, Uri scopeId, bool isRecursiveReference, JSchema referenceSchema, bool supportsRef)
         {
             SetSchemas = new List<SetSchema>();
             ResolvedReference = resolvedReference;
             OriginalReference = originalReference;
+            ScopeId = scopeId;
+            IsRecursiveReference = isRecursiveReference;
             ReferenceSchema = referenceSchema;
+            _supportsRef = supportsRef;
         }
 
         public void AddSchemaSet(Action<JSchema> setSchema, JSchema target)
@@ -71,8 +78,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         public void SetResolvedSchema(JSchema schema)
         {
-            // successful
-            if (schema.Reference == null)
+            // Successful if there is no reference, or we can set $ref
+            if (!schema.HasReference || (schema.HasReference && _supportsRef && schema.HasNonRefContent))
             {
                 _success = true;
                 _resolvedSchema = schema;

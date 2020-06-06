@@ -14,7 +14,7 @@ using Newtonsoft.Json.Linq;
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 {
-    internal class PrimativeScope : SchemaScope
+    internal sealed class PrimativeScope : SchemaScope
     {
         private static readonly Regex HostnameRegex = new Regex(@"^(?=.{1,255}$)[0-9A-Za-z](?:(?:[0-9A-Za-z]|-){0,61}[0-9A-Za-z])?(?:\.[0-9A-Za-z](?:(?:[0-9A-Za-z]|-){0,61}[0-9A-Za-z])?)*\.?$", RegexOptions.CultureInvariant);
 
@@ -303,6 +303,10 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 case Constants.Formats.UriReference:
                 {
                     return FormatHelpers.ValidateUriReference(value);
+                }
+                case Constants.Formats.Duration:
+                {
+                    return FormatHelpers.ValidateDuration(value);
                 }
                 case Constants.Formats.UriTemplate:
                 {

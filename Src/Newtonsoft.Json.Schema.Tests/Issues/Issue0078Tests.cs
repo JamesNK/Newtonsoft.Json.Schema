@@ -26,17 +26,19 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
     public class Issue0078Tests : TestFixtureBase
     {
         private string schemaJson = @"{
-  ""$schema"": ""http://json-schema.org/draft-04/schema#"",
-  ""id"": ""MySchema"",
+  ""$id"": ""MySchema"",
   ""$type"": ""schema"",
   ""definitions"": {
     ""myDefinition"": {
+      ""title"": ""myDefinition"",
       ""type"": ""object"",
       ""properties"": {
         ""items"": {
+          ""title"": ""items"",
           ""type"": ""object"",
           ""properties"": {
             ""value"": {
+              ""title"": ""value"",
               ""type"": ""array"",
               ""items"": {
                 ""oneOf"": [
@@ -49,9 +51,13 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
                 ]
               }
             }
-          }
+          },
+          ""$ref"": ""MySchema#/definitions/myRef""
         }
       }
+    },
+    ""myRef"": {
+      ""maxProperties"": 3
     }
   },
   ""allOf"": [
@@ -69,17 +75,27 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
         public void Test()
         {
             JSchema schema = JSchema.Parse(schemaJson);
+            AssertSchema(schema);
+
             string json = schema.ToString();
 
-            StringAssert.AreEqual(schemaJson, json);
-
             JSchema schema2 = JSchema.Parse(json);
-            JSchema myDefinitionSchema = (JSchema)schema2.ExtensionData["definitions"]["myDefinition"];
-            JSchema valueSchema = myDefinitionSchema.Properties["items"].Properties["value"];
-            
+            AssertSchema(schema2);
+
+            StringAssert.AreEqual(schemaJson, json);
+        }
+
+        private void AssertSchema(JSchema schema)
+        {
+            JSchema myDefinitionSchema = (JSchema)schema.ExtensionData["definitions"]["myDefinition"];
+            JSchema itemsSchema = myDefinitionSchema.Properties["items"];
+            JSchema valueSchema = itemsSchema.Properties["value"];
+
+            Assert.AreEqual(3, itemsSchema.Ref.MaximumProperties);
+
             Assert.AreEqual(myDefinitionSchema, valueSchema.Items[0].OneOf[1]);
 
-            Assert.AreEqual(valueSchema, schema2.AllOf[0].Properties["myProperty"]);
+            Assert.AreEqual(valueSchema, schema.AllOf[0].Properties["myProperty"]);
         }
     }
 }
