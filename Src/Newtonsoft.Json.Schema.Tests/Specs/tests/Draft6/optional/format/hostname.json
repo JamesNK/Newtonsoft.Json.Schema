@@ -9,11 +9,6 @@
                 "valid": true
             },
             {
-                "description": "a valid punycoded IDN hostname",
-                "data": "xn--4gbwdl.xn--wgbh1c",
-                "valid": true
-            },
-            {
                 "description": "a host name starting with an illegal character",
                 "data": "-a-host-name-that-starts-with--",
                 "valid": false
