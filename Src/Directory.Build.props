@@ -1,5 +1,8 @@
 <Project>
   <PropertyGroup>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+
+    <!-- Package versions -->
     <BenchmarkDotNetPackageVersion>0.10.10</BenchmarkDotNetPackageVersion>
     <FSharpCorePackageVersion>4.2.3</FSharpCorePackageVersion>
     <MicrosoftCodeAnalysisFxCopAnalyzersPackageVersion>3.0.0</MicrosoftCodeAnalysisFxCopAnalyzersPackageVersion>
