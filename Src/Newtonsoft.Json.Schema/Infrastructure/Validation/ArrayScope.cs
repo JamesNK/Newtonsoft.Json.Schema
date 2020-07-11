@@ -169,7 +169,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                                 if (!item.Value.Evaluated)
                                 {
                                     IFormattable message = $"Item at index {item.Key} has not been successfully evaluated and the schema does not allow unevaluated items.";
-                                    RaiseError(message, ErrorType.UnevaluatedItems, Schema, item.Key, ((ConditionalContext) item.Value.SchemaScope.Context)?.Errors);
+                                    RaiseError(message, ErrorType.UnevaluatedItems, Schema, item.Key, item.Value.SchemaScope.GetValidationErrors());
                                 }
                             }
                         }

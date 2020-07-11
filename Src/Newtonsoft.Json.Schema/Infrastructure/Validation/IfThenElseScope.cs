@@ -46,8 +46,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
                     if (!thenScope.IsValid)
                     {
-                        ConditionalContext context = (ConditionalContext)thenScope.Context;
-                        RaiseError($"JSON does not match schema from 'then'.", ErrorType.Then, Then, null, context.Errors);
+                        RaiseError($"JSON does not match schema from 'then'.", ErrorType.Then, Then, null, thenScope.GetValidationErrors());
                     }
                     else
                     {
@@ -63,8 +62,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
                     if (!elseScope.IsValid)
                     {
-                        ConditionalContext context = (ConditionalContext)elseScope.Context;
-                        RaiseError($"JSON does not match schema from 'else'.", ErrorType.Else, Else, null, context.Errors);
+                        RaiseError($"JSON does not match schema from 'else'.", ErrorType.Else, Else, null, elseScope.GetValidationErrors());
                     }
                     else
                     {

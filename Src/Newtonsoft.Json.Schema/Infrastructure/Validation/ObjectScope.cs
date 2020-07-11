@@ -195,7 +195,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                                 if (!item.Value.Evaluated)
                                 {
                                     IFormattable message = $"Property '{item.Key}' has not been successfully evaluated and the schema does not allow unevaluated properties.";
-                                    RaiseError(message, ErrorType.UnevaluatedProperties, Schema, item.Key, ((ConditionalContext) item.Value.SchemaScope.Context)?.Errors);
+                                    RaiseError(message, ErrorType.UnevaluatedProperties, Schema, item.Key, item.Value.SchemaScope.GetValidationErrors());
                                 }
                             }
                         }
@@ -372,7 +372,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             if (dependencyScope.Context.HasErrors)
             {
                 IFormattable message = $"Dependencies for property '{readProperty}' failed.";
-                RaiseError(message, ErrorType.Dependencies, Schema, readProperty, ((ConditionalContext)dependencyScope.Context).Errors);
+                RaiseError(message, ErrorType.Dependencies, Schema, readProperty, dependencyScope.GetValidationErrors());
             }
             else
             {

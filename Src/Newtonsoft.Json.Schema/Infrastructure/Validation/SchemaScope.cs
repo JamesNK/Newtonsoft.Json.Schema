@@ -367,5 +367,36 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
             base.RaiseError(message, errorType, schema, value, childErrors);
         }
+
+        internal IList<ValidationError> GetValidationErrors()
+        {
+            if (Context is ConditionalContext conditionalContext)
+            {
+                return conditionalContext.Errors;
+            }
+            else if (Context is CompositeContext compositeContext)
+            {
+                List<ValidationError> validationErrors = new List<ValidationError>();
+                foreach (var childContent in compositeContext.Contexts)
+                {
+                    if (childContent is ConditionalContext cc && cc.HasErrors)
+                    {
+                        foreach (var e in cc.Errors)
+                        {
+                            if (!validationErrors.Contains(e))
+                            {
+                                validationErrors.Add(e);
+                            }
+                        }
+                    }
+                }
+
+                return validationErrors;
+            }
+            else
+            {
+                return null;
+            }
+        }
     }
 }
