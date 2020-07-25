@@ -292,12 +292,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                                 if (scope.InitialDepth == InitialDepth + 1)
                                 {
                                     // Schema for a item
-                                    if (scope is SchemaScope schemaScope)
+                                    if (scope.Parent != null && scope is SchemaScope schemaScope && schemaScope.IsValid)
                                     {
-                                        if (schemaScope.IsValid)
-                                        {
-                                            unevaluatedContext.AddValidScope(schemaScope.Parent.Schema);
-                                        }
+                                        unevaluatedContext.AddValidScope(schemaScope.Parent.Schema);
                                     }
                                 }
                                 else if (scope.InitialDepth == InitialDepth)

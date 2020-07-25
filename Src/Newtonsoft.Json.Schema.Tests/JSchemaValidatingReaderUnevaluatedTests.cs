@@ -739,6 +739,75 @@ namespace Newtonsoft.Json.Schema.Tests
         }
 
         [Test]
+        public void UnevaluatedItems_ConditionalSchema_Match()
+        {
+            string schemaJson = @"{
+                ""type"": ""array"",
+                ""items"": [
+                    { ""type"": ""string"" }
+                ],
+                ""allOf"": [
+                    {
+                        ""items"": [
+                            true,
+                            { ""allOf"": [ true ] }
+                        ]
+                    }
+                ],
+                ""unevaluatedItems"": false
+            }";
+
+            string json = @"[""foo"", 42]";
+
+            SchemaValidationEventArgs validationEventArgs = null;
+
+            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
+            reader.Schema = JSchema.Parse(schemaJson);
+
+            while (reader.Read())
+            {
+            }
+
+            Assert.IsNull(validationEventArgs);
+        }
+
+        [Test]
+        public void UnevaluatedItems_ConditionalSchema_NoMatch()
+        {
+            string schemaJson = @"{
+                ""type"": ""array"",
+                ""items"": [
+                    { ""type"": ""string"" }
+                ],
+                ""allOf"": [
+                    {
+                        ""items"": [
+                            true,
+                            { ""allOf"": [ false ] }
+                        ]
+                    }
+                ],
+                ""unevaluatedItems"": false
+            }";
+
+            string json = @"[""foo"", 42]";
+
+            SchemaValidationEventArgs validationEventArgs = null;
+
+            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
+            reader.Schema = JSchema.Parse(schemaJson);
+
+            while (reader.Read())
+            {
+            }
+
+            Assert.IsNotNull(validationEventArgs);
+            Assert.AreEqual("Item at index 1 has not been successfully evaluated and the schema does not allow unevaluated items. Path '', line 1, position 11.", validationEventArgs.Message);
+        }
+
+        [Test]
         public void UnevaluatedProperties_SchemaEvaluatedOnInvalidProperty_ErrorDisplayed()
         {
             string schemaJson = @"{
