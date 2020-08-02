@@ -169,6 +169,66 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         }
 
         /// <summary>
+        /// Gets if the type is a collection.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <returns>True if the type is a collection</returns>
+        public static bool IsCollectionItemType(Type type)
+        {
+            ValidationUtils.ArgumentNotNull(type, nameof(type));
+
+            if (type.IsArray)
+            {
+                return true;
+            }
+
+            if (ImplementsGenericDefinition(type, typeof(IEnumerable<>), out Type genericListType))
+            {
+                if (genericListType.IsGenericTypeDefinition())
+                {
+                    return false;
+                }
+
+                return true;
+            }
+
+            if (typeof(IEnumerable).IsAssignableFrom(type))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Checks if the type is an ISet.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <returns>True if the type is an ISet</returns>
+        public static bool IsISetType(Type type)
+        {
+#if NET35
+            return false;
+#else
+            ValidationUtils.ArgumentNotNull(type, nameof(type));
+            foreach (Type i in type.GetInterfaces())
+            {
+                if (i.IsGenericType())
+                {
+                    Type interfaceDefinition = i.GetGenericTypeDefinition();
+
+                    if (typeof(ISet<>) == interfaceDefinition)
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+#endif
+        }
+
+        /// <summary>
         /// Gets the type of the typed collection's items.
         /// </summary>
         /// <param name="type">The type.</param>

@@ -39,6 +39,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         private const string EmailAddressAttributeName = "System.ComponentModel.DataAnnotations.EmailAddressAttribute";
         private const string StringLengthAttributeName = "System.ComponentModel.DataAnnotations.StringLengthAttribute";
         private const string EnumDataTypeAttributeName = "System.ComponentModel.DataAnnotations.EnumDataTypeAttribute";
+        private const string UniqueItemsAttributeName = "Newtonsoft.Json.Schema.Generation.UniqueItemsAttribute";
 
         private static bool GetDisplay(Type type, JsonProperty memberProperty, out string name, out string description)
         {
@@ -286,6 +287,17 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             }
 
             return null;
+        }
+
+        public static bool GetUniqueItems(JsonProperty property)
+        {
+            if (property == null)
+            {
+                return false;
+            }
+
+            var uniqueItems = GetAttributeByName(property, UniqueItemsAttributeName, out _);
+            return uniqueItems != null && ReflectionUtils.IsCollectionItemType(property.PropertyType);
         }
 
         private static Attribute GetAttributeByName(JsonProperty property, string name, out Type matchingType)

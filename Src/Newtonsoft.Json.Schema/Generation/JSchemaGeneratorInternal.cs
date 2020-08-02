@@ -420,6 +420,7 @@ namespace Newtonsoft.Json.Schema.Generation
                         schema.Type = AddNullType(JSchemaType.Array, valueRequired);
                         schema.MinimumItems = AttributeHelpers.GetMinLength(memberProperty);
                         schema.MaximumItems = AttributeHelpers.GetMaxLength(memberProperty);
+                        schema.UniqueItems = ReflectionUtils.IsISetType(nonNullableUnderlyingType) || AttributeHelpers.GetUniqueItems(memberProperty) ;
 
                         JsonArrayAttribute arrayAttribute = ReflectionUtils.GetAttribute<JsonArrayAttribute>(nonNullableUnderlyingType);
 

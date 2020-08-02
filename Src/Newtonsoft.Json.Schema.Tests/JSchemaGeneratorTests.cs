@@ -1798,6 +1798,70 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsNotNull(schema.Properties["Provider"]);
         }
 
+        internal class UniqueItemsClassWithAttribute
+        {
+            [UniqueItems]
+            public IEnumerable<string> UniqueItemsProperty { get; set; }
+        }
+
+        internal class UniqueItemsClassWithHashSet
+        {
+            public HashSet<string> UniqueItemsProperty { get; set; }
+        }
+
+        internal class UniqueItemsClassWithoutAttribute
+        {
+            public IEnumerable<string> UniqueItemsProperty { get; set; }
+        }
+
+        internal class UniqueItemsClassWithAttributeButWithoutCollection
+        {
+            [UniqueItems]
+            public string UniqueItemsProperty { get; set; }
+        }
+
+        [Test]
+        public void GenerateUniqueItemsWithAttribute()
+        {
+            JSchemaGenerator generator = new JSchemaGenerator();
+            JSchema schema = generator.Generate(typeof(UniqueItemsClassWithAttribute));
+
+            Assert.IsNotNull(schema.Properties["UniqueItemsProperty"]);
+            Assert.IsTrue(schema.Properties["UniqueItemsProperty"].UniqueItems);
+        }
+
+#if !NET35
+        [Test]
+        public void GenerateUniqueItemsWithHashSet()
+        {
+            JSchemaGenerator generator = new JSchemaGenerator();
+            JSchema schema = generator.Generate(typeof(UniqueItemsClassWithHashSet));
+
+            Assert.IsNotNull(schema.Properties["UniqueItemsProperty"]);
+            Assert.IsTrue(schema.Properties["UniqueItemsProperty"].UniqueItems);
+        }
+#endif
+
+        [Test]
+        public void GenerateUniqueItemsWithoutAttribute()
+        {
+            JSchemaGenerator generator = new JSchemaGenerator();
+            JSchema schema = generator.Generate(typeof(UniqueItemsClassWithoutAttribute));
+
+            Assert.IsNotNull(schema.Properties["UniqueItemsProperty"]);
+            Assert.IsFalse(schema.Properties["UniqueItemsProperty"].UniqueItems);
+        }
+
+        [Test]
+        public void GenerateUniqueItemsWithtAttributeButWithoutCollection()
+        {
+            JSchemaGenerator generator = new JSchemaGenerator();
+            JSchema schema = generator.Generate(typeof(UniqueItemsClassWithAttributeButWithoutCollection));
+
+            Assert.IsNotNull(schema.Properties["UniqueItemsProperty"]);
+            Assert.IsFalse(schema.Properties["UniqueItemsProperty"].UniqueItems);
+        }
+
         internal class MyRootJsonClass
         {
             public Dictionary<string, BlockBase> Blocks { get; set; }
