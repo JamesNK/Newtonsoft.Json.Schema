@@ -1798,6 +1798,7 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsNotNull(schema.Properties["Provider"]);
         }
 
+#if !(NET35 || NET40)
         [Test]
         public void ReadOnlyDictionaryProperty()
         {
@@ -1807,6 +1808,7 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(JSchemaType.Object | JSchemaType.Null, schema.Properties["Prop1"].Type);
             Assert.AreEqual(JSchemaType.String | JSchemaType.Null, schema.Properties["Prop1"].AdditionalProperties.Type);
         }
+#endif
 
         internal class MyRootJsonClass
         {
@@ -2106,8 +2108,10 @@ namespace Newtonsoft.Json.Schema.Tests
     {
     }
 
+#if !(NET35 || NET40)
     public class ClassWithReadOnlyDictionary
     {
         public IReadOnlyDictionary<string, string> Prop1 { get; set; }
     }
+#endif
 }
