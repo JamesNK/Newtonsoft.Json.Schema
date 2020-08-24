@@ -52,75 +52,6 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
     internal class ReflectionUtils
     {
-        public static void GetDictionaryKeyValueTypes(Type dictionaryType, out Type keyType, out Type valueType)
-        {
-            ValidationUtils.ArgumentNotNull(dictionaryType, nameof(dictionaryType));
-
-            if (ImplementsGenericDefinition(dictionaryType, typeof(IDictionary<,>), out Type genericDictionaryType))
-            {
-                if (genericDictionaryType.IsGenericTypeDefinition())
-                {
-                    throw new Exception("Type {0} is not a dictionary.".FormatWith(CultureInfo.InvariantCulture, dictionaryType));
-                }
-
-                Type[] dictionaryGenericArguments = genericDictionaryType.GetGenericArguments();
-
-                keyType = dictionaryGenericArguments[0];
-                valueType = dictionaryGenericArguments[1];
-                return;
-            }
-            if (typeof(IDictionary).IsAssignableFrom(dictionaryType))
-            {
-                keyType = null;
-                valueType = null;
-                return;
-            }
-
-            throw new Exception("Type {0} is not a dictionary.".FormatWith(CultureInfo.InvariantCulture, dictionaryType));
-        }
-
-        public static bool ImplementsGenericDefinition(Type type, Type genericInterfaceDefinition, out Type implementingType)
-        {
-            ValidationUtils.ArgumentNotNull(type, nameof(type));
-            ValidationUtils.ArgumentNotNull(genericInterfaceDefinition, nameof(genericInterfaceDefinition));
-
-            if (!genericInterfaceDefinition.IsInterface() || !genericInterfaceDefinition.IsGenericTypeDefinition())
-            {
-                throw new ArgumentNullException("'{0}' is not a generic interface definition.".FormatWith(CultureInfo.InvariantCulture, genericInterfaceDefinition));
-            }
-
-            if (type.IsInterface())
-            {
-                if (type.IsGenericType())
-                {
-                    Type interfaceDefinition = type.GetGenericTypeDefinition();
-
-                    if (genericInterfaceDefinition == interfaceDefinition)
-                    {
-                        implementingType = type;
-                        return true;
-                    }
-                }
-            }
-
-            foreach (Type i in type.GetInterfaces())
-            {
-                if (i.IsGenericType())
-                {
-                    Type interfaceDefinition = i.GetGenericTypeDefinition();
-
-                    if (genericInterfaceDefinition == interfaceDefinition)
-                    {
-                        implementingType = i;
-                        return true;
-                    }
-                }
-            }
-
-            implementingType = null;
-            return false;
-        }
-
         public static bool HasDefaultConstructor(Type t, bool nonPublic)
         {
             ValidationUtils.ArgumentNotNull(t, nameof(t));
@@ -166,36 +97,6 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             ValidationUtils.ArgumentNotNull(t, nameof(t));
 
             return (t.IsGenericType() && t.GetGenericTypeDefinition() == typeof(Nullable<>));
-        }
-
-        /// <summary>
-        /// Gets the type of the typed collection's items.
-        /// </summary>
-        /// <param name="type">The type.</param>
-        /// <returns>The type of the typed collection's items.</returns>
-        public static Type GetCollectionItemType(Type type)
-        {
-            ValidationUtils.ArgumentNotNull(type, nameof(type));
-
-            if (type.IsArray)
-            {
-                return type.GetElementType();
-            }
-            if (ImplementsGenericDefinition(type, typeof(IEnumerable<>), out Type genericListType))
-            {
-                if (genericListType.IsGenericTypeDefinition())
-                {
-                    throw new Exception("Type {0} is not a collection.".FormatWith(CultureInfo.InvariantCulture, type));
-                }
-
-                return genericListType.GetGenericArguments()[0];
-            }
-            if (typeof(IEnumerable).IsAssignableFrom(type))
-            {
-                return null;
-            }
-
-            throw new Exception("Type {0} is not a collection.".FormatWith(CultureInfo.InvariantCulture, type));
         }
 
         public static T GetAttribute<T>(object attributeProvider) where T : Attribute
