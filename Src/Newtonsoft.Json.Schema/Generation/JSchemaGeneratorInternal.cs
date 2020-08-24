@@ -429,10 +429,9 @@ namespace Newtonsoft.Json.Schema.Generation
                             required = Required.Always;
                         }
 
-                        Type collectionItemType = ReflectionUtils.GetCollectionItemType(nonNullableUnderlyingType);
-                        if (collectionItemType != null)
+                        if (arrayContract.CollectionItemType != null)
                         {
-                            schema.Items.Add(GenerateInternal(collectionItemType, required, null, arrayContract, null));
+                            schema.Items.Add(GenerateInternal(arrayContract.CollectionItemType, required, null, arrayContract, null));
                         }
                         break;
                     case JsonStringContract stringContract:
@@ -452,16 +451,14 @@ namespace Newtonsoft.Json.Schema.Generation
                         schema.MinimumProperties = AttributeHelpers.GetMinLength(memberProperty);
                         schema.MaximumProperties = AttributeHelpers.GetMaxLength(memberProperty);
 
-                        ReflectionUtils.GetDictionaryKeyValueTypes(nonNullableUnderlyingType, out Type keyType, out Type valueType);
-
-                        if (keyType != null)
+                        if (dictionaryContract.DictionaryKeyType != null)
                         {
-                            JsonContract keyContract = _generator.ContractResolver.ResolveContract(keyType);
+                            JsonContract keyContract = _generator.ContractResolver.ResolveContract(dictionaryContract.DictionaryKeyType);
 
                             // can be converted to a string
                             if (keyContract is JsonPrimitiveContract)
                             {
-                                schema.AdditionalProperties = GenerateInternal(valueType, _generator.DefaultRequired, null, dictionaryContract, null);
+                                schema.AdditionalProperties = GenerateInternal(dictionaryContract.DictionaryValueType, _generator.DefaultRequired, null, dictionaryContract, null);
                             }
                         }
                         break;
