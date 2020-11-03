@@ -1,0 +1,16 @@
+{
+  "imageFilename": "mojave_dynamic_*.jpeg",
+  "imageCredits": "Apple",
+  "sunriseImageList": [
+    1
+  ],
+  "dayImageList": [
+    2
+  ],
+  "sunsetImageList": [
+    1
+  ],
+  "nightImageList": [
+    3
+  ]
+}
