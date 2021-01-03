@@ -15,9 +15,9 @@ namespace Newtonsoft.Json.Schema.Generation
     {
         private readonly JSchemaGenerator _generator;
         private readonly JSchemaGeneratorInternal _generatorInternal;
-        private readonly JSchemaGenerationProvider _generationProvider;
+        private readonly JSchemaGenerationProvider? _generationProvider;
 
-        public JSchemaGeneratorProxy(JSchemaGeneratorInternal generatorInternal, JSchemaGenerationProvider generationProvider)
+        public JSchemaGeneratorProxy(JSchemaGeneratorInternal generatorInternal, JSchemaGenerationProvider? generationProvider)
         {
             _generator = generatorInternal._generator;
             _generatorInternal = generatorInternal;

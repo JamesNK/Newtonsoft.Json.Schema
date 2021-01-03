@@ -15,7 +15,7 @@ namespace Newtonsoft.Json.Schema
     /// </summary>
     public class JSchemaUrlResolver : JSchemaResolver
     {
-        private ICredentials _credentials;
+        private ICredentials? _credentials;
 
 #if DEBUG
         private IDownloader _downloader;
@@ -62,8 +62,10 @@ namespace Newtonsoft.Json.Schema
         /// <param name="context">The schema ID context.</param>
         /// <param name="reference">The schema reference.</param>
         /// <returns>The schema resource for a given schema reference.</returns>
-        public override Stream GetSchemaResource(ResolveSchemaContext context, SchemaReference reference)
+        public override Stream? GetSchemaResource(ResolveSchemaContext context, SchemaReference reference)
         {
+            ValidationUtils.Assert(reference.BaseUri != null);
+
             if (!reference.BaseUri.IsAbsoluteUri)
             {
                 return null;

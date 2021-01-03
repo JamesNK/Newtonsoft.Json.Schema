@@ -111,7 +111,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Collections
             }
         }
 
-        private static void VerifyValueType(object value)
+        private static void VerifyValueType(object? value)
         {
             if (!(value is TValue))
             {
@@ -235,7 +235,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Collections
             Remove((TKey)key);
         }
 
-        object IDictionary.this[object key]
+        object? IDictionary.this[object key]
         {
             get
             {
@@ -253,7 +253,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Collections
             {
                 VerifyKey(key);
                 VerifyValueType(value);
-                SetItem((TKey)key, (TValue)value);
+                SetItem((TKey)key, (TValue)value!);
             }
         }
 

@@ -12,7 +12,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
     {
         public static readonly JSchemaDummyResolver Instance = new JSchemaDummyResolver();
 
-        public override Stream GetSchemaResource(ResolveSchemaContext context, SchemaReference reference)
+        public override Stream? GetSchemaResource(ResolveSchemaContext context, SchemaReference reference)
         {
             return null;
         }

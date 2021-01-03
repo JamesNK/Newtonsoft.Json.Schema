@@ -15,7 +15,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
         }
 
         public SchemaScope SchemaScope { get; }
-        public List<JSchema> ValidScopes { get; set; }
+        public List<JSchema>? ValidScopes { get; set; }
         public bool Evaluated { get; set; }
 
         public void AddValidScope(JSchema schema)

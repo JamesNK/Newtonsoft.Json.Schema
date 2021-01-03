@@ -59,12 +59,6 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         DBNull = 41
     }
 
-    internal class TypeInformation
-    {
-        public Type Type { get; set; }
-        public PrimitiveTypeCode TypeCode { get; set; }
-    }
-
     internal static class ConvertUtils
     {
         private static readonly Dictionary<Type, PrimitiveTypeCode> TypeCodeMap =

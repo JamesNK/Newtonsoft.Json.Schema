@@ -31,7 +31,7 @@ namespace Newtonsoft.Json.Schema
                 _writer = writer;
             }
 
-            public override ValidationError CreateError(IFormattable message, ErrorType errorType, JSchema schema, object value, IList<ValidationError> childErrors)
+            public override ValidationError CreateError(IFormattable message, ErrorType errorType, JSchema schema, object? value, IList<ValidationError>? childErrors)
             {
                 return CreateError(message, errorType, schema, value, childErrors, null, _writer.Path);
             }
@@ -44,7 +44,7 @@ namespace Newtonsoft.Json.Schema
         /// Gets or sets the schema.
         /// </summary>
         /// <value>The schema.</value>
-        public JSchema Schema
+        public JSchema? Schema
         {
             get => _validator.Schema;
             set
@@ -530,7 +530,7 @@ namespace Newtonsoft.Json.Schema
         }
 #endregion
 
-        private void ValidateCurrentToken(JsonToken token, object value, int depth)
+        private void ValidateCurrentToken(JsonToken token, object? value, int depth)
         {
             _validator.ValidateCurrentToken(token, value, depth);
         }

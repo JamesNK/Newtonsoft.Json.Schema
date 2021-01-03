@@ -13,16 +13,16 @@ namespace Newtonsoft.Json.Schema.Generation
         public readonly Required Required;
         public readonly int? MinLength;
         public readonly int? MaxLength;
-        public readonly string Title;
-        public readonly string Description;
+        public readonly string? Title;
+        public readonly string? Description;
 
         public TypeSchemaKey(
             Type type,
             Required required,
             int? minLength,
             int? maxLength,
-            string title,
-            string description
+            string? title,
+            string? description
             )
         {
             Type = type;
@@ -33,7 +33,7 @@ namespace Newtonsoft.Json.Schema.Generation
             Description = description;
         }
 
-        public bool Equals(TypeSchemaKey other)
+        public bool Equals(TypeSchemaKey? other)
         {
             if (other == null)
             {
@@ -70,7 +70,7 @@ namespace Newtonsoft.Json.Schema.Generation
 
         public override bool Equals(object obj)
         {
-            TypeSchemaKey key = obj as TypeSchemaKey;
+            TypeSchemaKey? key = obj as TypeSchemaKey;
             return Equals(key);
         }
 

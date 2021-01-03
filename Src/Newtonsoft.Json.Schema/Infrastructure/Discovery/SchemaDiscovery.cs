@@ -8,6 +8,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using Newtonsoft.Json.Linq;
@@ -21,9 +22,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             return Uri.UnescapeDataString(reference).Replace("~1", "/").Replace("~0", "~");
         }
 
-        private static Uri GetTokenId(JToken o, JSchemaReader schemaReader)
+        private static Uri? GetTokenId(JToken o, JSchemaReader schemaReader)
         {
-            Uri id = null;
+            Uri? id = null;
             if (schemaReader.EnsureVersion(SchemaVersion.Draft6)
                 && o[Constants.PropertyNames.Id] is JValue idToken
                 && (idToken.Type == JTokenType.String || idToken.Type == JTokenType.Uri))
@@ -36,7 +37,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                 id = GetTokenUri(idDraf4Token);
             }
 
-            string anchor = null;
+            string? anchor = null;
             if (schemaReader.EnsureVersion(SchemaVersion.Draft2019_09)
                 && o[Constants.PropertyNames.Anchor] is JValue anchorToken
                 && anchorToken.Type == JTokenType.String)
@@ -47,7 +48,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             return CombineIdAndAnchor(id, anchor);
         }
 
-        public static Uri CombineIdAndAnchor(Uri id, string anchor)
+        public static Uri? CombineIdAndAnchor(Uri? id, string? anchor)
         {
             if (id != null)
             {
@@ -71,9 +72,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             return null;
         }
 
-        private static Uri GetTokenUri(JValue t)
+        private static Uri? GetTokenUri(JValue t)
         {
-            Uri id;
+            Uri? id;
             if (t.Type == JTokenType.Uri)
             {
                 id = (Uri)t;
@@ -89,7 +90,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
         public static bool FindSchema(
             Action<JSchema> setSchema,
             JSchema schema,
-            Uri rootSchemaId,
+            Uri? rootSchemaId,
             Uri reference,
             Uri originalReference,
             JSchemaReader schemaReader,
@@ -107,7 +108,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                 schemaReader._identiferScopeStack.Add(schema);
 
                 JSchema parent = schema;
-                object current = schema;
+                object? current = schema;
                 for (int i = 1; i != parts.Length; ++i)
                 {
                     string unescapedPart = UnescapeReference(parts[i]);
@@ -124,10 +125,10 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                             current = GetCurrentFromSchema(s, unescapedPart);
                             break;
                         case JToken t:
-                            IIdentiferScope scope = null;
+                            IIdentiferScope? scope = null;
                             if (t is JObject)
                             {
-                                Uri id = GetTokenId(t, schemaReader);
+                                Uri? id = GetTokenId(t, schemaReader);
                                 if (id != null)
                                 {
                                     scope = new JsonIdentiferScope(id);
@@ -143,7 +144,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                             current = temp;
                             break;
                         case IList<JSchema> l:
-                            if (TryGetImplicitItemsSchema(parent, l, out JSchema itemsSchema))
+                            if (TryGetImplicitItemsSchema(parent, l, out JSchema? itemsSchema))
                             {
                                 current = GetCurrentFromSchema(itemsSchema, unescapedPart);
                             }
@@ -173,7 +174,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
 
                 if (current is IList<JSchema> itemsSchemas)
                 {
-                    if (TryGetImplicitItemsSchema(parent, itemsSchemas, out JSchema itemsSchema))
+                    if (TryGetImplicitItemsSchema(parent, itemsSchemas, out JSchema? itemsSchema))
                     {
                         current = itemsSchema;
                     }
@@ -234,7 +235,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                 }
                 else
                 {
-                    if (SplitReference(resolvedReference, out Uri path, out Uri fragment))
+                    if (SplitReference(resolvedReference, out Uri path, out Uri? fragment))
                     {
                         // there could be duplicated ids. use FirstOrDefault to get first schema with an id
                         knownSchema = discovery.KnownSchemas.FirstOrDefault(s => UriComparer.Instance.Equals(s.Id, path));
@@ -278,7 +279,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             return resolvedSchema;
         }
 
-        private static bool SplitReference(Uri reference, out Uri path, out Uri fragment)
+        private static bool SplitReference(Uri reference, out Uri path, [NotNullWhen(true)] out Uri? fragment)
         {
             int hashIndex = reference.OriginalString.IndexOf('#');
             if (hashIndex != -1)
@@ -295,7 +296,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             }
         }
 
-        private static bool IsInternalSchemaReference(string firstPart, Uri rootSchemaId)
+        private static bool IsInternalSchemaReference(string firstPart, Uri? rootSchemaId)
         {
             if (firstPart == "#")
             {
@@ -316,7 +317,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             return false;
         }
 
-        private static bool TryFindSchemaInDefinitions(string definitionsName, Action<JSchema> setSchema, JSchema schema, Uri rootSchemaId,
+        private static bool TryFindSchemaInDefinitions(string definitionsName, Action<JSchema> setSchema, JSchema schema, Uri? rootSchemaId,
             JSchemaReader schemaReader, JSchemaDiscovery discovery, Uri resolvedReference)
         {
             // special case
@@ -342,7 +343,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                     }
                     else
                     {
-                        SplitReference(resolvedReference, out Uri path, out Uri fragment);
+                        SplitReference(resolvedReference, out Uri path, out Uri? fragment);
 
                         return CheckDefinitionSchemaIds(definitionsName, setSchema, rootSchemaId, schemaReader, discovery, resolvedReference, path, fragment, definitionsObject);
                     }
@@ -352,7 +353,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             return false;
         }
 
-        private static bool CheckDefinitionSchemaIds(string definitionsName, Action<JSchema> setSchema, Uri rootSchemaId, JSchemaReader schemaReader, JSchemaDiscovery discovery, Uri resolvedReference, Uri matchingId, Uri matchingFragment, JObject definitionsObject)
+        private static bool CheckDefinitionSchemaIds(string definitionsName, Action<JSchema> setSchema, Uri? rootSchemaId, JSchemaReader schemaReader, JSchemaDiscovery discovery, Uri resolvedReference, Uri matchingId, Uri? matchingFragment, JObject definitionsObject)
         {
             foreach (KeyValuePair<string, JToken> property in definitionsObject)
             {
@@ -403,15 +404,15 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             return false;
         }
 
-        private static bool IsNestedDefinitionMatch(string definitionsName, Action<JSchema> setSchema, Uri rootSchemaId, JSchemaReader schemaReader, JSchemaDiscovery discovery,
-            Uri resolvedReference, Uri matchingId, Uri matchingFragment, JObject obj)
+        private static bool IsNestedDefinitionMatch(string definitionsName, Action<JSchema> setSchema, Uri? rootSchemaId, JSchemaReader schemaReader, JSchemaDiscovery discovery,
+            Uri resolvedReference, Uri matchingId, Uri? matchingFragment, JObject obj)
         {
-            JObject nestedDefinitions = obj[definitionsName] as JObject;
+            JObject? nestedDefinitions = obj[definitionsName] as JObject;
             if (nestedDefinitions != null)
             {
-                Uri id = GetTokenId(obj, schemaReader);
+                Uri? id = GetTokenId(obj, schemaReader);
 
-                Uri resolvedId = id != null
+                Uri? resolvedId = id != null
                     ? ResolveSchemaId(rootSchemaId, id)
                     : rootSchemaId;
 
@@ -421,9 +422,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             return false;
         }
 
-        private static bool IsIdMatch(JSchemaReader schemaReader, Uri resolvedReference, JObject o, Uri rootSchemaId)
+        private static bool IsIdMatch(JSchemaReader schemaReader, Uri? resolvedReference, JObject o, Uri? rootSchemaId)
         {
-            Uri id = GetTokenId(o, schemaReader);
+            Uri? id = GetTokenId(o, schemaReader);
 
             if (id == null)
             {
@@ -445,7 +446,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             return false;
         }
 
-        private static bool TryGetImplicitItemsSchema(JSchema parent, IList<JSchema> items, out JSchema schema)
+        private static bool TryGetImplicitItemsSchema(JSchema parent, IList<JSchema> items, [NotNullWhen(true)] out JSchema? schema)
         {
             // if the schema collection is items then implicitly get first item if there is no position validation
             if (ReferenceEquals(parent._items, items) && !parent.ItemsPositionValidation)
@@ -461,7 +462,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             return false;
         }
 
-        private static object GetCurrentFromSchema(JSchema s, string unescapedPart)
+        private static object? GetCurrentFromSchema(JSchema s, string unescapedPart)
         {
             switch (unescapedPart)
             {
@@ -494,9 +495,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             }
         }
 
-        private static object GetCurrentFromToken(JToken t, string unescapedPart)
+        private static object? GetCurrentFromToken(JToken t, string unescapedPart)
         {
-            JToken resolvedToken;
+            JToken? resolvedToken;
 
             if (t is JObject)
             {
@@ -556,7 +557,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             return false;
         }
 
-        public static Uri ResolveSchemaId(Uri idScope, Uri schemaId)
+        public static Uri ResolveSchemaId(Uri? idScope, Uri schemaId)
         {
             if (idScope == null || schemaId.IsAbsoluteUri || schemaId.OriginalString.StartsWith("//", StringComparison.Ordinal))
             {
@@ -565,7 +566,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             else
             {
                 Uri newId;
-                Uri tempRoot;
+                Uri? tempRoot;
 
                 try
                 {

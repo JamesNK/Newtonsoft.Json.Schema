@@ -12,11 +12,14 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
     internal class SchemaPath
     {
         public readonly Uri ScopeId;
-        public readonly Uri ReferencedAs;
+        public readonly Uri? ReferencedAs;
         public readonly string Path;
 
-        public SchemaPath(Uri scopeId, Uri referencedAs, string path)
+        public SchemaPath(Uri scopeId, Uri? referencedAs, string path)
         {
+            ValidationUtils.Assert(scopeId != null);
+            ValidationUtils.Assert(path != null);
+
             ScopeId = scopeId;
             ReferencedAs = referencedAs;
             Path = path;

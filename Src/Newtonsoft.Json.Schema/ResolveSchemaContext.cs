@@ -15,16 +15,16 @@ namespace Newtonsoft.Json.Schema
         /// <summary>
         /// The referenced schema ID.
         /// </summary>
-        public Uri SchemaId { get; set; }
+        public Uri SchemaId { get; set; } = default!;
 
         /// <summary>
         /// The referenced schema ID resolved using parent scopes.
         /// </summary>
-        public Uri ResolvedSchemaId { get; set; }
+        public Uri ResolvedSchemaId { get; set; } = default!;
 
         /// <summary>
         /// The base URI of the schema being read that is resolving the reference.
         /// </summary>
-        public Uri ResolverBaseUri { get; set; }
+        public Uri? ResolverBaseUri { get; set; }
     }
 }

@@ -45,7 +45,7 @@ namespace Newtonsoft.Json.Schema
         /// </summary>
         /// <param name="message">The message describing the error that occurred.</param>
         /// <param name="value">The JSON value when the error occurred.</param>
-        public void RaiseError(string message, object value)
+        public void RaiseError(string message, object? value)
         {
             _scope.RaiseError(FormattableStringFactory.Create(message, CollectionHelpers.EmptyArray), ErrorType.Validator, _schema, value, null);
         }

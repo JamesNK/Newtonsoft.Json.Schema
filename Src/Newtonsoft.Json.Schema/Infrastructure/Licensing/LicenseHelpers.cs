@@ -18,8 +18,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Licensing
 
         private static long _validationCount;
         private static long _generationCount;
-        private static LicenseDetails _registeredLicense;
-        private static Timer _resetTimer;
+        private static LicenseDetails? _registeredLicense;
+        private static Timer? _resetTimer;
 
         static LicenseHelpers()
         {
@@ -76,7 +76,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Licensing
                 {
                     if (_resetTimer == null)
                     {
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
                         Timer timer = new Timer(ResetCounts, null, 0, Convert.ToInt32(TimeSpan.FromHours(1).TotalMilliseconds));
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
 
 #if !PORTABLE
                         Thread.MemoryBarrier();
@@ -96,7 +98,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Licensing
 
         public static void RegisterLicense(string license)
         {
-            ReleaseDateAttribute releaseDateAttribute = ReflectionUtils.GetAttribute<ReleaseDateAttribute>(typeof(LicenseHelpers).Assembly());
+            ReleaseDateAttribute releaseDateAttribute = ReflectionUtils.GetAttribute<ReleaseDateAttribute>(typeof(LicenseHelpers).Assembly())!;
 
             RegisterLicense(license, releaseDateAttribute.ReleaseDate);
         }

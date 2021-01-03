@@ -33,7 +33,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             }
         }
 
-        public override void RaiseError(IFormattable message, ErrorType errorType, JSchema schema, object value, IList<ValidationError> childErrors)
+        public override void RaiseError(IFormattable message, ErrorType errorType, JSchema schema, object? value, IList<ValidationError>? childErrors)
         {
             for (int i = 0; i < Contexts.Count; i++)
             {

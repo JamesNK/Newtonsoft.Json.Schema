@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Newtonsoft.Json.Schema.Infrastructure
 {
@@ -19,7 +20,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             return item.ResolvedReference;
         }
 
-        public bool TryGetValue(Uri key, out DeferedSchema value)
+        public bool TryGetValue(Uri key, [NotNullWhen(true)] out DeferedSchema? value)
         {
             if (Dictionary == null)
             {

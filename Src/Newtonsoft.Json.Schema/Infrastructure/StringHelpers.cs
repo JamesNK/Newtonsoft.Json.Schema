@@ -55,7 +55,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 #endif
         }
 
-        public static StringBuilder TrimEnd(this StringBuilder sb)
+        public static StringBuilder? TrimEnd(this StringBuilder sb)
         {
             if (sb == null || sb.Length == 0)
             {

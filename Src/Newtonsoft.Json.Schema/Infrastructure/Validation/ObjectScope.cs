@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json.Schema.Infrastructure.Collections;
@@ -14,13 +15,13 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
     internal sealed class ObjectScope : SchemaScope
     {
         private int _propertyCount;
-        private string _currentPropertyName;
-        private List<string> _requiredProperties;
-        private List<string> _readProperties;
-        private Dictionary<string, SchemaScope> _dependencyScopes;
-        private Dictionary<string, UnevaluatedContext> _unevaluatedScopes;
+        private string? _currentPropertyName;
+        private List<string>? _requiredProperties;
+        private List<string>? _readProperties;
+        private Dictionary<string, SchemaScope>? _dependencyScopes;
+        private Dictionary<string, UnevaluatedContext>? _unevaluatedScopes;
 
-        public void Initialize(ContextBase context, SchemaScope parent, int initialDepth, JSchema schema)
+        public void Initialize(ContextBase context, SchemaScope? parent, int initialDepth, JSchema schema)
         {
             Initialize(context, parent, initialDepth, ScopeType.Object);
             InitializeSchema(schema);
@@ -86,6 +87,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             }
         }
 
+        [MemberNotNullWhen(true, nameof(_unevaluatedScopes))]
         public override bool ShouldValidateUnevaluated()
         {
             // If additional items are validated then there are no unevaluated properties
@@ -103,7 +105,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             {
                 if (!conditionalScope.EvaluatedSchemas.IsNullOrEmpty())
                 {
-                    foreach (KeyValuePair<string, UnevaluatedContext> unevaluatedScope in _unevaluatedScopes)
+                    foreach (KeyValuePair<string, UnevaluatedContext> unevaluatedScope in _unevaluatedScopes!)
                     {
                         UnevaluatedContext context = unevaluatedScope.Value;
 
@@ -122,7 +124,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             }
         }
 
-        protected override bool EvaluateTokenCore(JsonToken token, object value, int depth)
+        protected override bool EvaluateTokenCore(JsonToken token, object? value, int depth)
         {
             int relativeDepth = depth - InitialDepth;
 
@@ -139,7 +141,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     case JsonToken.EndObject:
                         ValidateConditionalChildren(token, value, depth);
 
-                        if (!Schema._required.IsNullOrEmpty() && _requiredProperties.Count > 0)
+                        if (!Schema._required.IsNullOrEmpty() && _requiredProperties!.Count > 0)
                         {
                             //capture required properties at current depth as we may clear _requiredProperties later on
                             List<string> capturedRequiredProperties = _requiredProperties.ToList();
@@ -160,8 +162,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                         {
                             foreach (string readProperty in _readProperties)
                             {
-                                object dependency = null;
-                                IList<string> requiredProperties = null;
+                                object? dependency = null;
+                                IList<string>? requiredProperties = null;
                                 if (Schema._dependencies?.TryGetValue(readProperty, out dependency) ?? false)
                                 {
                                     requiredProperties = dependency as IList<string>;
@@ -177,7 +179,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
                                 if (Schema._dependentRequired?.TryGetValue(readProperty, out requiredProperties) ?? false)
                                 {
-                                    ValidateDependantProperties(readProperty, requiredProperties);
+                                    ValidateDependantProperties(readProperty, requiredProperties!);
                                 }
 
                                 if (Schema._dependentSchemas?.TryGetValue(readProperty, out _) ?? false)
@@ -208,8 +210,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 #if !(NET35 || NET40)
                                     Context.Validator.RegexMatchTimeout,
 #endif
-                                    out Regex _,
-                                    out string errorMessage))
+                                    out Regex? _,
+                                    out string? errorMessage))
                                 {
                                     RaiseError($"Could not test property names with regex pattern '{patternSchema.Pattern}'. There was an error parsing the regex: {errorMessage}",
                                         ErrorType.PatternProperties,
@@ -231,11 +233,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 if (token == JsonToken.PropertyName)
                 {
                     _propertyCount++;
-                    _currentPropertyName = (string)value;
+                    _currentPropertyName = (string)value!;
 
                     if (!Schema._required.IsNullOrEmpty())
                     {
-                        _requiredProperties.Remove(_currentPropertyName);
+                        _requiredProperties!.Remove(_currentPropertyName);
                     }
                     if (HasDependencies())
                     {
@@ -258,6 +260,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 }
                 else
                 {
+                    ValidationUtils.Assert(_currentPropertyName != null);
+
                     if (JsonTokenHelpers.IsPrimitiveOrStartToken(token))
                     {
                         bool matched = false;
@@ -278,8 +282,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 #if !(NET35 || NET40)
                                     Context.Validator.RegexMatchTimeout,
 #endif
-                                    out Regex regex,
-                                    out string _))
+                                    out Regex? regex,
+                                    out string? _))
                                 {
                                     if (RegexHelpers.IsMatch(regex, patternProperty.Pattern, _currentPropertyName))
                                     {
@@ -325,7 +329,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                                         // Schema for a property
                                         if (scope.Parent != null && scope is SchemaScope schemaScope && schemaScope.IsValid)
                                         {
-                                            unevaluatedContext.AddValidScope(schemaScope.Parent.Schema);
+                                            unevaluatedContext.AddValidScope(schemaScope.Parent!.Schema);
                                         }
                                     }
                                     else if (scope.InitialDepth == InitialDepth)
@@ -356,6 +360,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             return false;
         }
 
+        [MemberNotNullWhen(true, nameof(_readProperties))]
         private bool HasDependencies()
         {
             return !Schema._dependencies.IsNullOrEmpty()
@@ -365,6 +370,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
         private void ValidateDependantSchema(string readProperty)
         {
+            ValidationUtils.Assert(_dependencyScopes != null);
+
             SchemaScope dependencyScope = _dependencyScopes[readProperty];
             if (dependencyScope.Context.HasErrors)
             {
@@ -389,6 +396,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
         private void ValidateDependantProperties(string readProperty, IList<string> requiredProperties)
         {
+            ValidationUtils.Assert(_readProperties != null);
+
             if (!requiredProperties.All(r => _readProperties.Contains(r)))
             {
                 IEnumerable<string> missingRequiredProperties = requiredProperties.Where(r => !_readProperties.Contains(r));
@@ -413,8 +422,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 #if !(NET35 || NET40)
                         Context.Validator.RegexMatchTimeout,
 #endif
-                        out Regex regex,
-                        out string _))
+                        out Regex? regex,
+                        out string? _))
                     {
                         if (RegexHelpers.IsMatch(regex, patternSchema.Pattern, propertyName))
                         {
@@ -436,7 +445,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     if (dependency.Value is JSchema dependencySchema)
                     {
                         SchemaScope scope = CreateTokenScope(token, dependencySchema, CreateConditionalContext(), null, InitialDepth);
-                        _dependencyScopes.Add(dependency.Key, scope);
+                        _dependencyScopes!.Add(dependency.Key, scope);
                     }
                 }
             }
@@ -447,7 +456,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     if (dependency.Value is JSchema dependencySchema)
                     {
                         SchemaScope scope = CreateTokenScope(token, dependencySchema, CreateConditionalContext(), null, InitialDepth);
-                        _dependencyScopes.Add(dependency.Key, scope);
+                        _dependencyScopes!.Add(dependency.Key, scope);
                     }
                 }
             }

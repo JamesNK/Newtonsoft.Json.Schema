@@ -62,7 +62,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             return false;
         }
 
-        public static SchemaVersion MapSchemaUri(Uri schemaVersionUri)
+        public static SchemaVersion MapSchemaUri(Uri? schemaVersionUri)
         {
             for (int i = 0; i < VersionMap.Length; i++)
             {
@@ -75,7 +75,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             return SchemaVersion.Unset;
         }
 
-        public static JSchema GetSchema(SchemaVersion version)
+        public static JSchema? GetSchema(SchemaVersion version)
         {
             for (int i = 0; i < VersionMap.Length; i++)
             {
@@ -88,7 +88,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             return null;
         }
 
-        public static Uri MapSchemaVersion(SchemaVersion? schemaVersion)
+        public static Uri? MapSchemaVersion(SchemaVersion? schemaVersion)
         {
             for (int i = 0; i < VersionMap.Length; i++)
             {

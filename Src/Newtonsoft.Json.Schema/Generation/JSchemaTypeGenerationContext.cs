@@ -15,18 +15,18 @@ namespace Newtonsoft.Json.Schema.Generation
     {
         private readonly JSchemaGeneratorInternal _generatorInternal;
 
-        internal JSchemaGenerationProvider GenerationProvider;
-        private JSchemaGeneratorProxy _generatorProxy;
+        internal JSchemaGenerationProvider? GenerationProvider;
+        private JSchemaGeneratorProxy? _generatorProxy;
 
         /// <summary>
         /// The schema title.
         /// </summary>
-        public string SchemaTitle { get; }
+        public string? SchemaTitle { get; }
 
         /// <summary>
         /// The schema description.
         /// </summary>
-        public string SchemaDescription { get; }
+        public string? SchemaDescription { get; }
 
         /// <summary>
         /// The object type.
@@ -41,12 +41,12 @@ namespace Newtonsoft.Json.Schema.Generation
         /// <summary>
         /// The member property.
         /// </summary>
-        public JsonProperty MemberProperty { get; }
+        public JsonProperty? MemberProperty { get; }
 
         /// <summary>
         /// The parent contract.
         /// </summary>
-        public JsonContainerContract ParentContract { get; }
+        public JsonContainerContract? ParentContract { get; }
 
         /// <summary>
         /// The current <see cref="JSchemaGenerator"/>.
@@ -67,11 +67,11 @@ namespace Newtonsoft.Json.Schema.Generation
         internal JSchemaTypeGenerationContext(
             Type objectType,
             Required required,
-            JsonProperty memberProperty,
-            JsonContainerContract parentContract,
+            JsonProperty? memberProperty,
+            JsonContainerContract? parentContract,
             JSchemaGeneratorInternal generatorInternal,
-            string schemaTitle,
-            string schemaDescription)
+            string? schemaTitle,
+            string? schemaDescription)
         {
             SchemaTitle = schemaTitle;
             SchemaDescription = schemaDescription;

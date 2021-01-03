@@ -15,7 +15,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 {
     internal static class CompareUtils
     {
-        internal static int CompareInteger(object objA, object objB)
+        internal static int CompareInteger(object? objA, object? objB)
         {
             if (objA == objB)
             {

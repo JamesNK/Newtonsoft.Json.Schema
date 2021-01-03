@@ -12,6 +12,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Newtonsoft.Json.Serialization;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Newtonsoft.Json.Schema.Infrastructure
 {
@@ -20,9 +21,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         private const char EnumSeparatorChar = ',';
         private const string EnumSeparatorString = ", ";
 
-        private static readonly ThreadSafeStore<StructMultiKey<Type, NamingStrategy>, EnumInfo> ValuesAndNamesPerEnum = new ThreadSafeStore<StructMultiKey<Type, NamingStrategy>, EnumInfo>(InitializeValuesAndNames);
+        private static readonly ThreadSafeStore<StructMultiKey<Type, NamingStrategy?>, EnumInfo> ValuesAndNamesPerEnum = new ThreadSafeStore<StructMultiKey<Type, NamingStrategy?>, EnumInfo>(InitializeValuesAndNames);
 
-        private static EnumInfo InitializeValuesAndNames(StructMultiKey<Type, NamingStrategy> key)
+        private static EnumInfo InitializeValuesAndNames(StructMultiKey<Type, NamingStrategy?> key)
         {
             Type enumType = key.Value1;
             string[] names = Enum.GetNames(enumType);
@@ -32,7 +33,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             for (int i = 0; i < names.Length; i++)
             {
                 string name = names[i];
-                FieldInfo f = enumType.GetField(name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static);
+                FieldInfo f = enumType.GetField(name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static)!;
                 values[i] = ToUInt64(f.GetValue(null));
 
                 string resolvedName = f.GetCustomAttributes(typeof(EnumMemberAttribute), true)
@@ -88,9 +89,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             return selectedFlagsValues;
         }
 
-        public static bool TryToString(Type enumType, object value, NamingStrategy namingStrategy, out string name)
+        public static bool TryToString(Type enumType, object value, NamingStrategy? namingStrategy, [NotNullWhen(true)] out string? name)
         {
-            EnumInfo enumInfo = ValuesAndNamesPerEnum.Get(new StructMultiKey<Type, NamingStrategy>(enumType, namingStrategy));
+            EnumInfo enumInfo = ValuesAndNamesPerEnum.Get(new StructMultiKey<Type, NamingStrategy?>(enumType, namingStrategy));
             ulong v = ToUInt64(value);
 
             if (!enumInfo.IsFlags)
@@ -113,7 +114,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             }
         }
 
-        private static string InternalFlagsFormat(EnumInfo entry, ulong result)
+        private static string? InternalFlagsFormat(EnumInfo entry, ulong result)
         {
             string[] resolvedNames = entry.ResolvedNames;
             ulong[] values = entry.Values;
@@ -149,7 +150,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 index--;
             }
 
-            string returnString;
+            string? returnString;
             if (result != 0)
             {
                 // We were unable to represent this number as a bitwise or of valid flags
@@ -175,9 +176,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             return returnString;
         }
 
-        public static EnumInfo GetEnumValuesAndNames(Type enumType, NamingStrategy namingStrategy)
+        public static EnumInfo GetEnumValuesAndNames(Type enumType, NamingStrategy? namingStrategy)
         {
-            return ValuesAndNamesPerEnum.Get(new StructMultiKey<Type, NamingStrategy>(enumType, namingStrategy));
+            return ValuesAndNamesPerEnum.Get(new StructMultiKey<Type, NamingStrategy?>(enumType, namingStrategy));
         }
 
         private static ulong ToUInt64(object value)
@@ -213,7 +214,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             }
         }
 
-        public static object ParseEnum(Type enumType, NamingStrategy namingStrategy, string value, bool disallowNumber)
+        public static object ParseEnum(Type enumType, NamingStrategy? namingStrategy, string value, bool disallowNumber)
         {
             ValidationUtils.ArgumentNotNull(enumType, nameof(enumType));
             ValidationUtils.ArgumentNotNull(value, nameof(value));
@@ -223,7 +224,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 throw new ArgumentException("Type provided must be an Enum.", nameof(enumType));
             }
 
-            EnumInfo entry = ValuesAndNamesPerEnum.Get(new StructMultiKey<Type, NamingStrategy>(enumType, namingStrategy));
+            EnumInfo entry = ValuesAndNamesPerEnum.Get(new StructMultiKey<Type, NamingStrategy?>(enumType, namingStrategy));
             string[] enumNames = entry.Names;
             string[] resolvedNames = entry.ResolvedNames;
             ulong[] enumValues = entry.Values;
@@ -256,7 +257,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 Type underlyingType = Enum.GetUnderlyingType(enumType);
 
                 value = value.Trim();
-                object temp = null;
+                object? temp = null;
 
                 try
                 {

@@ -5,15 +5,16 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 {
     internal class ConditionalContext : ContextBase, ISchemaTracker
     {
-        private readonly ISchemaTracker _parentSchemaTracker;
+        private readonly ISchemaTracker? _parentSchemaTracker;
 
-        public List<ValidationError> Errors;
-        public List<JSchema> EvaluatedSchemas { get; private set; }
+        public List<ValidationError>? Errors;
+        public List<JSchema>? EvaluatedSchemas { get; private set; }
         public bool TrackEvaluatedSchemas { get; }
 
         public ConditionalContext(Validator validator, ContextBase parentContext, bool trackEvaluatedSchemas)
@@ -25,7 +26,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             TrackEvaluatedSchemas = trackEvaluatedSchemas || (_parentSchemaTracker?.TrackEvaluatedSchemas ?? false);
         }
 
-        public override void RaiseError(IFormattable message, ErrorType errorType, JSchema schema, object value, IList<ValidationError> childErrors)
+        public override void RaiseError(IFormattable message, ErrorType errorType, JSchema schema, object? value, IList<ValidationError>? childErrors)
         {
             if (Errors == null)
             {
@@ -61,6 +62,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             return new ConditionalContext(context.Validator, context, trackEvaluatedSchemas);
         }
 
+        [MemberNotNullWhen(true, nameof(Errors))]
         public override bool HasErrors => !Errors.IsNullOrEmpty();
     }
 }

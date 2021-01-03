@@ -14,7 +14,7 @@ namespace Newtonsoft.Json.Schema.Generation
     public class JSchemaGenerationProviderAttribute : Attribute
     {
         private readonly Type _providerType;
-        private readonly object[] _providerParameters;
+        private readonly object[]? _providerParameters;
 
         /// <summary>
         /// Gets the <see cref="Type"/> of the provider.
@@ -26,7 +26,7 @@ namespace Newtonsoft.Json.Schema.Generation
         /// The parameter list to use when constructing the <see cref="JSchemaGenerationProvider"/> described by <see cref="ProviderType"/>.
         /// If null, the default constructor is used.
         /// </summary>
-        public object[] ProviderParameters => _providerParameters;
+        public object[]? ProviderParameters => _providerParameters;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="JSchemaGenerationProviderAttribute"/> class.
