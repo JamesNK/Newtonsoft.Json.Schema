@@ -18,13 +18,13 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
     {
         private static readonly Regex HostnameRegex = new Regex(@"^(?=.{1,255}$)[0-9A-Za-z](?:(?:[0-9A-Za-z]|-){0,61}[0-9A-Za-z])?(?:\.[0-9A-Za-z](?:(?:[0-9A-Za-z]|-){0,61}[0-9A-Za-z])?)*\.?$", RegexOptions.CultureInvariant);
 
-        public void Initialize(ContextBase context, SchemaScope parent, int initialDepth, JSchema schema)
+        public void Initialize(ContextBase context, SchemaScope? parent, int initialDepth, JSchema schema)
         {
             Initialize(context, parent, initialDepth, ScopeType.Primitive);
             InitializeSchema(schema);
         }
 
-        protected override bool EvaluateTokenCore(JsonToken token, object value, int depth)
+        protected override bool EvaluateTokenCore(JsonToken token, object? value, int depth)
         {
             EnsureValid(value);
 
@@ -32,7 +32,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             {
                 case JsonToken.Integer:
                 {
-                    if (!ValidateInteger(Schema, value))
+                    if (!ValidateInteger(Schema, value!))
                     {
                         return true;
                     }
@@ -40,7 +40,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 }
                 case JsonToken.Float:
                 {
-                    if (!ValidateNumber(Schema, value))
+                    if (!ValidateNumber(Schema, value!))
                     {
                         return true;
                     }
@@ -82,10 +82,10 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 }
                 case JsonToken.Bytes:
                 {
-                    byte[] data = value as byte[];
+                    byte[]? data = value as byte[];
                     if (data == null)
                     {
-                        data = ((Guid) value).ToByteArray();
+                        data = ((Guid) value!).ToByteArray();
                     }
 
                     string s = Convert.ToBase64String(data);
@@ -117,12 +117,12 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             return true;
         }
 
-        private bool ValidateNull(JSchema schema, object value)
+        private bool ValidateNull(JSchema schema, object? value)
         {
             return TestType(schema, JSchemaType.Null, value);
         }
 
-        private bool ValidateBoolean(JSchema schema, object value)
+        private bool ValidateBoolean(JSchema schema, object? value)
         {
             return TestType(schema, JSchemaType.Boolean, value);
         }
@@ -213,8 +213,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 #if !(NET35 || NET40)
                     scope.Context.Validator.RegexMatchTimeout,
 #endif
-                    out Regex regex,
-                    out string errorMessage))
+                    out Regex? regex,
+                    out string? errorMessage))
                 {
                     if (!RegexHelpers.IsMatch(regex, schema.Pattern, value))
                     {

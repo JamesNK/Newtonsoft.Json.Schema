@@ -20,7 +20,7 @@ namespace Newtonsoft.Json.Schema
     public class JSchemaPreloadedResolver : JSchemaResolver
     {
         private readonly Dictionary<Uri, byte[]> _preloadedData;
-        private readonly JSchemaResolver _resolver;
+        private readonly JSchemaResolver? _resolver;
 
         /// <summary>
         /// Gets a collection of preloaded URIs.
@@ -51,8 +51,13 @@ namespace Newtonsoft.Json.Schema
         /// <param name="context">The schema ID context.</param>
         /// <param name="reference">The schema reference.</param>
         /// <returns>The schema resource for a given schema reference.</returns>
-        public override Stream GetSchemaResource(ResolveSchemaContext context, SchemaReference reference)
+        public override Stream? GetSchemaResource(ResolveSchemaContext context, SchemaReference reference)
         {
+            if (reference.BaseUri == null)
+            {
+                throw new InvalidOperationException("Can't get schema resource because SchemaReference.BaseUri doesn't have a value.");
+            }
+
             if (_preloadedData.TryGetValue(reference.BaseUri, out byte[] data))
             {
                 return new MemoryStream(data);

@@ -22,7 +22,7 @@ namespace Newtonsoft.Json.Schema
         /// <param name="context">The schema ID context.</param>
         /// <param name="reference">The schema reference.</param>
         /// <returns>The schema resource for a given schema reference.</returns>
-        public abstract Stream GetSchemaResource(ResolveSchemaContext context, SchemaReference reference);
+        public abstract Stream? GetSchemaResource(ResolveSchemaContext context, SchemaReference reference);
 
         /// <summary>
         /// Resolves the schema reference from the specified schema ID context.
@@ -31,7 +31,7 @@ namespace Newtonsoft.Json.Schema
         /// <returns>The resolved schema reference.</returns>
         public virtual SchemaReference ResolveSchemaReference(ResolveSchemaContext context)
         {
-            Uri baseUri = ResolveBaseUri(context, out string fragment);
+            Uri? baseUri = ResolveBaseUri(context, out string? fragment);
 
             SchemaReference schemaReference = new SchemaReference();
             schemaReference.BaseUri = baseUri;
@@ -43,9 +43,9 @@ namespace Newtonsoft.Json.Schema
             return schemaReference;
         }
 
-        private Uri ResolveBaseUri(ResolveSchemaContext context, out string fragment)
+        private Uri? ResolveBaseUri(ResolveSchemaContext context, out string? fragment)
         {
-            Uri baseUri = context.ResolverBaseUri;
+            Uri? baseUri = context.ResolverBaseUri;
 
             Uri uri = context.ResolvedSchemaId;
             if (!uri.IsAbsoluteUri && uri.OriginalString.StartsWith("#", StringComparison.OrdinalIgnoreCase))
@@ -65,7 +65,7 @@ namespace Newtonsoft.Json.Schema
             return uri;
         }
 
-        private Uri RemoveFragment(Uri uri, out string fragment)
+        private Uri RemoveFragment(Uri uri, out string? fragment)
         {
             if (uri.IsAbsoluteUri && string.IsNullOrEmpty(uri.Fragment))
             {
@@ -97,17 +97,17 @@ namespace Newtonsoft.Json.Schema
         /// <param name="reference">The schema reference used to get the subschema.</param>
         /// <param name="rootSchema">The root schema to resolve the subschema from.</param>
         /// <returns>The matching subschema.</returns>
-        public virtual JSchema GetSubschema(SchemaReference reference, JSchema rootSchema)
+        public virtual JSchema? GetSubschema(SchemaReference reference, JSchema rootSchema)
         {
             if (reference.SubschemaId == null)
             {
                 return rootSchema;
             }
 
-            Uri rootSchemaId = reference.BaseUri;
+            Uri? rootSchemaId = reference.BaseUri;
             Uri subschemaId = reference.SubschemaId;
 
-            JSchemaReader resolverSchemaReader = rootSchema.InternalReader;
+            JSchemaReader? resolverSchemaReader = rootSchema.InternalReader;
             if (resolverSchemaReader == null)
             {
                 resolverSchemaReader = new JSchemaReader(new JSchemaReaderSettings
@@ -118,7 +118,7 @@ namespace Newtonsoft.Json.Schema
                 resolverSchemaReader.RootSchema = rootSchema;
             }
 
-            JSchema subSchema = null;
+            JSchema? subSchema = null;
 
             SchemaDiscovery.FindSchema(s => subSchema = s, rootSchema, rootSchemaId, subschemaId, subschemaId, resolverSchemaReader, ref resolverSchemaReader._schemaDiscovery);
 

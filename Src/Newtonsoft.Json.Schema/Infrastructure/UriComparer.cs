@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Newtonsoft.Json.Schema.Infrastructure
 {
@@ -12,7 +13,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
     {
         public static readonly UriComparer Instance = new UriComparer();
 
-        public bool Equals(Uri x, Uri y)
+        public bool Equals(Uri? x, Uri? y)
         {
             if (x != y)
             {
@@ -23,6 +24,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             {
                 return true;
             }
+
+            ValidationUtils.Assert(x != null);
+            ValidationUtils.Assert(y != null);
 
             if (!x.IsAbsoluteUri)
             {

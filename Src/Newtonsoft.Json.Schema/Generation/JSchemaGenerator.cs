@@ -20,8 +20,8 @@ namespace Newtonsoft.Json.Schema.Generation
     {
         private static readonly IContractResolver _defaultInstance = new DefaultContractResolver();
 
-        private IContractResolver _contractResolver;
-        internal List<JSchemaGenerationProvider> _generationProviders;
+        private IContractResolver? _contractResolver;
+        internal List<JSchemaGenerationProvider>? _generationProviders;
         private SchemaReferenceHandling _schemaReferenceHandling;
         private Required _defaultRequired;
 

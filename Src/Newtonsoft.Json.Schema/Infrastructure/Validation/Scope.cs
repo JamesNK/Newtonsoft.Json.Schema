@@ -30,12 +30,12 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 #endif
 
         public int InitialDepth;
-        public ContextBase Context;
-        public SchemaScope Parent;
+        public ContextBase Context = default!;
+        public SchemaScope? Parent;
         public ScopeType Type;
         public bool Complete;
 
-        public virtual void Initialize(ContextBase context, SchemaScope parent, int initialDepth, ScopeType type)
+        public virtual void Initialize(ContextBase context, SchemaScope? parent, int initialDepth, ScopeType type)
         {
             Context = context;
             Parent = parent;
@@ -49,11 +49,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 #endif
         }
 
-        internal virtual void RaiseError(IFormattable message, ErrorType errorType, JSchema schema, object value, IList<ValidationError> childErrors)
+        internal virtual void RaiseError(IFormattable message, ErrorType errorType, JSchema schema, object? value, IList<ValidationError>? childErrors)
         {
             // mark all parent SchemaScopes as invalid
             Scope current = this;
-            SchemaScope parentSchemaScope;
+            SchemaScope? parentSchemaScope;
             while ((parentSchemaScope = current.Parent) != null)
             {
                 if (!parentSchemaScope.IsValid)
@@ -68,7 +68,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             Context.RaiseError(message, errorType, schema, value, childErrors);
         }
 
-        public void EvaluateToken(JsonToken token, object value, int depth)
+        public void EvaluateToken(JsonToken token, object? value, int depth)
         {
             if (EvaluateTokenCore(token, value, depth))
             {
@@ -76,6 +76,6 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             }
         }
 
-        protected abstract bool EvaluateTokenCore(JsonToken token, object value, int depth);
+        protected abstract bool EvaluateTokenCore(JsonToken token, object? value, int depth);
     }
 }

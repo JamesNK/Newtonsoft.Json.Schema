@@ -6,15 +6,16 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Newtonsoft.Json.Schema.Infrastructure
 {
     internal class SetSchema
     {
         private readonly Action<JSchema> _setAction;
-        private readonly JSchema _target;
+        private readonly JSchema? _target;
 
-        public SetSchema(Action<JSchema> setAction, JSchema target)
+        public SetSchema(Action<JSchema> setAction, JSchema? target)
         {
             _setAction = setAction;
             _target = target;
@@ -52,15 +53,16 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         public readonly bool IsRecursiveReference;
 
         private bool _success;
-        private JSchema _resolvedSchema;
+        private JSchema? _resolvedSchema;
 
+        [MemberNotNullWhen(true, nameof(ResolvedSchema))]
         public bool Success => _success;
 
-        public JSchema ResolvedSchema => _resolvedSchema;
+        public JSchema? ResolvedSchema => _resolvedSchema;
 
-        public Uri ScopeId { get; }
+        public Uri? ScopeId { get; }
 
-        public DeferedSchema(Uri resolvedReference, Uri originalReference, Uri scopeId, bool isRecursiveReference, JSchema referenceSchema, bool supportsRef)
+        public DeferedSchema(Uri resolvedReference, Uri originalReference, Uri? scopeId, bool isRecursiveReference, JSchema referenceSchema, bool supportsRef)
         {
             SetSchemas = new List<SetSchema>();
             ResolvedReference = resolvedReference;
@@ -71,7 +73,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             _supportsRef = supportsRef;
         }
 
-        public void AddSchemaSet(Action<JSchema> setSchema, JSchema target)
+        public void AddSchemaSet(Action<JSchema> setSchema, JSchema? target)
         {
             SetSchemas.Add(new SetSchema(setSchema, target));
         }

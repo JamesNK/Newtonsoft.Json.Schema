@@ -13,7 +13,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Licensing
     {
         public int Id { get; set; }
         public DateTime ExpiryDate { get; set; }
-        public string Type { get; set; }
+        public string? Type { get; set; }
 
         internal byte[] GetSignificateData()
         {

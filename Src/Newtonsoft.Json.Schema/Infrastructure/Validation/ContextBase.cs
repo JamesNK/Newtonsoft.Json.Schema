@@ -20,7 +20,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             get { return Validator.Scopes; }
         }
 
-        public JTokenWriter TokenWriter
+        public JTokenWriter? TokenWriter
         {
             get => Validator.TokenWriter;
             set => Validator.TokenWriter = value;
@@ -31,7 +31,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             Validator = validator;
         }
 
-        public abstract void RaiseError(IFormattable message, ErrorType errorType, JSchema schema, object value, IList<ValidationError> childErrors);
+        public abstract void RaiseError(IFormattable message, ErrorType errorType, JSchema schema, object? value, IList<ValidationError>? childErrors);
         public abstract bool HasErrors { get; }
     }
 }

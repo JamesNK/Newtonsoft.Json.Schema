@@ -15,7 +15,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 {
     internal class WebRequestDownloader : IDownloader
     {
-        public Stream GetStream(Uri uri, ICredentials credentials, int? timeout, int? byteLimit)
+        public Stream GetStream(Uri uri, ICredentials? credentials, int? timeout, int? byteLimit)
         {
 #if (!PORTABLE || NETSTANDARD1_3 || NETSTANDARD2_0)
             if (uri.Scheme == "file")

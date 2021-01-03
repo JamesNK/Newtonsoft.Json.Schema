@@ -83,7 +83,7 @@ namespace Newtonsoft.Json.Schema
         /// <param name="source">The source <see cref="JToken"/> to test.</param>
         /// <param name="schema">The schema to test with.</param>
         /// <param name="validationEventHandler">The validation event handler.</param>
-        public static void Validate(this JToken source, JSchema schema, SchemaValidationEventHandler validationEventHandler)
+        public static void Validate(this JToken source, JSchema schema, SchemaValidationEventHandler? validationEventHandler)
         {
             ValidationUtils.ArgumentNotNull(source, nameof(source));
             ValidationUtils.ArgumentNotNull(schema, nameof(schema));

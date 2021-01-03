@@ -4,6 +4,7 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Newtonsoft.Json.Schema.Infrastructure
 {
@@ -11,22 +12,22 @@ namespace Newtonsoft.Json.Schema.Infrastructure
     {
         public static readonly object[] EmptyArray = new object[0];
 
-        public static bool IsNullOrEmpty<T>(this List<T> values)
+        public static bool IsNullOrEmpty<T>([NotNullWhen(false)] this List<T>? values)
         {
             return (values == null || values.Count == 0);
         }
 
-        public static bool IsNullOrEmpty<T>(this IList<T> values)
+        public static bool IsNullOrEmpty<T>([NotNullWhen(false)] this IList<T>? values)
         {
             return (values == null || values.Count == 0);
         }
 
-        public static bool IsNullOrEmpty<TKey, TValue>(this Dictionary<TKey, TValue> values)
+        public static bool IsNullOrEmpty<TKey, TValue>([NotNullWhen(false)] this Dictionary<TKey, TValue>? values)
         {
             return (values == null || values.Count == 0);
         }
 
-        public static bool IsNullOrEmpty<TKey, TValue>(this IDictionary<TKey, TValue> values)
+        public static bool IsNullOrEmpty<TKey, TValue>([NotNullWhen(false)] this IDictionary<TKey, TValue>? values)
         {
             return (values == null || values.Count == 0);
         }

@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -31,7 +32,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             return CachedSchemaTypeNames[value];
         }
 
-        internal static bool HasFlag(JSchemaType? value, JSchemaType flag)
+        internal static bool HasFlag([NotNullWhen(true)] JSchemaType? value, JSchemaType flag)
         {
             // default value is Any
             if (value == null)

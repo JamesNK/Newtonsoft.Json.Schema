@@ -15,7 +15,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             IsValid = false;
         }
 
-        protected override bool EvaluateTokenCore(JsonToken token, object value, int depth)
+        protected override bool EvaluateTokenCore(JsonToken token, object? value, int depth)
         {
             return true;
         }

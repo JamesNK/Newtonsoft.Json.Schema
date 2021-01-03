@@ -107,46 +107,46 @@ namespace Newtonsoft.Json.Schema.Generation
             return type.Name;
         }
 
-        public JSchema GenerateSubschema(Type type, Required required, JSchemaGenerationProvider currentGenerationProvider)
+        public JSchema GenerateSubschema(Type type, Required required, JSchemaGenerationProvider? currentGenerationProvider)
         {
             JSchema schema = GenerateInternal(type, required, null, null, currentGenerationProvider);
 
             return schema;
         }
 
-        private string GetTitle(Type type, JsonProperty memberProperty)
+        private string? GetTitle(Type type, JsonProperty? memberProperty)
         {
-            JsonContainerAttribute containerAttribute = ReflectionUtils.GetAttribute<JsonContainerAttribute>(type);
+            JsonContainerAttribute? containerAttribute = ReflectionUtils.GetAttribute<JsonContainerAttribute>(type);
             if (!string.IsNullOrEmpty(containerAttribute?.Title))
             {
-                return containerAttribute.Title;
+                return containerAttribute!.Title;
             }
 
-            AttributeHelpers.GetDisplayName(type, memberProperty, out string displayName);
+            AttributeHelpers.GetDisplayName(type, memberProperty, out string? displayName);
             return displayName;
         }
 
-        private string GetDescription(Type type, JsonProperty memberProperty)
+        private string? GetDescription(Type type, JsonProperty? memberProperty)
         {
-            JsonContainerAttribute containerAttribute = ReflectionUtils.GetAttribute<JsonContainerAttribute>(type);
+            JsonContainerAttribute? containerAttribute = ReflectionUtils.GetAttribute<JsonContainerAttribute>(type);
             if (!string.IsNullOrEmpty(containerAttribute?.Description))
             {
-                return containerAttribute.Description;
+                return containerAttribute!.Description;
             }
 
-            AttributeHelpers.GetDescription(type, memberProperty, out string description);
+            AttributeHelpers.GetDescription(type, memberProperty, out string? description);
             return description;
         }
 
-        private Uri GetTypeId(Type type, bool explicitOnly)
+        private Uri? GetTypeId(Type type, bool explicitOnly)
         {
-            JsonContainerAttribute containerAttribute = ReflectionUtils.GetAttribute<JsonContainerAttribute>(type);
+            JsonContainerAttribute? containerAttribute = ReflectionUtils.GetAttribute<JsonContainerAttribute>(type);
 
             Uri typeId;
 
             if (!string.IsNullOrEmpty(containerAttribute?.Id))
             {
-                typeId = new Uri(containerAttribute.Id, UriKind.RelativeOrAbsolute);
+                typeId = new Uri(containerAttribute!.Id, UriKind.RelativeOrAbsolute);
             }
             else
             {
@@ -183,9 +183,9 @@ namespace Newtonsoft.Json.Schema.Generation
             return resolvedTypeId;
         }
 
-        private JSchemaGenerationProvider ResolveTypeProvider(Type nonNullableType, JsonProperty memberProperty)
+        private JSchemaGenerationProvider? ResolveTypeProvider(Type nonNullableType, JsonProperty? memberProperty)
         {
-            JSchemaGenerationProviderAttribute providerAttribute = null;
+            JSchemaGenerationProviderAttribute? providerAttribute = null;
 
             if (memberProperty?.AttributeProvider != null)
             {
@@ -206,13 +206,13 @@ namespace Newtonsoft.Json.Schema.Generation
             return provider;
         }
 
-        private JSchema GenerateInternal(Type type, Required? valueRequired, JsonProperty memberProperty, JsonContainerContract container, JSchemaGenerationProvider currentGenerationProvider)
+        private JSchema GenerateInternal(Type type, Required? valueRequired, JsonProperty? memberProperty, JsonContainerContract? container, JSchemaGenerationProvider? currentGenerationProvider)
         {
             ValidationUtils.ArgumentNotNull(type, nameof(type));
 
             Type nonNullableType = ReflectionUtils.IsNullableType(type) ? Nullable.GetUnderlyingType(type) : type;
 
-            Uri explicitId = GetTypeId(nonNullableType, true);
+            Uri? explicitId = GetTypeId(nonNullableType, true);
 
             JsonContract contract = _generator.ContractResolver.ResolveContract(type);
 
@@ -229,9 +229,9 @@ namespace Newtonsoft.Json.Schema.Generation
                 }
             }
 
-            JSchema schema = null;
+            JSchema? schema = null;
 
-            JSchemaGenerationProvider provider = ResolveTypeProvider(nonNullableType, memberProperty);
+            JSchemaGenerationProvider? provider = ResolveTypeProvider(nonNullableType, memberProperty);
             if (provider != null && provider != currentGenerationProvider)
             {
                 JSchemaTypeGenerationContext context = new JSchemaTypeGenerationContext(
@@ -337,14 +337,14 @@ namespace Newtonsoft.Json.Schema.Generation
             }
         }
 
-        private TypeSchemaKey CreateKey(Required valueRequired, JsonProperty memberProperty, JsonContract contract)
+        private TypeSchemaKey CreateKey(Required valueRequired, JsonProperty? memberProperty, JsonContract contract)
         {
             Type nonNullableUnderlyingType = GetNonNullableUnderlyingType(contract);
 
             int? minLength = AttributeHelpers.GetMinLength(memberProperty);
             int? maxLength = AttributeHelpers.GetMaxLength(memberProperty);
-            string title = GetTitle(nonNullableUnderlyingType, memberProperty);
-            string description = GetDescription(nonNullableUnderlyingType, memberProperty);
+            string? title = GetTitle(nonNullableUnderlyingType, memberProperty);
+            string? description = GetDescription(nonNullableUnderlyingType, memberProperty);
 
             Required resolvedRequired;
             switch (valueRequired)
@@ -366,14 +366,14 @@ namespace Newtonsoft.Json.Schema.Generation
             return key;
         }
 
-        private void PopulateSchema(JSchema schema, JsonContract contract, JsonProperty memberProperty, Required valueRequired)
+        private void PopulateSchema(JSchema schema, JsonContract contract, JsonProperty? memberProperty, Required valueRequired)
         {
             Type nonNullableUnderlyingType = GetNonNullableUnderlyingType(contract);
 
             schema.Title = GetTitle(nonNullableUnderlyingType, memberProperty);
             schema.Description = GetDescription(nonNullableUnderlyingType, memberProperty);
 
-            JsonConverter converter;
+            JsonConverter? converter;
             if (contract.Converter != null && contract.Converter.CanWrite)
             {
                 converter = contract.Converter;
@@ -421,7 +421,7 @@ namespace Newtonsoft.Json.Schema.Generation
                         schema.MinimumItems = AttributeHelpers.GetMinLength(memberProperty);
                         schema.MaximumItems = AttributeHelpers.GetMaxLength(memberProperty);
 
-                        JsonArrayAttribute arrayAttribute = ReflectionUtils.GetAttribute<JsonArrayAttribute>(nonNullableUnderlyingType);
+                        JsonArrayAttribute? arrayAttribute = ReflectionUtils.GetAttribute<JsonArrayAttribute>(nonNullableUnderlyingType);
 
                         Required? required = null;
                         if (arrayAttribute != null && !arrayAttribute.AllowNullItems)
@@ -485,7 +485,7 @@ namespace Newtonsoft.Json.Schema.Generation
             }
         }
 
-        private void PopulatePrimativeSchema(JSchema schema, JsonContract contract, JsonProperty memberProperty, Required valueRequired)
+        private void PopulatePrimativeSchema(JSchema schema, JsonContract contract, JsonProperty? memberProperty, Required valueRequired)
         {
             Type nonNullableUnderlyingType = GetNonNullableUnderlyingType(contract);
             JSchemaType type = GetJSchemaType(contract.UnderlyingType, valueRequired);
@@ -552,7 +552,7 @@ namespace Newtonsoft.Json.Schema.Generation
                 }
             }
 
-            Type enumDataType = AttributeHelpers.GetEnumDataType(memberProperty);
+            Type? enumDataType = AttributeHelpers.GetEnumDataType(memberProperty);
             if (enumDataType != null && CollectionHelpers.IsNullOrEmpty(schema._enum))
             {
                 EnumInfo enumValues = EnumUtils.GetEnumValuesAndNames(enumDataType, null);

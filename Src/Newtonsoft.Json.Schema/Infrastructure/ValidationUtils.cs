@@ -4,17 +4,25 @@
 #endregion
 
 using System;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Newtonsoft.Json.Schema.Infrastructure
 {
     internal static class ValidationUtils
     {
-        public static void ArgumentNotNull(object value, string parameterName)
+        public static void ArgumentNotNull([NotNull] object value, string parameterName)
         {
             if (value == null)
             {
                 throw new ArgumentNullException(parameterName);
             }
+        }
+
+        [Conditional("DEBUG")]
+        public static void Assert([DoesNotReturnIf(false)] bool condition, string? message = null)
+        {
+            Debug.Assert(condition, message);
         }
     }
 }

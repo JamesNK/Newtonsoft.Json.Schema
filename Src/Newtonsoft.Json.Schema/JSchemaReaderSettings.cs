@@ -15,17 +15,17 @@ namespace Newtonsoft.Json.Schema
     {
         // IMPORTANT: Any settings added here need to be copied inside JSchemaReader
 
-        private SchemaValidationEventHandler _validationEventHandler;
+        private SchemaValidationEventHandler? _validationEventHandler;
 
         /// <summary>
         /// The base URI for the schema being read. The base URI is used to resolve relative URI schema references.
         /// </summary>
-        public Uri BaseUri { get; set; }
+        public Uri? BaseUri { get; set; }
 
         /// <summary>
         /// The <see cref="JSchemaResolver"/> to use when resolving schema references.
         /// </summary>
-        public JSchemaResolver Resolver { get; set; }
+        public JSchemaResolver? Resolver { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether schema references should be resolved.
@@ -42,7 +42,7 @@ namespace Newtonsoft.Json.Schema
         /// Gets or sets a <see cref="JsonValidator"/> collection that will be used during validation.
         /// </summary>
         /// <value>The converters.</value>
-        public IList<JsonValidator> Validators { get; set; }
+        public IList<JsonValidator>? Validators { get; set; }
 
         /// <summary>
         /// Sets an event handler for receiving information about receives information about JSON Schema syntax errors. 
@@ -53,12 +53,12 @@ namespace Newtonsoft.Json.Schema
             remove => _validationEventHandler -= value;
         }
 
-        internal SchemaValidationEventHandler GetValidationEventHandler()
+        internal SchemaValidationEventHandler? GetValidationEventHandler()
         {
             return _validationEventHandler;
         }
 
-        internal void SetValidationEventHandler(SchemaValidationEventHandler handler)
+        internal void SetValidationEventHandler(SchemaValidationEventHandler? handler)
         {
             _validationEventHandler = handler;
         }

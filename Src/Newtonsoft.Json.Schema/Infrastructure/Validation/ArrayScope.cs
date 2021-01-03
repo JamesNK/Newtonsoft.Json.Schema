@@ -5,6 +5,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using Newtonsoft.Json.Linq;
@@ -15,11 +17,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
     {
         private int _index;
         private int _matchCount;
-        private List<JToken> _uniqueArrayItems;
-        private List<ConditionalContext> _containsContexts;
-        private Dictionary<int, UnevaluatedContext> _unevaluatedScopes;
+        private List<JToken>? _uniqueArrayItems;
+        private List<ConditionalContext>? _containsContexts;
+        private Dictionary<int, UnevaluatedContext>? _unevaluatedScopes;
 
-        public void Initialize(ContextBase context, SchemaScope parent, int initialDepth, JSchema schema)
+        public void Initialize(ContextBase context, SchemaScope? parent, int initialDepth, JSchema schema)
         {
             Initialize(context, parent, initialDepth, ScopeType.Array);
             InitializeSchema(schema);
@@ -64,6 +66,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             }
         }
 
+        [MemberNotNullWhen(true, nameof(_unevaluatedScopes))]
         public override bool ShouldValidateUnevaluated()
         {
             // If additional items are validated then there are no unevaluated items
@@ -72,7 +75,12 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 return false;
             }
 
-            return !(Schema.AllowUnevaluatedItems ?? true) || Schema.UnevaluatedItems != null;
+            bool shouldValidateUnevaluated = !(Schema.AllowUnevaluatedItems ?? true) || Schema.UnevaluatedItems != null;
+            if (shouldValidateUnevaluated)
+            {
+                ValidationUtils.Assert(_unevaluatedScopes != null);
+            }
+            return shouldValidateUnevaluated;
         }
 
         protected override void OnConditionalScopeValidated(ConditionalScope conditionalScope)
@@ -81,7 +89,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             {
                 if (!conditionalScope.EvaluatedSchemas.IsNullOrEmpty())
                 {
-                    foreach (KeyValuePair<int, UnevaluatedContext> unevaluatedScope in _unevaluatedScopes)
+                    foreach (KeyValuePair<int, UnevaluatedContext> unevaluatedScope in _unevaluatedScopes!)
                     {
                         UnevaluatedContext context = unevaluatedScope.Value;
 
@@ -100,7 +108,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             }
         }
 
-        protected override bool EvaluateTokenCore(JsonToken token, object value, int depth)
+        protected override bool EvaluateTokenCore(JsonToken token, object? value, int depth)
         {
             int relativeDepth = depth - InitialDepth;
 
@@ -140,6 +148,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
                         if (Schema.Contains != null)
                         {
+                            ValidationUtils.Assert(_containsContexts != null);
+
                             // MinimumContains overrides default contains behavior
                             if (Schema.MinimumContains != null)
                             {
@@ -200,7 +210,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     if (Schema.ItemsPositionValidation)
                     {
                         // TODO: Remove LINQ
-                        JSchema itemSchema = Schema._items?.ElementAtOrDefault(_index);
+                        JSchema? itemSchema = Schema._items?.ElementAtOrDefault(_index);
 
                         if (itemSchema != null)
                         {
@@ -236,7 +246,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
                         // contains scope should not have the current scope the parent
                         // do not want contain failures setting the current scope's IsValid
-                        CreateScopesAndEvaluateToken(token, value, depth, Schema.Contains, null, containsContext);
+                        CreateScopesAndEvaluateToken(token, value, depth, Schema.Contains!, null, containsContext);
                     }
 
                     if (!matched)
@@ -254,6 +264,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 {
                     if (Schema.UniqueItems)
                     {
+                        ValidationUtils.Assert(_uniqueArrayItems != null);
+                        ValidationUtils.Assert(Context.TokenWriter != null);
+
                         JToken currentToken = Context.TokenWriter.CurrentToken;
                         bool isDuplicate = JsonTokenHelpers.Contains(_uniqueArrayItems, currentToken);
                         if (isDuplicate)
@@ -294,7 +307,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                                     // Schema for a item
                                     if (scope.Parent != null && scope is SchemaScope schemaScope && schemaScope.IsValid)
                                     {
-                                        unevaluatedContext.AddValidScope(schemaScope.Parent.Schema);
+                                        unevaluatedContext.AddValidScope(schemaScope.Parent!.Schema);
                                     }
                                 }
                                 else if (scope.InitialDepth == InitialDepth)
@@ -339,6 +352,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             return containsErrors;
         }
 
+        [MemberNotNullWhen(true, nameof(_containsContexts))]
         private bool ShouldEvaluateContains()
         {
             if (Schema.Contains != null)
@@ -346,6 +360,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 // Match count is less than minimum
                 if (_matchCount < (Schema.MinimumContains ?? 1))
                 {
+                    ValidationUtils.Assert(_containsContexts != null);
                     return true;
                 }
 
@@ -353,6 +368,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 // the number of matches is accurate
                 if (Schema.MaximumContains != null)
                 {
+                    ValidationUtils.Assert(_containsContexts != null);
                     return true;
                 }
             }

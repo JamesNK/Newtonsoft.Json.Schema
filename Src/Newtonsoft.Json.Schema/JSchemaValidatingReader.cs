@@ -28,7 +28,7 @@ namespace Newtonsoft.Json.Schema
                 _reader = reader;
             }
 
-            public override ValidationError CreateError(IFormattable message, ErrorType errorType, JSchema schema, object value, IList<ValidationError> childErrors)
+            public override ValidationError CreateError(IFormattable message, ErrorType errorType, JSchema schema, object? value, IList<ValidationError>? childErrors)
             {
                 return CreateError(message, errorType, schema, value, childErrors, _reader, _reader.Path);
             }
@@ -37,7 +37,7 @@ namespace Newtonsoft.Json.Schema
         private readonly JsonReader _reader;
         private readonly ReaderValidator _validator;
 
-        private object _readAsValue;
+        private object? _readAsValue;
         private JsonToken? _readAsToken;
 
         internal ReaderValidator Validator => _validator;
@@ -95,13 +95,13 @@ namespace Newtonsoft.Json.Schema
         /// Gets the Common Language Runtime (CLR) type for the current JSON token.
         /// </summary>
         /// <value></value>
-        public override Type ValueType => Value?.GetType();
+        public override Type? ValueType => Value?.GetType();
 
         /// <summary>
         /// Gets or sets the schema.
         /// </summary>
         /// <value>The schema.</value>
-        public JSchema Schema
+        public JSchema? Schema
         {
             get => _validator.Schema;
             set => _validator.Schema = value;
@@ -174,9 +174,9 @@ namespace Newtonsoft.Json.Schema
         /// <returns>
         /// A <see cref="Byte"/>[] or a null reference if the next JSON token is null.
         /// </returns>
-        public override byte[] ReadAsBytes()
+        public override byte[]? ReadAsBytes()
         {
-            byte[] data = base.ReadAsBytes();
+            byte[]? data = base.ReadAsBytes();
 
             if (data != null)
             {
@@ -207,7 +207,7 @@ namespace Newtonsoft.Json.Schema
         /// <summary>
         /// Reads the next JSON token from the stream as a <see cref="Nullable{Double}"/>.
         /// </summary>
-        /// <returns>A <see cref="Nullable{Decimal}"/>.</returns>
+        /// <returns>A <see cref="Nullable{Double}"/>.</returns>
         public override double? ReadAsDouble()
         {
             double? d = base.ReadAsDouble();
@@ -225,7 +225,7 @@ namespace Newtonsoft.Json.Schema
         /// Reads the next JSON token from the stream as a <see cref="String"/>.
         /// </summary>
         /// <returns>A <see cref="String"/>. This method will return <c>null</c> at the end of an array.</returns>
-        public override string ReadAsString()
+        public override string? ReadAsString()
         {
             string s;
             DateParseHandling initialDateParseHandling = _reader.DateParseHandling;

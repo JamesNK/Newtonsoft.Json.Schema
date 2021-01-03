@@ -25,6 +25,7 @@
     <RootNamespace>Newtonsoft.Json.Schema</RootNamespace>
     <AssemblyName>Newtonsoft.Json.Schema</AssemblyName>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <Nullable>enable</Nullable>
     <MinClientVersion>2.12</MinClientVersion>
     <LangVersion>latest</LangVersion>
     <IncludeSymbols>true</IncludeSymbols>

@@ -46,10 +46,10 @@ namespace Newtonsoft.Json.Schema.Generation
                 schema.Enum.Add(JValue.CreateNull());
             }
 
-            object defaultValue = context.MemberProperty?.DefaultValue;
+            object? defaultValue = context.MemberProperty?.DefaultValue;
             if (defaultValue != null)
             {
-                EnumUtils.TryToString(t, defaultValue, GetResolveNamingStrategy(), out string finalName);
+                EnumUtils.TryToString(t, defaultValue, GetResolveNamingStrategy(), out string? finalName);
 
                 schema.Default = JToken.FromObject(finalName ?? defaultValue.ToString());
             }
@@ -66,7 +66,7 @@ namespace Newtonsoft.Json.Schema.Generation
             return schema;
         }
 
-        private NamingStrategy GetResolveNamingStrategy()
+        private NamingStrategy? GetResolveNamingStrategy()
         {
             return CamelCaseText ? _camelCaseNamingStrategy : null;
         }

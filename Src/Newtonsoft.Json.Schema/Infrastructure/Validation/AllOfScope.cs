@@ -12,7 +12,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 {
     internal sealed class AllOfScope : ConditionalScope
     {
-        protected override bool EvaluateTokenCore(JsonToken token, object value, int depth)
+        protected override bool EvaluateTokenCore(JsonToken token, object? value, int depth)
         {
             if (!GetChildrenAllValid(token, value, depth))
             {

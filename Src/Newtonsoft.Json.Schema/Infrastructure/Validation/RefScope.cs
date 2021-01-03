@@ -12,7 +12,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
     {
         private bool _isReentrant;
 
-        protected override bool EvaluateTokenCore(JsonToken token, object value, int depth)
+        protected override bool EvaluateTokenCore(JsonToken token, object? value, int depth)
         {
             // If there is a recursive chain of $ref schemas then this will stack overflow.
             // If the ref scope is already evaluating then exit without checking children.

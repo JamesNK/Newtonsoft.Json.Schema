@@ -12,9 +12,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 {
     internal class KnownSchemaCollection : KeyedCollection<JSchema, KnownSchema>
     {
-        private Dictionary<Uri, KnownSchema> _uriKnownSchemaLookup;
+        private Dictionary<Uri, KnownSchema>? _uriKnownSchemaLookup;
 
-        private Dictionary<JSchema, KnownSchema> _jSchemaKnownSchemaLookup;
+        private Dictionary<JSchema, KnownSchema>? _jSchemaKnownSchemaLookup;
 
         internal Dictionary<Uri, KnownSchema> UriKnownSchemaLookup
         {
@@ -87,7 +87,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             return item.Schema;
         }
 
-        public KnownSchema GetById(Uri id)
+        public KnownSchema? GetById(Uri id)
         {
             if (_uriKnownSchemaLookup == null)
             {
@@ -99,7 +99,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             return knownSchema;
         }
 
-        public KnownSchema GetByJSchema(JSchema jSchema)
+        public KnownSchema? GetByJSchema(JSchema jSchema)
         {
             if (_jSchemaKnownSchemaLookup == null)
             {

@@ -14,8 +14,9 @@
   $workingName = if ($workingName) {$workingName} else {"Working"}
   $assemblyVersion = if ($assemblyVersion) {$assemblyVersion} else {$majorVersion + '.0.0'}
   $netCliChannel = "Current"
-  $netCliVersion = "3.1.300"
+  $netCliVersion = "5.0.100"
   $nugetUrl = "https://dist.nuget.org/win-x86-commandline/latest/nuget.exe"
+  $ensureNetCliSdk = $true
   
   $baseDir  = resolve-path ..
   $buildDir = "$baseDir\Build"
@@ -67,7 +68,10 @@ task Build -depends Clean {
 
   mkdir "$buildDir\Temp" -Force
 
-  EnsureDotNetCli
+  if ($ensureNetCliSdk)
+  {
+    EnsureDotNetCli
+  }
   EnsureNuGetExists
   EnsureNuGetPackage "vswhere" $vswherePath $vswhereVersion
   EnsureNuGetPackage "NUnit.ConsoleRunner" $nunitConsolePath $nunitConsoleVersion
@@ -169,6 +173,8 @@ function EnsureDotnetCli()
     -OutFile "$buildDir\Temp\dotnet-install.ps1"
 
   exec { & $buildDir\Temp\dotnet-install.ps1 -Channel $netCliChannel -Version $netCliVersion | Out-Default }
+  exec { & $buildDir\Temp\dotnet-install.ps1 -Channel $netCliChannel -Version '3.1.402' | Out-Default }
+  exec { & $buildDir\Temp\dotnet-install.ps1 -Channel $netCliChannel -Version '2.1.811' | Out-Default }
 }
 
 function EnsureNuGetExists()

@@ -99,12 +99,12 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             return (t.IsGenericType() && t.GetGenericTypeDefinition() == typeof(Nullable<>));
         }
 
-        public static T GetAttribute<T>(object attributeProvider) where T : Attribute
+        public static T? GetAttribute<T>(object attributeProvider) where T : Attribute
         {
             return GetAttribute<T>(attributeProvider, true);
         }
 
-        public static T GetAttribute<T>(object attributeProvider, bool inherit) where T : Attribute
+        public static T? GetAttribute<T>(object attributeProvider, bool inherit) where T : Attribute
         {
             T[] attributes = GetAttributes<T>(attributeProvider, inherit);
 
@@ -124,7 +124,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             return a.Cast<T>().ToArray();
         }
 
-        public static Attribute[] GetAttributes(object attributeProvider, Type attributeType, bool inherit)
+        public static Attribute[] GetAttributes(object attributeProvider, Type? attributeType, bool inherit)
         {
             ValidationUtils.ArgumentNotNull(attributeProvider, nameof(attributeProvider));
 
@@ -175,7 +175,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             return GetAttributes(attributeProvider, typeof(T), inherit).Cast<T>().ToArray();
         }
 
-        public static Attribute[] GetAttributes(object provider, Type attributeType, bool inherit)
+        public static Attribute[] GetAttributes(object provider, Type? attributeType, bool inherit)
         {
             switch (provider)
             {
@@ -197,12 +197,12 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         }
 #endif
 
-        public static T GetAttribute<T>(Type type) where T : Attribute
+        public static T? GetAttribute<T>(Type type) where T : Attribute
         {
-            T attribute;
+            T? attribute;
 
 #if !(NET20 || DOTNET)
-            Type metadataType = GetAssociatedMetadataType(type);
+            Type? metadataType = GetAssociatedMetadataType(type);
             if (metadataType != null)
             {
                 attribute = ReflectionUtils.GetAttribute<T>(metadataType, true);
@@ -232,15 +232,15 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         }
 
 #if !(NET20 || DOTNET)
-        private static readonly ThreadSafeStore<Type, Type> AssociatedMetadataTypesCache = new ThreadSafeStore<Type, Type>(GetAssociateMetadataTypeFromAttribute);
-        private static ReflectionObject _metadataTypeAttributeReflectionObject;
+        private static readonly ThreadSafeStore<Type, Type?> AssociatedMetadataTypesCache = new ThreadSafeStore<Type, Type?>(GetAssociateMetadataTypeFromAttribute);
+        private static ReflectionObject? _metadataTypeAttributeReflectionObject;
 
-        private static Type GetAssociatedMetadataType(Type type)
+        private static Type? GetAssociatedMetadataType(Type type)
         {
             return AssociatedMetadataTypesCache.Get(type);
         }
 
-        private static Type GetAssociateMetadataTypeFromAttribute(Type type)
+        private static Type? GetAssociateMetadataTypeFromAttribute(Type type)
         {
             Attribute[] customAttributes = ReflectionUtils.GetAttributes(type, null, true);
 
@@ -259,7 +259,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                         _metadataTypeAttributeReflectionObject = ReflectionObject.Create(attributeType, metadataClassTypeName);
                     }
 
-                    return (Type)_metadataTypeAttributeReflectionObject.GetValue(attribute, metadataClassTypeName);
+                    return (Type)_metadataTypeAttributeReflectionObject.GetValue(attribute, metadataClassTypeName)!;
                 }
             }
 
