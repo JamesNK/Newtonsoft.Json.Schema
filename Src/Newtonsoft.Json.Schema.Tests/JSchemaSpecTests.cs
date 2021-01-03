@@ -64,7 +64,9 @@ namespace Newtonsoft.Json.Schema.Tests
                 AddSchema(resolver, "draft2019-09/meta/meta-data.json", "https://json-schema.org/draft/2019-09/meta/meta-data");
                 AddSchema(resolver, "draft2019-09/meta/validation.json", "https://json-schema.org/draft/2019-09/meta/validation");
                 AddSchema(resolver, "integer.json", "http://localhost:1234/integer.json");
-                AddSchema(resolver, "folder/folderInteger.json", "http://localhost:1234/folder/folderInteger.json");
+                AddSchema(resolver, "baseUriChange/folderInteger.json", "http://localhost:1234/baseUriChange/folderInteger.json");
+                AddSchema(resolver, "baseUriChangeFolder/folderInteger.json", "http://localhost:1234/baseUriChangeFolder/folderInteger.json");
+                AddSchema(resolver, "baseUriChangeFolderInSubschema/folderInteger.json", "http://localhost:1234/baseUriChangeFolderInSubschema/folderInteger.json");
                 AddSchema(resolver, "subSchemas.json", "http://localhost:1234/subSchemas.json");
                 AddSchema(resolver, "subSchemas-defs.json", "http://localhost:1234/subSchemas-defs.json");
                 AddSchema(resolver, "name.json", "http://localhost:1234/name.json");
@@ -192,6 +194,7 @@ namespace Newtonsoft.Json.Schema.Tests
 #endif
                 testFiles = testFiles.Where(f => !f.EndsWith("non-bmp-regex.json")).ToArray();
                 testFiles = testFiles.Where(f => !f.EndsWith("ecmascript-regex.json")).ToArray();
+                testFiles = testFiles.Where(f => !f.EndsWith("float-overflow.json")).ToArray();
 
                 // todo - add support for all formats
                 testFiles = testFiles.Where(f => !f.EndsWith("content.json")
@@ -209,7 +212,9 @@ namespace Newtonsoft.Json.Schema.Tests
                     string testJson = System.IO.File.ReadAllText(testFile);
 
                     JsonTextReader testJsonReader = new JsonTextReader(new StringReader(testJson));
-                    testJsonReader.FloatParseHandling = FloatParseHandling.Decimal;
+                    testJsonReader.FloatParseHandling = testFile.EndsWith("const.json")
+                        ? FloatParseHandling.Decimal
+                        : FloatParseHandling.Double;
 
                     JArray a = (JArray)JToken.ReadFrom(testJsonReader);
 

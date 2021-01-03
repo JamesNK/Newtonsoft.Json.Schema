@@ -3345,6 +3345,161 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(1, validationEventArgs.ValidationError.ChildErrors.Count);
             Assert.AreEqual("Required properties are missing from object: Slug.", validationEventArgs.ValidationError.ChildErrors[0].Message);
         }
+
+        [Test]
+        public void RecursiveRef_RecursiveAnchorFalse()
+        {
+            string schemaJson = @"{
+    ""$id"": ""http://localhost:4242/recursiveRef4/schema.json"",
+    ""$recursiveAnchor"": false,
+    ""$defs"": {
+        ""myobject"": {
+            ""$id"": ""myobject.json"",
+            ""$recursiveAnchor"": false,
+            ""anyOf"": [
+                { ""type"": ""string"" },
+                {
+                    ""type"": ""object"",
+                    ""additionalProperties"": { ""$recursiveRef"": ""#"" }
+                }
+            ]
+        }
+    },
+    ""anyOf"": [
+        { ""type"": ""integer"" },
+        { ""$ref"": ""#/$defs/myobject"" }
+    ]
+}";
+
+            string json = @"{ ""foo"": 1 }";
+
+            SchemaValidationEventArgs validationEventArgs = null;
+
+            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
+            reader.Schema = JSchema.Parse(schemaJson);
+
+            while (reader.Read())
+            {
+            }
+
+            Assert.IsNotNull(validationEventArgs);
+            Assert.AreEqual("JSON does not match any schemas from 'anyOf'.", validationEventArgs.ValidationError.Message);
+
+            Assert.AreEqual(2, validationEventArgs.ValidationError.ChildErrors.Count);
+            Assert.AreEqual("Invalid type. Expected Integer but got Object.", validationEventArgs.ValidationError.ChildErrors[0].Message);
+            Assert.AreEqual("JSON does not match any schemas from 'anyOf'.", validationEventArgs.ValidationError.ChildErrors[1].Message);
+
+            Assert.AreEqual(2, validationEventArgs.ValidationError.ChildErrors[1].ChildErrors.Count);
+            Assert.AreEqual("Invalid type. Expected String but got Object.", validationEventArgs.ValidationError.ChildErrors[1].ChildErrors[0].Message);
+            Assert.AreEqual("JSON does not match any schemas from 'anyOf'.", validationEventArgs.ValidationError.ChildErrors[1].ChildErrors[1].Message);
+        }
+
+        [Test]
+        public void Ref_ResolveToScope()
+        {
+            string schemaJson = @"{
+    ""$id"": ""http://localhost:4242/recursiveRef4/schema.json"",
+    ""$recursiveAnchor"": false,
+    ""$defs"": {
+        ""myobject"": {
+            ""$id"": ""myobject.json"",
+            ""$recursiveAnchor"": false,
+            ""anyOf"": [
+                { ""type"": ""string"" },
+                {
+                    ""type"": ""object"",
+                    ""additionalProperties"": { ""$ref"": ""#"" }
+                }
+            ]
+        }
+    },
+    ""anyOf"": [
+        { ""type"": ""integer"" },
+        { ""$ref"": ""#/$defs/myobject"" }
+    ]
+}";
+
+            string json = @"{ ""foo"": 1 }";
+
+            SchemaValidationEventArgs validationEventArgs = null;
+
+            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
+            reader.Schema = JSchema.Parse(schemaJson);
+
+            while (reader.Read())
+            {
+            }
+
+            Assert.IsNotNull(validationEventArgs);
+            Assert.AreEqual("JSON does not match any schemas from 'anyOf'.", validationEventArgs.ValidationError.Message);
+
+            Assert.AreEqual(2, validationEventArgs.ValidationError.ChildErrors.Count);
+            Assert.AreEqual("Invalid type. Expected Integer but got Object.", validationEventArgs.ValidationError.ChildErrors[0].Message);
+            Assert.AreEqual("JSON does not match any schemas from 'anyOf'.", validationEventArgs.ValidationError.ChildErrors[1].Message);
+
+            Assert.AreEqual(2, validationEventArgs.ValidationError.ChildErrors[1].ChildErrors.Count);
+            Assert.AreEqual("Invalid type. Expected String but got Object.", validationEventArgs.ValidationError.ChildErrors[1].ChildErrors[0].Message);
+            Assert.AreEqual("JSON does not match any schemas from 'anyOf'.", validationEventArgs.ValidationError.ChildErrors[1].ChildErrors[1].Message);
+        }
+
+        [Test]
+        public void ValidateDynamicRef()
+        {
+            string schemaJson = @"{
+    ""$id"": ""recursiveRef8_main.json"",
+    ""$defs"": {
+        ""inner"": {
+            ""$id"": ""recursiveRef8_inner.json"",
+            ""$recursiveAnchor"": true,
+            ""title"": ""inner"",
+            ""additionalProperties"": {
+                ""$recursiveRef"": ""#""
+            }
+        }
+    },
+    ""if"": {
+        ""propertyNames"": {
+            ""pattern"": ""^[a-m]""
+        }
+    },
+    ""then"": {
+        ""title"": ""any type of node"",
+        ""$id"": ""recursiveRef8_anyLeafNode.json"",
+        ""$recursiveAnchor"": true,
+        ""$ref"": ""recursiveRef8_main.json#/$defs/inner""
+    },
+    ""else"": {
+        ""title"": ""integer node"",
+        ""$id"": ""recursiveRef8_integerNode.json"",
+        ""$recursiveAnchor"": true,
+        ""type"": [ ""object"", ""integer"" ],
+        ""$ref"": ""recursiveRef8_main.json#/$defs/inner""
+    }
+}";
+
+            string json = @"{ ""november"": 1.1 }";
+
+            SchemaValidationEventArgs validationEventArgs = null;
+
+            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
+            reader.Schema = JSchema.Parse(schemaJson);
+
+            while (reader.Read())
+            {
+            }
+
+            Assert.IsNotNull(validationEventArgs);
+            Assert.AreEqual("JSON does not match any schemas from 'else'.", validationEventArgs.ValidationError.Message);
+
+            Assert.AreEqual(1, validationEventArgs.ValidationError.ChildErrors.Count);
+            Assert.AreEqual("JSON does not match schema from '$ref'.", validationEventArgs.ValidationError.ChildErrors[0].Message);
+
+            Assert.AreEqual(1, validationEventArgs.ValidationError.ChildErrors[0].ChildErrors.Count);
+            Assert.AreEqual("Invalid type. Expected Integer, Object but got Number.", validationEventArgs.ValidationError.ChildErrors[0].ChildErrors[0].Message);
+        }
     }
 
     public sealed class JsonReaderStubWithIsClosed : JsonReader

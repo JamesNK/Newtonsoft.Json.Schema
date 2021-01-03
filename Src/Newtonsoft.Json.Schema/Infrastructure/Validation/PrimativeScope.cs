@@ -17,6 +17,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
     internal sealed class PrimativeScope : SchemaScope
     {
         private static readonly Regex HostnameRegex = new Regex(@"^(?=.{1,255}$)[0-9A-Za-z](?:(?:[0-9A-Za-z]|-){0,61}[0-9A-Za-z])?(?:\.[0-9A-Za-z](?:(?:[0-9A-Za-z]|-){0,61}[0-9A-Za-z])?)*\.?$", RegexOptions.CultureInvariant);
+#if NET35
+        private static readonly Regex UuidRegex = new Regex("^[0-9A-Fa-f]{8}-(?:[0-9A-Fa-f]{4}-){3}[0-9A-Fa-f]{12}$", RegexOptions.CultureInvariant);
+#endif
 
         public void Initialize(ContextBase context, SchemaScope? parent, int initialDepth, JSchema schema)
         {
@@ -259,100 +262,94 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
         {
             switch (format)
             {
+                case Constants.Formats.Uuid:
+                    {
+#if NET35
+                        return UuidRegex.IsMatch(value);
+#else
+                        return Guid.TryParseExact(value, "D", out _);
+#endif
+                    }
                 case Constants.Formats.Color:
-                {
-                    return ColorHelpers.IsValid(value);
-                }
+                    {
+                        return ColorHelpers.IsValid(value);
+                    }
                 case Constants.Formats.Hostname:
                 case Constants.Formats.Draft3Hostname:
-                {
-                    // http://stackoverflow.com/questions/1418423/the-hostname-regex
-                    return HostnameRegex.IsMatch(value);
-                }
+                    {
+                        // http://stackoverflow.com/questions/1418423/the-hostname-regex
+                        return HostnameRegex.IsMatch(value);
+                    }
                 case Constants.Formats.IPv4:
                 case Constants.Formats.Draft3IPv4:
-                {
-                    string[] parts = value.Split('.');
-                    if (parts.Length != 4)
                     {
-                        return false;
+                        return FormatHelpers.ValidateIPv4(value);
                     }
-
-                    for (int i = 0; i < parts.Length; i++)
+                case Constants.Formats.IPv6:
                     {
-                        if (!int.TryParse(parts[i], NumberStyles.Integer, CultureInfo.InvariantCulture, out int num)
-                            || (num < 0 || num > 255))
+                        return FormatHelpers.ValidateIPv6(value);
+                    }
+                case Constants.Formats.Email:
+                    {
+                        return EmailHelpers.Validate(value, true);
+                    }
+                case Constants.Formats.Uri:
+                    {
+                        return Uri.IsWellFormedUriString(value, UriKind.Absolute);
+                    }
+                case Constants.Formats.UriReference:
+                    {
+                        return FormatHelpers.ValidateUriReference(value);
+                    }
+                case Constants.Formats.Duration:
+                    {
+                        return FormatHelpers.ValidateDuration(value);
+                    }
+                case Constants.Formats.UriTemplate:
+                    {
+                        return FormatHelpers.ValidateUriTemplate(value);
+                    }
+                case Constants.Formats.JsonPointer:
+                    {
+                        return FormatHelpers.ValidateJsonPointer(value);
+                    }
+                case Constants.Formats.Date:
+                    {
+                        return DateTime.TryParseExact(value, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime _);
+                    }
+                case Constants.Formats.Time:
+                    {
+                        return DateTime.TryParseExact(value, "HH:mm:ss.FFFFFFFK", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime _);
+                    }
+                case Constants.Formats.DateTime:
+                    {
+                        // RFC 3339 states that the T and Z characters in the "date-time" format are case insensitive.
+                        if (value.IndexOfAny(CaseInsensitiveDateTimeChars) != -1)
+                        {
+                            value = value.ToUpperInvariant();
+                        }
+                        return DateTime.TryParseExact(value, @"yyyy-MM-dd\THH:mm:ss.FFFFFFFK", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime _);
+                    }
+                case Constants.Formats.UtcMilliseconds:
+                    {
+                        return double.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out double _);
+                    }
+                case Constants.Formats.Regex:
+                    {
+                        try
+                        {
+                            new Regex(value);
+                            return true;
+                        }
+                        catch
                         {
                             return false;
                         }
                     }
-                    return true;
-                }
-                case Constants.Formats.IPv6:
-                {
-                    return (Uri.CheckHostName(value) == UriHostNameType.IPv6);
-                }
-                case Constants.Formats.Email:
-                {
-                    return EmailHelpers.Validate(value, true);
-                }
-                case Constants.Formats.Uri:
-                {
-                    return Uri.IsWellFormedUriString(value, UriKind.Absolute);
-                }
-                case Constants.Formats.UriReference:
-                {
-                    return FormatHelpers.ValidateUriReference(value);
-                }
-                case Constants.Formats.Duration:
-                {
-                    return FormatHelpers.ValidateDuration(value);
-                }
-                case Constants.Formats.UriTemplate:
-                {
-                    return FormatHelpers.ValidateUriTemplate(value);
-                }
-                case Constants.Formats.JsonPointer:
-                {
-                    return FormatHelpers.ValidateJsonPointer(value);
-                }
-                case Constants.Formats.Date:
-                {
-                    return DateTime.TryParseExact(value, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime _);
-                }
-                case Constants.Formats.Time:
-                {
-                    return DateTime.TryParseExact(value, "HH:mm:ss.FFFFFFFK", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime _);
-                }
-                case Constants.Formats.DateTime:
-                {
-                    // RFC 3339 states that the T and Z characters in the "date-time" format are case insensitive.
-                    if (value.IndexOfAny(CaseInsensitiveDateTimeChars) != -1)
+                default:
                     {
-                        value = value.ToUpperInvariant();
-                    }
-                    return DateTime.TryParseExact(value, @"yyyy-MM-dd\THH:mm:ss.FFFFFFFK", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime _);
-                }
-                case Constants.Formats.UtcMilliseconds:
-                {
-                    return double.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out double _);
-                }
-                case Constants.Formats.Regex:
-                {
-                    try
-                    {
-                        new Regex(value);
                         return true;
                     }
-                    catch
-                    {
-                        return false;
-                    }
-                }
-                default:
-                {
-                    return true;
-                }
             }
         }
 

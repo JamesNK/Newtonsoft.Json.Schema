@@ -138,9 +138,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             return SchemaVersionHelpers.EnsureVersion(_version, minimum, maximum);
         }
 
-        internal JSchema ReadInlineSchema(Action<JSchema>? setSchema, JToken inlineToken)
+        internal JSchema ReadInlineSchema(Action<JSchema>? setSchema, JToken inlineToken, Uri? dynamicScope)
         {
-            JTokenPathAnnotation pathAnnotation = inlineToken.Root.Annotation<JTokenPathAnnotation>();
+            JTokenPathAnnotation? pathAnnotation = inlineToken.Root.Annotation<JTokenPathAnnotation>();
             string path;
             if (!string.IsNullOrEmpty(pathAnnotation?.BasePath))
             {
@@ -177,23 +177,28 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             LoadAndSetSchema(reader, null, s =>
             {
                 setSchema?.Invoke(s);
-                inlineToken.RemoveAnnotations<JSchemaAnnotation>();
-                inlineToken.AddAnnotation(new JSchemaAnnotation(s));
+                JSchemaAnnotation? annotation = inlineToken.Annotation<JSchemaAnnotation>();
+                if (annotation == null)
+                {
+                    annotation = new JSchemaAnnotation();
+                    inlineToken.AddAnnotation(annotation);
+                }
+                annotation.RegisterSchema(dynamicScope, s);
             });
 
-            return inlineToken.Annotation<JSchemaAnnotation>().Schema;
+            return inlineToken.Annotation<JSchemaAnnotation>().GetSchema(dynamicScope)!;
         }
 
         internal bool AddDeferedSchema(JSchema? target, Action<JSchema> setSchema, JSchema referenceSchema)
         {
-            Uri? scopeId = ResolveScopeId();
+            Uri? scopeId = ResolveScopeId(out string? scopeDynamicAnchor);
             Uri resolvedReference = ResolveSchemaReference(scopeId, referenceSchema);
 
-            ResolveReferenceFromSchema(referenceSchema, out bool isRecursiveReference, out Uri originalReference);
-            return AddDeferedSchema(resolvedReference, originalReference, scopeId, isRecursiveReference, referenceSchema, target, setSchema);
+            ResolveReferenceFromSchema(referenceSchema, scopeDynamicAnchor, out bool isRecursiveReference, out Uri originalReference);
+            return AddDeferedSchema(resolvedReference, originalReference, scopeId, scopeDynamicAnchor, isRecursiveReference ? _identiferScopeStack.ToList() : null, isRecursiveReference, referenceSchema, target, setSchema);
         }
 
-        private static void ResolveReferenceFromSchema(JSchema referenceSchema, out bool isRecursiveReference, out Uri originalReference)
+        private static void ResolveReferenceFromSchema(JSchema referenceSchema, string? scopeDynamicAnchor, out bool isRecursiveReference, out Uri originalReference)
         {
             if (referenceSchema.Reference != null)
             {
@@ -202,7 +207,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             }
             else
             {
-                isRecursiveReference = true;
+                // If there is no recursive/dynamic anchor then the reference is treated as a standard $ref
+                isRecursiveReference = scopeDynamicAnchor != null;
                 originalReference = referenceSchema.RecursiveReference!;
             }
         }
@@ -248,9 +254,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                     JSchemaReader resolvingReader = this;
                     if (deferedSchema.IsRecursiveReference)
                     {
-                        while (resolvingReader.RootSchema.RecursiveAnchor.GetValueOrDefault()
+                        while (((IIdentiferScope)resolvingReader.RootSchema).DynamicAnchor == deferedSchema.DynamicAnchor
                             && resolvingReader.Parent != null
-                            && resolvingReader.Parent.RootSchema.RecursiveAnchor.GetValueOrDefault())
+                            && ((IIdentiferScope)resolvingReader.Parent.RootSchema).DynamicAnchor == deferedSchema.DynamicAnchor)
                         {
                             resolvingReader = resolvingReader.Parent;
                         }
@@ -266,7 +272,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                         resolvingReader._identiferScopeStack.RemoveAt(resolvingReader._identiferScopeStack.Count - 1);
                     }
 
-                    if (_resolvedDeferedSchemas.TryGetValue(deferedSchema.ResolvedReference, out DeferedSchema? previouslyResolvedSchema))
+                    DeferedSchemaKey deferedSchemaKey = DeferedSchema.CreateKey(deferedSchema);
+
+                    if (_resolvedDeferedSchemas.TryGetValue(deferedSchemaKey, out DeferedSchema? previouslyResolvedSchema))
                     {
                         if (!deferedSchema.Success)
                         {
@@ -296,10 +304,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         private void ResolveDeferedSchema(DeferedSchema deferedSchema)
         {
-            Uri resolvedReference = !deferedSchema.IsRecursiveReference
-                ? deferedSchema.ResolvedReference
-                : ResolveSchemaReference(RootSchema.ResolvedId!, deferedSchema.ReferenceSchema);
-
+            Uri? dynamicScope = deferedSchema.DynamicAnchor != null ? deferedSchema.ScopeId : null;
             bool found = SchemaDiscovery.FindSchema(
                 s =>
                 {
@@ -317,8 +322,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 },
                 RootSchema,
                 RootSchema.ResolvedId,
-                resolvedReference,
+                deferedSchema.ResolvedReference,
                 deferedSchema.OriginalReference,
+                dynamicScope,
                 this,
                 ref _schemaDiscovery);
 
@@ -330,8 +336,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             JSchema? resolvedSchema;
             try
             {
-                ValidationUtils.Assert(deferedSchema.ReferenceSchema.Reference != null);
-                resolvedSchema = ResolvedSchema(deferedSchema.ReferenceSchema.Reference, resolvedReference);
+                ValidationUtils.ArgumentNotNull(deferedSchema.ReferenceSchema.Reference, "Reference");
+                resolvedSchema = ResolvedSchema(deferedSchema.ReferenceSchema.Reference, deferedSchema.ResolvedReference);
             }
             catch (Exception ex)
             {
@@ -963,10 +969,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             // check whether a schema for this token has already been loaded
             if (reader is JTokenReader tokenReader)
             {
-                JSchemaAnnotation schemaAnnotication = tokenReader.CurrentToken.Annotation<JSchemaAnnotation>();
-                if (schemaAnnotication != null)
+                JSchemaAnnotation? schemaAnnotication = tokenReader.CurrentToken.Annotation<JSchemaAnnotation>();
+                JSchema? previousSchema = schemaAnnotication?.GetSchema(null);
+                if (previousSchema != null)
                 {
-                    setSchema(schemaAnnotication.Schema);
+                    setSchema(previousSchema);
                     tokenReader.Skip();
                     return;
                 }
@@ -975,6 +982,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             JSchema loadingSchema = new JSchema();
             loadingSchema.State = JSchemaState.Loading;
             loadingSchema.BaseUri = _baseUri;
+            loadingSchema.Root = isRoot;
 
             if (reader is IJsonLineInfo lineInfo)
             {
@@ -997,11 +1005,26 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
                 if (loadingSchema.HasReference)
                 {
-                    Uri? scopeId = ResolveScopeId();
+                    Uri? scopeId = ResolveScopeId(out string? scopeDynamicAnchor);
+                    ResolveReferenceFromSchema(loadingSchema, scopeDynamicAnchor, out bool isRecursiveReference, out Uri originalReference);
+
+                    if (isRecursiveReference)
+                    {
+                        // Outer most matching dynamic anchor in scope
+                        for (int i = 0; i < _identiferScopeStack.Count; i++)
+                        {
+                            IIdentiferScope current = _identiferScopeStack[i];
+                            if (current.ScopeId != null && current.DynamicAnchor == scopeDynamicAnchor)
+                            {
+                                scopeId = current.ScopeId;
+                                break;
+                            }
+                        }
+                    }
+
                     Uri resolvedReference = ResolveSchemaReference(scopeId, loadingSchema);
 
-                    ResolveReferenceFromSchema(loadingSchema, out bool isRecursiveReference, out Uri originalReference);
-                    if (AddDeferedSchema(resolvedReference, originalReference, scopeId, isRecursiveReference, loadingSchema, target, setSchema))
+                    if (AddDeferedSchema(resolvedReference, originalReference, scopeId, scopeDynamicAnchor, isRecursiveReference ? _identiferScopeStack.ToList() : null, isRecursiveReference, loadingSchema, target, setSchema))
                     {
                         return;
                     }
@@ -1030,9 +1053,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             }
         }
 
-        private bool AddDeferedSchema(Uri resolvedReference, Uri originalReference, Uri? scopeId, bool isRecursiveReference, JSchema referenceSchema, JSchema? target, Action<JSchema> setSchema)
+        private bool AddDeferedSchema(Uri resolvedReference, Uri originalReference, Uri? scopeId, string? dynamicAnchor, List<IIdentiferScope>? identiferScopeStack, bool isRecursiveReference, JSchema referenceSchema, JSchema? target, Action<JSchema> setSchema)
         {
-            if (_resolvedDeferedSchemas.TryGetValue(resolvedReference, out DeferedSchema? deferedSchema))
+            DeferedSchemaKey deferedSchemaKey = new DeferedSchemaKey(resolvedReference, dynamicAnchor != null ? scopeId : null);
+
+            if (_resolvedDeferedSchemas.TryGetValue(deferedSchemaKey, out DeferedSchema? deferedSchema))
             {
                 // schema has already been successfully resolved
                 if (deferedSchema.Success)
@@ -1058,11 +1083,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             }
             else
             {
-                if (!_deferedSchemas.TryGetValue(resolvedReference, out deferedSchema))
+                if (!_deferedSchemas.TryGetValue(deferedSchemaKey, out deferedSchema))
                 {
                     bool supportsRef = EnsureVersion(SchemaVersion.Draft2019_09);
 
-                    deferedSchema = new DeferedSchema(resolvedReference, originalReference, scopeId, isRecursiveReference, referenceSchema, supportsRef);
+                    deferedSchema = new DeferedSchema(resolvedReference, originalReference, scopeId, dynamicAnchor, identiferScopeStack, isRecursiveReference, referenceSchema, supportsRef);
                     _deferedSchemas.Add(deferedSchema);
                 }
 
@@ -1140,6 +1165,10 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
             schemaReader.Cache = Cache;
             schemaReader.Parent = this;
+            for (int i = 0; i < _identiferScopeStack.Count; i++)
+            {
+                schemaReader._identiferScopeStack.Add(_identiferScopeStack[i]);
+            }
 
             JSchema rootSchema;
             using (StreamReader streamReader = new StreamReader(schemaData))
@@ -1161,18 +1190,28 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             return _resolver.GetSubschema(schemaReference, schemaReader.RootSchema);
         }
 
-        private Uri? ResolveScopeId()
+        private Uri? ResolveScopeId(out string? dynamicAnchor)
         {
+            dynamicAnchor = null;
             Uri? scopeId = null;
+
             for (int i = 0; i < _identiferScopeStack.Count; i++)
             {
-                Uri? part = _identiferScopeStack[i].ScopeId;
+                IIdentiferScope current = _identiferScopeStack[i];
+                if (current.Root)
+                {
+                    // Clear the scope when moving into a new schema file
+                    scopeId = null;
+                }
+
+                Uri? part = current.ScopeId;
 
                 if (part != null)
                 {
                     scopeId = scopeId == null
                         ? part
                         : SchemaDiscovery.ResolveSchemaId(scopeId, part);
+                    dynamicAnchor = current.DynamicAnchor;
                 }
             }
 

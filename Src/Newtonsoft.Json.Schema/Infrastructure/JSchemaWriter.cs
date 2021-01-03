@@ -177,11 +177,12 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         {
             if (token is JObject o)
             {
-                JSchemaAnnotation schemaAnnotation = o.Annotation<JSchemaAnnotation>();
+                JSchemaAnnotation? schemaAnnotation = o.Annotation<JSchemaAnnotation>();
+                JSchema? tokenSchema = schemaAnnotation?.GetSchema(null);
 
-                if (schemaAnnotation != null)
+                if (tokenSchema != null)
                 {
-                    ReferenceOrWriteSchema(context, schemaAnnotation.Schema, null, isDefinitions);
+                    ReferenceOrWriteSchema(context, tokenSchema, null, isDefinitions);
                 }
                 else
                 {

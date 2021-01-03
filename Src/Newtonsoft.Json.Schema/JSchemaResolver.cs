@@ -120,7 +120,9 @@ namespace Newtonsoft.Json.Schema
 
             JSchema? subSchema = null;
 
-            SchemaDiscovery.FindSchema(s => subSchema = s, rootSchema, rootSchemaId, subschemaId, subschemaId, resolverSchemaReader, ref resolverSchemaReader._schemaDiscovery);
+            Uri? dynamicScope = null; // Might be a problem. Should dynamic scope be passed in?
+
+            SchemaDiscovery.FindSchema(s => subSchema = s, rootSchema, rootSchemaId, subschemaId, subschemaId, dynamicScope, resolverSchemaReader, ref resolverSchemaReader._schemaDiscovery);
 
             if (subSchema != null)
             {

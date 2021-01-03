@@ -166,8 +166,14 @@ namespace Newtonsoft.Json.Schema
         public bool? RecursiveAnchor { get; set; }
 
         internal Uri? ResolvedId { get; private set; }
+        internal bool Root { get; set; }
 
         Uri? IIdentiferScope.ScopeId => ResolvedId;
+
+        bool IIdentiferScope.Root => Root;
+
+        // TODO - improve in next spec
+        string? IIdentiferScope.DynamicAnchor => RecursiveAnchor == true ? bool.TrueString : null;
 
         /// <summary>
         /// Gets or sets the schema ID.
@@ -575,8 +581,11 @@ namespace Newtonsoft.Json.Schema
         /// <returns>A <see cref="JToken"/> associated with the <see cref="JSchema"/>.</returns>
         public static implicit operator JToken(JSchema s)
         {
+            JSchemaAnnotation annotation = new JSchemaAnnotation();
+            annotation.RegisterSchema(null, s);
+
             JObject token = new JObject();
-            token.AddAnnotation(new JSchemaAnnotation(s));
+            token.AddAnnotation(annotation);
 
             return token;
         }
@@ -586,12 +595,14 @@ namespace Newtonsoft.Json.Schema
         /// </summary>
         /// <param name="t">The token.</param>
         /// <returns>The <see cref="JSchema"/> associated with the <see cref="JToken"/>.</returns>
-        public static explicit operator JSchema(JToken t)
+        public static explicit operator JSchema?(JToken t)
         {
             JSchemaAnnotation annotation = t.Annotation<JSchemaAnnotation>();
-            if (annotation != null)
+            JSchema? schema = null;
+
+            if (annotation?.TryGetSingle(out schema) ?? false)
             {
-                return annotation.Schema;
+                return schema;
             }
 
             throw new JSchemaException("Cannot convert JToken to JSchema. No schema is associated with this token.");

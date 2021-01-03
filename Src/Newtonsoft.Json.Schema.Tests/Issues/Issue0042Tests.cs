@@ -45,7 +45,7 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
 }";
 
             JSchema schema = JSchema.Parse(schemaJson);
-            JSchema eventSchema = schema.ExtensionData["definitions"]["event"].Annotations<JSchemaAnnotation>().Single().Schema;
+            JSchema eventSchema = schema.ExtensionData["definitions"]["event"].Annotations<JSchemaAnnotation>().Single().GetSchema(null);
 
             Assert.AreEqual(eventSchema, schema.Properties["event"]);
         }
@@ -72,7 +72,7 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
 }";
 
             JSchema schema = JSchema.Parse(json);
-            JSchema definitionSchema = schema.ExtensionData["definitions"]["http://DTCP05IFCENT01.qa.local:8080/identity-management/v1/authenticated.json"].Annotations<JSchemaAnnotation>().Single().Schema;
+            JSchema definitionSchema = schema.ExtensionData["definitions"]["http://DTCP05IFCENT01.qa.local:8080/identity-management/v1/authenticated.json"].Annotations<JSchemaAnnotation>().Single().GetSchema(null);
 
             Assert.AreEqual(definitionSchema, schema.Properties["TestProperty"]);
         }

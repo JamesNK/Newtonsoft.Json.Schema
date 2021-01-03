@@ -87,7 +87,6 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             }
         }
 
-        [MemberNotNullWhen(true, nameof(_unevaluatedScopes))]
         public override bool ShouldValidateUnevaluated()
         {
             // If additional items are validated then there are no unevaluated properties
@@ -96,12 +95,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 return false;
             }
 
-            bool shouldValidateUnevaluated = !(Schema.AllowUnevaluatedProperties ?? true) || Schema.UnevaluatedProperties != null;
-            if (shouldValidateUnevaluated)
-            {
-                ValidationUtils.Assert(_unevaluatedScopes != null);
-            }
-            return shouldValidateUnevaluated;
+            return !(Schema.AllowUnevaluatedProperties ?? true) || Schema.UnevaluatedProperties != null;
         }
 
         protected override void OnConditionalScopeValidated(ConditionalScope conditionalScope)
@@ -165,7 +159,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
                         if (HasDependencies())
                         {
-                            foreach (string readProperty in _readProperties)
+                            foreach (string readProperty in _readProperties!)
                             {
                                 object? dependency = null;
                                 IList<string>? requiredProperties = null;
@@ -246,7 +240,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     }
                     if (HasDependencies())
                     {
-                        _readProperties.Add(_currentPropertyName);
+                        _readProperties!.Add(_currentPropertyName);
                     }
 
                     if (Schema._propertyNames != null)
@@ -308,7 +302,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
                             if (ShouldValidateUnevaluated())
                             {
-                                _unevaluatedScopes[_currentPropertyName] = Schema.UnevaluatedProperties != null
+                                _unevaluatedScopes![_currentPropertyName] = Schema.UnevaluatedProperties != null
                                     ? new UnevaluatedContext(CreateScopesAndEvaluateToken(token, value, depth, Schema.UnevaluatedProperties, this, CreateConditionalContext()))
                                     : new UnevaluatedContext(AlwaysFalseScope.Instance);
                             }
@@ -318,7 +312,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     if (JsonTokenHelpers.IsPrimitiveOrEndToken(token))
                     {
                         if (ShouldValidateUnevaluated() &&
-                            _unevaluatedScopes.TryGetValue(_currentPropertyName, out UnevaluatedContext unevaluatedContext))
+                            _unevaluatedScopes!.TryGetValue(_currentPropertyName, out UnevaluatedContext unevaluatedContext))
                         {
                             // Property is valid against unevaluatedProperties schema so no need to search further
                             bool isValid = unevaluatedContext.SchemaScope.IsValid;
@@ -365,17 +359,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             return false;
         }
 
-        [MemberNotNullWhen(true, nameof(_readProperties))]
         private bool HasDependencies()
         {
-            bool hasDependencies = !Schema._dependencies.IsNullOrEmpty()
+            return !Schema._dependencies.IsNullOrEmpty()
                 || !Schema._dependentRequired.IsNullOrEmpty()
                 || !Schema._dependentSchemas.IsNullOrEmpty();
-            if (hasDependencies)
-            {
-                ValidationUtils.Assert(_readProperties != null);
-            }
-            return hasDependencies;
         }
 
         private void ValidateDependantSchema(string readProperty)
