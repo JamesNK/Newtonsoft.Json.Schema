@@ -96,7 +96,12 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 return false;
             }
 
-            return !(Schema.AllowUnevaluatedProperties ?? true) || Schema.UnevaluatedProperties != null;
+            bool shouldValidateUnevaluated = !(Schema.AllowUnevaluatedProperties ?? true) || Schema.UnevaluatedProperties != null;
+            if (shouldValidateUnevaluated)
+            {
+                ValidationUtils.Assert(_unevaluatedScopes != null);
+            }
+            return shouldValidateUnevaluated;
         }
 
         protected override void OnConditionalScopeValidated(ConditionalScope conditionalScope)
@@ -363,9 +368,14 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
         [MemberNotNullWhen(true, nameof(_readProperties))]
         private bool HasDependencies()
         {
-            return !Schema._dependencies.IsNullOrEmpty()
+            bool hasDependencies = !Schema._dependencies.IsNullOrEmpty()
                 || !Schema._dependentRequired.IsNullOrEmpty()
                 || !Schema._dependentSchemas.IsNullOrEmpty();
+            if (hasDependencies)
+            {
+                ValidationUtils.Assert(_readProperties != null);
+            }
+            return hasDependencies;
         }
 
         private void ValidateDependantSchema(string readProperty)

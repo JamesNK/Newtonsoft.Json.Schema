@@ -75,7 +75,12 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 return false;
             }
 
-            return !(Schema.AllowUnevaluatedItems ?? true) || Schema.UnevaluatedItems != null;
+            bool shouldValidateUnevaluated = !(Schema.AllowUnevaluatedItems ?? true) || Schema.UnevaluatedItems != null;
+            if (shouldValidateUnevaluated)
+            {
+                ValidationUtils.Assert(_unevaluatedScopes != null);
+            }
+            return shouldValidateUnevaluated;
         }
 
         protected override void OnConditionalScopeValidated(ConditionalScope conditionalScope)

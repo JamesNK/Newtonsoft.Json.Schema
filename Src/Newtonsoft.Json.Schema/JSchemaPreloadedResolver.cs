@@ -53,6 +53,11 @@ namespace Newtonsoft.Json.Schema
         /// <returns>The schema resource for a given schema reference.</returns>
         public override Stream? GetSchemaResource(ResolveSchemaContext context, SchemaReference reference)
         {
+            if (reference.BaseUri == null)
+            {
+                throw new InvalidOperationException("Can't get schema resource because SchemaReference.BaseUri doesn't have a value.");
+            }
+
             if (_preloadedData.TryGetValue(reference.BaseUri, out byte[] data))
             {
                 return new MemoryStream(data);
