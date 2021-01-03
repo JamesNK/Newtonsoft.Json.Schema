@@ -23,7 +23,7 @@ namespace Newtonsoft.Json.Schema
         /// Gets or sets the <see cref="ExternalSchema"/>s used when resolving the schema reference to write.
         /// </summary>
         /// <value>The <see cref="ExternalSchema"/>s used when resolving the schema reference to write.</value>
-        public IList<ExternalSchema> ExternalSchemas { get; set; }
+        public IList<ExternalSchema>? ExternalSchemas { get; set; }
 
         /// <summary>
         /// Gets or sets the <see cref="JSchemaWriterReferenceHandling"/> setting used when writing schema references.

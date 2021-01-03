@@ -207,7 +207,7 @@ namespace Newtonsoft.Json.Schema
         /// <summary>
         /// Reads the next JSON token from the stream as a <see cref="Nullable{Double}"/>.
         /// </summary>
-        /// <returns>A <see cref="Nullable{Decimal}"/>.</returns>
+        /// <returns>A <see cref="Nullable{Double}"/>.</returns>
         public override double? ReadAsDouble()
         {
             double? d = base.ReadAsDouble();
