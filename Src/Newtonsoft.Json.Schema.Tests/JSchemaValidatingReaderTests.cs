@@ -3492,7 +3492,7 @@ namespace Newtonsoft.Json.Schema.Tests
             }
 
             Assert.IsNotNull(validationEventArgs);
-            Assert.AreEqual("JSON does not match any schemas from 'else'.", validationEventArgs.ValidationError.Message);
+            Assert.AreEqual("JSON does not match schema from 'else'.", validationEventArgs.ValidationError.Message);
 
             Assert.AreEqual(1, validationEventArgs.ValidationError.ChildErrors.Count);
             Assert.AreEqual("JSON does not match schema from '$ref'.", validationEventArgs.ValidationError.ChildErrors[0].Message);
