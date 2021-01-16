@@ -24,52 +24,52 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
     [TestFixture]
     public class Issue0228Tests : TestFixtureBase
     {
-		[Test]
-		public void Test()
-		{
-			var template = new Template();
+        [Test]
+        public void Test()
+        {
+            var template = new Template();
 
-			var o = JObject.FromObject(template);
+            var o = JObject.FromObject(template);
 
-			StringAssert.AreEqual(@"{
+            StringAssert.AreEqual(@"{
   ""Schema"": null
 }", o.ToString());
 
 
-			var settings = new JsonSerializerSettings()
-			{
-				Formatting = Formatting.None,
-				ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-				NullValueHandling = NullValueHandling.Include,
-				ContractResolver = new DefaultContractResolver
-				{
-					IgnoreSerializableInterface = true,
-				},
-			};
-			var parsed = JsonConvert.DeserializeObject<Template>(o.ToString(), settings);
+            var settings = new JsonSerializerSettings()
+            {
+                Formatting = Formatting.None,
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                NullValueHandling = NullValueHandling.Include,
+                ContractResolver = new DefaultContractResolver
+                {
+                    IgnoreSerializableInterface = true,
+                },
+            };
+            var parsed = JsonConvert.DeserializeObject<Template>(o.ToString(), settings);
 
-			Assert.AreEqual(null, parsed.Schema);
-		}
+            Assert.AreEqual(null, parsed.Schema);
+        }
 
-		[Test]
-		public void Test_Root()
-		{
-			var settings = new JsonSerializerSettings()
-			{
-				Formatting = Formatting.None,
-				ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-				NullValueHandling = NullValueHandling.Include,
-				ContractResolver = new DefaultContractResolver
-				{
-					IgnoreSerializableInterface = true,
-				},
-			};
-			var parsed = JsonConvert.DeserializeObject<JSchema>("null", settings);
+        [Test]
+        public void Test_Root()
+        {
+            var settings = new JsonSerializerSettings()
+            {
+                Formatting = Formatting.None,
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                NullValueHandling = NullValueHandling.Include,
+                ContractResolver = new DefaultContractResolver
+                {
+                    IgnoreSerializableInterface = true,
+                },
+            };
+            var parsed = JsonConvert.DeserializeObject<JSchema>("null", settings);
 
-			Assert.AreEqual(null, parsed);
-		}
+            Assert.AreEqual(null, parsed);
+        }
 
-		public class Template
+        public class Template
         {
             public JSchema Schema { get; set; }
         }
