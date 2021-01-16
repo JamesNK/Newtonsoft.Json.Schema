@@ -14,8 +14,13 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             return objectType == typeof(JSchema);
         }
 
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override object? ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
+            if (reader.TokenType == JsonToken.Null)
+            {
+                return null;
+            }
+
             return JSchema.Load(reader);
         }
 
