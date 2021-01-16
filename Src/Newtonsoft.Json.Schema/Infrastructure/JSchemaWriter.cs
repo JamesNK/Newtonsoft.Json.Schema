@@ -313,6 +313,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 WritePropertyIfNotNull(_writer, Constants.PropertyNames.IdDraft4, schema.Id);
             }
             WritePropertyIfNotNull(_writer, Constants.PropertyNames.Anchor, schema.Anchor);
+            WritePropertyIfNotNull(_writer, Constants.PropertyNames.RecursiveAnchor, schema.RecursiveAnchor);
+            WritePropertyIfNotNull(_writer, Constants.PropertyNames.RecursiveRef, schema.RecursiveReference);
             WritePropertyIfNotNull(_writer, Constants.PropertyNames.Title, schema.Title);
             WritePropertyIfNotNull(_writer, Constants.PropertyNames.Description, schema.Description);
 

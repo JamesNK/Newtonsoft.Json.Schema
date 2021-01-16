@@ -1588,5 +1588,81 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 
             StringAssert.AreEqual(expected, json);
         }
+
+        [Test]
+        public void WriteTo_RecursiveRef()
+        {
+            string schemaJson = @"{
+    ""$id"": ""recursiveRef8_main.json"",
+    ""$defs"": {
+        ""inner"": {
+            ""$id"": ""recursiveRef8_inner.json"",
+            ""$recursiveAnchor"": true,
+            ""title"": ""inner"",
+            ""additionalProperties"": {
+                ""$recursiveRef"": ""#""
+            }
+        }
+    },
+    ""if"": {
+        ""propertyNames"": {
+            ""pattern"": ""^[a-m]""
+        }
+    },
+    ""then"": {
+        ""title"": ""any type of node"",
+        ""$id"": ""recursiveRef8_anyLeafNode.json"",
+        ""$recursiveAnchor"": true,
+        ""$ref"": ""recursiveRef8_main.json#/$defs/inner""
+    },
+    ""else"": {
+        ""title"": ""integer node"",
+        ""$id"": ""recursiveRef8_integerNode.json"",
+        ""$recursiveAnchor"": true,
+        ""type"": [ ""object"", ""integer"" ],
+        ""$ref"": ""recursiveRef8_main.json#/$defs/inner""
+    }
+}";
+
+            JSchema schema = JSchema.Parse(schemaJson);
+            string json = schema.ToString();
+
+            string expected = @"{
+  ""$id"": ""recursiveRef8_main.json"",
+  ""$defs"": {
+    ""inner"": {
+      ""$id"": ""recursiveRef8_inner.json"",
+      ""$recursiveAnchor"": true,
+      ""title"": ""inner"",
+      ""additionalProperties"": {
+        ""$recursiveRef"": ""#""
+      }
+    }
+  },
+  ""if"": {
+    ""propertyNames"": {
+      ""pattern"": ""^[a-m]""
+    }
+  },
+  ""then"": {
+    ""$id"": ""recursiveRef8_anyLeafNode.json"",
+    ""$recursiveAnchor"": true,
+    ""title"": ""any type of node"",
+    ""$ref"": ""recursiveRef8_inner.json""
+  },
+  ""else"": {
+    ""$id"": ""recursiveRef8_integerNode.json"",
+    ""$recursiveAnchor"": true,
+    ""title"": ""integer node"",
+    ""type"": [
+      ""integer"",
+      ""object""
+    ],
+    ""$ref"": ""recursiveRef8_inner.json""
+  }
+}";
+
+            StringAssert.AreEqual(expected, json);
+        }
     }
 }
