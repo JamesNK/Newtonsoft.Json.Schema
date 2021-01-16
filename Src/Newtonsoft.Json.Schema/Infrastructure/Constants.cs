@@ -116,6 +116,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             public const string IPv4 = "ipv4";
             public const string Email = "email";
             public const string Duration = "duration";
+            public const string Uuid = "uuid";
         }
 
         public static class Types

@@ -379,11 +379,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             else if (Context is CompositeContext compositeContext)
             {
                 List<ValidationError> validationErrors = new List<ValidationError>();
-                foreach (var childContent in compositeContext.Contexts)
+                foreach (ContextBase? childContent in compositeContext.Contexts)
                 {
                     if (childContent is ConditionalContext cc && cc.HasErrors)
                     {
-                        foreach (var e in cc.Errors)
+                        foreach (ValidationError? e in cc.Errors)
                         {
                             if (!validationErrors.Contains(e))
                             {

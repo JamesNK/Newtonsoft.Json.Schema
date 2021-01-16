@@ -12,5 +12,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
     internal interface IIdentiferScope
     {
         Uri? ScopeId { get; }
+        bool Root { get; }
+        string? DynamicAnchor { get; }
     }
 }

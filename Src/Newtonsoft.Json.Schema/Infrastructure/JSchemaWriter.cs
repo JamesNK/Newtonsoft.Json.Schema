@@ -177,11 +177,12 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         {
             if (token is JObject o)
             {
-                JSchemaAnnotation schemaAnnotation = o.Annotation<JSchemaAnnotation>();
+                JSchemaAnnotation? schemaAnnotation = o.Annotation<JSchemaAnnotation>();
+                JSchema? tokenSchema = schemaAnnotation?.GetSchema(null);
 
-                if (schemaAnnotation != null)
+                if (tokenSchema != null)
                 {
-                    ReferenceOrWriteSchema(context, schemaAnnotation.Schema, null, isDefinitions);
+                    ReferenceOrWriteSchema(context, tokenSchema, null, isDefinitions);
                 }
                 else
                 {
@@ -312,6 +313,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 WritePropertyIfNotNull(_writer, Constants.PropertyNames.IdDraft4, schema.Id);
             }
             WritePropertyIfNotNull(_writer, Constants.PropertyNames.Anchor, schema.Anchor);
+            WritePropertyIfNotNull(_writer, Constants.PropertyNames.RecursiveAnchor, schema.RecursiveAnchor);
+            WritePropertyIfNotNull(_writer, Constants.PropertyNames.RecursiveRef, schema.RecursiveReference);
             WritePropertyIfNotNull(_writer, Constants.PropertyNames.Title, schema.Title);
             WritePropertyIfNotNull(_writer, Constants.PropertyNames.Description, schema.Description);
 

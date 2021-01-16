@@ -66,7 +66,6 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             }
         }
 
-        [MemberNotNullWhen(true, nameof(_unevaluatedScopes))]
         public override bool ShouldValidateUnevaluated()
         {
             // If additional items are validated then there are no unevaluated items
@@ -75,12 +74,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 return false;
             }
 
-            bool shouldValidateUnevaluated = !(Schema.AllowUnevaluatedItems ?? true) || Schema.UnevaluatedItems != null;
-            if (shouldValidateUnevaluated)
-            {
-                ValidationUtils.Assert(_unevaluatedScopes != null);
-            }
-            return shouldValidateUnevaluated;
+            return !(Schema.AllowUnevaluatedItems ?? true) || Schema.UnevaluatedItems != null;
         }
 
         protected override void OnConditionalScopeValidated(ConditionalScope conditionalScope)
@@ -253,7 +247,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     {
                         if (ShouldValidateUnevaluated())
                         {
-                            _unevaluatedScopes[_index] = Schema.UnevaluatedItems != null
+                            _unevaluatedScopes![_index] = Schema.UnevaluatedItems != null
                                 ? new UnevaluatedContext(CreateScopesAndEvaluateToken(token, value, depth, Schema.UnevaluatedItems, this, CreateConditionalContext()))
                                 : new UnevaluatedContext(AlwaysFalseScope.Instance);
                         }
@@ -291,7 +285,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     }
 
                     if (ShouldValidateUnevaluated() &&
-                        _unevaluatedScopes.TryGetValue(_index, out UnevaluatedContext unevaluatedContext))
+                        _unevaluatedScopes!.TryGetValue(_index, out UnevaluatedContext unevaluatedContext))
                     {
                         // Property is valid against unevaluatedItems schema so no need to search further
                         bool isValid = unevaluatedContext.SchemaScope.IsValid;

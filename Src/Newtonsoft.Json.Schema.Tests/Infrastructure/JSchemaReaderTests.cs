@@ -1950,7 +1950,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 
             Assert.AreEqual(new Uri("root", UriKind.RelativeOrAbsolute), schema.Id);
             Assert.AreEqual(1, schema.Properties.Count);
-            Assert.AreEqual(a1.Schema, schema.Properties["storage"]);
+            Assert.AreEqual(a1.GetSchema(null), schema.Properties["storage"]);
 
             JSchema fileSchema = schema.Properties["storage"];
 
@@ -1962,11 +1962,11 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             Assert.AreEqual(true, schema.ItemsPositionValidation);
 
             Assert.AreEqual(JSchemaType.Integer | JSchemaType.Null, schema.Items[0].Type);
-            Assert.AreEqual(a1.Schema, schema.Items[1]);
+            Assert.AreEqual(a1.GetSchema(null), schema.Items[1]);
 
             Assert.AreEqual(2, schema.AllOf.Count);
             Assert.AreEqual(JSchemaType.Integer | JSchemaType.Null, schema.AllOf[0].Type);
-            Assert.AreEqual(a1.Schema, schema.AllOf[1]);
+            Assert.AreEqual(a1.GetSchema(null), schema.AllOf[1]);
 
             Assert.AreEqual(1, schema.OneOf.Count);
             Assert.AreEqual(JSchemaType.Null, schema.OneOf[0].Type);
@@ -3385,7 +3385,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 }";
 
             var resolver = new JSchemaPreloadedResolver();
-            AddSchema(resolver, "folder/folderInteger.json", "http://localhost:1234/folder/folderInteger.json");
+            AddSchema(resolver, "baseUriChange/folderInteger.json", "http://localhost:1234/folder/folderInteger.json");
 
             JSchema s = JSchema.Parse(schemaJson, resolver);
 
@@ -3688,6 +3688,83 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 
             JSchema items = prop1.Properties["children"].Items[0];
             Assert.AreEqual(prop1, items);
+        }
+
+        [Test]
+        public void RecursiveRef_RecursiveAnchorFalse()
+        {
+            string schemaJson = @"{
+    ""$id"": ""http://localhost:4242/recursiveRef4/schema.json"",
+    ""$recursiveAnchor"": false,
+    ""$defs"": {
+        ""myobject"": {
+            ""$id"": ""myobject.json"",
+            ""$recursiveAnchor"": false,
+            ""anyOf"": [
+                { ""type"": ""string"" },
+                {
+                    ""type"": ""object"",
+                    ""additionalProperties"": { ""$recursiveRef"": ""#"" }
+                }
+            ]
+        }
+    },
+    ""anyOf"": [
+        { ""type"": ""integer"" },
+        { ""$ref"": ""#/$defs/myobject"" }
+    ]
+}";
+
+            JSchema s = JSchema.Parse(schemaJson);
+            JSchema myObject = s.AnyOf[1];
+            Assert.AreEqual("myobject.json", myObject.Id.OriginalString);
+            Assert.AreEqual(false, myObject.RecursiveAnchor);
+            Assert.AreEqual(myObject, myObject.AnyOf[1].AdditionalProperties);
+        }
+
+        [Test]
+        public void RecursiveRef_DynamicSelection()
+        {
+            string schemaJson = @"{
+    ""$id"": ""recursiveRef8_main.json"",
+    ""$defs"": {
+        ""inner"": {
+            ""$id"": ""recursiveRef8_inner.json"",
+            ""$recursiveAnchor"": true,
+            ""title"": ""inner"",
+            ""additionalProperties"": {
+                ""$recursiveRef"": ""#""
+            }
+        }
+    },
+    ""if"": {
+        ""propertyNames"": {
+            ""pattern"": ""^[a-m]""
+        }
+    },
+    ""then"": {
+        ""title"": ""any type of node"",
+        ""$id"": ""recursiveRef8_anyLeafNode.json"",
+        ""$recursiveAnchor"": true,
+        ""$ref"": ""recursiveRef8_main.json#/$defs/inner""
+    },
+    ""else"": {
+        ""title"": ""integer node"",
+        ""$id"": ""recursiveRef8_integerNode.json"",
+        ""$recursiveAnchor"": true,
+        ""type"": [ ""object"", ""integer"" ],
+        ""$ref"": ""recursiveRef8_main.json#/$defs/inner""
+    }
+}";
+
+            JSchema s = JSchema.Parse(schemaJson);
+            Assert.AreEqual("recursiveRef8_main.json", s.Id.OriginalString);
+
+            Assert.AreEqual("recursiveRef8_anyLeafNode.json", s.Then.Id.OriginalString);
+            Assert.AreEqual("recursiveRef8_anyLeafNode.json", s.Then.Ref.AdditionalProperties.Id.OriginalString);
+
+            Assert.AreEqual("recursiveRef8_integerNode.json", s.Else.Id.OriginalString);
+            Assert.AreEqual("recursiveRef8_integerNode.json", s.Else.Ref.AdditionalProperties.Id.OriginalString);
         }
 
         [Test]

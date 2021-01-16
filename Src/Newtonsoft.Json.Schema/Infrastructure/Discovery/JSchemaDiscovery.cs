@@ -259,10 +259,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
         {
             if (token is JObject o)
             {
-                JSchemaAnnotation annotation = token.Annotation<JSchemaAnnotation>();
-                if (annotation != null)
+                JSchemaAnnotation? annotation = token.Annotation<JSchemaAnnotation>();
+                JSchema? tokenSchema = annotation?.GetSchema(null); // TODO
+                if (tokenSchema != null)
                 {
-                    DiscoverInternal(annotation.Schema, name, isDefinitionSchema);
+                    DiscoverInternal(tokenSchema, name, isDefinitionSchema);
                 }
                 else
                 {

@@ -9,18 +9,52 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Newtonsoft.Json.Schema.Infrastructure
 {
-    internal class DeferedSchemaCollection : KeyedCollection<Uri, DeferedSchema>
+    internal struct DeferedSchemaKey : IEquatable<DeferedSchemaKey>
     {
-        public DeferedSchemaCollection() : base(UriComparer.Instance)
+        public DeferedSchemaKey(Uri resolvedReference, Uri? dynamicScopeId)
         {
+            ResolvedReference = resolvedReference;
+            DynamicScopeId = dynamicScopeId;
         }
 
-        protected override Uri GetKeyForItem(DeferedSchema item)
+        public Uri ResolvedReference { get; }
+        public Uri? DynamicScopeId { get; }
+
+        public override bool Equals(object obj)
         {
-            return item.ResolvedReference;
+            if (obj is DeferedSchemaKey key)
+            {
+                return Equals(key);
+            }
+
+            return false;
         }
 
-        public bool TryGetValue(Uri key, [NotNullWhen(true)] out DeferedSchema? value)
+        public bool Equals(DeferedSchemaKey other)
+        {
+            return UriComparer.Instance.Equals(ResolvedReference, other.ResolvedReference)
+                && UriComparer.Instance.Equals(DynamicScopeId, other.DynamicScopeId);
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = UriComparer.Instance.GetHashCode(ResolvedReference);
+            if (DynamicScopeId != null)
+            {
+                hashCode = hashCode ^ UriComparer.Instance.GetHashCode(DynamicScopeId);
+            }
+            return hashCode;
+        }
+    }
+
+    internal class DeferedSchemaCollection : KeyedCollection<DeferedSchemaKey, DeferedSchema>
+    {
+        protected override DeferedSchemaKey GetKeyForItem(DeferedSchema item)
+        {
+            return DeferedSchema.CreateKey(item);
+        }
+
+        public bool TryGetValue(DeferedSchemaKey key, [NotNullWhen(true)] out DeferedSchema? value)
         {
             if (Dictionary == null)
             {
