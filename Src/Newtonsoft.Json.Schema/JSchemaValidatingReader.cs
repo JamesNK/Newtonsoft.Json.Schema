@@ -66,7 +66,7 @@ namespace Newtonsoft.Json.Schema
         /// Gets the text value of the current JSON token.
         /// </summary>
         /// <value></value>
-        public override object Value => _readAsValue ?? _reader.Value;
+        public override object? Value => _readAsValue ?? _reader.Value;
 
         /// <summary>
         /// Gets the depth of the current token in the JSON document.
@@ -227,7 +227,7 @@ namespace Newtonsoft.Json.Schema
         /// <returns>A <see cref="String"/>. This method will return <c>null</c> at the end of an array.</returns>
         public override string? ReadAsString()
         {
-            string s;
+            string? s;
             DateParseHandling initialDateParseHandling = _reader.DateParseHandling;
 
             try
@@ -330,7 +330,7 @@ namespace Newtonsoft.Json.Schema
                 return;
             }
 
-            object value = _reader.Value;
+            object? value = _reader.Value;
             if (token == JsonToken.Date)
             {
                 if (value is DateTimeOffset offset)
@@ -342,7 +342,7 @@ namespace Newtonsoft.Json.Schema
                 }
                 else
                 {
-                    DateTime resolvedDate = DateTimeUtils.EnsureDateTime((DateTime)value, _reader.DateTimeZoneHandling);
+                    DateTime resolvedDate = DateTimeUtils.EnsureDateTime((DateTime)value!, _reader.DateTimeZoneHandling);
 
                     StringWriter sw = new StringWriter(CultureInfo.InvariantCulture);
                     DateTimeUtils.WriteDateTimeString(sw, resolvedDate, DateFormatHandling.IsoDateFormat, _reader.DateFormatString, _reader.Culture);

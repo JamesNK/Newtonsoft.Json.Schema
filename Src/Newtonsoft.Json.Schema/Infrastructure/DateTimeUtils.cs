@@ -38,7 +38,7 @@ namespace Newtonsoft.Json.Schema.Utilities
         }
 
         #region Write
-        internal static void WriteDateTimeString(TextWriter writer, DateTime value, DateFormatHandling format, string formatString, CultureInfo culture)
+        internal static void WriteDateTimeString(TextWriter writer, DateTime value, DateFormatHandling format, string? formatString, CultureInfo culture)
         {
             if (string.IsNullOrEmpty(formatString))
             {
@@ -171,7 +171,7 @@ namespace Newtonsoft.Json.Schema.Utilities
         }
 
 #if HAVE_DATE_TIME_OFFSET
-        internal static void WriteDateTimeOffsetString(TextWriter writer, DateTimeOffset value, DateFormatHandling format, string formatString, CultureInfo culture)
+        internal static void WriteDateTimeOffsetString(TextWriter writer, DateTimeOffset value, DateFormatHandling format, string? formatString, CultureInfo culture)
         {
             if (string.IsNullOrEmpty(formatString))
             {

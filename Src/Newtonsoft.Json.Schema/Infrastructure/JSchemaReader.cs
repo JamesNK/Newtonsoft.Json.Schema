@@ -186,7 +186,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 annotation.RegisterSchema(dynamicScope, s);
             });
 
-            return inlineToken.Annotation<JSchemaAnnotation>().GetSchema(dynamicScope)!;
+            return inlineToken.Annotation<JSchemaAnnotation>()!.GetSchema(dynamicScope)!;
         }
 
         internal bool AddDeferedSchema(JSchema? target, Action<JSchema> setSchema, JSchema referenceSchema)
@@ -220,7 +220,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 switch (reader.TokenType)
                 {
                     case JsonToken.PropertyName:
-                        ProcessSchemaName(ref reader, target, isRoot, (string)reader.Value);
+                        ProcessSchemaName(ref reader, target, isRoot, (string)reader.Value!);
                         break;
                     case JsonToken.Comment:
                         // nom, nom
@@ -431,7 +431,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         private Uri ReadUri(JsonReader reader, string name)
         {
             EnsureReadAndToken(reader, name, JsonToken.String);
-            string id = (string) reader.Value;
+            string id = (string) reader.Value!;
             return ParseUri(reader, id);
         }
 
@@ -450,13 +450,13 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         private string ReadString(JsonReader reader, string name)
         {
             EnsureReadAndToken(reader, name, JsonToken.String);
-            return (string) reader.Value;
+            return (string) reader.Value!;
         }
 
         private bool ReadBoolean(JsonReader reader, string name)
         {
             EnsureReadAndToken(reader, name, JsonToken.Boolean);
-            return (bool) reader.Value;
+            return (bool) reader.Value!;
         }
 
         private long ReadLong(JsonReader reader, string name)
@@ -506,7 +506,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 switch (reader.TokenType)
                 {
                     case JsonToken.PropertyName:
-                        string name = (string) reader.Value;
+                        string name = (string) reader.Value!;
 
                         if (EnsureVersion(SchemaVersion.Draft6))
                         {
@@ -597,7 +597,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
             if (reader.TokenType == JsonToken.Boolean)
             {
-                target.AllowAdditionalItems = (bool) reader.Value;
+                target.AllowAdditionalItems = (bool) reader.Value!;
             }
             else
             {
@@ -611,7 +611,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
             if (reader.TokenType == JsonToken.Boolean)
             {
-                target.AllowUnevaluatedItems = (bool)reader.Value;
+                target.AllowUnevaluatedItems = (bool)reader.Value!;
             }
             else
             {
@@ -625,7 +625,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
             if (reader.TokenType == JsonToken.Boolean)
             {
-                target.AllowAdditionalProperties = (bool) reader.Value;
+                target.AllowAdditionalProperties = (bool) reader.Value!;
             }
             else
             {
@@ -639,7 +639,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
             if (reader.TokenType == JsonToken.Boolean)
             {
-                target.AllowUnevaluatedProperties = (bool)reader.Value;
+                target.AllowUnevaluatedProperties = (bool)reader.Value!;
             }
             else
             {
@@ -658,7 +658,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                     throw JSchemaReaderException.Create(reader, _baseUri, "Unexpected token encountered when reading value for 'required'. Expected StartArray, got Boolean.");
                 }
 
-                target.DeprecatedRequired = (bool) reader.Value;
+                target.DeprecatedRequired = (bool) reader.Value!;
             }
             else
             {
@@ -731,7 +731,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 switch (reader.TokenType)
                 {
                     case JsonToken.String:
-                        values.Add((string) reader.Value);
+                        values.Add((string) reader.Value!);
                         break;
                     case JsonToken.Comment:
                         // nom nom nom
@@ -755,7 +755,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 switch (reader.TokenType)
                 {
                     case JsonToken.PropertyName:
-                        string propertyName = (string)reader.Value;
+                        string propertyName = (string)reader.Value!;
 
                         EnsureReadAndToken(reader, propertyName, JsonToken.StartArray);
 
@@ -787,7 +787,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 switch (reader.TokenType)
                 {
                     case JsonToken.PropertyName:
-                        string name = (string) reader.Value;
+                        string name = (string) reader.Value!;
 
                         List<JsonToken> validDependencyTokens = EnsureVersion(SchemaVersion.Draft6)
                             ? Constants.DependencyTokens
@@ -810,7 +810,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
                             dependencies[name] = new List<string>
                             {
-                                (string) reader.Value
+                                (string) reader.Value!
                             };
                         }
                         break;
@@ -854,7 +854,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         internal JSchemaType? MapType(JsonReader reader)
         {
-            string typeName = (string) reader.Value;
+            string typeName = (string) reader.Value!;
 
             if (!Constants.JSchemaTypeMapping.TryGetValue(typeName, out JSchemaType mappedType))
             {
@@ -969,7 +969,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             // check whether a schema for this token has already been loaded
             if (reader is JTokenReader tokenReader)
             {
-                JSchemaAnnotation? schemaAnnotication = tokenReader.CurrentToken.Annotation<JSchemaAnnotation>();
+                JSchemaAnnotation? schemaAnnotication = tokenReader.CurrentToken!.Annotation<JSchemaAnnotation>();
                 JSchema? previousSchema = schemaAnnotication?.GetSchema(null);
                 if (previousSchema != null)
                 {
@@ -996,7 +996,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             {
                 if (reader.TokenType == JsonToken.Boolean)
                 {
-                    loadingSchema.Valid = (bool)reader.Value;
+                    loadingSchema.Valid = (bool)reader.Value!;
                 }
                 else
                 {
@@ -1461,7 +1461,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
                     if (reader.TokenType == JsonToken.Boolean)
                     {
-                        target.ExclusiveMinimum = (bool)reader.Value;
+                        target.ExclusiveMinimum = (bool)reader.Value!;
                     }
                     else
                     {
@@ -1481,7 +1481,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
                     if (reader.TokenType == JsonToken.Boolean)
                     {
-                        target.ExclusiveMaximum = (bool)reader.Value;
+                        target.ExclusiveMaximum = (bool)reader.Value!;
                     }
                     else
                     {
@@ -1687,7 +1687,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                             throw JSchemaReaderException.Create(reader, _baseUri, "Unexpected token encountered when reading value for '$schema'. Expected String, got {0}.".FormatWith(CultureInfo.InvariantCulture, reader.TokenType));
                         }
 
-                        target.SchemaVersion = ParseUri(reader, (string)reader.Value);
+                        target.SchemaVersion = ParseUri(reader, (string)reader.Value!);
 
                         _versionUri = target.SchemaVersion;
 
@@ -1744,7 +1744,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             JToken t;
             if (reader is JTokenReader tokenReader)
             {
-                t = tokenReader.CurrentToken;
+                t = tokenReader.CurrentToken!;
                 tokenReader.Skip();
             }
             else

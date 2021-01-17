@@ -458,7 +458,7 @@ namespace Newtonsoft.Json.Schema.Generation
                             // can be converted to a string
                             if (keyContract is JsonPrimitiveContract)
                             {
-                                schema.AdditionalProperties = GenerateInternal(dictionaryContract.DictionaryValueType, _generator.DefaultRequired, null, dictionaryContract, null);
+                                schema.AdditionalProperties = GenerateInternal(dictionaryContract.DictionaryValueType!, _generator.DefaultRequired, null, dictionaryContract, null);
                             }
                         }
                         break;
@@ -606,7 +606,7 @@ namespace Newtonsoft.Json.Schema.Generation
                         required = Required.Always;
                     }
 
-                    JSchema propertySchema = GenerateInternal(property.PropertyType, required, property, contract, null);
+                    JSchema propertySchema = GenerateInternal(property.PropertyType!, required, property, contract, null);
 
                     // the default value might have already been set by the schema generation provider
                     if (property.DefaultValue != null && propertySchema.Default == null)
@@ -614,7 +614,7 @@ namespace Newtonsoft.Json.Schema.Generation
                         propertySchema.Default = JToken.FromObject(property.DefaultValue);
                     }
 
-                    schema.Properties.Add(property.PropertyName, propertySchema);
+                    schema.Properties.Add(property.PropertyName!, propertySchema);
 
                     Required resolvedRequired = required ?? _generator.DefaultRequired;
                     bool optional;
@@ -637,7 +637,7 @@ namespace Newtonsoft.Json.Schema.Generation
 
                     if (!optional)
                     {
-                        schema.Required.Add(property.PropertyName);
+                        schema.Required.Add(property.PropertyName!);
                     }
                 }
             }

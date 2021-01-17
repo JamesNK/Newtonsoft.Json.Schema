@@ -42,7 +42,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                 && o[Constants.PropertyNames.Anchor] is JValue anchorToken
                 && anchorToken.Type == JTokenType.String)
             {
-                anchor = (string)anchorToken;
+                anchor = (string)anchorToken!;
             }
 
             return CombineIdAndAnchor(id, anchor);
@@ -89,9 +89,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             Uri? id;
             if (t.Type == JTokenType.Uri)
             {
-                id = (Uri)t;
+                id = (Uri)t!;
             }
-            else if (!Uri.TryCreate((string)t, UriKind.RelativeOrAbsolute, out id))
+            else if (!Uri.TryCreate((string)t!, UriKind.RelativeOrAbsolute, out id))
             {
                 id = null;
             }
@@ -196,7 +196,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                 switch (current)
                 {
                     case JToken t:
-                        JSchemaAnnotation annotation = t.Annotation<JSchemaAnnotation>();
+                        JSchemaAnnotation? annotation = t.Annotation<JSchemaAnnotation>();
                         JSchema? previousSchema = annotation?.GetSchema(dynamicScope);
                         if (previousSchema != null)
                         {
@@ -369,7 +369,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
 
         private static bool CheckDefinitionSchemaIds(string definitionsName, Action<JSchema> setSchema, Uri? rootSchemaId, Uri? dynamicScope, JSchemaReader schemaReader, JSchemaDiscovery discovery, Uri resolvedReference, Uri matchingId, Uri? matchingFragment, JObject definitionsObject)
         {
-            foreach (KeyValuePair<string, JToken> property in definitionsObject)
+            foreach (KeyValuePair<string, JToken?> property in definitionsObject)
             {
                 if (property.Value is JObject obj)
                 {
@@ -545,7 +545,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                 return null;
             }
 
-            JSchemaAnnotation annotation = resolvedToken.Annotation<JSchemaAnnotation>();
+            JSchemaAnnotation? annotation = resolvedToken.Annotation<JSchemaAnnotation>();
             JSchema? previousSchema = annotation?.GetSchema(dynamicScope);
             if (previousSchema != null)
             {

@@ -261,17 +261,17 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                         ValidationUtils.Assert(_uniqueArrayItems != null);
                         ValidationUtils.Assert(Context.TokenWriter != null);
 
-                        JToken currentToken = Context.TokenWriter.CurrentToken;
+                        JToken currentToken = Context.TokenWriter.CurrentToken!;
                         bool isDuplicate = JsonTokenHelpers.Contains(_uniqueArrayItems, currentToken);
                         if (isDuplicate)
                         {
-                            object v = (currentToken is JValue valueToken) ? valueToken.Value : currentToken;
+                            object? v = (currentToken is JValue valueToken) ? valueToken.Value : currentToken;
 
                             RaiseError($"Non-unique array item at index {_index}.", ErrorType.UniqueItems, Schema, v, null);
                         }
                         else
                         {
-                            _uniqueArrayItems.Add(Context.TokenWriter.CurrentToken);
+                            _uniqueArrayItems.Add(Context.TokenWriter.CurrentToken!);
                         }
                     }
 

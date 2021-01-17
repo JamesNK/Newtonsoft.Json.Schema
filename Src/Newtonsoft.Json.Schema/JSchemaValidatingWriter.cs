@@ -102,7 +102,7 @@ namespace Newtonsoft.Json.Schema
         /// Writes out a comment <code>/*...*/</code> containing the specified text.
         /// </summary>
         /// <param name="text">Text to place inside the comment.</param>
-        public override void WriteComment(string text)
+        public override void WriteComment(string? text)
         {
             _writer.WriteComment(text);
 
@@ -126,7 +126,7 @@ namespace Newtonsoft.Json.Schema
         /// Writes raw JSON.
         /// </summary>
         /// <param name="json">The raw JSON to write.</param>
-        public override void WriteRaw(string json)
+        public override void WriteRaw(string? json)
         {
             _writer.WriteRaw(json);
 
@@ -138,7 +138,7 @@ namespace Newtonsoft.Json.Schema
         /// Writes raw JSON where a value is expected and updates the writer's state.
         /// </summary>
         /// <param name="json">The raw JSON to write.</param>
-        public override void WriteRawValue(string json)
+        public override void WriteRawValue(string? json)
         {
             _writer.WriteRawValue(json);
 
@@ -248,7 +248,7 @@ namespace Newtonsoft.Json.Schema
         /// An error will raised if the value cannot be written as a single JSON token.
         /// </summary>
         /// <param name="value">The <see cref="Object"/> value to write.</param>
-        public override void WriteValue(object value)
+        public override void WriteValue(object? value)
         {
 #if HAVE_BIG_INTEGER
             if (value is BigInteger)
@@ -269,7 +269,7 @@ namespace Newtonsoft.Json.Schema
         /// Writes a <see cref="String"/> value.
         /// </summary>
         /// <param name="value">The <see cref="String"/> value to write.</param>
-        public override void WriteValue(string value)
+        public override void WriteValue(string? value)
         {
             _writer.WriteValue(value);
 
@@ -485,7 +485,7 @@ namespace Newtonsoft.Json.Schema
         /// Writes a <see cref="Byte"/>[] value.
         /// </summary>
         /// <param name="value">The <see cref="Byte"/>[] value to write.</param>
-        public override void WriteValue(byte[] value)
+        public override void WriteValue(byte[]? value)
         {
             _writer.WriteValue(value);
 
@@ -521,7 +521,7 @@ namespace Newtonsoft.Json.Schema
         /// Writes a <see cref="Uri"/> value.
         /// </summary>
         /// <param name="value">The <see cref="Uri"/> value to write.</param>
-        public override void WriteValue(Uri value)
+        public override void WriteValue(Uri? value)
         {
             _writer.WriteValue(value);
 

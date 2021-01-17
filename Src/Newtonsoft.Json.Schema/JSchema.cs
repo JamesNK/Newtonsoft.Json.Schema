@@ -597,7 +597,7 @@ namespace Newtonsoft.Json.Schema
         /// <returns>The <see cref="JSchema"/> associated with the <see cref="JToken"/>.</returns>
         public static explicit operator JSchema?(JToken t)
         {
-            JSchemaAnnotation annotation = t.Annotation<JSchemaAnnotation>();
+            JSchemaAnnotation? annotation = t.Annotation<JSchemaAnnotation>();
             JSchema? schema = null;
 
             if (annotation?.TryGetSingle(out schema) ?? false)

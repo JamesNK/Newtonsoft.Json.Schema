@@ -144,7 +144,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Licensing
             {
                 JsonSerializer serializer = new JsonSerializer();
 
-                deserializedLicense = serializer.Deserialize<LicenseDetails>(reader);
+                deserializedLicense = serializer.Deserialize<LicenseDetails>(reader)!;
             }
 
             byte[] data = deserializedLicense.GetSignificateData();
