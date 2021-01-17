@@ -14,7 +14,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             return objectType == typeof(JSchema);
         }
 
-        public override object? ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
         {
             if (reader.TokenType == JsonToken.Null)
             {
@@ -24,11 +24,18 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             return JSchema.Load(reader);
         }
 
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
         {
-            JSchema schema = (JSchema)value;
+            JSchema? schema = (JSchema?)value;
 
-            schema.WriteTo(writer);
+            if (schema != null)
+            {
+                schema.WriteTo(writer);
+            }
+            else
+            {
+                writer.WriteNull();
+            }
         }
     }
 }

@@ -294,7 +294,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             return GetAttributeByName(property.AttributeProvider, name, out matchingType);
         }
 
-        private static Attribute? GetAttributeByName(IAttributeProvider attributeProvider, string name, out Type? matchingType)
+        private static Attribute? GetAttributeByName(IAttributeProvider? attributeProvider, string name, out Type? matchingType)
         {
             if (attributeProvider != null)
             {

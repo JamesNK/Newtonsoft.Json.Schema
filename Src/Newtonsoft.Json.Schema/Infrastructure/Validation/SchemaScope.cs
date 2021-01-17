@@ -274,7 +274,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 {
                     ValidationUtils.Assert(Context.TokenWriter != null);
 
-                    JToken currentToken = Context.TokenWriter.CurrentToken;
+                    JToken currentToken = Context.TokenWriter.CurrentToken!;
 
                     if (isEnum)
                     {

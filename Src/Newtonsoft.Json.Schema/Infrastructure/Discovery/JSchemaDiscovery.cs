@@ -255,7 +255,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             return knownSchemaId;
         }
 
-        private void DiscoverTokenSchemas(JSchema schema, string name, JToken token, bool isDefinitionSchema = false)
+        private void DiscoverTokenSchemas(JSchema schema, string name, JToken? token, bool isDefinitionSchema = false)
         {
             if (token is JObject o)
             {
@@ -267,7 +267,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                 }
                 else
                 {
-                    foreach (KeyValuePair<string, JToken> valuePair in o)
+                    foreach (KeyValuePair<string, JToken?> valuePair in o)
                     {
                         bool isDefinitionsSchema = Constants.PropertyNames.IsDefinition(name) && schema == _rootSchema;
 

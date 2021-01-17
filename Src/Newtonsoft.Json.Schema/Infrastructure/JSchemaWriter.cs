@@ -223,7 +223,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             {
                 JConstructor c = (JConstructor)token;
 
-                writer.WriteStartConstructor(c.Name);
+                writer.WriteStartConstructor(c.Name!);
 
                 foreach (JToken t in c.Children())
                 {

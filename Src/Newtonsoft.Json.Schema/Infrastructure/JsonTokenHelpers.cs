@@ -172,7 +172,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             {
                 JProperty p1 = (JProperty)l[i];
 
-                if (!o2.TryGetValue(p1.Name, out JToken secondValue))
+                if (!o2.TryGetValue(p1.Name, out JToken? secondValue))
                 {
                     return false;
                 }
