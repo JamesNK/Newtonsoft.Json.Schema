@@ -34,5 +34,14 @@ namespace Newtonsoft.Json.Schema
         {
             LicenseHelpers.RegisterLicense(license);
         }
+
+        /// <summary>
+        /// Get a flag indicating whether license has been registered. A license is registered using <see cref="RegisterLicense"/>.
+        /// </summary>
+        /// <returns><c>true</c> if a license has been registered; otherwise <c>false</c>.</returns>
+        public static bool HasRegisteredLicense()
+        {
+            return LicenseHelpers.HasRegisteredLicense();
+        }
     }
 }
