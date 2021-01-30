@@ -25,7 +25,7 @@ namespace Newtonsoft.Json.Schema.Tests
         {
             string licenseText = "1002-N8/Xc2RXpYddnHEH881tBKyb4itL4Wiyh3VL3HMQP3phVElppL3GNeSqYDQQcxSz34lXOHfWTrKEdAw2oNcyohMkXTKjlr5T7kASfLHaHPV3mUrFJPFlWhwfEzJ/+Fie0HT0chcXJnxFu50hJT++IfVYtcYwc+gNHzvQc2E2mRt7IklkIjoxMDAyLCJFeHBpcnlEYXRlIjoiMjExNi0xMi0yN1QwMDowMDowMFoiLCJUeXBlIjoiVGVzdCJ9";
 
-            ExceptionAssert.Throws<JSchemaException>(() => License.RegisterLicense(licenseText), "Specified license is for testing only.");
+            ExceptionAssert.Throws<JSchemaException>(() => License.RegisterLicense(licenseText), "Specified test license expiried on 2116-12-27.");
         }
 
         [Test]
@@ -51,6 +51,12 @@ namespace Newtonsoft.Json.Schema.Tests
             }
 
             Assert.Fail();
+        }
+
+        [Test]
+        public void HasRegisteredLicense_NoLicense_False()
+        {
+            Assert.IsFalse(License.HasRegisteredLicense());
         }
     }
 }
