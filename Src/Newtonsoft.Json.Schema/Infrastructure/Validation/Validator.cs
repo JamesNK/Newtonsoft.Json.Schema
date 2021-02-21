@@ -164,7 +164,14 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 SchemaScope.CreateTokenScope(token, Schema, _context, null, depth);
             }
 
-            TokenWriter?.WriteToken(token, value);
+            if (TokenWriter != null)
+            {
+                // JTokenReader can return JsonToken.String with a null value which WriteToken doesn't like.
+                // Hacky - change token to JsonToken.Null. Can be removed when fixed Newtonsoft.Json is public.
+                JsonToken fixedToken = (token == JsonToken.String && value == null) ? JsonToken.Null : token;
+
+                TokenWriter.WriteToken(fixedToken, value);
+            }
 
             for (int i = _scopes.Count - 1; i >= 0; i--)
             {
