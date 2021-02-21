@@ -438,12 +438,12 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
         {
             if (!Schema._dependencies.IsNullOrEmpty())
             {
-                ValidationUtils.Assert(_dependencyScopes != null);
-
                 foreach (KeyValuePair<string, object> dependency in Schema._dependencies.GetInnerDictionary())
                 {
                     if (dependency.Value is JSchema dependencySchema)
                     {
+                        ValidationUtils.Assert(_dependencyScopes != null);
+
                         // Could be duplicated in "dependencies" and "dependentSchemas"
                         if (!_dependencyScopes.ContainsKey(dependency.Key))
                         {
@@ -455,12 +455,12 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             }
             if (!Schema._dependentSchemas.IsNullOrEmpty())
             {
-                ValidationUtils.Assert(_dependencyScopes != null);
-
                 foreach (KeyValuePair<string, JSchema> dependency in Schema._dependentSchemas)
                 {
                     if (dependency.Value is JSchema dependencySchema)
                     {
+                        ValidationUtils.Assert(_dependencyScopes != null);
+
                         // Could be duplicated in "dependencies" and "dependentSchemas"
                         if (!_dependencyScopes.ContainsKey(dependency.Key))
                         {
