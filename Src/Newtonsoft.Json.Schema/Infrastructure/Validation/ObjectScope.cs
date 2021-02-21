@@ -438,23 +438,35 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
         {
             if (!Schema._dependencies.IsNullOrEmpty())
             {
+                ValidationUtils.Assert(_dependencyScopes != null);
+
                 foreach (KeyValuePair<string, object> dependency in Schema._dependencies.GetInnerDictionary())
                 {
                     if (dependency.Value is JSchema dependencySchema)
                     {
-                        SchemaScope scope = CreateTokenScope(token, dependencySchema, CreateConditionalContext(), null, InitialDepth);
-                        _dependencyScopes!.Add(dependency.Key, scope);
+                        // Could be duplicated in "dependencies" and "dependentSchemas"
+                        if (!_dependencyScopes.ContainsKey(dependency.Key))
+                        {
+                            SchemaScope scope = CreateTokenScope(token, dependencySchema, CreateConditionalContext(), null, InitialDepth);
+                            _dependencyScopes.Add(dependency.Key, scope);
+                        }
                     }
                 }
             }
             if (!Schema._dependentSchemas.IsNullOrEmpty())
             {
+                ValidationUtils.Assert(_dependencyScopes != null);
+
                 foreach (KeyValuePair<string, JSchema> dependency in Schema._dependentSchemas)
                 {
                     if (dependency.Value is JSchema dependencySchema)
                     {
-                        SchemaScope scope = CreateTokenScope(token, dependencySchema, CreateConditionalContext(), null, InitialDepth);
-                        _dependencyScopes!.Add(dependency.Key, scope);
+                        // Could be duplicated in "dependencies" and "dependentSchemas"
+                        if (!_dependencyScopes.ContainsKey(dependency.Key))
+                        {
+                            SchemaScope scope = CreateTokenScope(token, dependencySchema, CreateConditionalContext(), null, InitialDepth);
+                            _dependencyScopes.Add(dependency.Key, scope);
+                        }
                     }
                 }
             }
