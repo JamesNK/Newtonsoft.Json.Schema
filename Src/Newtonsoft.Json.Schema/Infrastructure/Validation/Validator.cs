@@ -167,7 +167,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             if (TokenWriter != null)
             {
                 // JTokenReader can return JsonToken.String with a null value which WriteToken doesn't like.
-                // Hacky - change token to JsonTokenNull.
+                // Hacky - change token to JsonToken.Null. Can be removed when fixed Newtonsoft.Json is public.
                 JsonToken fixedToken = (token == JsonToken.String && value == null) ? JsonToken.Null : token;
 
                 TokenWriter.WriteToken(fixedToken, value);
