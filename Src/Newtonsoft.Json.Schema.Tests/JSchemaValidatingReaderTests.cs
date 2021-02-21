@@ -3500,6 +3500,100 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(1, validationEventArgs.ValidationError.ChildErrors[0].ChildErrors.Count);
             Assert.AreEqual("Invalid type. Expected Integer, Object but got Number.", validationEventArgs.ValidationError.ChildErrors[0].ChildErrors[0].Message);
         }
+
+        [Test]
+        public void Read_KeyDuplicatedInDependenciesAndDependentSchemas_IgnoreSecond()
+        {
+            string json = @"{
+  ""$schema"": ""http://json-schema.org/draft-07/schema"",
+  ""$id"": ""http://api.example.com/profile.json"",
+  ""title"": ""The Root Schema"",
+  ""type"": ""object"",
+  ""required"": [
+    ""minimum"",
+    ""workspace-v""
+  ],
+  ""properties"": {
+    ""minimum"": {
+      ""type"": ""object"",
+      ""required"": [
+        ""width_px"",
+        ""height_px""
+      ],
+      ""properties"": {
+        ""width_px"": {
+          ""type"": ""integer""
+        },
+        ""height_px"": {
+          ""type"": ""integer""
+        }
+      }
+    },
+    ""workspace-v"": {
+      ""type"": ""object"",
+      ""required"": [
+        ""x_px"",
+        ""y_px"",
+        ""width_px"",
+        ""height_px"",
+        ""width_mm"",
+        ""height_mm""
+      ],
+      ""properties"": {
+        ""x_px"": {
+          ""type"": ""integer""
+        },
+        ""y_px"": {
+          ""type"": ""integer""
+        },
+        ""width_px"": {
+          ""type"": ""integer""
+        },
+        ""height_px"": {
+          ""type"": ""integer""
+        },
+        ""width_mm"": {
+          ""type"": ""integer""
+        },
+        ""height_mm"": {
+          ""type"": ""integer""
+        }
+      }
+    },
+    ""widgets"": {
+      ""type"": ""array"",
+      ""minProperties"": 1,
+      ""uniqueItems"": true,
+      ""items"": {
+        ""type"": ""string"",
+        ""pattern"": ""\\b(?:color|color_picker|center|resize|orientation)\\b$""
+      }
+    }
+  },
+  ""dependencies"": {
+    ""widgets"": {
+      ""orientation"": {
+        ""properties"": {
+          ""workspace-h"": { ""type"": ""string"" }
+        },
+        ""required"": [""workspace-h""]
+      }
+    }
+  },
+  ""dependentSchemas"": {
+    ""widgets"": {
+      ""properties"": {
+        ""workspace-h"": {""type"": ""string""}
+      }
+    }
+  }
+}";
+
+            JSchema s = JSchema.Parse(json);
+
+            JObject o = new JObject();
+            Assert.IsFalse(o.IsValid(s));
+        }
     }
 
     public sealed class JsonReaderStubWithIsClosed : JsonReader

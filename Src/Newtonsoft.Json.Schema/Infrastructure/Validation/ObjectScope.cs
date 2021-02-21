@@ -442,8 +442,14 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 {
                     if (dependency.Value is JSchema dependencySchema)
                     {
-                        SchemaScope scope = CreateTokenScope(token, dependencySchema, CreateConditionalContext(), null, InitialDepth);
-                        _dependencyScopes!.Add(dependency.Key, scope);
+                        ValidationUtils.Assert(_dependencyScopes != null);
+
+                        // Could be duplicated in "dependencies" and "dependentSchemas"
+                        if (!_dependencyScopes.ContainsKey(dependency.Key))
+                        {
+                            SchemaScope scope = CreateTokenScope(token, dependencySchema, CreateConditionalContext(), null, InitialDepth);
+                            _dependencyScopes.Add(dependency.Key, scope);
+                        }
                     }
                 }
             }
@@ -453,8 +459,14 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 {
                     if (dependency.Value is JSchema dependencySchema)
                     {
-                        SchemaScope scope = CreateTokenScope(token, dependencySchema, CreateConditionalContext(), null, InitialDepth);
-                        _dependencyScopes!.Add(dependency.Key, scope);
+                        ValidationUtils.Assert(_dependencyScopes != null);
+
+                        // Could be duplicated in "dependencies" and "dependentSchemas"
+                        if (!_dependencyScopes.ContainsKey(dependency.Key))
+                        {
+                            SchemaScope scope = CreateTokenScope(token, dependencySchema, CreateConditionalContext(), null, InitialDepth);
+                            _dependencyScopes.Add(dependency.Key, scope);
+                        }
                     }
                 }
             }
