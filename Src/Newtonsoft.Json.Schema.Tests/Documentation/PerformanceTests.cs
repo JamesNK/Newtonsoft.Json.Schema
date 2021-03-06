@@ -36,7 +36,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
         [Test]
         public void ValidateStream()
         {
-#region ValidateStream
+            #region ValidateStream
             string schemaJson = @"{
               'description': 'A person',
               'type': 'object',
@@ -63,7 +63,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
                 {
                 }
             }
-#endregion
+            #endregion
         }
     }
 }

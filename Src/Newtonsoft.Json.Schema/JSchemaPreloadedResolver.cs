@@ -75,12 +75,7 @@ namespace Newtonsoft.Json.Schema
                 throw new ArgumentNullException(nameof(uri));
             }
 
-            if (value == null)
-            {
-                throw new ArgumentNullException(nameof(value));
-            }
-
-            _preloadedData[uri] = value;
+            _preloadedData[uri] = value ?? throw new ArgumentNullException(nameof(value));
         }
 
         /// <summary>

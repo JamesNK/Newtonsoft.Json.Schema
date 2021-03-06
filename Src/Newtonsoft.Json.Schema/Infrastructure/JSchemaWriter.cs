@@ -205,10 +205,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                     writer.WriteEndObject();
                 }
             }
-            else if (token is JArray)
+            else if (token is JArray a)
             {
-                JArray a = (JArray)token;
-
                 writer.WriteStartArray();
 
                 for (int i = 0; i < a.Count; i++)
@@ -218,10 +216,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
                 writer.WriteEndArray();
             }
-            else if (token is JConstructor)
+            else if (token is JConstructor c)
             {
-                JConstructor c = (JConstructor)token;
-
                 writer.WriteStartConstructor(c.Name!);
 
                 foreach (JToken t in c.Children())

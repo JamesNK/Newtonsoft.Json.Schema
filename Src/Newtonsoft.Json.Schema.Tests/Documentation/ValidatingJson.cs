@@ -36,7 +36,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
         [Test]
         public void IsValidBasic()
         {
-#region IsValidBasic
+            #region IsValidBasic
             string schemaJson = @"{
               'description': 'A person',
               'type': 'object',
@@ -58,7 +58,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
 
             bool valid = person.IsValid(schema);
             // true
-#endregion
+            #endregion
 
             Assert.IsTrue(valid);
         }
@@ -78,7 +78,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
               }
             }";
 
-#region IsValidMessages
+            #region IsValidMessages
             JSchema schema = JSchema.Parse(schemaJson);
 
             JObject person = JObject.Parse(@"{
@@ -86,11 +86,10 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
               'hobbies': ['Invalid content', 0.123456789]
             }");
 
-            IList<string> messages;
-            bool valid = person.IsValid(schema, out messages);
+            bool valid = person.IsValid(schema, out IList<string> messages);
             // Invalid type. Expected String but got Null. Line 2, position 21.
             // Invalid type. Expected String but got Number. Line 3, position 51.
-#endregion
+            #endregion
 
             Assert.IsFalse(valid);
         }
@@ -98,7 +97,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
         [Test]
         public void IsValidValidationError()
         {
-#region IsValidValidationError
+            #region IsValidValidationError
             string schemaJson = @"{
               'description': 'Collection of non-primary colors',
               'type': 'array',
@@ -125,8 +124,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
               'Black'
             ]");
 
-            IList<ValidationError> errors;
-            bool valid = colors.IsValid(schema, out errors);
+            bool valid = colors.IsValid(schema, out IList<ValidationError> errors);
             // Message - JSON is valid against schema from 'not'. Path '[2]', line 4, position 24.
             // SchemaId - #/items/0
 
@@ -134,7 +132,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
             // SchemaId - #/items/0
             //   Message - String 'Black' does not match regex pattern '^#[A-Fa-f0-9]{6}$'. Path '[3]', line 5, position 22.
             //   SchemaId - #/definitions/hexColor
-#endregion
+            #endregion
 
             Assert.IsFalse(valid);
         }
@@ -144,7 +142,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
         {
             string schemaJson = "{}";
 
-#region JSchemaValidatingReader
+            #region JSchemaValidatingReader
             string json = @"{
               'name': 'James',
               'hobbies': ['.NET', 'Blogging', 'Reading', 'Xbox', 'LOLCATS']
@@ -152,15 +150,17 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
 
             JsonTextReader reader = new JsonTextReader(new StringReader(json));
 
-            JSchemaValidatingReader validatingReader = new JSchemaValidatingReader(reader);
-            validatingReader.Schema = JSchema.Parse(schemaJson);
+            JSchemaValidatingReader validatingReader = new JSchemaValidatingReader(reader)
+            {
+                Schema = JSchema.Parse(schemaJson)
+            };
 
             IList<string> messages = new List<string>();
             validatingReader.ValidationEventHandler += (o, a) => messages.Add(a.Message);
 
             JsonSerializer serializer = new JsonSerializer();
             Person p = serializer.Deserialize<Person>(validatingReader);
-#endregion
+            #endregion
 
             Assert.AreEqual(0, messages.Count);
         }
@@ -176,7 +176,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
         {
             string schemaJson = "{}";
 
-#region JSchemaValidatingWriter
+            #region JSchemaValidatingWriter
             Person person = new Person
             {
                 Name = "James",
@@ -189,15 +189,17 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation
             StringWriter stringWriter = new StringWriter();
             JsonTextWriter writer = new JsonTextWriter(stringWriter);
 
-            JSchemaValidatingWriter validatingWriter = new JSchemaValidatingWriter(writer);
-            validatingWriter.Schema = JSchema.Parse(schemaJson);
+            JSchemaValidatingWriter validatingWriter = new JSchemaValidatingWriter(writer)
+            {
+                Schema = JSchema.Parse(schemaJson)
+            };
 
             IList<string> messages = new List<string>();
             validatingWriter.ValidationEventHandler += (o, a) => messages.Add(a.Message);
 
             JsonSerializer serializer = new JsonSerializer();
             serializer.Serialize(validatingWriter, person);
-#endregion
+            #endregion
 
             Assert.AreEqual(0, messages.Count);
         }

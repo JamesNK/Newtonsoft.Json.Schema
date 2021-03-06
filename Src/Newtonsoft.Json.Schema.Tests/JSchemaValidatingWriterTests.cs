@@ -628,8 +628,10 @@ namespace Newtonsoft.Json.Schema.Tests
         [Test]
         public void WriteBigInteger()
         {
-            JSchema schema = new JSchema();
-            schema.Type = JSchemaType.Array;
+            JSchema schema = new JSchema
+            {
+                Type = JSchemaType.Array
+            };
             schema.Items.Add(new JSchema
             {
                 Type = JSchemaType.Integer,
@@ -640,8 +642,10 @@ namespace Newtonsoft.Json.Schema.Tests
 
             StringWriter sw = new StringWriter();
             JsonTextWriter writer = new JsonTextWriter(sw);
-            JSchemaValidatingWriter validatingWriter = new JSchemaValidatingWriter(writer);
-            validatingWriter.Schema = schema;
+            JSchemaValidatingWriter validatingWriter = new JSchemaValidatingWriter(writer)
+            {
+                Schema = schema
+            };
             validatingWriter.ValidationEventHandler += (sender, args) => { a = args; };
 
             validatingWriter.WriteStartArray();

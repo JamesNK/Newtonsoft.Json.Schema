@@ -65,8 +65,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 {
                     // The schema scope needs to be part of a different conditional contexts.
                     // We need to create a composite so that errors are raised to both.
-                    CompositeContext? compositeContext = childScope.Context as CompositeContext;
-                    if (compositeContext == null)
+                    if (childScope.Context is not CompositeContext compositeContext)
                     {
                         compositeContext = new CompositeContext(context.Validator);
                         compositeContext.Contexts.Add(childScope.Context);

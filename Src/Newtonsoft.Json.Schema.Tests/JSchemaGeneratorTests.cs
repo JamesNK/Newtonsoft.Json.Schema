@@ -50,7 +50,7 @@ namespace Newtonsoft.Json.Schema.Tests
         [System.ComponentModel.DisplayName("This is child title!")]
         public class DescriptionChild
         {
-            
+
         }
 
         [Test]
@@ -1168,8 +1168,10 @@ namespace Newtonsoft.Json.Schema.Tests
         [Test]
         public void GenerateSchemaForISerializable()
         {
-            JSchemaGenerator generator = new JSchemaGenerator();
-            generator.SchemaIdGenerationHandling = SchemaIdGenerationHandling.TypeName;
+            JSchemaGenerator generator = new JSchemaGenerator
+            {
+                SchemaIdGenerationHandling = SchemaIdGenerationHandling.TypeName
+            };
 
             JSchema schema = generator.Generate(typeof(Exception));
 
@@ -1181,8 +1183,10 @@ namespace Newtonsoft.Json.Schema.Tests
         [Test]
         public void GenerateSchemaForDBNull()
         {
-            JSchemaGenerator generator = new JSchemaGenerator();
-            generator.SchemaIdGenerationHandling = SchemaIdGenerationHandling.TypeName;
+            JSchemaGenerator generator = new JSchemaGenerator
+            {
+                SchemaIdGenerationHandling = SchemaIdGenerationHandling.TypeName
+            };
 
             JSchema schema = generator.Generate(typeof(DBNull));
 
@@ -1268,7 +1272,7 @@ namespace Newtonsoft.Json.Schema.Tests
                 ContractResolver = new CamelCasePropertyNamesContractResolver()
                 {
 #if !(NETFX_CORE || PORTABLE || DNXCORE50 || PORTABLE40)
-                IgnoreSerializableAttribute = true
+                    IgnoreSerializableAttribute = true
 #endif
                 }
             };
@@ -1330,12 +1334,14 @@ namespace Newtonsoft.Json.Schema.Tests
         [Test]
         public void GenerateSchemaSerializable()
         {
-            JSchemaGenerator generator = new JSchemaGenerator();
-            generator.ContractResolver = new DefaultContractResolver
+            JSchemaGenerator generator = new JSchemaGenerator
             {
-                IgnoreSerializableAttribute = false
+                ContractResolver = new DefaultContractResolver
+                {
+                    IgnoreSerializableAttribute = false
+                },
+                SchemaIdGenerationHandling = SchemaIdGenerationHandling.FullTypeName
             };
-            generator.SchemaIdGenerationHandling = SchemaIdGenerationHandling.FullTypeName;
 
             JSchema schema = generator.Generate(typeof(Version), true);
 
@@ -1372,10 +1378,12 @@ namespace Newtonsoft.Json.Schema.Tests
 }", json);
 
             JTokenWriter jsonWriter = new JTokenWriter();
-            JsonSerializer serializer = new JsonSerializer();
-            serializer.ContractResolver = new DefaultContractResolver
+            JsonSerializer serializer = new JsonSerializer
             {
-                IgnoreSerializableAttribute = false
+                ContractResolver = new DefaultContractResolver
+                {
+                    IgnoreSerializableAttribute = false
+                }
             };
             serializer.Serialize(jsonWriter, new Version(1, 2, 3, 4));
 

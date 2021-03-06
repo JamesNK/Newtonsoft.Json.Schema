@@ -56,8 +56,10 @@ namespace Newtonsoft.Json.Schema.Tests
                 {
                     JsonTextReader reader = new JsonTextReader(new StringReader(Json));
 
-                    JSchemaValidatingReader validatingReader = new JSchemaValidatingReader(reader);
-                    validatingReader.Schema = Schema;
+                    JSchemaValidatingReader validatingReader = new JSchemaValidatingReader(reader)
+                    {
+                        Schema = Schema
+                    };
                     while (validatingReader.Read())
                     {
 
@@ -73,8 +75,10 @@ namespace Newtonsoft.Json.Schema.Tests
                 {
                     JsonTextReader reader = new JsonTextReader(new StringReader(Json));
 
-                    JsonValidatingReader vr = new JsonValidatingReader(reader);
-                    vr.Schema = SchemaV3;
+                    JsonValidatingReader vr = new JsonValidatingReader(reader)
+                    {
+                        Schema = SchemaV3
+                    };
                     while (vr.Read())
                     {
 
@@ -96,9 +100,11 @@ namespace Newtonsoft.Json.Schema.Tests
             {
                 for (int i = 1; i < ValidationCount; i++)
                 {
-                    XmlReaderSettings settings = new XmlReaderSettings();
-                    settings.ValidationType = ValidationType.Schema;
-                    settings.Schemas = set;
+                    XmlReaderSettings settings = new XmlReaderSettings
+                    {
+                        ValidationType = ValidationType.Schema,
+                        Schemas = set
+                    };
                     settings.ValidationEventHandler += ValidatingReader_ValidationEventHandler;
 
                     XmlReader reader = XmlReader.Create(new StringReader(Xml), settings);

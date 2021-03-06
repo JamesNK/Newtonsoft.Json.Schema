@@ -32,7 +32,9 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation.Samples.Create
             // serialize JSchema directly to a file
             using (StreamWriter file = File.CreateText(@"c:\schema.json"))
             using (JsonTextWriter writer = new JsonTextWriter(file))
-            schema.WriteTo(writer);
+            {
+                schema.WriteTo(writer);
+            }
             #endregion
         }
     }

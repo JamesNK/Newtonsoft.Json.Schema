@@ -25,7 +25,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         public override bool Equals(object obj)
         {
-            if (!(obj is StructMultiKey<T1, T2> key))
+            if (obj is not StructMultiKey<T1, T2> key)
             {
                 return false;
             }

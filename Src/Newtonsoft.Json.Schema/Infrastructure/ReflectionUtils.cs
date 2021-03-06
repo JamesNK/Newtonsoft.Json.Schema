@@ -72,7 +72,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             BindingFlags bindingFlags = BindingFlags.Instance | BindingFlags.Public;
             if (nonPublic)
             {
-                bindingFlags = bindingFlags | BindingFlags.NonPublic;
+                bindingFlags |= BindingFlags.NonPublic;
             }
 
             return t.GetConstructors(bindingFlags).SingleOrDefault(c => !c.GetParameters().Any());

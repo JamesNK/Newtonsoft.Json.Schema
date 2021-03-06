@@ -165,7 +165,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                     // remove whole numbers from value to avoid overflow error
                     if (Math.Abs(multipleOfD) < 1 && 1 % multipleOfD == 0)
                     {
-                        valueD = valueD % 1;
+                        valueD %= 1;
                         return IsDoubleMultiple(valueD, multipleOfD);
                     }
                 }

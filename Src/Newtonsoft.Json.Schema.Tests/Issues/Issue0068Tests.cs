@@ -26,7 +26,7 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
     [TestFixture]
     public class Issue0068Tests : TestFixtureBase
     {
-        private string schemaJson = @"{
+        private readonly string schemaJson = @"{
   ""$schema"": ""http://json-schema.org/draft-04/schema#"",
   ""patternProperties"": {
     ""^[a-zA-Z0-9]+$"": {
@@ -96,8 +96,7 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
   }
 }");
 
-            IList<string> errors;
-            Assert.IsFalse(o.IsValid(schema, out errors));
+            Assert.IsFalse(o.IsValid(schema, out IList<string> errors));
 
             Assert.AreEqual("Integer 2000000000000000000000000000 is not a multiple of 0.01. Path 'each.pricing.0.price', line 7, position 45.", errors[0]);
         }

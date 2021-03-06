@@ -2807,15 +2807,17 @@ namespace Newtonsoft.Json.Schema.Tests
             string json = "{\"DueDate\":\"2015-08-25\",\"DateCompleted\":\"2015-08-27T22:40:09.3749084-05:00\"}";
 
             IList<string> errors = new List<string>();
-            var schema = JSchema.Parse(schemaJson);
+            JSchema schema = JSchema.Parse(schemaJson);
 
-            var jsonReader = new JsonTextReader(new StringReader(json));
-            var validatingReader = new JSchemaValidatingReader(jsonReader);
-            validatingReader.Schema = schema;
+            JsonTextReader jsonReader = new JsonTextReader(new StringReader(json));
+            JSchemaValidatingReader validatingReader = new JSchemaValidatingReader(jsonReader)
+            {
+                Schema = schema
+            };
             validatingReader.ValidationEventHandler += (o, a) => errors.Add(a.Path + ": " + a.Message);
 
-            var serializer = new JsonSerializer();
-            var hw = serializer.Deserialize<Homework>(validatingReader);
+            JsonSerializer serializer = new JsonSerializer();
+            Homework hw = serializer.Deserialize<Homework>(validatingReader);
 
             Assert.AreEqual(0, errors.Count);
         }

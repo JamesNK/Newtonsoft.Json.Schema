@@ -982,8 +982,10 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         [Ignore("WIP")]
         public void ReferenceToNestedSchemaWithIdInResolvedSchema_ExtensionData()
         {
-            JSchema nested = new JSchema();
-            nested.Id = new Uri("nested.json", UriKind.RelativeOrAbsolute);
+            JSchema nested = new JSchema
+            {
+                Id = new Uri("nested.json", UriKind.RelativeOrAbsolute)
+            };
 
             JSchema root = new JSchema
             {
@@ -3393,7 +3395,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
   }
 }";
 
-            var resolver = new JSchemaPreloadedResolver();
+            JSchemaPreloadedResolver resolver = new JSchemaPreloadedResolver();
             AddSchema(resolver, "baseUriChange/folderInteger.json", "http://localhost:1234/folder/folderInteger.json");
 
             JSchema s = JSchema.Parse(schemaJson, resolver);

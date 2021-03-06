@@ -31,17 +31,8 @@ namespace Newtonsoft.Json.Schema
         /// <param name="schema">The schema.</param>
         public ExternalSchema(Uri uri, JSchema schema)
         {
-            if (uri == null)
-            {
-                throw new ArgumentNullException(nameof(uri));
-            }
-            if (schema == null)
-            {
-                throw new ArgumentNullException(nameof(schema));
-            }
-
-            Uri = uri;
-            Schema = schema;
+            Uri = uri ?? throw new ArgumentNullException(nameof(uri));
+            Schema = schema ?? throw new ArgumentNullException(nameof(schema));
         }
 
         /// <summary>

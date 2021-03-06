@@ -83,8 +83,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     }
                 case JsonToken.Bytes:
                     {
-                        byte[]? data = value as byte[];
-                        if (data == null)
+                        if (value is not byte[] data)
                         {
                             data = ((Guid)value!).ToByteArray();
                         }

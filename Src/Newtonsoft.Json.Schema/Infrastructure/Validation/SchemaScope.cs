@@ -288,7 +288,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                             StringWriter sw = new(CultureInfo.InvariantCulture);
                             currentToken.WriteTo(new JsonTextWriter(sw));
 
-                            RaiseError($"Value {sw.ToString()} is not defined in enum.", ErrorType.Enum, Schema, value, null);
+                            RaiseError($"Value {sw} is not defined in enum.", ErrorType.Enum, Schema, value, null);
                         }
                     }
 
@@ -301,7 +301,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                             StringWriter sw = new(CultureInfo.InvariantCulture);
                             currentToken.WriteTo(new JsonTextWriter(sw));
 
-                            RaiseError($"Value {sw.ToString()} does not match const.", ErrorType.Const, Schema, value, null);
+                            RaiseError($"Value {sw} does not match const.", ErrorType.Const, Schema, value, null);
                         }
                     }
 
