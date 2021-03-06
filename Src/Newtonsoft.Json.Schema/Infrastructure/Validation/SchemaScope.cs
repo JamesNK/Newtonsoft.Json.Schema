@@ -285,7 +285,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
                         if (!defined)
                         {
-                            StringWriter sw = new StringWriter(CultureInfo.InvariantCulture);
+                            StringWriter sw = new(CultureInfo.InvariantCulture);
                             currentToken.WriteTo(new JsonTextWriter(sw));
 
                             RaiseError($"Value {sw.ToString()} is not defined in enum.", ErrorType.Enum, Schema, value, null);
@@ -298,7 +298,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
                         if (!defined)
                         {
-                            StringWriter sw = new StringWriter(CultureInfo.InvariantCulture);
+                            StringWriter sw = new(CultureInfo.InvariantCulture);
                             currentToken.WriteTo(new JsonTextWriter(sw));
 
                             RaiseError($"Value {sw.ToString()} does not match const.", ErrorType.Const, Schema, value, null);
@@ -307,7 +307,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
                     if (hasValidator)
                     {
-                        JsonValidatorContext context = new JsonValidatorContext(this, Schema);
+                        JsonValidatorContext context = new(this, Schema);
 
                         foreach (JsonValidator validator in Schema._validators!)
                         {
@@ -377,7 +377,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             }
             else if (Context is CompositeContext compositeContext)
             {
-                List<ValidationError> validationErrors = new List<ValidationError>();
+                List<ValidationError> validationErrors = new();
                 foreach (ContextBase? childContent in compositeContext.Contexts)
                 {
                     if (childContent is ConditionalContext cc && cc.HasErrors)

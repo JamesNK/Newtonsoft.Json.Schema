@@ -165,7 +165,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
             if (_validatingSchema != null)
             {
-                JSchemaValidatingReader validatingReader = new JSchemaValidatingReader(reader)
+                JSchemaValidatingReader validatingReader = new(reader)
                 {
                     Schema = _validatingSchema
                 };
@@ -782,7 +782,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         {
             EnsureReadAndToken(reader, Constants.PropertyNames.Dependencies, JsonToken.StartObject);
 
-            JSchemaDependencyDictionary dependencies = new JSchemaDependencyDictionary(target);
+            JSchemaDependencyDictionary dependencies = new(target);
 
             while (reader.Read())
             {
@@ -878,7 +878,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         {
             EnsureRead(reader, name);
 
-            List<JSchemaType>? types = new List<JSchemaType>();
+            List<JSchemaType>? types = new();
             JSchemaCollection? typeSchemas = null;
             bool isAny = false;
 
@@ -928,7 +928,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                                 JSchemaType finalType = JSchemaType.None;
                                 foreach (JSchemaType type in types!)
                                 {
-                                    finalType = finalType | type;
+                                    finalType |= type;
                                 }
 
                                 return finalType;
@@ -981,7 +981,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 }
             }
 
-            JSchema loadingSchema = new JSchema
+            JSchema loadingSchema = new()
             {
                 State = JSchemaState.Loading,
                 BaseUri = _baseUri,
@@ -1059,7 +1059,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         private bool AddDeferedSchema(Uri resolvedReference, Uri originalReference, Uri? scopeId, string? dynamicAnchor, List<IIdentiferScope>? identiferScopeStack, bool isRecursiveReference, JSchema referenceSchema, JSchema? target, Action<JSchema> setSchema)
         {
-            DeferedSchemaKey deferedSchemaKey = new DeferedSchemaKey(resolvedReference, dynamicAnchor != null ? scopeId : null);
+            DeferedSchemaKey deferedSchemaKey = new(resolvedReference, dynamicAnchor != null ? scopeId : null);
 
             if (_resolvedDeferedSchemas.TryGetValue(deferedSchemaKey, out DeferedSchema? deferedSchema))
             {
@@ -1122,7 +1122,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         private JSchema? ResolvedSchema(Uri schemaId, Uri resolvedSchemaId)
         {
-            ResolveSchemaContext context = new ResolveSchemaContext
+            ResolveSchemaContext context = new()
             {
                 ResolverBaseUri = _baseUri,
                 SchemaId = schemaId,
@@ -1156,7 +1156,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 return null;
             }
 
-            JSchemaReaderSettings settings = new JSchemaReaderSettings
+            JSchemaReaderSettings settings = new()
             {
                 BaseUri = schemaReference.BaseUri,
                 Resolver = _resolver,
@@ -1165,7 +1165,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 ResolveSchemaReferences = _resolveSchemaReferences
             };
             settings.SetValidationEventHandler(_validationEventHandler);
-            JSchemaReader schemaReader = new JSchemaReader(settings)
+            JSchemaReader schemaReader = new(settings)
             {
                 Cache = Cache,
                 Parent = this
@@ -1176,8 +1176,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             }
 
             JSchema rootSchema;
-            using (StreamReader streamReader = new StreamReader(schemaData))
-            using (JsonTextReader jsonReader = new JsonTextReader(streamReader))
+            using (StreamReader streamReader = new(schemaData))
+            using (JsonTextReader jsonReader = new(streamReader))
             {
                 rootSchema = schemaReader.ReadRoot(jsonReader, false);
                 rootSchema.InternalReader = schemaReader;
@@ -1717,7 +1717,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                                 }
                             }
 
-                            JSchemaValidatingReader validatingReader = new JSchemaValidatingReader(reader)
+                            JSchemaValidatingReader validatingReader = new(reader)
                             {
                                 Schema = _validatingSchema
                             };

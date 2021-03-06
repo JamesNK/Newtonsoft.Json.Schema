@@ -88,17 +88,15 @@ namespace Newtonsoft.Json.Schema
             ValidationUtils.ArgumentNotNull(source, nameof(source));
             ValidationUtils.ArgumentNotNull(schema, nameof(schema));
 
-            using (JSchemaValidatingReader reader = new JSchemaValidatingReader(source.CreateReader()))
+            using JSchemaValidatingReader reader = new(source.CreateReader());
+            reader.Schema = schema;
+            if (validationEventHandler != null)
             {
-                reader.Schema = schema;
-                if (validationEventHandler != null)
-                {
-                    reader.ValidationEventHandler += validationEventHandler;
-                }
+                reader.ValidationEventHandler += validationEventHandler;
+            }
 
-                while (reader.Read())
-                {
-                }
+            while (reader.Read())
+            {
             }
         }
     }

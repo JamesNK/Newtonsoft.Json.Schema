@@ -162,7 +162,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             else
             {
                 bool firstInScope = true;
-                List<string> currentParts = new List<string>();
+                List<string> currentParts = new();
                 for (int i = 0; i < _pathStack.Count; i++)
                 {
                     SchemaPath p = _pathStack[i];

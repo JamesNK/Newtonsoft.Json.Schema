@@ -373,7 +373,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         private static IList<MemberInfo> GetMembersRecursive(this TypeInfo type)
         {
             TypeInfo? t = type;
-            List<MemberInfo> members = new List<MemberInfo>();
+            List<MemberInfo> members = new();
             while (t != null)
             {
                 foreach (MemberInfo member in t.DeclaredMembers)
@@ -392,7 +392,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         private static IList<PropertyInfo> GetPropertiesRecursive(this TypeInfo type)
         {
             TypeInfo? t = type;
-            List<PropertyInfo> properties = new List<PropertyInfo>();
+            List<PropertyInfo> properties = new();
             while (t != null)
             {
                 foreach (PropertyInfo member in t.DeclaredProperties)
@@ -411,7 +411,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         private static IList<FieldInfo> GetFieldsRecursive(this TypeInfo type)
         {
             TypeInfo? t = type;
-            List<FieldInfo> fields = new List<FieldInfo>();
+            List<FieldInfo> fields = new();
             while (t != null)
             {
                 foreach (FieldInfo member in t.DeclaredFields)

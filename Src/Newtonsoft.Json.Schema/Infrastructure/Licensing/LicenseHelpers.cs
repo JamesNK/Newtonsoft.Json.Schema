@@ -44,7 +44,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Licensing
             {
                 EnsureResetTimer();
 
-                const int maxOperationCount = 100;
+                const int maxOperationCount = 1000;
                 _validationCount++;
 
                 if (_validationCount > maxOperationCount)
@@ -80,7 +80,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Licensing
             if (_resetTimer == null)
             {
 #pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
-                Timer timer = new Timer(ResetCounts, null, 0, Convert.ToInt32(TimeSpan.FromHours(1).TotalMilliseconds));
+                Timer timer = new(ResetCounts, null, 0, Convert.ToInt32(TimeSpan.FromHours(1).TotalMilliseconds));
 #pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
 
                 _resetTimer = timer;
@@ -143,10 +143,10 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Licensing
 
             LicenseDetails deserializedLicense;
 
-            using (MemoryStream ms = new MemoryStream(licenseData, 128, licenseData.Length - 128))
-            using (JsonTextReader reader = new JsonTextReader(new StreamReader(ms)))
+            using (MemoryStream ms = new(licenseData, 128, licenseData.Length - 128))
+            using (JsonTextReader reader = new(new StreamReader(ms)))
             {
-                JsonSerializer serializer = new JsonSerializer();
+                JsonSerializer serializer = new();
 
                 deserializedLicense = serializer.Deserialize<LicenseDetails>(reader)!;
             }

@@ -10,13 +10,13 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 {
     internal static class Constants
     {
-        public static readonly List<JsonToken> NumberTokens = new List<JsonToken> { JsonToken.Integer, JsonToken.Float };
-        public static readonly List<JsonToken> SchemaTokens = new List<JsonToken> { JsonToken.StartObject, JsonToken.Boolean };
-        public static readonly List<JsonToken> ItemsTokens = new List<JsonToken> { JsonToken.StartArray, JsonToken.StartObject, JsonToken.Boolean };
-        public static readonly List<JsonToken> ItemsDraft4Tokens = new List<JsonToken> { JsonToken.StartArray, JsonToken.StartObject };
-        public static readonly List<JsonToken> DependencyTokens = new List<JsonToken> { JsonToken.StartObject, JsonToken.StartArray, JsonToken.String, JsonToken.Boolean };
-        public static readonly List<JsonToken> DependencyDraft4Tokens = new List<JsonToken> { JsonToken.StartObject, JsonToken.StartArray, JsonToken.String };
-        public static readonly List<JsonToken> MaximumMinimumTokens = new List<JsonToken> { JsonToken.Integer, JsonToken.Float, JsonToken.Boolean };
+        public static readonly List<JsonToken> NumberTokens = new() { JsonToken.Integer, JsonToken.Float };
+        public static readonly List<JsonToken> SchemaTokens = new() { JsonToken.StartObject, JsonToken.Boolean };
+        public static readonly List<JsonToken> ItemsTokens = new() { JsonToken.StartArray, JsonToken.StartObject, JsonToken.Boolean };
+        public static readonly List<JsonToken> ItemsDraft4Tokens = new() { JsonToken.StartArray, JsonToken.StartObject };
+        public static readonly List<JsonToken> DependencyTokens = new() { JsonToken.StartObject, JsonToken.StartArray, JsonToken.String, JsonToken.Boolean };
+        public static readonly List<JsonToken> DependencyDraft4Tokens = new() { JsonToken.StartObject, JsonToken.StartArray, JsonToken.String };
+        public static readonly List<JsonToken> MaximumMinimumTokens = new() { JsonToken.Integer, JsonToken.Float, JsonToken.Boolean };
 
         public static class PropertyNames
         {
@@ -150,11 +150,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         public static class SchemaVersions
         {
-            public static readonly Uri Draft3 = new Uri("http://json-schema.org/draft-03/schema#");
-            public static readonly Uri Draft4 = new Uri("http://json-schema.org/draft-04/schema#");
-            public static readonly Uri Draft6 = new Uri("http://json-schema.org/draft-06/schema#");
-            public static readonly Uri Draft7 = new Uri("http://json-schema.org/draft-07/schema#");
-            public static readonly Uri Draft2019_09 = new Uri("https://json-schema.org/draft/2019-09/schema");
+            public static readonly Uri Draft3 = new("http://json-schema.org/draft-03/schema#");
+            public static readonly Uri Draft4 = new("http://json-schema.org/draft-04/schema#");
+            public static readonly Uri Draft6 = new("http://json-schema.org/draft-06/schema#");
+            public static readonly Uri Draft7 = new("http://json-schema.org/draft-07/schema#");
+            public static readonly Uri Draft2019_09 = new("https://json-schema.org/draft/2019-09/schema");
         }
     }
 }

@@ -580,10 +580,10 @@ namespace Newtonsoft.Json.Schema
         /// <returns>A <see cref="JToken"/> associated with the <see cref="JSchema"/>.</returns>
         public static implicit operator JToken(JSchema s)
         {
-            JSchemaAnnotation annotation = new JSchemaAnnotation();
+            JSchemaAnnotation annotation = new();
             annotation.RegisterSchema(null, s);
 
-            JObject token = new JObject();
+            JObject token = new();
             token.AddAnnotation(annotation);
 
             return token;
@@ -631,7 +631,7 @@ namespace Newtonsoft.Json.Schema
 
         private void WriteToInternal(JsonWriter writer, JSchemaWriterSettings? settings)
         {
-            JSchemaWriter schemaWriter = new JSchemaWriter(writer, settings);
+            JSchemaWriter schemaWriter = new(writer, settings);
 
             schemaWriter.WriteSchema(this);
         }
@@ -673,8 +673,8 @@ namespace Newtonsoft.Json.Schema
 
         private string ToStringInternal(JSchemaWriterSettings? settings)
         {
-            StringWriter writer = new StringWriter(CultureInfo.InvariantCulture);
-            JsonTextWriter jsonWriter = new JsonTextWriter(writer)
+            StringWriter writer = new(CultureInfo.InvariantCulture);
+            JsonTextWriter jsonWriter = new(writer)
             {
                 Formatting = Formatting.Indented
             };
@@ -1005,7 +1005,7 @@ namespace Newtonsoft.Json.Schema
             ValidationUtils.ArgumentNotNull(reader, nameof(reader));
             ValidationUtils.ArgumentNotNull(settings, nameof(settings));
 
-            JSchemaReader schemaReader = new JSchemaReader(settings);
+            JSchemaReader schemaReader = new(settings);
 
             DateParseHandling initialDateParseHandling = reader.DateParseHandling;
             try
@@ -1062,15 +1062,13 @@ namespace Newtonsoft.Json.Schema
             ValidationUtils.ArgumentNotNull(json, nameof(json));
             ValidationUtils.ArgumentNotNull(settings, nameof(settings));
 
-            using (JsonReader reader = new JsonTextReader(new StringReader(json)))
-            {
-                JSchema s = Load(reader, settings);
+            using JsonReader reader = new JsonTextReader(new StringReader(json));
+            JSchema s = Load(reader, settings);
 
-                // read to make sure there isn't additional content
-                reader.Read();
+            // read to make sure there isn't additional content
+            reader.Read();
 
-                return s;
-            }
+            return s;
         }
 
         bool IJsonLineInfo.HasLineInfo()

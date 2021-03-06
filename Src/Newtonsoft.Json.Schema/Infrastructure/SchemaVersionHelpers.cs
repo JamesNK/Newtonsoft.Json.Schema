@@ -33,15 +33,13 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             new SchemaVersionMap(SchemaVersion.Draft2019_09, Constants.SchemaVersions.Draft2019_09, "draft2019-09/schema.json"),
         };
 
-        private static readonly ThreadSafeStore<string, JSchema> SpecSchemaCache = new ThreadSafeStore<string, JSchema>(LoadResourceSchema);
+        private static readonly ThreadSafeStore<string, JSchema> SpecSchemaCache = new(LoadResourceSchema);
 
         private static JSchema LoadResourceSchema(string name)
         {
-            using (Stream schemaData = typeof(JSchemaReader).Assembly().GetManifestResourceStream("Newtonsoft.Json.Schema.Resources." + name))
-            using (StreamReader sr = new StreamReader(schemaData))
-            {
-                return JSchema.Load(new JsonTextReader(sr));
-            }
+            using Stream schemaData = typeof(JSchemaReader).Assembly().GetManifestResourceStream("Newtonsoft.Json.Schema.Resources." + name);
+            using StreamReader sr = new(schemaData);
+            return JSchema.Load(new JsonTextReader(sr));
         }
 
         public static bool EnsureVersion(SchemaVersion currentVersion, SchemaVersion minimum, SchemaVersion? maximum = null)

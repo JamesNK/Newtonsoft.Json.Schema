@@ -65,7 +65,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     {
                         if (Schema.KnownSchemas.Count == 0)
                         {
-                            JSchemaDiscovery discovery = new JSchemaDiscovery(Schema, Schema.KnownSchemas, KnownSchemaState.External);
+                            JSchemaDiscovery discovery = new(Schema, Schema.KnownSchemas, KnownSchemaState.External);
                             discovery.Discover(Schema, null);
                         }
 

@@ -332,7 +332,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
         private List<ValidationError> GetValidationErrors(IList<ConditionalContext> contexts)
         {
-            List<ValidationError> containsErrors = new List<ValidationError>();
+            List<ValidationError> containsErrors = new();
             foreach (ConditionalContext containsContext in contexts)
             {
                 if (containsContext.Errors != null)

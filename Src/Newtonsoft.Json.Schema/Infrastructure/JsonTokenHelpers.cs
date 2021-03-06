@@ -12,62 +12,29 @@ namespace Newtonsoft.Json.Schema.Infrastructure
     {
         internal static bool IsPrimitiveToken(JsonToken token)
         {
-            switch (token)
+            return token switch
             {
-                case JsonToken.Integer:
-                case JsonToken.Float:
-                case JsonToken.String:
-                case JsonToken.Boolean:
-                case JsonToken.Undefined:
-                case JsonToken.Null:
-                case JsonToken.Date:
-                case JsonToken.Bytes:
-                    return true;
-                default:
-                    return false;
-            }
+                JsonToken.Integer or JsonToken.Float or JsonToken.String or JsonToken.Boolean or JsonToken.Undefined or JsonToken.Null or JsonToken.Date or JsonToken.Bytes => true,
+                _ => false,
+            };
         }
 
         internal static bool IsPrimitiveOrEndToken(JsonToken token)
         {
-            switch (token)
+            return token switch
             {
-                case JsonToken.EndObject:
-                case JsonToken.EndArray:
-                case JsonToken.EndConstructor:
-                case JsonToken.Integer:
-                case JsonToken.Float:
-                case JsonToken.String:
-                case JsonToken.Boolean:
-                case JsonToken.Undefined:
-                case JsonToken.Null:
-                case JsonToken.Date:
-                case JsonToken.Bytes:
-                    return true;
-                default:
-                    return false;
-            }
+                JsonToken.EndObject or JsonToken.EndArray or JsonToken.EndConstructor or JsonToken.Integer or JsonToken.Float or JsonToken.String or JsonToken.Boolean or JsonToken.Undefined or JsonToken.Null or JsonToken.Date or JsonToken.Bytes => true,
+                _ => false,
+            };
         }
 
         internal static bool IsPrimitiveOrStartToken(JsonToken token)
         {
-            switch (token)
+            return token switch
             {
-                case JsonToken.StartObject:
-                case JsonToken.StartArray:
-                case JsonToken.StartConstructor:
-                case JsonToken.Integer:
-                case JsonToken.Float:
-                case JsonToken.String:
-                case JsonToken.Boolean:
-                case JsonToken.Undefined:
-                case JsonToken.Null:
-                case JsonToken.Date:
-                case JsonToken.Bytes:
-                    return true;
-                default:
-                    return false;
-            }
+                JsonToken.StartObject or JsonToken.StartArray or JsonToken.StartConstructor or JsonToken.Integer or JsonToken.Float or JsonToken.String or JsonToken.Boolean or JsonToken.Undefined or JsonToken.Null or JsonToken.Date or JsonToken.Bytes => true,
+                _ => false,
+            };
         }
 
         internal static bool Contains(List<JToken> enums, JToken value)

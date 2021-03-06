@@ -15,7 +15,7 @@ namespace Newtonsoft.Json.Schema.Generation
     /// </summary>
     public class StringEnumGenerationProvider : JSchemaGenerationProvider
     {
-        private static readonly CamelCaseNamingStrategy _camelCaseNamingStrategy = new CamelCaseNamingStrategy();
+        private static readonly CamelCaseNamingStrategy _camelCaseNamingStrategy = new();
 
         /// <summary>
         /// Gets or sets a value indicating whether the written enum text should be camel case.
@@ -33,7 +33,7 @@ namespace Newtonsoft.Json.Schema.Generation
             bool isNullable = ReflectionUtils.IsNullableType(context.ObjectType);
             Type t = isNullable ? Nullable.GetUnderlyingType(context.ObjectType) : context.ObjectType;
 
-            JSchema schema = new JSchema
+            JSchema schema = new()
             {
                 Title = context.SchemaTitle,
                 Description = context.SchemaDescription,

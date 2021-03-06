@@ -457,7 +457,7 @@ namespace Newtonsoft.Json.Schema
 
             DateTime resolvedDate = DateTimeUtils.EnsureDateTime(value, _writer.DateTimeZoneHandling);
 
-            StringWriter sw = new StringWriter(CultureInfo.InvariantCulture);
+            StringWriter sw = new(CultureInfo.InvariantCulture);
             DateTimeUtils.WriteDateTimeString(sw, resolvedDate, _writer.DateFormatHandling, _writer.DateFormatString, _writer.Culture);
 
             string dateText = sw.ToString();
@@ -474,7 +474,7 @@ namespace Newtonsoft.Json.Schema
 
             base.WriteValue(value);
 
-            StringWriter sw = new StringWriter(CultureInfo.InvariantCulture);
+            StringWriter sw = new(CultureInfo.InvariantCulture);
             DateTimeUtils.WriteDateTimeOffsetString(sw, value, DateFormatHandling, DateFormatString, Culture);
 
             string dateText = sw.ToString();

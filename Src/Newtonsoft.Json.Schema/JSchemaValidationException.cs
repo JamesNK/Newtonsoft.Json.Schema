@@ -96,7 +96,7 @@ namespace Newtonsoft.Json.Schema
 
         internal static JSchemaValidationException Create(ValidationError validationError)
         {
-            JSchemaValidationException ex = new JSchemaValidationException(validationError.GetExtendedMessage(), null, validationError);
+            JSchemaValidationException ex = new(validationError.GetExtendedMessage(), null, validationError);
 
             return ex;
         }

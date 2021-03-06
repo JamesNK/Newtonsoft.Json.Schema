@@ -9,7 +9,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 {
     internal static class ColorHelpers
     {
-        private static readonly List<string> NamedColors = new List<string>
+        private static readonly List<string> NamedColors = new()
         {
             "aqua",
             "black",

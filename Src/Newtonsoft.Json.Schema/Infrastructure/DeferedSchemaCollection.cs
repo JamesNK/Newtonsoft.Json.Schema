@@ -41,7 +41,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             int hashCode = UriComparer.Instance.GetHashCode(ResolvedReference);
             if (DynamicScopeId != null)
             {
-                hashCode = hashCode ^ UriComparer.Instance.GetHashCode(DynamicScopeId);
+                hashCode ^= UriComparer.Instance.GetHashCode(DynamicScopeId);
             }
             return hashCode;
         }

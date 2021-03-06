@@ -90,7 +90,7 @@ namespace Newtonsoft.Json.Schema
         /// <param name="value">The <see cref="Stream"/> for a schema that corresponds to the provided URI.</param>
         public void Add(Uri uri, Stream value)
         {
-            MemoryStream ms = new MemoryStream();
+            MemoryStream ms = new();
             value.CopyTo(ms);
 
             Add(uri, ms.ToArray());

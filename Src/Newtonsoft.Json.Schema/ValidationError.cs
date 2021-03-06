@@ -136,7 +136,7 @@ namespace Newtonsoft.Json.Schema
                 string format = formattableString.Format;
                 object[] args = formattableString.GetArguments();
 
-                StringBuilder sb = new StringBuilder(format.Length + (args.Length * 8));
+                StringBuilder sb = new(format.Length + (args.Length * 8));
                 if (args.Length > 0)
                 {
                     sb.AppendFormat(CultureInfo.InvariantCulture, format, args);
@@ -168,7 +168,7 @@ namespace Newtonsoft.Json.Schema
 
         internal static ValidationError CreateValidationError(IFormattable message, ErrorType errorType, JSchema schema, Uri? schemaId, object? value, IList<ValidationError>? childErrors, IJsonLineInfo? lineInfo, string path)
         {
-            ValidationError error = new ValidationError
+            ValidationError error = new()
             {
                 _formattable = message,
                 _childErrors = childErrors,

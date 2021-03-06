@@ -14,9 +14,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 {
     internal sealed class PrimativeScope : SchemaScope
     {
-        private static readonly Regex HostnameRegex = new Regex(@"^(?=.{1,255}$)[0-9A-Za-z](?:(?:[0-9A-Za-z]|-){0,61}[0-9A-Za-z])?(?:\.[0-9A-Za-z](?:(?:[0-9A-Za-z]|-){0,61}[0-9A-Za-z])?)*\.?$", RegexOptions.CultureInvariant);
+        private static readonly Regex HostnameRegex = new(@"^(?=.{1,255}$)[0-9A-Za-z](?:(?:[0-9A-Za-z]|-){0,61}[0-9A-Za-z])?(?:\.[0-9A-Za-z](?:(?:[0-9A-Za-z]|-){0,61}[0-9A-Za-z])?)*\.?$", RegexOptions.CultureInvariant);
 #if NET35
-        private static readonly Regex UuidRegex = new Regex("^[0-9A-Fa-f]{8}-(?:[0-9A-Fa-f]{4}-){3}[0-9A-Fa-f]{12}$", RegexOptions.CultureInvariant);
+        private static readonly Regex UuidRegex = new("^[0-9A-Fa-f]{8}-(?:[0-9A-Fa-f]{4}-){3}[0-9A-Fa-f]{12}$", RegexOptions.CultureInvariant);
 #endif
 
         public void Initialize(ContextBase context, SchemaScope? parent, int initialDepth, JSchema schema)
@@ -194,7 +194,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             if (schema.MaximumLength != null || schema.MinimumLength != null)
             {
                 // want to test the character length and ignore unicode surrogates
-                StringInfo stringInfo = new StringInfo(value);
+                StringInfo stringInfo = new(value);
                 int textLength = stringInfo.LengthInTextElements;
 
                 if (schema.MaximumLength != null && textLength > schema.MaximumLength)

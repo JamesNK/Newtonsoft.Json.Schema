@@ -175,23 +175,17 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         public static Attribute[] GetAttributes(object provider, Type? attributeType, bool inherit)
         {
-            switch (provider)
+            return provider switch
             {
-                case Type t:
-                    return (attributeType != null)
-                        ? t.GetTypeInfo().GetCustomAttributes(attributeType, inherit).ToArray()
-                        : t.GetTypeInfo().GetCustomAttributes(inherit).ToArray();
-                case Assembly a:
-                    return (attributeType != null) ? a.GetCustomAttributes(attributeType).ToArray() : a.GetCustomAttributes().ToArray();
-                case MemberInfo memberInfo:
-                    return (attributeType != null) ? memberInfo.GetCustomAttributes(attributeType, inherit).ToArray() : memberInfo.GetCustomAttributes(inherit).ToArray();
-                case Module module:
-                    return (attributeType != null) ? module.GetCustomAttributes(attributeType).ToArray() : module.GetCustomAttributes().ToArray();
-                case ParameterInfo parameterInfo:
-                    return (attributeType != null) ? parameterInfo.GetCustomAttributes(attributeType, inherit).ToArray() : parameterInfo.GetCustomAttributes(inherit).ToArray();
-            }
-
-            throw new Exception("Cannot get attributes from '{0}'.".FormatWith(CultureInfo.InvariantCulture, provider));
+                Type t => (attributeType != null)
+                                       ? t.GetTypeInfo().GetCustomAttributes(attributeType, inherit).ToArray()
+                                       : t.GetTypeInfo().GetCustomAttributes(inherit).ToArray(),
+                Assembly a => (attributeType != null) ? a.GetCustomAttributes(attributeType).ToArray() : a.GetCustomAttributes().ToArray(),
+                MemberInfo memberInfo => (attributeType != null) ? memberInfo.GetCustomAttributes(attributeType, inherit).ToArray() : memberInfo.GetCustomAttributes(inherit).ToArray(),
+                Module module => (attributeType != null) ? module.GetCustomAttributes(attributeType).ToArray() : module.GetCustomAttributes().ToArray(),
+                ParameterInfo parameterInfo => (attributeType != null) ? parameterInfo.GetCustomAttributes(attributeType, inherit).ToArray() : parameterInfo.GetCustomAttributes(inherit).ToArray(),
+                _ => throw new Exception("Cannot get attributes from '{0}'.".FormatWith(CultureInfo.InvariantCulture, provider)),
+            };
         }
 #endif
 
@@ -230,7 +224,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         }
 
 #if !(NET20 || DOTNET)
-        private static readonly ThreadSafeStore<Type, Type?> AssociatedMetadataTypesCache = new ThreadSafeStore<Type, Type?>(GetAssociateMetadataTypeFromAttribute);
+        private static readonly ThreadSafeStore<Type, Type?> AssociatedMetadataTypesCache = new(GetAssociateMetadataTypeFromAttribute);
         private static ReflectionObject? _metadataTypeAttributeReflectionObject;
 
         private static Type? GetAssociatedMetadataType(Type type)
@@ -360,19 +354,14 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         {
             ValidationUtils.ArgumentNotNull(member, nameof(member));
 
-            switch (member.MemberType())
+            return member.MemberType() switch
             {
-                case MemberTypes.Field:
-                    return ((FieldInfo)member).FieldType;
-                case MemberTypes.Property:
-                    return ((PropertyInfo)member).PropertyType;
-                case MemberTypes.Event:
-                    return ((EventInfo)member).EventHandlerType;
-                case MemberTypes.Method:
-                    return ((MethodInfo)member).ReturnType;
-                default:
-                    throw new ArgumentException("MemberInfo must be of type FieldInfo, PropertyInfo, EventInfo or MethodInfo", nameof(member));
-            }
+                MemberTypes.Field => ((FieldInfo)member).FieldType,
+                MemberTypes.Property => ((PropertyInfo)member).PropertyType,
+                MemberTypes.Event => ((EventInfo)member).EventHandlerType,
+                MemberTypes.Method => ((MethodInfo)member).ReturnType,
+                _ => throw new ArgumentException("MemberInfo must be of type FieldInfo, PropertyInfo, EventInfo or MethodInfo", nameof(member)),
+            };
         }
     }
 }

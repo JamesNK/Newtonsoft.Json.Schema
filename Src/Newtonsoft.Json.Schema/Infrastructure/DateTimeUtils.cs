@@ -211,34 +211,24 @@ namespace Newtonsoft.Json.Schema.Utilities
 
         private static DateTime SwitchToLocalTime(DateTime value)
         {
-            switch (value.Kind)
+            return value.Kind switch
             {
-                case DateTimeKind.Unspecified:
-                    return new DateTime(value.Ticks, DateTimeKind.Local);
-
-                case DateTimeKind.Utc:
-                    return value.ToLocalTime();
-
-                case DateTimeKind.Local:
-                    return value;
-            }
-            return value;
+                DateTimeKind.Unspecified => new DateTime(value.Ticks, DateTimeKind.Local),
+                DateTimeKind.Utc => value.ToLocalTime(),
+                DateTimeKind.Local => value,
+                _ => value,
+            };
         }
 
         private static DateTime SwitchToUtcTime(DateTime value)
         {
-            switch (value.Kind)
+            return value.Kind switch
             {
-                case DateTimeKind.Unspecified:
-                    return new DateTime(value.Ticks, DateTimeKind.Utc);
-
-                case DateTimeKind.Utc:
-                    return value;
-
-                case DateTimeKind.Local:
-                    return value.ToUniversalTime();
-            }
-            return value;
+                DateTimeKind.Unspecified => new DateTime(value.Ticks, DateTimeKind.Utc),
+                DateTimeKind.Utc => value,
+                DateTimeKind.Local => value.ToUniversalTime(),
+                _ => value,
+            };
         }
 
         private static long ToUniversalTicks(DateTime dateTime)
@@ -302,7 +292,7 @@ namespace Newtonsoft.Json.Schema.Utilities
 
         internal static DateTime ConvertJavaScriptTicksToDateTime(long javaScriptTicks)
         {
-            DateTime dateTime = new DateTime((javaScriptTicks * 10000) + InitialJavaScriptDateTicks, DateTimeKind.Utc);
+            DateTime dateTime = new((javaScriptTicks * 10000) + InitialJavaScriptDateTicks, DateTimeKind.Utc);
 
             return dateTime;
         }

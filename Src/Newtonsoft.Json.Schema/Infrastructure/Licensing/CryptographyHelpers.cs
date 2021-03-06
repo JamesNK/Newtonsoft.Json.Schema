@@ -67,8 +67,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Licensing
                 valid = (bool) verifySignatureMethod.Invoke(null, new object[] { publicKey, dataBuffer, signatureBuffer });
             }
 #else
-            using (RSACryptoServiceProvider rsaCryptoServiceProvider = new RSACryptoServiceProvider())
-            using (SHA1CryptoServiceProvider sha1CryptoServiceProvider = new SHA1CryptoServiceProvider())
+            using (RSACryptoServiceProvider rsaCryptoServiceProvider = new())
+            using (SHA1CryptoServiceProvider sha1CryptoServiceProvider = new())
             {
                 rsaCryptoServiceProvider.ImportCspBlob(Convert.FromBase64String(PublicKeyCsp));
 
@@ -86,7 +86,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Licensing
 
         internal static RSAParameters ToRSAParameters(this byte[] cspBlob, bool includePrivateParameters)
         {
-            BinaryReader br = new BinaryReader(new MemoryStream(cspBlob));
+            BinaryReader br = new(new MemoryStream(cspBlob));
 
             byte bType = br.ReadByte(); // BLOBHEADER.bType: Expected to be 0x6 (PUBLICKEYBLOB) or 0x7 (PRIVATEKEYBLOB), though there's no check for backward compat reasons. 
             byte bVersion = br.ReadByte(); // BLOBHEADER.bVersion: Expected to be 0x2, though there's no check for backward compat reasons.
@@ -105,7 +105,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Licensing
 
             uint expAsDword = br.ReadUInt32();
 
-            RSAParameters rsaParameters = new RSAParameters
+            RSAParameters rsaParameters = new()
             {
                 Exponent = ExponentAsBytes(expAsDword),
                 Modulus = br.ReadReversed(modulusLength)

@@ -27,31 +27,29 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 separator = string.Empty;
             }
 
-            using (IEnumerator<T> enumerator = values.GetEnumerator())
+            using IEnumerator<T> enumerator = values.GetEnumerator();
+            if (!enumerator.MoveNext())
             {
-                if (!enumerator.MoveNext())
-                {
-                    return string.Empty;
-                }
+                return string.Empty;
+            }
 
-                StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new();
+            if (enumerator.Current != null)
+            {
+                string s = enumerator.Current.ToString();
+                sb.Append(s);
+            }
+            while (enumerator.MoveNext())
+            {
+                sb.Append(separator);
                 if (enumerator.Current != null)
                 {
                     string s = enumerator.Current.ToString();
                     sb.Append(s);
                 }
-                while (enumerator.MoveNext())
-                {
-                    sb.Append(separator);
-                    if (enumerator.Current != null)
-                    {
-                        string s = enumerator.Current.ToString();
-                        sb.Append(s);
-                    }
-                }
-
-                return sb.ToString();
             }
+
+            return sb.ToString();
 #endif
         }
 

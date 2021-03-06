@@ -10,7 +10,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 {
     internal class UriComparer : IEqualityComparer<Uri>
     {
-        public static readonly UriComparer Instance = new UriComparer();
+        public static readonly UriComparer Instance = new();
 
         public bool Equals(Uri? x, Uri? y)
         {

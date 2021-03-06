@@ -17,7 +17,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 {
     internal class ExpressionReflectionDelegateFactory : ReflectionDelegateFactory
     {
-        private static readonly ExpressionReflectionDelegateFactory _instance = new ExpressionReflectionDelegateFactory();
+        private static readonly ExpressionReflectionDelegateFactory _instance = new();
 
         internal static ReflectionDelegateFactory Instance => _instance;
 

@@ -13,7 +13,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
     {
         public static List<T> GetAllEnums<T>() where T : struct
         {
-            List<T> result = new List<T>();
+            List<T> result = new();
 
             int[] values = Enum.GetValues(typeof(T)).Cast<int>().ToArray();
             int[] valuesInverted = values.Select(v => ~v).ToArray();

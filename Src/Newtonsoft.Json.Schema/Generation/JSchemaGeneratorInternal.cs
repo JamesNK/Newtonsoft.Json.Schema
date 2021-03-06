@@ -40,7 +40,7 @@ namespace Newtonsoft.Json.Schema.Generation
                         schema.ExtensionData[Constants.PropertyNames.Definitions] = definitions;
                     }
 
-                    Dictionary<string, JSchema> definitionsSchemas = new Dictionary<string, JSchema>();
+                    Dictionary<string, JSchema> definitionsSchemas = new();
 
                     foreach (TypeSchema t in _typeSchemas)
                     {
@@ -232,7 +232,7 @@ namespace Newtonsoft.Json.Schema.Generation
             JSchemaGenerationProvider? provider = ResolveTypeProvider(nonNullableType, memberProperty);
             if (provider != null && provider != currentGenerationProvider)
             {
-                JSchemaTypeGenerationContext context = new JSchemaTypeGenerationContext(
+                JSchemaTypeGenerationContext context = new(
                     type,
                     resolvedRequired,
                     memberProperty,
@@ -254,7 +254,7 @@ namespace Newtonsoft.Json.Schema.Generation
 
             if (_generator._generationProviders != null)
             {
-                JSchemaTypeGenerationContext context = new JSchemaTypeGenerationContext(
+                JSchemaTypeGenerationContext context = new(
                     type,
                     resolvedRequired,
                     memberProperty,
@@ -345,23 +345,13 @@ namespace Newtonsoft.Json.Schema.Generation
             int? maxLength = AttributeHelpers.GetMaxLength(memberProperty);
             string? title = GetTitle(nonNullableUnderlyingType, memberProperty);
             string? description = GetDescription(nonNullableUnderlyingType, memberProperty);
-
-            Required resolvedRequired;
-            switch (valueRequired)
+            Required resolvedRequired = valueRequired switch
             {
-                case Required.Default:
-                case Required.AllowNull:
-                    resolvedRequired = Required.AllowNull;
-                    break;
-                case Required.Always:
-                case Required.DisallowNull:
-                    resolvedRequired = Required.DisallowNull;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(valueRequired));
-            }
-
-            TypeSchemaKey key = new TypeSchemaKey(contract.UnderlyingType, resolvedRequired, minLength, maxLength, title, description);
+                Required.Default or Required.AllowNull => Required.AllowNull,
+                Required.Always or Required.DisallowNull => Required.DisallowNull,
+                _ => throw new ArgumentOutOfRangeException(nameof(valueRequired)),
+            };
+            TypeSchemaKey key = new(contract.UnderlyingType, resolvedRequired, minLength, maxLength, title, description);
 
             return key;
         }
@@ -617,24 +607,15 @@ namespace Newtonsoft.Json.Schema.Generation
                     schema.Properties.Add(property.PropertyName!, propertySchema);
 
                     Required resolvedRequired = required ?? _generator.DefaultRequired;
-                    bool optional;
-                    switch (resolvedRequired)
+                    bool optional = resolvedRequired switch
                     {
-                        case Required.Default:
-                        case Required.DisallowNull:
-                            optional = true;
-                            break;
-                        case Required.Always:
-                        case Required.AllowNull:
-                            optional = property.NullValueHandling == NullValueHandling.Ignore ||
-                                       HasFlag(property.DefaultValueHandling.GetValueOrDefault(), DefaultValueHandling.Ignore) ||
-                                       property.ShouldSerialize != null ||
-                                       property.GetIsSpecified != null;
-                            break;
-                        default:
-                            throw new ArgumentOutOfRangeException("required");
-                    }
-
+                        Required.Default or Required.DisallowNull => true,
+                        Required.Always or Required.AllowNull => property.NullValueHandling == NullValueHandling.Ignore ||
+                HasFlag(property.DefaultValueHandling.GetValueOrDefault(), DefaultValueHandling.Ignore) ||
+                property.ShouldSerialize != null ||
+                property.GetIsSpecified != null,
+                        _ => throw new ArgumentOutOfRangeException("required"),
+                    };
                     if (!optional)
                     {
                         schema.Required.Add(property.PropertyName!);
@@ -689,43 +670,18 @@ namespace Newtonsoft.Json.Schema.Generation
 
             PrimitiveTypeCode typeCode = ConvertUtils.GetTypeCode(type);
 
-            switch (typeCode)
+            return typeCode switch
             {
-                case PrimitiveTypeCode.Empty:
-                case PrimitiveTypeCode.Object:
-                    return schemaType | JSchemaType.String | JSchemaType.Boolean | JSchemaType.Integer | JSchemaType.Number | JSchemaType.Object | JSchemaType.Array;
-                case PrimitiveTypeCode.DBNull:
-                    return schemaType | JSchemaType.Null;
-                case PrimitiveTypeCode.Boolean:
-                    return schemaType | JSchemaType.Boolean;
-                case PrimitiveTypeCode.Char:
-                    return schemaType | JSchemaType.String;
-                case PrimitiveTypeCode.SByte:
-                case PrimitiveTypeCode.Byte:
-                case PrimitiveTypeCode.Int16:
-                case PrimitiveTypeCode.UInt16:
-                case PrimitiveTypeCode.Int32:
-                case PrimitiveTypeCode.UInt32:
-                case PrimitiveTypeCode.Int64:
-                case PrimitiveTypeCode.UInt64:
-                case PrimitiveTypeCode.BigInteger:
-                    return schemaType | JSchemaType.Integer;
-                case PrimitiveTypeCode.Single:
-                case PrimitiveTypeCode.Double:
-                case PrimitiveTypeCode.Decimal:
-                    return schemaType | JSchemaType.Number;
-                case PrimitiveTypeCode.DateTime:
-                case PrimitiveTypeCode.DateTimeOffset:
-                    return schemaType | JSchemaType.String;
-                case PrimitiveTypeCode.String:
-                case PrimitiveTypeCode.Uri:
-                case PrimitiveTypeCode.Guid:
-                case PrimitiveTypeCode.TimeSpan:
-                case PrimitiveTypeCode.Bytes:
-                    return schemaType | JSchemaType.String;
-                default:
-                    throw new JSchemaException("Unexpected type code '{0}' for type '{1}'.".FormatWith(CultureInfo.InvariantCulture, typeCode, type));
-            }
+                PrimitiveTypeCode.Empty or PrimitiveTypeCode.Object => schemaType | JSchemaType.String | JSchemaType.Boolean | JSchemaType.Integer | JSchemaType.Number | JSchemaType.Object | JSchemaType.Array,
+                PrimitiveTypeCode.DBNull => schemaType | JSchemaType.Null,
+                PrimitiveTypeCode.Boolean => schemaType | JSchemaType.Boolean,
+                PrimitiveTypeCode.Char => schemaType | JSchemaType.String,
+                PrimitiveTypeCode.SByte or PrimitiveTypeCode.Byte or PrimitiveTypeCode.Int16 or PrimitiveTypeCode.UInt16 or PrimitiveTypeCode.Int32 or PrimitiveTypeCode.UInt32 or PrimitiveTypeCode.Int64 or PrimitiveTypeCode.UInt64 or PrimitiveTypeCode.BigInteger => schemaType | JSchemaType.Integer,
+                PrimitiveTypeCode.Single or PrimitiveTypeCode.Double or PrimitiveTypeCode.Decimal => schemaType | JSchemaType.Number,
+                PrimitiveTypeCode.DateTime or PrimitiveTypeCode.DateTimeOffset => schemaType | JSchemaType.String,
+                PrimitiveTypeCode.String or PrimitiveTypeCode.Uri or PrimitiveTypeCode.Guid or PrimitiveTypeCode.TimeSpan or PrimitiveTypeCode.Bytes => schemaType | JSchemaType.String,
+                _ => throw new JSchemaException("Unexpected type code '{0}' for type '{1}'.".FormatWith(CultureInfo.InvariantCulture, typeCode, type)),
+            };
         }
 
         private Type GetNonNullableUnderlyingType(JsonContract contract)

@@ -16,7 +16,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
             if (validCount != 1)
             {
-                List<int> validIndexes = new List<int>();
+                List<int> validIndexes = new();
                 int index = 0;
                 foreach (SchemaScope schemaScope in ChildScopes)
                 {

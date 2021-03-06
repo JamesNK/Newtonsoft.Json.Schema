@@ -60,7 +60,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
     internal static class ConvertUtils
     {
         private static readonly Dictionary<Type, PrimitiveTypeCode> TypeCodeMap =
-            new Dictionary<Type, PrimitiveTypeCode>
+            new()
             {
                 { typeof(char), PrimitiveTypeCode.Char },
                 { typeof(char?), PrimitiveTypeCode.CharNullable },

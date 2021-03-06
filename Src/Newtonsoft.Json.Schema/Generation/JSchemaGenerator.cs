@@ -127,7 +127,7 @@ namespace Newtonsoft.Json.Schema.Generation
 
             Required required = rootSchemaNullable ? Required.AllowNull : Required.Always;
 
-            JSchemaGeneratorInternal generator = new JSchemaGeneratorInternal(this);
+            JSchemaGeneratorInternal generator = new(this);
             return generator.Generate(type, required);
         }
     }

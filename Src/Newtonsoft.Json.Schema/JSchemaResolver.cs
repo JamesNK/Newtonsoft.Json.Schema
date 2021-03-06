@@ -33,7 +33,7 @@ namespace Newtonsoft.Json.Schema
         {
             Uri? baseUri = ResolveBaseUri(context, out string? fragment);
 
-            SchemaReference schemaReference = new SchemaReference
+            SchemaReference schemaReference = new()
             {
                 BaseUri = baseUri
             };
@@ -89,7 +89,7 @@ namespace Newtonsoft.Json.Schema
                 fragment = null;
             }
 
-            Uri resolvedUri = new Uri(uriText, UriKind.RelativeOrAbsolute);
+            Uri resolvedUri = new(uriText, UriKind.RelativeOrAbsolute);
             return resolvedUri;
         }
 

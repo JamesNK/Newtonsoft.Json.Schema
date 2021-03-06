@@ -13,7 +13,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 #if HAVE_CONCURRENT_DICTIONARY
         private readonly ConcurrentDictionary<TKey, TValue> _concurrentStore;
 #else
-        private readonly object _lock = new object();
+        private readonly object _lock = new();
         private Dictionary<TKey, TValue> _store;
 #endif
         private readonly Func<TKey, TValue> _creator;
@@ -64,7 +64,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                         return checkValue;
                     }
 
-                    Dictionary<TKey, TValue> newStore = new Dictionary<TKey, TValue>(_store)
+                    Dictionary<TKey, TValue> newStore = new(_store)
                     {
                         [key] = value
                     };

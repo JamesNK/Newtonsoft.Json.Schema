@@ -78,7 +78,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 }
             }
 
-            ReflectionObject d = new ReflectionObject(creatorConstructor);
+            ReflectionObject d = new(creatorConstructor);
 
             foreach (string memberName in memberNames)
             {
@@ -90,7 +90,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
                 MemberInfo member = members.Single();
 
-                ReflectionMember reflectionMember = new ReflectionMember();
+                ReflectionMember reflectionMember = new();
 
                 switch (member.MemberType())
                 {

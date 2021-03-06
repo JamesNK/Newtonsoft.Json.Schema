@@ -20,7 +20,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         private const char EnumSeparatorChar = ',';
         private const string EnumSeparatorString = ", ";
 
-        private static readonly ThreadSafeStore<StructMultiKey<Type, NamingStrategy?>, EnumInfo> ValuesAndNamesPerEnum = new ThreadSafeStore<StructMultiKey<Type, NamingStrategy?>, EnumInfo>(InitializeValuesAndNames);
+        private static readonly ThreadSafeStore<StructMultiKey<Type, NamingStrategy?>, EnumInfo> ValuesAndNamesPerEnum = new(InitializeValuesAndNames);
 
         private static EnumInfo InitializeValuesAndNames(StructMultiKey<Type, NamingStrategy?> key)
         {
@@ -119,7 +119,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             ulong[] values = entry.Values;
 
             int index = values.Length - 1;
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new();
             bool firstTime = true;
             ulong saveResult = result;
 
@@ -184,33 +184,21 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         {
             PrimitiveTypeCode typeCode = ConvertUtils.GetTypeCode(value.GetType(), out bool _);
 
-            switch (typeCode)
+            return typeCode switch
             {
-                case PrimitiveTypeCode.SByte:
-                    return (ulong)(sbyte)value;
-                case PrimitiveTypeCode.Byte:
-                    return (byte)value;
-                case PrimitiveTypeCode.Boolean:
-                    // direct cast from bool to byte is not allowed
-                    return Convert.ToByte((bool)value);
-                case PrimitiveTypeCode.Int16:
-                    return (ulong)(short)value;
-                case PrimitiveTypeCode.UInt16:
-                    return (ushort)value;
-                case PrimitiveTypeCode.Char:
-                    return (char)value;
-                case PrimitiveTypeCode.UInt32:
-                    return (uint)value;
-                case PrimitiveTypeCode.Int32:
-                    return (ulong)(int)value;
-                case PrimitiveTypeCode.UInt64:
-                    return (ulong)value;
-                case PrimitiveTypeCode.Int64:
-                    return (ulong)(long)value;
+                PrimitiveTypeCode.SByte => (ulong)(sbyte)value,
+                PrimitiveTypeCode.Byte => (byte)value,
+                PrimitiveTypeCode.Boolean => Convert.ToByte((bool)value),// direct cast from bool to byte is not allowed
+                PrimitiveTypeCode.Int16 => (ulong)(short)value,
+                PrimitiveTypeCode.UInt16 => (ushort)value,
+                PrimitiveTypeCode.Char => (char)value,
+                PrimitiveTypeCode.UInt32 => (uint)value,
+                PrimitiveTypeCode.Int32 => (ulong)(int)value,
+                PrimitiveTypeCode.UInt64 => (ulong)value,
+                PrimitiveTypeCode.Int64 => (ulong)(long)value,
                 // All unsigned types will be directly cast
-                default:
-                    throw new InvalidOperationException("Unknown enum type.");
-            }
+                _ => throw new InvalidOperationException("Unknown enum type."),
+            };
         }
 
         public static object ParseEnum(Type enumType, NamingStrategy? namingStrategy, string value, bool disallowNumber)

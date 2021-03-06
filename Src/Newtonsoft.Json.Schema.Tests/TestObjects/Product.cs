@@ -16,10 +16,8 @@ namespace Newtonsoft.Json.Schema.Tests.TestObjects
 
         public override bool Equals(object obj)
         {
-            if (obj is Product)
+            if (obj is Product p)
             {
-                Product p = (Product)obj;
-
                 return (p.Name == Name && p.ExpiryDate == ExpiryDate && p.Price == Price);
             }
 

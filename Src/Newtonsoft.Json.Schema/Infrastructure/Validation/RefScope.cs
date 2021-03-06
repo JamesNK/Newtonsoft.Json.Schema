@@ -26,7 +26,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             {
                 if (!GetChildrenAllValid(token, value, depth))
                 {
-                    List<int> invalidIndexes = new List<int>();
+                    List<int> invalidIndexes = new();
                     int index = 0;
                     foreach (SchemaScope schemaScope in ChildScopes)
                     {

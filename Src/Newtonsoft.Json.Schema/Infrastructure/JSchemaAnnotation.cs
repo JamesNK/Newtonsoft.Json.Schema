@@ -12,7 +12,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 {
     internal class JSchemaAnnotation
     {
-        private static readonly Uri NoScope = new Uri("http://noscope");
+        private static readonly Uri NoScope = new("http://noscope");
 
         private readonly Dictionary<Uri, JSchema> _schemas;
 

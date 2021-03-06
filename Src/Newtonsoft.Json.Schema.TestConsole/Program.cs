@@ -9,9 +9,9 @@ using System.Diagnostics;
 
 namespace Newtonsoft.Json.Schema.TestConsole
 {
-    public class Program
+    public static class Program
     {
-        public static void Main(string[] args)
+        public static void Main()
         {
             Console.WriteLine("Json.NET Schema Test Console");
 
