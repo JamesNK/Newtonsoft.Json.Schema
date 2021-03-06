@@ -3,10 +3,9 @@
 // License: https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md
 #endregion
 
-using System;
+using Newtonsoft.Json.Schema.Infrastructure;
 using System.IO;
 using System.Net;
-using Newtonsoft.Json.Schema.Infrastructure;
 
 namespace Newtonsoft.Json.Schema
 {

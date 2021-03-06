@@ -220,7 +220,7 @@ namespace Newtonsoft.Json.Schema
             }
         }
 
-#region WriteValue methods
+        #region WriteValue methods
         /// <summary>
         /// Writes a null value.
         /// </summary>
@@ -244,10 +244,10 @@ namespace Newtonsoft.Json.Schema
         }
 
         /// <summary>
-        /// Writes a <see cref="Object"/> value.
+        /// Writes a <see cref="object"/> value.
         /// An error will raised if the value cannot be written as a single JSON token.
         /// </summary>
-        /// <param name="value">The <see cref="Object"/> value to write.</param>
+        /// <param name="value">The <see cref="object"/> value to write.</param>
         public override void WriteValue(object? value)
         {
 #if HAVE_BIG_INTEGER
@@ -266,9 +266,9 @@ namespace Newtonsoft.Json.Schema
         }
 
         /// <summary>
-        /// Writes a <see cref="String"/> value.
+        /// Writes a <see cref="string"/> value.
         /// </summary>
-        /// <param name="value">The <see cref="String"/> value to write.</param>
+        /// <param name="value">The <see cref="string"/> value to write.</param>
         public override void WriteValue(string? value)
         {
             _writer.WriteValue(value);
@@ -286,9 +286,9 @@ namespace Newtonsoft.Json.Schema
         }
 
         /// <summary>
-        /// Writes a <see cref="Int32"/> value.
+        /// Writes a <see cref="int"/> value.
         /// </summary>
-        /// <param name="value">The <see cref="Int32"/> value to write.</param>
+        /// <param name="value">The <see cref="int"/> value to write.</param>
         public override void WriteValue(int value)
         {
             _writer.WriteValue(value);
@@ -298,9 +298,9 @@ namespace Newtonsoft.Json.Schema
         }
 
         /// <summary>
-        /// Writes a <see cref="UInt32"/> value.
+        /// Writes a <see cref="uint"/> value.
         /// </summary>
-        /// <param name="value">The <see cref="UInt32"/> value to write.</param>
+        /// <param name="value">The <see cref="uint"/> value to write.</param>
         [CLSCompliant(false)]
         public override void WriteValue(uint value)
         {
@@ -311,9 +311,9 @@ namespace Newtonsoft.Json.Schema
         }
 
         /// <summary>
-        /// Writes a <see cref="Int64"/> value.
+        /// Writes a <see cref="long"/> value.
         /// </summary>
-        /// <param name="value">The <see cref="Int64"/> value to write.</param>
+        /// <param name="value">The <see cref="long"/> value to write.</param>
         public override void WriteValue(long value)
         {
             _writer.WriteValue(value);
@@ -323,9 +323,9 @@ namespace Newtonsoft.Json.Schema
         }
 
         /// <summary>
-        /// Writes a <see cref="UInt64"/> value.
+        /// Writes a <see cref="ulong"/> value.
         /// </summary>
-        /// <param name="value">The <see cref="UInt64"/> value to write.</param>
+        /// <param name="value">The <see cref="ulong"/> value to write.</param>
         [CLSCompliant(false)]
         public override void WriteValue(ulong value)
         {
@@ -336,9 +336,9 @@ namespace Newtonsoft.Json.Schema
         }
 
         /// <summary>
-        /// Writes a <see cref="Single"/> value.
+        /// Writes a <see cref="float"/> value.
         /// </summary>
-        /// <param name="value">The <see cref="Single"/> value to write.</param>
+        /// <param name="value">The <see cref="float"/> value to write.</param>
         public override void WriteValue(float value)
         {
             _writer.WriteValue(value);
@@ -348,9 +348,9 @@ namespace Newtonsoft.Json.Schema
         }
 
         /// <summary>
-        /// Writes a <see cref="Double"/> value.
+        /// Writes a <see cref="double"/> value.
         /// </summary>
-        /// <param name="value">The <see cref="Double"/> value to write.</param>
+        /// <param name="value">The <see cref="double"/> value to write.</param>
         public override void WriteValue(double value)
         {
             _writer.WriteValue(value);
@@ -360,9 +360,9 @@ namespace Newtonsoft.Json.Schema
         }
 
         /// <summary>
-        /// Writes a <see cref="Boolean"/> value.
+        /// Writes a <see cref="bool"/> value.
         /// </summary>
-        /// <param name="value">The <see cref="Boolean"/> value to write.</param>
+        /// <param name="value">The <see cref="bool"/> value to write.</param>
         public override void WriteValue(bool value)
         {
             _writer.WriteValue(value);
@@ -372,9 +372,9 @@ namespace Newtonsoft.Json.Schema
         }
 
         /// <summary>
-        /// Writes a <see cref="Int16"/> value.
+        /// Writes a <see cref="short"/> value.
         /// </summary>
-        /// <param name="value">The <see cref="Int16"/> value to write.</param>
+        /// <param name="value">The <see cref="short"/> value to write.</param>
         public override void WriteValue(short value)
         {
             _writer.WriteValue(value);
@@ -384,9 +384,9 @@ namespace Newtonsoft.Json.Schema
         }
 
         /// <summary>
-        /// Writes a <see cref="UInt16"/> value.
+        /// Writes a <see cref="ushort"/> value.
         /// </summary>
-        /// <param name="value">The <see cref="UInt16"/> value to write.</param>
+        /// <param name="value">The <see cref="ushort"/> value to write.</param>
         [CLSCompliant(false)]
         public override void WriteValue(ushort value)
         {
@@ -397,9 +397,9 @@ namespace Newtonsoft.Json.Schema
         }
 
         /// <summary>
-        /// Writes a <see cref="Char"/> value.
+        /// Writes a <see cref="char"/> value.
         /// </summary>
-        /// <param name="value">The <see cref="Char"/> value to write.</param>
+        /// <param name="value">The <see cref="char"/> value to write.</param>
         public override void WriteValue(char value)
         {
             _writer.WriteValue(value);
@@ -409,9 +409,9 @@ namespace Newtonsoft.Json.Schema
         }
 
         /// <summary>
-        /// Writes a <see cref="Byte"/> value.
+        /// Writes a <see cref="byte"/> value.
         /// </summary>
-        /// <param name="value">The <see cref="Byte"/> value to write.</param>
+        /// <param name="value">The <see cref="byte"/> value to write.</param>
         public override void WriteValue(byte value)
         {
             _writer.WriteValue(value);
@@ -421,9 +421,9 @@ namespace Newtonsoft.Json.Schema
         }
 
         /// <summary>
-        /// Writes a <see cref="SByte"/> value.
+        /// Writes a <see cref="sbyte"/> value.
         /// </summary>
-        /// <param name="value">The <see cref="SByte"/> value to write.</param>
+        /// <param name="value">The <see cref="sbyte"/> value to write.</param>
         [CLSCompliant(false)]
         public override void WriteValue(sbyte value)
         {
@@ -434,9 +434,9 @@ namespace Newtonsoft.Json.Schema
         }
 
         /// <summary>
-        /// Writes a <see cref="Decimal"/> value.
+        /// Writes a <see cref="decimal"/> value.
         /// </summary>
-        /// <param name="value">The <see cref="Decimal"/> value to write.</param>
+        /// <param name="value">The <see cref="decimal"/> value to write.</param>
         public override void WriteValue(decimal value)
         {
             _writer.WriteValue(value);
@@ -482,9 +482,9 @@ namespace Newtonsoft.Json.Schema
         }
 
         /// <summary>
-        /// Writes a <see cref="Byte"/>[] value.
+        /// Writes a <see cref="byte"/>[] value.
         /// </summary>
-        /// <param name="value">The <see cref="Byte"/>[] value to write.</param>
+        /// <param name="value">The <see cref="byte"/>[] value to write.</param>
         public override void WriteValue(byte[]? value)
         {
             _writer.WriteValue(value);
@@ -528,7 +528,7 @@ namespace Newtonsoft.Json.Schema
             base.WriteValue(value);
             ValidateCurrentToken(JsonToken.String, value, Top);
         }
-#endregion
+        #endregion
 
         private void ValidateCurrentToken(JsonToken token, object? value, int depth)
         {

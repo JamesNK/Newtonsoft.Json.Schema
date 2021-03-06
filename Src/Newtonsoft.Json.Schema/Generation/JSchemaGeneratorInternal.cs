@@ -3,16 +3,14 @@
 // License: https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Globalization;
-using System.Linq;
-using System.Reflection;
-using System.Text;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema.Infrastructure;
 using Newtonsoft.Json.Serialization;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Reflection;
 
 namespace Newtonsoft.Json.Schema.Generation
 {
@@ -241,8 +239,10 @@ namespace Newtonsoft.Json.Schema.Generation
                     container,
                     this,
                     GetTitle(type, memberProperty),
-                    GetDescription(type, memberProperty));
-                context.GenerationProvider = provider;
+                    GetDescription(type, memberProperty))
+                {
+                    GenerationProvider = provider
+                };
 
                 schema = provider.GetSchema(context);
 

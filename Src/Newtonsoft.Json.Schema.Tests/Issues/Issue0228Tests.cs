@@ -3,13 +3,7 @@
 // License: https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Schema.Generation;
 using Newtonsoft.Json.Serialization;
 #if DNXCORE50
 using Xunit;
@@ -27,16 +21,16 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
         [Test]
         public void Test()
         {
-            var template = new Template();
+            Template template = new Template();
 
-            var o = JObject.FromObject(template);
+            JObject o = JObject.FromObject(template);
 
             StringAssert.AreEqual(@"{
   ""Schema"": null
 }", o.ToString());
 
 
-            var settings = new JsonSerializerSettings()
+            JsonSerializerSettings settings = new JsonSerializerSettings()
             {
                 Formatting = Formatting.None,
                 ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
@@ -46,7 +40,7 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
                     IgnoreSerializableInterface = true,
                 },
             };
-            var parsed = JsonConvert.DeserializeObject<Template>(o.ToString(), settings);
+            Template parsed = JsonConvert.DeserializeObject<Template>(o.ToString(), settings);
 
             Assert.AreEqual(null, parsed.Schema);
         }
@@ -54,7 +48,7 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
         [Test]
         public void Test_Root()
         {
-            var settings = new JsonSerializerSettings()
+            JsonSerializerSettings settings = new JsonSerializerSettings()
             {
                 Formatting = Formatting.None,
                 ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
@@ -64,7 +58,7 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
                     IgnoreSerializableInterface = true,
                 },
             };
-            var parsed = JsonConvert.DeserializeObject<JSchema>("null", settings);
+            JSchema parsed = JsonConvert.DeserializeObject<JSchema>("null", settings);
 
             Assert.AreEqual(null, parsed);
         }

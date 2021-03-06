@@ -4,14 +4,8 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Runtime.Serialization;
 using System.Text;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Schema.Generation;
-using Newtonsoft.Json.Schema.Infrastructure;
 #if DNXCORE50
 using Xunit;
 using Test = Xunit.FactAttribute;
@@ -25,7 +19,7 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
     [TestFixture]
     public class Issue0081Tests : TestFixtureBase
     {
-        private string originalSchemaJson = @"{
+        private readonly string originalSchemaJson = @"{
   ""$schema"": ""http://json-schema.org/draft-04/schema#"",
   ""type"": ""object"",
   ""properties"": {
@@ -51,7 +45,7 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
   }
 }";
 
-        private string remoteReferenceJson = @"{
+        private readonly string remoteReferenceJson = @"{
   ""$schema"": ""http://json-schema.org/draft-04/schema#"",
   ""definitions"": {
     ""aProperty"": {
@@ -60,7 +54,7 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
   }
 }";
 
-        private string dereferencedSchemaJson = @"{
+        private readonly string dereferencedSchemaJson = @"{
   ""$schema"": ""http://json-schema.org/draft-04/schema#"",
   ""type"": ""object"",
   ""properties"": {
@@ -86,7 +80,7 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
   }
 }";
 
-        private string originalSchemaWithArrayJson = @"{
+        private readonly string originalSchemaWithArrayJson = @"{
   ""$schema"": ""http://json-schema.org/draft-04/schema#"",
   ""type"": ""object"",
   ""properties"": {
@@ -114,7 +108,7 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
   }
 }";
 
-        private string dereferencedSchemaWithArrayJson = @"{
+        private readonly string dereferencedSchemaWithArrayJson = @"{
   ""$schema"": ""http://json-schema.org/draft-04/schema#"",
   ""type"": ""object"",
   ""properties"": {

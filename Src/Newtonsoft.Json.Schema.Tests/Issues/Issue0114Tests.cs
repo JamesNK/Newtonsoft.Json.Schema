@@ -4,16 +4,9 @@
 #endregion
 
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Schema.Generation;
 using Newtonsoft.Json.Schema.Infrastructure;
-using Newtonsoft.Json.Serialization;
 #if DNXCORE50
 using Xunit;
 using Test = Xunit.FactAttribute;
@@ -94,8 +87,10 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
                 Reference = new Uri("person.json#hi", UriKind.RelativeOrAbsolute)
             };
 
-            JObject o = new JObject();
-            o["property"] = 1;
+            JObject o = new JObject
+            {
+                ["property"] = 1
+            };
 
             ExceptionAssert.Throws<JSchemaException>(() =>
             {

@@ -6,8 +6,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using Newtonsoft.Json.Linq;
 #if DNXCORE50
 using Xunit;
@@ -238,8 +236,10 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
                 Type = JSchemaType.Object
             };
 
-            JSchema s = new JSchema();
-            s.Id = new Uri("http://www.jnk.com/");
+            JSchema s = new JSchema
+            {
+                Id = new Uri("http://www.jnk.com/")
+            };
             s.Items.Add(nested);
             s.Properties["test"] = nested;
 
@@ -267,8 +267,10 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
                 Type = JSchemaType.Object
             };
 
-            JSchema s = new JSchema();
-            s.Id = new Uri("http://www.jnk.com/");
+            JSchema s = new JSchema
+            {
+                Id = new Uri("http://www.jnk.com/")
+            };
             s.Properties["pattern_parent"] = new JSchema
             {
                 PatternProperties =
@@ -310,8 +312,10 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         public void WriteTo_AdditionalProperties()
         {
             StringWriter writer = new StringWriter();
-            JsonTextWriter jsonWriter = new JsonTextWriter(writer);
-            jsonWriter.Formatting = Formatting.Indented;
+            JsonTextWriter jsonWriter = new JsonTextWriter(writer)
+            {
+                Formatting = Formatting.Indented
+            };
 
             JSchema schema = JSchema.Parse(@"{
   ""description"":""AdditionalProperties"",
@@ -356,8 +360,10 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 }");
 
             StringWriter writer = new StringWriter();
-            JsonTextWriter jsonWriter = new JsonTextWriter(writer);
-            jsonWriter.Formatting = Formatting.Indented;
+            JsonTextWriter jsonWriter = new JsonTextWriter(writer)
+            {
+                Formatting = Formatting.Indented
+            };
 
             schema.WriteTo(jsonWriter);
 
@@ -391,8 +397,10 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 }");
 
             StringWriter writer = new StringWriter();
-            JsonTextWriter jsonWriter = new JsonTextWriter(writer);
-            jsonWriter.Formatting = Formatting.Indented;
+            JsonTextWriter jsonWriter = new JsonTextWriter(writer)
+            {
+                Formatting = Formatting.Indented
+            };
 
             schema.WriteTo(jsonWriter);
 
@@ -429,8 +437,10 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             JSchema schema = JSchema.Parse(json);
 
             StringWriter writer = new StringWriter();
-            JsonTextWriter jsonWriter = new JsonTextWriter(writer);
-            jsonWriter.Formatting = Formatting.Indented;
+            JsonTextWriter jsonWriter = new JsonTextWriter(writer)
+            {
+                Formatting = Formatting.Indented
+            };
 
             schema.WriteTo(jsonWriter);
 
@@ -458,8 +468,10 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             JSchema schema = JSchema.Parse(json);
 
             StringWriter writer = new StringWriter();
-            JsonTextWriter jsonWriter = new JsonTextWriter(writer);
-            jsonWriter.Formatting = Formatting.Indented;
+            JsonTextWriter jsonWriter = new JsonTextWriter(writer)
+            {
+                Formatting = Formatting.Indented
+            };
 
             JSchemaWriterSettings settings = new JSchemaWriterSettings
             {
@@ -492,8 +504,10 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 }");
 
             StringWriter writer = new StringWriter();
-            JsonTextWriter jsonWriter = new JsonTextWriter(writer);
-            jsonWriter.Formatting = Formatting.Indented;
+            JsonTextWriter jsonWriter = new JsonTextWriter(writer)
+            {
+                Formatting = Formatting.Indented
+            };
 
             schema.WriteTo(jsonWriter);
 
@@ -527,8 +541,10 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 }");
 
             StringWriter writer = new StringWriter();
-            JsonTextWriter jsonWriter = new JsonTextWriter(writer);
-            jsonWriter.Formatting = Formatting.Indented;
+            JsonTextWriter jsonWriter = new JsonTextWriter(writer)
+            {
+                Formatting = Formatting.Indented
+            };
 
             schema.WriteTo(jsonWriter);
 
@@ -592,8 +608,10 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             };
 
             StringWriter writer = new StringWriter();
-            JsonTextWriter jsonWriter = new JsonTextWriter(writer);
-            jsonWriter.Formatting = Formatting.Indented;
+            JsonTextWriter jsonWriter = new JsonTextWriter(writer)
+            {
+                Formatting = Formatting.Indented
+            };
 
             root.WriteTo(jsonWriter, new JSchemaWriterSettings
             {
@@ -623,8 +641,10 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 }");
 
             StringWriter writer = new StringWriter();
-            JsonTextWriter jsonWriter = new JsonTextWriter(writer);
-            jsonWriter.Formatting = Formatting.Indented;
+            JsonTextWriter jsonWriter = new JsonTextWriter(writer)
+            {
+                Formatting = Formatting.Indented
+            };
 
             schema.WriteTo(jsonWriter);
 
@@ -654,8 +674,10 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             };
 
             StringWriter writer = new StringWriter();
-            JsonTextWriter jsonWriter = new JsonTextWriter(writer);
-            jsonWriter.Formatting = Formatting.Indented;
+            JsonTextWriter jsonWriter = new JsonTextWriter(writer)
+            {
+                Formatting = Formatting.Indented
+            };
 
             schema.WriteTo(jsonWriter);
 
@@ -674,15 +696,19 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         [Test]
         public void WriteTo_ExclusiveMinimum_ExclusiveMaximum_Draf4()
         {
-            JSchema schema = new JSchema();
-            schema.ExclusiveMinimum = true;
-            schema.ExclusiveMaximum = true;
-            schema.Minimum = 100;
-            schema.Maximum = 101;
+            JSchema schema = new JSchema
+            {
+                ExclusiveMinimum = true,
+                ExclusiveMaximum = true,
+                Minimum = 100,
+                Maximum = 101
+            };
 
             StringWriter writer = new StringWriter();
-            JsonTextWriter jsonWriter = new JsonTextWriter(writer);
-            jsonWriter.Formatting = Formatting.Indented;
+            JsonTextWriter jsonWriter = new JsonTextWriter(writer)
+            {
+                Formatting = Formatting.Indented
+            };
 
             JSchemaWriterSettings settings = new JSchemaWriterSettings
             {
@@ -705,15 +731,19 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         [Test]
         public void WriteTo_ExclusiveMinimum_ExclusiveMaximum()
         {
-            JSchema schema = new JSchema();
-            schema.ExclusiveMinimum = true;
-            schema.ExclusiveMaximum = true;
-            schema.Minimum = 100;
-            schema.Maximum = 101;
+            JSchema schema = new JSchema
+            {
+                ExclusiveMinimum = true,
+                ExclusiveMaximum = true,
+                Minimum = 100,
+                Maximum = 101
+            };
 
             StringWriter writer = new StringWriter();
-            JsonTextWriter jsonWriter = new JsonTextWriter(writer);
-            jsonWriter.Formatting = Formatting.Indented;
+            JsonTextWriter jsonWriter = new JsonTextWriter(writer)
+            {
+                Formatting = Formatting.Indented
+            };
 
             schema.WriteTo(jsonWriter);
 
@@ -737,8 +767,10 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             };
 
             StringWriter writer = new StringWriter();
-            JsonTextWriter jsonWriter = new JsonTextWriter(writer);
-            jsonWriter.Formatting = Formatting.Indented;
+            JsonTextWriter jsonWriter = new JsonTextWriter(writer)
+            {
+                Formatting = Formatting.Indented
+            };
 
             schema.WriteTo(jsonWriter);
 
@@ -770,12 +802,16 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         [Test]
         public void WriteTo_PositionalItemsValidation_True()
         {
-            JSchema schema = new JSchema();
-            schema.ItemsPositionValidation = true;
+            JSchema schema = new JSchema
+            {
+                ItemsPositionValidation = true
+            };
 
             StringWriter writer = new StringWriter();
-            JsonTextWriter jsonWriter = new JsonTextWriter(writer);
-            jsonWriter.Formatting = Formatting.Indented;
+            JsonTextWriter jsonWriter = new JsonTextWriter(writer)
+            {
+                Formatting = Formatting.Indented
+            };
 
             schema.WriteTo(jsonWriter);
 
@@ -789,13 +825,17 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         [Test]
         public void WriteTo_PositionalItemsValidation_TrueWithItemsSchema()
         {
-            JSchema schema = new JSchema();
-            schema.ItemsPositionValidation = true;
+            JSchema schema = new JSchema
+            {
+                ItemsPositionValidation = true
+            };
             schema.Items.Add(new JSchema { Type = JSchemaType.String });
 
             StringWriter writer = new StringWriter();
-            JsonTextWriter jsonWriter = new JsonTextWriter(writer);
-            jsonWriter.Formatting = Formatting.Indented;
+            JsonTextWriter jsonWriter = new JsonTextWriter(writer)
+            {
+                Formatting = Formatting.Indented
+            };
 
             schema.WriteTo(jsonWriter);
 
@@ -817,8 +857,10 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             schema.Items.Add(new JSchema { Type = JSchemaType.String });
 
             StringWriter writer = new StringWriter();
-            JsonTextWriter jsonWriter = new JsonTextWriter(writer);
-            jsonWriter.Formatting = Formatting.Indented;
+            JsonTextWriter jsonWriter = new JsonTextWriter(writer)
+            {
+                Formatting = Formatting.Indented
+            };
 
             schema.WriteTo(jsonWriter);
 
@@ -856,8 +898,10 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             };
 
             StringWriter writer = new StringWriter();
-            JsonTextWriter jsonWriter = new JsonTextWriter(writer);
-            jsonWriter.Formatting = Formatting.Indented;
+            JsonTextWriter jsonWriter = new JsonTextWriter(writer)
+            {
+                Formatting = Formatting.Indented
+            };
 
             root.WriteTo(jsonWriter, new JSchemaWriterSettings
             {
@@ -887,12 +931,16 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         [Test]
         public void WriteComplex()
         {
-            JSchema schema = new JSchema();
-            schema.Id = new Uri("root", UriKind.RelativeOrAbsolute);
-            schema.Type = JSchemaType.Boolean;
+            JSchema schema = new JSchema
+            {
+                Id = new Uri("root", UriKind.RelativeOrAbsolute),
+                Type = JSchemaType.Boolean
+            };
 
-            JSchema file = new JSchema();
-            file.Id = new Uri("file", UriKind.RelativeOrAbsolute);
+            JSchema file = new JSchema
+            {
+                Id = new Uri("file", UriKind.RelativeOrAbsolute)
+            };
             file.Properties.Add("blah", schema);
             file.ExtensionData["definitions"] = new JObject
             {
@@ -932,7 +980,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             schema.OneOf.Add(schema);
             schema.Not = file;
 
-            JSchema file2 = (JSchema) schema.ExtensionData["definitions"]["file"];
+            JSchema file2 = (JSchema)schema.ExtensionData["definitions"]["file"];
 
             Assert.AreEqual(file, file2);
 
@@ -1028,8 +1076,10 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         public void WriteTo_Format()
         {
             StringWriter writer = new StringWriter();
-            JsonTextWriter jsonWriter = new JsonTextWriter(writer);
-            jsonWriter.Formatting = Formatting.Indented;
+            JsonTextWriter jsonWriter = new JsonTextWriter(writer)
+            {
+                Formatting = Formatting.Indented
+            };
 
             JSchema schema = new JSchema
             {
@@ -1049,8 +1099,10 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         public void WriteTo_ReadOnlyAndWriteOnly()
         {
             StringWriter writer = new StringWriter();
-            JsonTextWriter jsonWriter = new JsonTextWriter(writer);
-            jsonWriter.Formatting = Formatting.Indented;
+            JsonTextWriter jsonWriter = new JsonTextWriter(writer)
+            {
+                Formatting = Formatting.Indented
+            };
 
             JSchema schema = new JSchema
             {
@@ -1068,8 +1120,10 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 }", json);
 
             writer = new StringWriter();
-            jsonWriter = new JsonTextWriter(writer);
-            jsonWriter.Formatting = Formatting.Indented;
+            jsonWriter = new JsonTextWriter(writer)
+            {
+                Formatting = Formatting.Indented
+            };
 
             schema.WriteTo(jsonWriter, new JSchemaWriterSettings
             {
@@ -1087,8 +1141,10 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         public void WriteTo_ContentEncodingAndContentMediaType()
         {
             StringWriter writer = new StringWriter();
-            JsonTextWriter jsonWriter = new JsonTextWriter(writer);
-            jsonWriter.Formatting = Formatting.Indented;
+            JsonTextWriter jsonWriter = new JsonTextWriter(writer)
+            {
+                Formatting = Formatting.Indented
+            };
 
             JSchema schema = new JSchema
             {
@@ -1106,8 +1162,10 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 }", json);
 
             writer = new StringWriter();
-            jsonWriter = new JsonTextWriter(writer);
-            jsonWriter.Formatting = Formatting.Indented;
+            jsonWriter = new JsonTextWriter(writer)
+            {
+                Formatting = Formatting.Indented
+            };
 
             schema.WriteTo(jsonWriter, new JSchemaWriterSettings
             {
@@ -1125,8 +1183,10 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         public void WriteTo_IfThenElse()
         {
             StringWriter writer = new StringWriter();
-            JsonTextWriter jsonWriter = new JsonTextWriter(writer);
-            jsonWriter.Formatting = Formatting.Indented;
+            JsonTextWriter jsonWriter = new JsonTextWriter(writer)
+            {
+                Formatting = Formatting.Indented
+            };
 
             JSchema schema = new JSchema
             {
@@ -1163,8 +1223,10 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 }", json);
 
             writer = new StringWriter();
-            jsonWriter = new JsonTextWriter(writer);
-            jsonWriter.Formatting = Formatting.Indented;
+            jsonWriter = new JsonTextWriter(writer)
+            {
+                Formatting = Formatting.Indented
+            };
 
             schema.WriteTo(jsonWriter, new JSchemaWriterSettings
             {
@@ -1190,8 +1252,10 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             JSchema schema = JSchema.Parse(json);
 
             StringWriter writer = new StringWriter();
-            JsonTextWriter jsonWriter = new JsonTextWriter(writer);
-            jsonWriter.Formatting = Formatting.Indented;
+            JsonTextWriter jsonWriter = new JsonTextWriter(writer)
+            {
+                Formatting = Formatting.Indented
+            };
 
             ExceptionAssert.Throws<JSchemaException>(() =>
             {
@@ -1214,8 +1278,10 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             JSchema schema = JSchema.Parse(json);
 
             StringWriter writer = new StringWriter();
-            JsonTextWriter jsonWriter = new JsonTextWriter(writer);
-            jsonWriter.Formatting = Formatting.Indented;
+            JsonTextWriter jsonWriter = new JsonTextWriter(writer)
+            {
+                Formatting = Formatting.Indented
+            };
 
             schema.WriteTo(jsonWriter, new JSchemaWriterSettings
             {
@@ -1243,8 +1309,10 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             schema.Properties["prop2"] = numberSchema;
 
             StringWriter writer = new StringWriter();
-            JsonTextWriter jsonWriter = new JsonTextWriter(writer);
-            jsonWriter.Formatting = Formatting.Indented;
+            JsonTextWriter jsonWriter = new JsonTextWriter(writer)
+            {
+                Formatting = Formatting.Indented
+            };
 
             schema.WriteTo(jsonWriter, new JSchemaWriterSettings
             {
@@ -1281,8 +1349,10 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             };
 
             StringWriter writer = new StringWriter();
-            JsonTextWriter jsonWriter = new JsonTextWriter(writer);
-            jsonWriter.Formatting = Formatting.Indented;
+            JsonTextWriter jsonWriter = new JsonTextWriter(writer)
+            {
+                Formatting = Formatting.Indented
+            };
 
             schema.WriteTo(jsonWriter);
 
@@ -1304,8 +1374,10 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             };
 
             StringWriter writer = new StringWriter();
-            JsonTextWriter jsonWriter = new JsonTextWriter(writer);
-            jsonWriter.Formatting = Formatting.Indented;
+            JsonTextWriter jsonWriter = new JsonTextWriter(writer)
+            {
+                Formatting = Formatting.Indented
+            };
 
             schema.WriteTo(jsonWriter);
 
@@ -1327,8 +1399,10 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             };
 
             StringWriter writer = new StringWriter();
-            JsonTextWriter jsonWriter = new JsonTextWriter(writer);
-            jsonWriter.Formatting = Formatting.Indented;
+            JsonTextWriter jsonWriter = new JsonTextWriter(writer)
+            {
+                Formatting = Formatting.Indented
+            };
 
             schema.WriteTo(jsonWriter);
 
@@ -1350,8 +1424,10 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             };
 
             StringWriter writer = new StringWriter();
-            JsonTextWriter jsonWriter = new JsonTextWriter(writer);
-            jsonWriter.Formatting = Formatting.Indented;
+            JsonTextWriter jsonWriter = new JsonTextWriter(writer)
+            {
+                Formatting = Formatting.Indented
+            };
 
             schema.WriteTo(jsonWriter);
 
@@ -1377,8 +1453,10 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             };
 
             StringWriter writer = new StringWriter();
-            JsonTextWriter jsonWriter = new JsonTextWriter(writer);
-            jsonWriter.Formatting = Formatting.Indented;
+            JsonTextWriter jsonWriter = new JsonTextWriter(writer)
+            {
+                Formatting = Formatting.Indented
+            };
 
             schema.WriteTo(jsonWriter);
 
@@ -1402,8 +1480,10 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             };
 
             StringWriter writer = new StringWriter();
-            JsonTextWriter jsonWriter = new JsonTextWriter(writer);
-            jsonWriter.Formatting = Formatting.Indented;
+            JsonTextWriter jsonWriter = new JsonTextWriter(writer)
+            {
+                Formatting = Formatting.Indented
+            };
 
             schema.WriteTo(jsonWriter);
 
@@ -1430,8 +1510,10 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             };
 
             StringWriter writer = new StringWriter();
-            JsonTextWriter jsonWriter = new JsonTextWriter(writer);
-            jsonWriter.Formatting = Formatting.Indented;
+            JsonTextWriter jsonWriter = new JsonTextWriter(writer)
+            {
+                Formatting = Formatting.Indented
+            };
 
             schema.WriteTo(jsonWriter);
 
@@ -1465,8 +1547,10 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             JSchema schema = JSchema.Parse(json);
 
             StringWriter writer = new StringWriter();
-            JsonTextWriter jsonWriter = new JsonTextWriter(writer);
-            jsonWriter.Formatting = Formatting.Indented;
+            JsonTextWriter jsonWriter = new JsonTextWriter(writer)
+            {
+                Formatting = Formatting.Indented
+            };
 
             schema.WriteTo(jsonWriter);
 
@@ -1505,8 +1589,10 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             JSchema schema = JSchema.Parse(json);
 
             StringWriter writer = new StringWriter();
-            JsonTextWriter jsonWriter = new JsonTextWriter(writer);
-            jsonWriter.Formatting = Formatting.Indented;
+            JsonTextWriter jsonWriter = new JsonTextWriter(writer)
+            {
+                Formatting = Formatting.Indented
+            };
 
             schema.WriteTo(jsonWriter);
 
@@ -1528,7 +1614,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         [Test]
         public void WriteTo_Draft201909()
         {
-            var defs = new JSchema { Title = "$defs" };
+            JSchema defs = new JSchema { Title = "$defs" };
 
             JSchema schema = new JSchema
             {

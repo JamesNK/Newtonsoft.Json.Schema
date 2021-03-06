@@ -4,17 +4,8 @@
 #endregion
 
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.IO;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
-using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema.Generation;
-using Newtonsoft.Json.Schema.Infrastructure;
-using Newtonsoft.Json.Serialization;
 #if DNXCORE50
 using Xunit;
 using Test = Xunit.FactAttribute;
@@ -32,12 +23,12 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
         public void Test()
         {
             JSchemaGenerator stringEnumGenerator = new JSchemaGenerator();
-            
+
             stringEnumGenerator.GenerationProviders.Add(new StringEnumGenerationProvider
             {
                 CamelCaseText = true
             });
-            
+
             JSchema stringEnumSchema = stringEnumGenerator.Generate(typeof(BuildingReport));
 
             string json = @"{

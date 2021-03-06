@@ -53,11 +53,15 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation.Samples.Validate
             };
 
             StringWriter stringWriter = new StringWriter();
-            JsonTextWriter writer = new JsonTextWriter(stringWriter);
-            writer.Formatting = Formatting.Indented;
+            JsonTextWriter writer = new JsonTextWriter(stringWriter)
+            {
+                Formatting = Formatting.Indented
+            };
 
-            JSchemaValidatingWriter validatingWriter = new JSchemaValidatingWriter(writer);
-            validatingWriter.Schema = JSchema.Parse(schemaJson);
+            JSchemaValidatingWriter validatingWriter = new JSchemaValidatingWriter(writer)
+            {
+                Schema = JSchema.Parse(schemaJson)
+            };
 
             IList<string> messages = new List<string>();
             validatingWriter.ValidationEventHandler += (o, a) => messages.Add(a.Message);

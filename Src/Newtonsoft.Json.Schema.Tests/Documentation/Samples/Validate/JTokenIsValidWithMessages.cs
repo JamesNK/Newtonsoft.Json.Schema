@@ -42,8 +42,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation.Samples.Validate
               'hobbies': ['Invalid content', 0.123456789]
             }");
 
-            IList<string> messages;
-            bool valid = person.IsValid(schema, out messages);
+            bool valid = person.IsValid(schema, out IList<string> messages);
 
             Console.WriteLine(valid);
             // false

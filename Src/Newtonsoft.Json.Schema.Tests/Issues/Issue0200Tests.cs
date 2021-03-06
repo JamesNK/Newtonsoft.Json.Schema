@@ -3,16 +3,10 @@
 // License: https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using Newtonsoft.Json.Linq;
 #if DNXCORE50
 using Xunit;
-using Test = Xunit.FactAttribute;
 using Assert = Newtonsoft.Json.Schema.Tests.XUnitAssert;
+using Test = Xunit.FactAttribute;
 #else
 using NUnit.Framework;
 #endif
@@ -60,7 +54,7 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
 }";
 
             JSchema schema = JSchema.Parse(schemaJson);
-            
+
             // Act
             string serialized = schema.ToString();
 

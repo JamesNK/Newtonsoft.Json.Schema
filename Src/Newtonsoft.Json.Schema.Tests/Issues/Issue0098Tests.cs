@@ -4,15 +4,7 @@
 #endregion
 
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
-using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema.Generation;
-using Newtonsoft.Json.Schema.Infrastructure;
 using Newtonsoft.Json.Serialization;
 #if DNXCORE50
 using Xunit;
@@ -30,14 +22,14 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
         [Test]
         public void Test()
         {
-            var generator = new JSchemaGenerator();
+            JSchemaGenerator generator = new JSchemaGenerator();
             generator.GenerationProviders.Add(new StringEnumGenerationProvider());
             generator.ContractResolver = new CamelCasePropertyNamesContractResolver();
 
-            var schema = generator.Generate(typeof(TypeOne));
+            JSchema schema = generator.Generate(typeof(TypeOne));
 
             // A process will generate the schema and cache it
-            var schemaString = schema.ToString(SchemaVersion.Draft4);
+            string schemaString = schema.ToString(SchemaVersion.Draft4);
 
             StringAssert.AreEqual(@"{
   ""$schema"": ""http://json-schema.org/draft-04/schema#"",

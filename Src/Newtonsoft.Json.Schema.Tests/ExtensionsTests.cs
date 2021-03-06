@@ -15,7 +15,6 @@ using Assert = Newtonsoft.Json.Schema.Tests.XUnitAssert;
 #else
 using NUnit.Framework;
 #endif
-using Newtonsoft.Json.Schema;
 using Newtonsoft.Json.Linq;
 using System.IO;
 using Newtonsoft.Json.Schema.Generation;
@@ -54,8 +53,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             JObject o = JObject.Parse(@"{ ""additionalItems"": 5 }");
 
-            IList<ValidationError> validationErrors;
-            o.IsValid(s, out validationErrors);
+            o.IsValid(s, out IList<ValidationError> validationErrors);
 
             Assert.AreEqual(1, validationErrors.Count);
             Assert.AreEqual("#/properties/additionalItems", validationErrors[0].SchemaId.ToString());
@@ -72,9 +70,8 @@ namespace Newtonsoft.Json.Schema.Tests
             JToken stringToken = JToken.FromObject("pie");
             JToken integerToken = JToken.FromObject(1);
 
-            IList<string> errorMessages;
             Assert.AreEqual(true, integerToken.IsValid(schema));
-            Assert.AreEqual(true, integerToken.IsValid(schema, out errorMessages));
+            Assert.AreEqual(true, integerToken.IsValid(schema, out IList<string> errorMessages));
             Assert.AreEqual(0, errorMessages.Count);
 
             Assert.AreEqual(false, stringToken.IsValid(schema));
@@ -181,8 +178,10 @@ namespace Newtonsoft.Json.Schema.Tests
         {
             LicenseHelpers.ResetCounts(null);
 
-            JSchemaGenerator generator = new JSchemaGenerator();
-            generator.SchemaIdGenerationHandling = SchemaIdGenerationHandling.AssemblyQualifiedName;
+            JSchemaGenerator generator = new JSchemaGenerator
+            {
+                SchemaIdGenerationHandling = SchemaIdGenerationHandling.AssemblyQualifiedName
+            };
             JSchema typeSchema = generator.Generate(typeof(T));
             string schema = typeSchema.ToString();
 
@@ -254,9 +253,11 @@ namespace Newtonsoft.Json.Schema.Tests
         {
             ExceptionAssert.Throws<JSchemaException>(() =>
             {
-                JSchema schema = new JSchema();
-                schema.Maximum = 10;
-                schema.ExclusiveMaximum = true;
+                JSchema schema = new JSchema
+                {
+                    Maximum = 10,
+                    ExclusiveMaximum = true
+                };
 
                 JValue v = new JValue(10);
                 v.Validate(schema);
@@ -268,9 +269,11 @@ namespace Newtonsoft.Json.Schema.Tests
         {
             ExceptionAssert.Throws<JSchemaException>(() =>
             {
-                JSchema schema = new JSchema();
-                schema.Maximum = 10.1;
-                schema.ExclusiveMaximum = true;
+                JSchema schema = new JSchema
+                {
+                    Maximum = 10.1,
+                    ExclusiveMaximum = true
+                };
 
                 JValue v = new JValue(10.1);
                 v.Validate(schema);
@@ -282,9 +285,11 @@ namespace Newtonsoft.Json.Schema.Tests
         {
             ExceptionAssert.Throws<JSchemaException>(() =>
             {
-                JSchema schema = new JSchema();
-                schema.Minimum = 10;
-                schema.ExclusiveMinimum = true;
+                JSchema schema = new JSchema
+                {
+                    Minimum = 10,
+                    ExclusiveMinimum = true
+                };
 
                 JValue v = new JValue(10);
                 v.Validate(schema);
@@ -296,9 +301,11 @@ namespace Newtonsoft.Json.Schema.Tests
         {
             ExceptionAssert.Throws<JSchemaException>(() =>
             {
-                JSchema schema = new JSchema();
-                schema.Minimum = 10.1;
-                schema.ExclusiveMinimum = true;
+                JSchema schema = new JSchema
+                {
+                    Minimum = 10.1,
+                    ExclusiveMinimum = true
+                };
 
                 JValue v = new JValue(10.1);
                 v.Validate(schema);
@@ -310,8 +317,10 @@ namespace Newtonsoft.Json.Schema.Tests
         {
             ExceptionAssert.Throws<JSchemaException>(() =>
             {
-                JSchema schema = new JSchema();
-                schema.MultipleOf = 3;
+                JSchema schema = new JSchema
+                {
+                    MultipleOf = 3
+                };
 
                 JValue v = new JValue(10);
                 v.Validate(schema);
@@ -321,8 +330,10 @@ namespace Newtonsoft.Json.Schema.Tests
         [Test]
         public void DivisibleBy_Approx()
         {
-            JSchema schema = new JSchema();
-            schema.MultipleOf = 0.01;
+            JSchema schema = new JSchema
+            {
+                MultipleOf = 0.01
+            };
 
             JValue v = new JValue(20.49);
             v.Validate(schema);
@@ -331,8 +342,10 @@ namespace Newtonsoft.Json.Schema.Tests
         [Test]
         public void UniqueItems_SimpleUnique()
         {
-            JSchema schema = new JSchema();
-            schema.UniqueItems = true;
+            JSchema schema = new JSchema
+            {
+                UniqueItems = true
+            };
 
             JArray a = new JArray(1, 2, 3);
             Assert.IsTrue(a.IsValid(schema));
@@ -341,12 +354,13 @@ namespace Newtonsoft.Json.Schema.Tests
         [Test]
         public void UniqueItems_SimpleDuplicate()
         {
-            JSchema schema = new JSchema();
-            schema.UniqueItems = true;
+            JSchema schema = new JSchema
+            {
+                UniqueItems = true
+            };
 
             JArray a = new JArray(1, 2, 3, 2, 2);
-            IList<string> errorMessages;
-            Assert.IsFalse(a.IsValid(schema, out errorMessages));
+            Assert.IsFalse(a.IsValid(schema, out IList<string> errorMessages));
             Assert.AreEqual(2, errorMessages.Count);
             Assert.AreEqual("Non-unique array item at index 3. Path '[3]'.", errorMessages[0]);
             Assert.AreEqual("Non-unique array item at index 4. Path '[4]'.", errorMessages[1]);
@@ -355,12 +369,13 @@ namespace Newtonsoft.Json.Schema.Tests
         [Test]
         public void UniqueItems_ComplexDuplicate()
         {
-            JSchema schema = new JSchema();
-            schema.UniqueItems = true;
+            JSchema schema = new JSchema
+            {
+                UniqueItems = true
+            };
 
             JArray a = new JArray(1, new JObject(new JProperty("value", "value!")), 3, 2, new JObject(new JProperty("value", "value!")), 4, 2, new JObject(new JProperty("value", "value!")));
-            IList<string> errorMessages;
-            Assert.IsFalse(a.IsValid(schema, out errorMessages));
+            Assert.IsFalse(a.IsValid(schema, out IList<string> errorMessages));
             Assert.AreEqual(3, errorMessages.Count);
             Assert.AreEqual("Non-unique array item at index 4. Path '[4]'.", errorMessages[0]);
             Assert.AreEqual("Non-unique array item at index 6. Path '[6]'.", errorMessages[1]);
@@ -390,8 +405,7 @@ namespace Newtonsoft.Json.Schema.Tests
                 new JArray(1, 2),
                 new JArray(1, 1)
                 );
-            IList<string> errorMessages;
-            Assert.IsFalse(a.IsValid(schema, out errorMessages));
+            Assert.IsFalse(a.IsValid(schema, out IList<string> errorMessages));
             Assert.AreEqual(4, errorMessages.Count);
             Assert.AreEqual("Non-unique array item at index 1. Path '[1][1]'.", errorMessages[0]);
             Assert.AreEqual("Non-unique array item at index 3. Path '[3]'.", errorMessages[1]);
@@ -423,8 +437,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JObject o = new JObject(
                 new JProperty("bar", 1)
                 );
-            IList<string> errorMessages;
-            Assert.IsTrue(o.IsValid(schema, out errorMessages));
+            Assert.IsTrue(o.IsValid(schema, out IList<string> errorMessages));
             Assert.AreEqual(0, errorMessages.Count);
 
             o = new JObject(
@@ -454,8 +467,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JObject o = new JObject(
                 new JProperty("bar", new JArray(1, 2, 3, 3))
                 );
-            IList<string> errorMessages;
-            Assert.IsFalse(o.IsValid(schema, out errorMessages));
+            Assert.IsFalse(o.IsValid(schema, out IList<string> errorMessages));
             Assert.AreEqual(1, errorMessages.Count);
         }
 
@@ -473,8 +485,7 @@ namespace Newtonsoft.Json.Schema.Tests
             schema.ItemsPositionValidation = true;
 
             JArray a = new JArray(new JObject(), 1);
-            IList<string> errorMessages;
-            Assert.IsTrue(a.IsValid(schema, out errorMessages));
+            Assert.IsTrue(a.IsValid(schema, out IList<string> errorMessages));
             Assert.AreEqual(0, errorMessages.Count);
         }
 
@@ -510,8 +521,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             JObject json = JObject.Parse(@"{""foo"": false}");
 
-            IList<string> errorMessages;
-            Assert.IsFalse(json.IsValid(schema, out errorMessages));
+            Assert.IsFalse(json.IsValid(schema, out IList<string> errorMessages));
             Assert.AreEqual(1, errorMessages.Count);
             StringAssert.AreEqual(@"Value {""foo"":false} is not defined in enum. Path '', line 1, position 1.", errorMessages[0]);
         }
@@ -526,8 +536,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             JArray json = JArray.Parse(@"[ 1, 2, 3, ""foo"" ]");
 
-            IList<string> errorMessages;
-            Assert.IsFalse(json.IsValid(schema, out errorMessages));
+            Assert.IsFalse(json.IsValid(schema, out IList<string> errorMessages));
             Assert.AreEqual(1, errorMessages.Count);
             StringAssert.AreEqual(@"Invalid type. Expected Integer but got String. Path '[3]', line 1, position 16.", errorMessages[0]);
         }
@@ -542,8 +551,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             JObject json = JObject.Parse(@"{""foo"" : 1, ""bar"" : 2, ""quux"" : 12}");
 
-            IList<string> errorMessages;
-            Assert.IsFalse(json.IsValid(schema, out errorMessages));
+            Assert.IsFalse(json.IsValid(schema, out IList<string> errorMessages));
             Assert.AreEqual(1, errorMessages.Count);
             StringAssert.AreEqual(@"Invalid type. Expected Boolean but got Integer. Path 'quux', line 1, position 34.", errorMessages[0]);
         }
@@ -584,8 +592,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             JToken json = JToken.Parse(@"true");
 
-            IList<string> errorMessages;
-            Assert.IsTrue(json.IsValid(schema, out errorMessages));
+            Assert.IsTrue(json.IsValid(schema, out IList<string> errorMessages));
         }
 
         [Test]
@@ -606,8 +613,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             JObject json = JObject.Parse(@"{""foo"": ""bar""}");
 
-            IList<string> errorMessages;
-            Assert.IsFalse(json.IsValid(schema, out errorMessages));
+            Assert.IsFalse(json.IsValid(schema, out IList<string> errorMessages));
             Assert.AreEqual(1, errorMessages.Count);
             StringAssert.AreEqual("JSON is valid against schema from 'not'. Path '', line 1, position 1.", errorMessages[0]);
         }
@@ -629,8 +635,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             JToken json = JToken.Parse(@"""foo""");
 
-            IList<string> errorMessages;
-            Assert.IsFalse(json.IsValid(schema, out errorMessages));
+            Assert.IsFalse(json.IsValid(schema, out IList<string> errorMessages));
             Assert.AreEqual(1, errorMessages.Count);
 
             StringAssert.AreEqual("JSON is valid against more than one schema from 'oneOf'. Valid schema indexes: 0, 1. Path '', line 1, position 5.", errorMessages[0]);
@@ -653,8 +658,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             JToken json = JToken.Parse(@"""foo foo""");
 
-            IList<ValidationError> errors;
-            Assert.IsFalse(json.IsValid(schema, out errors));
+            Assert.IsFalse(json.IsValid(schema, out IList<ValidationError> errors));
             Assert.AreEqual(1, errors.Count);
 
             ValidationError error = errors.Single();
@@ -671,8 +675,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             JToken json = JToken.Parse(@"""\uD83D\uDCA9\uD83D\uDCA9""");
 
-            IList<string> errorMessages;
-            Assert.IsTrue(json.IsValid(schema, out errorMessages));
+            Assert.IsTrue(json.IsValid(schema, out IList<string> errorMessages));
         }
 
         [Test]
@@ -696,8 +699,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             JToken json = JToken.Parse(@"[[""a""]]");
 
-            IList<string> errorMessages;
-            Assert.IsFalse(json.IsValid(schema, out errorMessages));
+            Assert.IsFalse(json.IsValid(schema, out IList<string> errorMessages));
         }
 
         [Test]
@@ -709,8 +711,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             JToken json = JToken.Parse(@"{""bar"": 2}");
 
-            IList<string> errorMessages;
-            Assert.IsFalse(json.IsValid(schema, out errorMessages));
+            Assert.IsFalse(json.IsValid(schema, out IList<string> errorMessages));
             Assert.AreEqual(1, errorMessages.Count);
             StringAssert.AreEqual(@"Dependencies for property 'bar' failed. Missing required keys: foo. Path '', line 1, position 1.", errorMessages[0]);
         }
@@ -724,8 +725,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             JToken json = JToken.Parse(@"{""foo"": 1, ""quux"": 2}");
 
-            IList<string> errorMessages;
-            Assert.IsFalse(json.IsValid(schema, out errorMessages));
+            Assert.IsFalse(json.IsValid(schema, out IList<string> errorMessages));
             Assert.AreEqual(1, errorMessages.Count);
             StringAssert.AreEqual(@"Dependencies for property 'quux' failed. Missing required keys: bar. Path '', line 1, position 1.", errorMessages[0]);
         }
@@ -746,8 +746,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             JToken json = JToken.Parse(@"{""foo"": ""quux"", ""bar"": 2}");
 
-            IList<ValidationError> errorMessages;
-            Assert.IsFalse(json.IsValid(schema, out errorMessages));
+            Assert.IsFalse(json.IsValid(schema, out IList<ValidationError> errorMessages));
             Assert.AreEqual(1, errorMessages.Count);
             StringAssert.AreEqual(@"Dependencies for property 'bar' failed. Path '', line 1, position 1.", errorMessages[0].GetExtendedMessage());
             Assert.AreEqual(1, errorMessages[0].ChildErrors.Count);
@@ -773,8 +772,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             JToken json = JToken.Parse(@"{""foo"":""quux""}");
 
-            IList<ValidationError> errors;
-            bool isValid = json.IsValid(root, out errors);
+            bool isValid = json.IsValid(root, out IList<ValidationError> errors);
 
             Assert.IsTrue(isValid);
         }

@@ -221,7 +221,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Collections
 
         bool IDictionary.Contains(object key)
         {
-            return IsCompatibleKey(key) && _dictionary.ContainsKey((TKey) key);
+            return IsCompatibleKey(key) && _dictionary.ContainsKey((TKey)key);
         }
 
         IDictionaryEnumerator IDictionary.GetEnumerator()
@@ -241,8 +241,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Collections
             {
                 if (IsCompatibleKey(key))
                 {
-                    TValue value;
-                    if (TryGetValue((TKey) key, out value))
+                    if (TryGetValue((TKey)key, out TValue value))
                     {
                         return value;
                     }

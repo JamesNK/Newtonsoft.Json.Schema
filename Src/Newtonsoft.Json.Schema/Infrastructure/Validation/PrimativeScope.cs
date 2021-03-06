@@ -5,12 +5,10 @@
 
 using System;
 using System.Globalization;
-using System.IO;
 #if HAVE_BIG_INTEGER
 using System.Numerics;
 #endif
 using System.Text.RegularExpressions;
-using Newtonsoft.Json.Linq;
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 {
@@ -34,84 +32,84 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             switch (token)
             {
                 case JsonToken.Integer:
-                {
-                    if (!ValidateInteger(Schema, value!))
                     {
-                        return true;
+                        if (!ValidateInteger(Schema, value!))
+                        {
+                            return true;
+                        }
+                        break;
                     }
-                    break;
-                }
                 case JsonToken.Float:
-                {
-                    if (!ValidateNumber(Schema, value!))
                     {
-                        return true;
+                        if (!ValidateNumber(Schema, value!))
+                        {
+                            return true;
+                        }
+                        break;
                     }
-                    break;
-                }
                 case JsonToken.String:
                 case JsonToken.PropertyName:
-                {
-                    if (value == null)
                     {
-                        // This can happen with a JTokenReader when a JValue has a String type
-                        // and a null value
-                        goto case JsonToken.Null;
-                    }
+                        if (value == null)
+                        {
+                            // This can happen with a JTokenReader when a JValue has a String type
+                            // and a null value
+                            goto case JsonToken.Null;
+                        }
 
-                    string s = (value is Uri uri) ? uri.OriginalString : value.ToString();
+                        string s = (value is Uri uri) ? uri.OriginalString : value.ToString();
 
-                    if (!ValidateString(this, Schema, s))
-                    {
-                        return true;
+                        if (!ValidateString(this, Schema, s))
+                        {
+                            return true;
+                        }
+                        break;
                     }
-                    break;
-                }
                 case JsonToken.Boolean:
-                {
-                    if (!ValidateBoolean(Schema, value))
                     {
-                        return true;
+                        if (!ValidateBoolean(Schema, value))
+                        {
+                            return true;
+                        }
+                        break;
                     }
-                    break;
-                }
                 case JsonToken.Null:
-                {
-                    if (!ValidateNull(Schema, value))
                     {
-                        return true;
+                        if (!ValidateNull(Schema, value))
+                        {
+                            return true;
+                        }
+                        break;
                     }
-                    break;
-                }
                 case JsonToken.Bytes:
-                {
-                    byte[]? data = value as byte[];
-                    if (data == null)
                     {
-                        data = ((Guid) value!).ToByteArray();
-                    }
+                        byte[]? data = value as byte[];
+                        if (data == null)
+                        {
+                            data = ((Guid)value!).ToByteArray();
+                        }
 
-                    string s = Convert.ToBase64String(data);
-                    if (!ValidateString(this, Schema, s))
-                    {
-                        return true;
+                        string s = Convert.ToBase64String(data);
+                        if (!ValidateString(this, Schema, s))
+                        {
+                            return true;
+                        }
+                        break;
                     }
-                    break;
-                }
                 case JsonToken.Undefined:
-                {
-                    JSchemaType schemaType = Schema.Type.GetValueOrDefault(JSchemaType.None);
-
-                    if (schemaType != JSchemaType.None)
                     {
-                        RaiseError($"Invalid type. Expected {schemaType.GetDisplayText()} but got {token}.", ErrorType.Type, Schema, value, null);
+                        JSchemaType schemaType = Schema.Type.GetValueOrDefault(JSchemaType.None);
+
+                        if (schemaType != JSchemaType.None)
+                        {
+                            RaiseError($"Invalid type. Expected {schemaType.GetDisplayText()} but got {token}.", ErrorType.Type, Schema, value, null);
+                        }
+                        break;
                     }
-                    break;
-                }
                 default:
-                {
-                    throw new ArgumentOutOfRangeException("Unexpected token: " + token);
-                }
+                    {
+                        throw new ArgumentOutOfRangeException("Unexpected token: " + token);
+                    }
             }
 
             EnsureEnum(token, value);

@@ -5,9 +5,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Schema.Infrastructure.Discovery;
 #if DNXCORE50
 using Xunit;
 using Test = Xunit.FactAttribute;
@@ -33,7 +31,7 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
                 }
             }";
 
-            string json = JsonConvert.SerializeObject(new DateTimeContainer {Date = date});
+            string json = JsonConvert.SerializeObject(new DateTimeContainer { Date = date });
 
             JObject jsonObject = JObject.Parse(json);
             JSchema jsonSchema = JSchema.Parse(schema);

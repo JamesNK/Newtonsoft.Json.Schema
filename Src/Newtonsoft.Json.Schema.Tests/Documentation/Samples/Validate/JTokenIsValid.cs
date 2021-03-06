@@ -39,8 +39,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation.Samples.Validate
               'hobbies': ['.NET', 'Blogging', 'Reading', 'Xbox', 'LOLCATS']
             }");
 
-            IList<string> errorMessages;
-            bool valid = person.IsValid(schema, out errorMessages);
+            bool valid = person.IsValid(schema, out IList<string> errorMessages);
 
             Console.WriteLine(valid);
             // true

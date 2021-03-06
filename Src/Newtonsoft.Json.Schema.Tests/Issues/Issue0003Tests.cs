@@ -3,10 +3,7 @@
 // License: https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md
 #endregion
 
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Newtonsoft.Json.Linq;
 #if DNXCORE50
 using Xunit;
@@ -33,8 +30,7 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
             JSchema schema = JSchema.Parse(Schema);
             JObject o = JObject.Parse(json);
 
-            IList<string> messages;
-            bool valid = o.IsValid(schema, out messages);
+            bool valid = o.IsValid(schema, out IList<string> messages);
 
             Assert.IsTrue(valid);
         }

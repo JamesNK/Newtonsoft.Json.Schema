@@ -6,7 +6,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Newtonsoft.Json.Linq;
 #if DNXCORE50
 using Xunit;
@@ -153,8 +152,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             JObject o = JObject.Parse(json);
 
-            IList<ValidationError> errors;
-            o.IsValid(s, out errors);
+            o.IsValid(s, out IList<ValidationError> errors);
 
             Assert.AreEqual(1, errors.Count);
             Assert.AreEqual("#/properties/prop1", errors[0].SchemaId.OriginalString);

@@ -3,11 +3,8 @@
 // License: https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md
 #endregion
 
-using System;
 using System.Collections.Generic;
-using System.IO;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Schema.Infrastructure.Discovery;
 #if DNXCORE50
 using Xunit;
 using Test = Xunit.FactAttribute;
@@ -33,8 +30,10 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
     }
 }");
 
-            JObject entityJObject = new JObject();
-            entityJObject.Add("EmailCcList", new JValue((string)null));
+            JObject entityJObject = new JObject
+            {
+                { "EmailCcList", new JValue((string)null) }
+            };
 
             Assert.IsFalse(entityJObject.IsValid(s, out IList<string> errors));
             Assert.AreEqual(1, errors.Count);

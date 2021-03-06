@@ -38,7 +38,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation.Samples.Load
             Console.WriteLine(schema.Type);
             // Object
 
-            foreach (var property in schema.Properties)
+            foreach (System.Collections.Generic.KeyValuePair<string, JSchema> property in schema.Properties)
             {
                 Console.WriteLine(property.Key + " - " + property.Value.Type);
             }

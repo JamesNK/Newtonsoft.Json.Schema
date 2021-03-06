@@ -5,8 +5,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 {

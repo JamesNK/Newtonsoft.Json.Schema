@@ -6,8 +6,6 @@
 using System;
 using System.Globalization;
 using System.IO;
-using System.Security;
-using System.Text;
 using System.Threading;
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Licensing
@@ -46,7 +44,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Licensing
             {
                 EnsureResetTimer();
 
-                const int maxOperationCount = 1000;
+                const int maxOperationCount = 100;
                 _validationCount++;
 
                 if (_validationCount > maxOperationCount)
@@ -110,9 +108,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Licensing
 
         internal static void RegisterLicense(string license, DateTime releaseDate)
         {
-            string licenseBase64;
-            int licenseId;
-            SplitLicense(license, out licenseBase64, out licenseId);
+            SplitLicense(license, out string licenseBase64, out int licenseId);
 
             lock (Lock)
             {

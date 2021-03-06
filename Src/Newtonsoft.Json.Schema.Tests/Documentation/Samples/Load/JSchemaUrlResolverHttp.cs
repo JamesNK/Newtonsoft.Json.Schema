@@ -48,8 +48,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation.Samples.Load
               ]
             }");
 
-            IList<string> errorMessages;
-            bool isValid = json.IsValid(schema, out errorMessages);
+            bool isValid = json.IsValid(schema, out IList<string> errorMessages);
             #endregion
 
             Assert.IsTrue(isValid);

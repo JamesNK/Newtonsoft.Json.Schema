@@ -26,7 +26,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 while (true)
                 {
                     if (_cancellationTokenSource.IsCancellationRequested)
+                    {
                         break;
+                    }
 #pragma warning disable 4014
                     Task.Run(() => tuple.Item1(tuple.Item2));
 #pragma warning restore 4014

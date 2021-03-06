@@ -3,13 +3,7 @@
 // License: https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
 using Newtonsoft.Json.Schema.Generation;
-using Newtonsoft.Json.Serialization;
 using DescriptionAttribute = System.ComponentModel.DescriptionAttribute;
 using DisplayNameAttribute = System.ComponentModel.DisplayNameAttribute;
 #if DNXCORE50
@@ -56,8 +50,10 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation.Samples.Generation
         public void Example()
         {
             #region Usage
-            JSchemaGenerator generator = new JSchemaGenerator();
-            generator.DefaultRequired = Required.DisallowNull;
+            JSchemaGenerator generator = new JSchemaGenerator
+            {
+                DefaultRequired = Required.DisallowNull
+            };
 
             JSchema schema = generator.Generate(typeof(PostalAddress));
             // {

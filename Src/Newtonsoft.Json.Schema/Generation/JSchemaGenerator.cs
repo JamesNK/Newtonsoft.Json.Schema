@@ -3,13 +3,11 @@
 // License: https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using Newtonsoft.Json.Schema.Infrastructure;
 using Newtonsoft.Json.Schema.Infrastructure.Licensing;
 using Newtonsoft.Json.Serialization;
+using System;
+using System.Collections.Generic;
 
 namespace Newtonsoft.Json.Schema.Generation
 {
@@ -25,10 +23,7 @@ namespace Newtonsoft.Json.Schema.Generation
         private SchemaReferenceHandling _schemaReferenceHandling;
         private Required _defaultRequired;
 
-        private static IContractResolver DefaultInstance
-        {
-            get => _defaultInstance;
-        }
+        private static IContractResolver DefaultInstance => _defaultInstance;
 
         /// <summary>
         /// Gets or sets how IDs are generated for schemas with no ID.

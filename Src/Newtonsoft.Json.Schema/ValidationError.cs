@@ -3,6 +3,8 @@
 // License: https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md
 #endregion
 
+using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Schema.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -10,8 +12,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Text;
-using Newtonsoft.Json.Converters;
-using Newtonsoft.Json.Schema.Infrastructure;
 
 namespace Newtonsoft.Json.Schema
 {
@@ -168,12 +168,14 @@ namespace Newtonsoft.Json.Schema
 
         internal static ValidationError CreateValidationError(IFormattable message, ErrorType errorType, JSchema schema, Uri? schemaId, object? value, IList<ValidationError>? childErrors, IJsonLineInfo? lineInfo, string path)
         {
-            ValidationError error = new ValidationError();
-            error._formattable = message;
-            error._childErrors = childErrors;
+            ValidationError error = new ValidationError
+            {
+                _formattable = message,
+                _childErrors = childErrors,
 
-            error.ErrorType = errorType;
-            error.Path = path;
+                ErrorType = errorType,
+                Path = path
+            };
             if (lineInfo != null)
             {
                 error.LineNumber = lineInfo.LineNumber;

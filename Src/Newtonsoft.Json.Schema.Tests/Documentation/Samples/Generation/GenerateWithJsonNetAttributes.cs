@@ -3,11 +3,6 @@
 // License: https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
 using Newtonsoft.Json.Schema.Generation;
 using Newtonsoft.Json.Serialization;
 #if DNXCORE50

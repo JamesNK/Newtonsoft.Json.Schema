@@ -3,9 +3,9 @@
 // License: https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md
 #endregion
 
+using Newtonsoft.Json.Schema.Infrastructure.Licensing;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using Newtonsoft.Json.Schema.Infrastructure.Licensing;
 
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

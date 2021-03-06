@@ -5,7 +5,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Threading;
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 {

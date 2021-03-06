@@ -3,16 +3,8 @@
 // License: https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md
 #endregion
 
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Schema.Generation;
-using Newtonsoft.Json.Schema.Infrastructure;
 #if DNXCORE50
 using Xunit;
 using Test = Xunit.FactAttribute;
@@ -32,7 +24,7 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
             JSchema s = new JSchema();
             s.PatternProperties["test"] = new JSchema();
 
-            IDictionary dictionary = (IDictionary) s.PatternProperties;
+            IDictionary dictionary = (IDictionary)s.PatternProperties;
             Assert.AreEqual(s.PatternProperties["test"], dictionary["test"]);
             Assert.AreEqual(null, dictionary["BAD"]);
             Assert.AreEqual(true, dictionary.Contains("test"));

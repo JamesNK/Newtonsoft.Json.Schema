@@ -3,14 +3,11 @@
 // License: https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md
 #endregion
 
+using Newtonsoft.Json.Schema.Infrastructure;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Text;
-using Newtonsoft.Json.Schema.Infrastructure;
-using Newtonsoft.Json.Schema.Infrastructure.Discovery;
 
 namespace Newtonsoft.Json.Schema
 {
@@ -100,10 +97,10 @@ namespace Newtonsoft.Json.Schema
         }
 
         /// <summary>
-        /// Adds a <see cref="String"/> for a schema to the <see cref="JSchemaPreloadedResolver"/> store and maps it to a URI.
+        /// Adds a <see cref="string"/> for a schema to the <see cref="JSchemaPreloadedResolver"/> store and maps it to a URI.
         /// </summary>
         /// <param name="uri">The URI of the schema that is being added to the <see cref="JSchemaPreloadedResolver"/> store.</param>
-        /// <param name="value">The <see cref="String"/> for a schema that corresponds to the provided URI.</param>
+        /// <param name="value">The <see cref="string"/> for a schema that corresponds to the provided URI.</param>
         public void Add(Uri uri, string value)
         {
             byte[] data = Encoding.UTF8.GetBytes(value);

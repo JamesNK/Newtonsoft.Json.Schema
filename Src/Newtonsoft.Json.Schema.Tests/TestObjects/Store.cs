@@ -34,11 +34,15 @@ namespace Newtonsoft.Json.Schema.Tests.TestObjects
             Mottos.Add(null);
             Mottos.Add(" ");
 
-            Product rocket = new Product();
-            rocket.Name = "Rocket";
-            rocket.ExpiryDate = new DateTime(2000, 2, 2, 23, 1, 30, DateTimeKind.Utc);
-            Product alien = new Product();
-            alien.Name = "Alien";
+            Product rocket = new Product
+            {
+                Name = "Rocket",
+                ExpiryDate = new DateTime(2000, 2, 2, 23, 1, 30, DateTimeKind.Utc)
+            };
+            Product alien = new Product
+            {
+                Name = "Alien"
+            };
 
             product.Add(rocket);
             product.Add(alien);

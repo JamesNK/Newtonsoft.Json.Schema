@@ -3,15 +3,8 @@
 // License: https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md
 #endregion
 
-using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Schema.Generation;
-using Newtonsoft.Json.Schema.Infrastructure;
 #if DNXCORE50
 using Xunit;
 using Test = Xunit.FactAttribute;
@@ -25,7 +18,7 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
     [TestFixture]
     public class Issue0066Tests : TestFixtureBase
     {
-        private string schemaJson = @"{
+        private readonly string schemaJson = @"{
   ""id"": ""schemas/events/Clicked.json"",
   ""$schema"": ""http://json-schema.org/draft-04/schema#"",
   ""description"": ""The user interacted with the page by clicking on something interactable."",
@@ -253,8 +246,7 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
   ]
 }");
 
-                IList<string> errors;
-                o.IsValid(s, out errors);
+                o.IsValid(s, out IList<string> errors);
             }, "Error resolving schema ID 'file:components/EntityItems.json' in the current scope. The resolved ID must be a valid URI. Path 'properties.eventPayload.properties.items', line 132, position 18.");
         }
     }

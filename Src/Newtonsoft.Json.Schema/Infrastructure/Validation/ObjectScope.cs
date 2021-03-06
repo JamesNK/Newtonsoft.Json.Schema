@@ -3,12 +3,11 @@
 // License: https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md
 #endregion
 
+using Newtonsoft.Json.Schema.Infrastructure.Collections;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Newtonsoft.Json.Schema.Infrastructure.Collections;
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 {
@@ -389,7 +388,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     }
                 }
             }
-            
+
         }
 
         private void ValidateDependantProperties(string readProperty, IList<string> requiredProperties)

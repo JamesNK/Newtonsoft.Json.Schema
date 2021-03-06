@@ -4,7 +4,6 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 #if DNXCORE50
 using Xunit;

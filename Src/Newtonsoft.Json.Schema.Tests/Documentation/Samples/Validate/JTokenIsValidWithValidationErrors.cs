@@ -3,7 +3,6 @@
 // License: https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md
 #endregion
 
-using System;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 #if DNXCORE50
@@ -49,8 +48,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation.Samples.Validate
               'Black'
             ]");
 
-            IList<ValidationError> errors;
-            bool valid = colors.IsValid(schema, out errors);
+            bool valid = colors.IsValid(schema, out IList<ValidationError> errors);
             // Message - JSON is valid against schema from 'not'. Path '[2]', line 4, position 24.
             // SchemaId - #/items/0
 

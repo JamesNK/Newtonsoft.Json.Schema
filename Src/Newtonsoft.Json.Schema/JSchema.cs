@@ -3,6 +3,10 @@
 // License: https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md
 #endregion
 
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Schema.Infrastructure;
+using Newtonsoft.Json.Schema.Infrastructure.Collections;
+using Newtonsoft.Json.Schema.Infrastructure.Discovery;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -10,11 +14,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Text.RegularExpressions;
-using System.Threading;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Schema.Infrastructure;
-using Newtonsoft.Json.Schema.Infrastructure.Collections;
-using Newtonsoft.Json.Schema.Infrastructure.Discovery;
 
 namespace Newtonsoft.Json.Schema
 {
@@ -675,8 +674,10 @@ namespace Newtonsoft.Json.Schema
         private string ToStringInternal(JSchemaWriterSettings? settings)
         {
             StringWriter writer = new StringWriter(CultureInfo.InvariantCulture);
-            JsonTextWriter jsonWriter = new JsonTextWriter(writer);
-            jsonWriter.Formatting = Formatting.Indented;
+            JsonTextWriter jsonWriter = new JsonTextWriter(writer)
+            {
+                Formatting = Formatting.Indented
+            };
 
             WriteToInternal(jsonWriter, settings);
 
@@ -1024,7 +1025,7 @@ namespace Newtonsoft.Json.Schema
         /// <summary>
         /// Load a <see cref="JSchema"/> from a string that contains schema JSON.
         /// </summary>
-        /// <param name="json">A <see cref="String"/> that contains JSON.</param>
+        /// <param name="json">A <see cref="string"/> that contains JSON.</param>
         /// <returns>A <see cref="JSchema"/> populated from the string that contains JSON.</returns>
         public static JSchema Parse(string json)
         {

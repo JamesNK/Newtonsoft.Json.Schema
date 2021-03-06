@@ -4,14 +4,6 @@
 #endregion
 
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Schema.Generation;
 using Newtonsoft.Json.Schema.Infrastructure;
 #if DNXCORE50
 using Xunit;

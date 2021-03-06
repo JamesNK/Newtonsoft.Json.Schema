@@ -6,7 +6,6 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using Newtonsoft.Json.Linq;
 #if DNXCORE50
 using Xunit;
@@ -50,8 +49,7 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation.Samples.Validate
 
             JArray cultures = JArray.Parse(json);
 
-            IList<ValidationError> errors;
-            bool isValid = cultures.IsValid(schema, out errors);
+            bool isValid = cultures.IsValid(schema, out IList<ValidationError> errors);
 
             // false
             Console.WriteLine(isValid);

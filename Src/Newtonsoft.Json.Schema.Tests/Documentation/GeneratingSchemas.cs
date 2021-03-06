@@ -3,10 +3,8 @@
 // License: https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md
 #endregion
 
-using System.ComponentModel.DataAnnotations;
-using System.IO;
 using Newtonsoft.Json.Schema.Generation;
-using Newtonsoft.Json.Schema.Tests;
+using System.ComponentModel.DataAnnotations;
 #if !(NET35 || NET20 || PORTABLE || DNXCORE50)
 using System;
 using System.Collections.Generic;

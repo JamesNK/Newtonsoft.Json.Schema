@@ -57,7 +57,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 {
                     integerIsInRange = (i1 < BigIntegerDecimalMaxValue && i1 > BigIntegerDecimalMinValue);
 
-                    integerAsDouble = (double) i1;
+                    integerAsDouble = (double)i1;
                 }
                 else
                 {
@@ -133,7 +133,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                     // biginteger only supports operations against other integers
                     // this will lose any decimal point on MultipleOf
                     // so raise an error if MultipleOf is not an integer and value is not zero
-                    isMultiple = IsRemainderMultiple((decimal) i % multipleOf, multipleOf);
+                    isMultiple = IsRemainderMultiple((decimal)i % multipleOf, multipleOf);
                 }
                 else
                 {

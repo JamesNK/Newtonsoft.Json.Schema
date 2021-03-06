@@ -3,15 +3,7 @@
 // License: https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Schema.Generation;
-using Newtonsoft.Json.Schema.Infrastructure;
 #if DNXCORE50
 using Xunit;
 using Test = Xunit.FactAttribute;
@@ -25,7 +17,7 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
     [TestFixture]
     public class Issue0088Tests : TestFixtureBase
     {
-        private string originalSchemaJson = @"{
+        private readonly string originalSchemaJson = @"{
 
   ""type"": ""object"",
   ""$ref"":""#"",
@@ -33,7 +25,7 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
   }
 }";
 
-        private string originalSchemaJsonDraft7 = @"{
+        private readonly string originalSchemaJsonDraft7 = @"{
   ""$schema"": ""http://json-schema.org/draft-07/schema#"",
   ""type"": ""object"",
   ""$ref"":""#"",
@@ -53,9 +45,9 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
         [Test]
         public void Test_DraftUnset_Match()
         {
-            var s = JSchema.Parse(originalSchemaJson);
+            JSchema s = JSchema.Parse(originalSchemaJson);
 
-            var writtenJson = s.ToString();
+            string writtenJson = s.ToString();
 
             StringAssert.AreEqual(@"{
   ""definitions"": {},
@@ -71,9 +63,9 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
         [Test]
         public void Test_DraftUnset_NoMatch()
         {
-            var s = JSchema.Parse(originalSchemaJson);
+            JSchema s = JSchema.Parse(originalSchemaJson);
 
-            var writtenJson = s.ToString();
+            string writtenJson = s.ToString();
 
             StringAssert.AreEqual(@"{
   ""definitions"": {},

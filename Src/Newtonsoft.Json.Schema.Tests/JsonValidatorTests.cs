@@ -5,7 +5,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 #if DNXCORE50
@@ -80,8 +79,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             JObject o = JObject.Parse(json);
 
-            IList<string> errors;
-            Assert.IsFalse(o.IsValid(schema, out errors));
+            Assert.IsFalse(o.IsValid(schema, out IList<string> errors));
 
             Assert.AreEqual(2, errors.Count);
             Assert.AreEqual(@"Invalid type. Expected Object but got String. Path 'someDictionary[2].value', line 28, position 25.", errors[0]);
@@ -92,9 +90,9 @@ namespace Newtonsoft.Json.Schema.Tests
         {
             public override void Validate(JToken value, JsonValidatorContext context)
             {
-                var groupedValues = value.GroupBy(v => v["key"], v => v["value"], JToken.EqualityComparer);
+                IEnumerable<IGrouping<JToken, JToken>> groupedValues = value.GroupBy(v => v["key"], v => v["value"], JToken.EqualityComparer);
 
-                foreach (var groupedValue in groupedValues)
+                foreach (IGrouping<JToken, JToken> groupedValue in groupedValues)
                 {
                     if (groupedValue.Count() > 1)
                     {
@@ -142,8 +140,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             JObject o = JObject.Parse(json);
 
-            IList<ValidationError> errors;
-            Assert.IsFalse(o.IsValid(schema, out errors));
+            Assert.IsFalse(o.IsValid(schema, out IList<ValidationError> errors));
 
             Assert.AreEqual(2, errors.Count);
 
@@ -241,8 +238,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             JObject o = JObject.Parse(json);
 
-            IList<ValidationError> errors;
-            Assert.IsFalse(o.IsValid(schema, out errors));
+            Assert.IsFalse(o.IsValid(schema, out IList<ValidationError> errors));
 
             Assert.AreEqual(4, errors.Count);
 

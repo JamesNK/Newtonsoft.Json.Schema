@@ -4,9 +4,8 @@
 #endregion
 
 using System;
-using System.IO;
-using System.Xml;
 using System.Globalization;
+using System.IO;
 
 namespace Newtonsoft.Json.Schema.Utilities
 {
@@ -30,11 +29,11 @@ namespace Newtonsoft.Json.Schema.Utilities
 
         public static TimeSpan GetUtcOffset(this DateTime d)
         {
-//#if !HAVE_TIME_ZONE_INFO
-//            return TimeZone.CurrentTimeZone.GetUtcOffset(d);
-//#else
+            //#if !HAVE_TIME_ZONE_INFO
+            //            return TimeZone.CurrentTimeZone.GetUtcOffset(d);
+            //#else
             return TimeZoneInfo.Local.GetUtcOffset(d);
-//#endif
+            //#endif
         }
 
         #region Write

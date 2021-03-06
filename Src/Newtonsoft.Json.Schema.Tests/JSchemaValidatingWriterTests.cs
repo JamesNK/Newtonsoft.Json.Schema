@@ -4,9 +4,7 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 #if !(PORTABLE || NET35) || DNXCORE50
 using System.Numerics;
 #endif
@@ -45,9 +43,11 @@ namespace Newtonsoft.Json.Schema.Tests
 
             StringWriter sw = new StringWriter();
             JsonTextWriter writer = new JsonTextWriter(sw);
-            JSchemaValidatingWriter validatingWriter = new JSchemaValidatingWriter(writer);
-            validatingWriter.RegexMatchTimeout = TimeSpan.FromSeconds(1);
-            validatingWriter.Schema = schema;
+            JSchemaValidatingWriter validatingWriter = new JSchemaValidatingWriter(writer)
+            {
+                RegexMatchTimeout = TimeSpan.FromSeconds(1),
+                Schema = schema
+            };
             validatingWriter.ValidationEventHandler += (sender, args) => { };
 
             ExceptionAssert.Throws<JSchemaException>(() =>
@@ -65,8 +65,10 @@ namespace Newtonsoft.Json.Schema.Tests
         [Test]
         public void ArrayBasicValidation_Pass()
         {
-            JSchema schema = new JSchema();
-            schema.Type = JSchemaType.Array;
+            JSchema schema = new JSchema
+            {
+                Type = JSchemaType.Array
+            };
             schema.Items.Add(new JSchema
             {
                 Type = JSchemaType.Integer
@@ -76,8 +78,10 @@ namespace Newtonsoft.Json.Schema.Tests
 
             StringWriter sw = new StringWriter();
             JsonTextWriter writer = new JsonTextWriter(sw);
-            JSchemaValidatingWriter validatingWriter = new JSchemaValidatingWriter(writer);
-            validatingWriter.Schema = schema;
+            JSchemaValidatingWriter validatingWriter = new JSchemaValidatingWriter(writer)
+            {
+                Schema = schema
+            };
             validatingWriter.ValidationEventHandler += (sender, args) => { a = args; };
 
             validatingWriter.WriteStartArray();
@@ -93,8 +97,10 @@ namespace Newtonsoft.Json.Schema.Tests
         [Test]
         public void ArrayBasicValidation_Fail()
         {
-            JSchema schema = new JSchema();
-            schema.Type = JSchemaType.Array;
+            JSchema schema = new JSchema
+            {
+                Type = JSchemaType.Array
+            };
             schema.Items.Add(new JSchema
             {
                 Type = JSchemaType.Integer
@@ -104,8 +110,10 @@ namespace Newtonsoft.Json.Schema.Tests
 
             StringWriter sw = new StringWriter();
             JsonTextWriter writer = new JsonTextWriter(sw);
-            JSchemaValidatingWriter validatingWriter = new JSchemaValidatingWriter(writer);
-            validatingWriter.Schema = schema;
+            JSchemaValidatingWriter validatingWriter = new JSchemaValidatingWriter(writer)
+            {
+                Schema = schema
+            };
             validatingWriter.ValidationEventHandler += (sender, args) => { a = args; };
 
             validatingWriter.WriteStartArray();
@@ -131,8 +139,10 @@ namespace Newtonsoft.Json.Schema.Tests
         [Test]
         public void ObjectBasicValidation_Pass()
         {
-            JSchema schema = new JSchema();
-            schema.Type = JSchemaType.Object;
+            JSchema schema = new JSchema
+            {
+                Type = JSchemaType.Object
+            };
             schema.Properties.Add("prop1", new JSchema
             {
                 Type = JSchemaType.Integer
@@ -146,8 +156,10 @@ namespace Newtonsoft.Json.Schema.Tests
 
             StringWriter sw = new StringWriter();
             JsonTextWriter writer = new JsonTextWriter(sw);
-            JSchemaValidatingWriter validatingWriter = new JSchemaValidatingWriter(writer);
-            validatingWriter.Schema = schema;
+            JSchemaValidatingWriter validatingWriter = new JSchemaValidatingWriter(writer)
+            {
+                Schema = schema
+            };
             validatingWriter.ValidationEventHandler += (sender, args) => { a = args; };
 
             validatingWriter.WriteStartObject();
@@ -165,8 +177,10 @@ namespace Newtonsoft.Json.Schema.Tests
         [Test]
         public void ObjectBasicValidation_Fail()
         {
-            JSchema schema = new JSchema();
-            schema.Type = JSchemaType.Object;
+            JSchema schema = new JSchema
+            {
+                Type = JSchemaType.Object
+            };
             schema.Properties.Add("prop1", new JSchema
             {
                 Type = JSchemaType.Integer
@@ -180,8 +194,10 @@ namespace Newtonsoft.Json.Schema.Tests
 
             StringWriter sw = new StringWriter();
             JsonTextWriter writer = new JsonTextWriter(sw);
-            JSchemaValidatingWriter validatingWriter = new JSchemaValidatingWriter(writer);
-            validatingWriter.Schema = schema;
+            JSchemaValidatingWriter validatingWriter = new JSchemaValidatingWriter(writer)
+            {
+                Schema = schema
+            };
             validatingWriter.ValidationEventHandler += (sender, args) => { a = args; };
 
             validatingWriter.WriteStartObject();
@@ -224,8 +240,10 @@ namespace Newtonsoft.Json.Schema.Tests
 
             StringWriter sw = new StringWriter();
             JsonTextWriter writer = new JsonTextWriter(sw);
-            JSchemaValidatingWriter validatingWriter = new JSchemaValidatingWriter(writer);
-            validatingWriter.Schema = schema;
+            JSchemaValidatingWriter validatingWriter = new JSchemaValidatingWriter(writer)
+            {
+                Schema = schema
+            };
             validatingWriter.ValidationEventHandler += (sender, args) => { a = args; };
 
             validatingWriter.WriteStartObject();
@@ -257,8 +275,10 @@ namespace Newtonsoft.Json.Schema.Tests
         [Test]
         public void WriteValue()
         {
-            JSchema schema = new JSchema();
-            schema.Type = JSchemaType.Array;
+            JSchema schema = new JSchema
+            {
+                Type = JSchemaType.Array
+            };
             schema.Items.Add(new JSchema
             {
                 Type = JSchemaType.Integer
@@ -267,10 +287,14 @@ namespace Newtonsoft.Json.Schema.Tests
             SchemaValidationEventArgs a = null;
 
             StringWriter sw = new StringWriter();
-            JsonTextWriter writer = new JsonTextWriter(sw);
-            writer.Formatting = Formatting.Indented;
-            JSchemaValidatingWriter validatingWriter = new JSchemaValidatingWriter(writer);
-            validatingWriter.Schema = schema;
+            JsonTextWriter writer = new JsonTextWriter(sw)
+            {
+                Formatting = Formatting.Indented
+            };
+            JSchemaValidatingWriter validatingWriter = new JSchemaValidatingWriter(writer)
+            {
+                Schema = schema
+            };
             validatingWriter.ValidationEventHandler += (sender, args) => { a = args; };
 
             validatingWriter.WriteStartArray();
@@ -427,8 +451,10 @@ namespace Newtonsoft.Json.Schema.Tests
         [Test]
         public void WriteValue_Object()
         {
-            JSchema schema = new JSchema();
-            schema.Type = JSchemaType.Array;
+            JSchema schema = new JSchema
+            {
+                Type = JSchemaType.Array
+            };
             schema.Items.Add(new JSchema
             {
                 Type = JSchemaType.Integer
@@ -437,10 +463,14 @@ namespace Newtonsoft.Json.Schema.Tests
             SchemaValidationEventArgs a = null;
 
             StringWriter sw = new StringWriter();
-            JsonTextWriter writer = new JsonTextWriter(sw);
-            writer.Formatting = Formatting.Indented;
-            JSchemaValidatingWriter validatingWriter = new JSchemaValidatingWriter(writer);
-            validatingWriter.Schema = schema;
+            JsonTextWriter writer = new JsonTextWriter(sw)
+            {
+                Formatting = Formatting.Indented
+            };
+            JSchemaValidatingWriter validatingWriter = new JSchemaValidatingWriter(writer)
+            {
+                Schema = schema
+            };
             validatingWriter.ValidationEventHandler += (sender, args) => { a = args; };
 
             validatingWriter.WriteStartArray();
@@ -653,8 +683,10 @@ namespace Newtonsoft.Json.Schema.Tests
         [Test]
         public void WriteStartConstructor()
         {
-            JSchema schema = new JSchema();
-            schema.Type = JSchemaType.Array;
+            JSchema schema = new JSchema
+            {
+                Type = JSchemaType.Array
+            };
             schema.Items.Add(new JSchema
             {
                 Type = JSchemaType.Integer
@@ -664,8 +696,10 @@ namespace Newtonsoft.Json.Schema.Tests
 
             StringWriter sw = new StringWriter();
             JsonTextWriter writer = new JsonTextWriter(sw);
-            JSchemaValidatingWriter validatingWriter = new JSchemaValidatingWriter(writer);
-            validatingWriter.Schema = schema;
+            JSchemaValidatingWriter validatingWriter = new JSchemaValidatingWriter(writer)
+            {
+                Schema = schema
+            };
             validatingWriter.ValidationEventHandler += (sender, args) => { a = args; };
 
             validatingWriter.WriteStartConstructor("Test");
@@ -696,8 +730,8 @@ namespace Newtonsoft.Json.Schema.Tests
         [Test]
         public void CloseAlsoClosesUnderlyingWriter()
         {
-            var underlyingWriter = new JsonWriterStubWithIsClosed();
-            var validatingWriter = new JSchemaValidatingWriter(underlyingWriter) { CloseOutput = true };
+            JsonWriterStubWithIsClosed underlyingWriter = new JsonWriterStubWithIsClosed();
+            JSchemaValidatingWriter validatingWriter = new JSchemaValidatingWriter(underlyingWriter) { CloseOutput = true };
 
             validatingWriter.Close();
 

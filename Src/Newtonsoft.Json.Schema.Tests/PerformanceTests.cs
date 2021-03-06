@@ -7,8 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
 using Newtonsoft.Json.Linq;
 #if DNXCORE50
 using Xunit;
@@ -31,7 +29,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JArray a = JArray.Parse(Json);
             a.IsValid(Schema);
 
-            using (var tester = new PerformanceTester("IsValid"))
+            using (PerformanceTester tester = new PerformanceTester("IsValid"))
             {
                 for (int i = 1; i < ValidationCount; i++)
                 {
@@ -46,7 +44,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JArray a = JArray.Parse(JsonFailure);
             a.IsValid(Schema);
 
-            using (var tester = new PerformanceTester("IsValid_Failure"))
+            using (PerformanceTester tester = new PerformanceTester("IsValid_Failure"))
             {
                 for (int i = 1; i < ValidationCount; i++)
                 {
@@ -63,7 +61,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JObject o = JObject.Parse(schemaJson);
             o.IsValid(s);
 
-            using (var tester = new PerformanceTester("IsValid_SchemaSpec"))
+            using (PerformanceTester tester = new PerformanceTester("IsValid_SchemaSpec"))
             {
                 for (int i = 1; i < ValidationCount; i++)
                 {
@@ -77,7 +75,7 @@ namespace Newtonsoft.Json.Schema.Tests
         {
             ReaderValidation();
 
-            using (var tester = new PerformanceTester("Reader"))
+            using (PerformanceTester tester = new PerformanceTester("Reader"))
             {
                 for (int i = 1; i < ValidationCount; i++)
                 {
@@ -97,7 +95,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             ReaderValidation(json, schema);
 
-            using (var tester = new PerformanceTester("DeeplyNestedConditionalScopes"))
+            using (PerformanceTester tester = new PerformanceTester("DeeplyNestedConditionalScopes"))
             {
                 for (int i = 1; i < ValidationCount; i++)
                 {
@@ -122,8 +120,10 @@ namespace Newtonsoft.Json.Schema.Tests
         private void ReaderValidation()
         {
             JsonTextReader reader = new JsonTextReader(new StringReader(Json));
-            JSchemaValidatingReader validatingReader = new JSchemaValidatingReader(reader);
-            validatingReader.Schema = Schema;
+            JSchemaValidatingReader validatingReader = new JSchemaValidatingReader(reader)
+            {
+                Schema = Schema
+            };
 
             while (validatingReader.Read())
             {
@@ -272,9 +272,6 @@ namespace Newtonsoft.Json.Schema.Tests
             }
         }
 
-        public TimeSpan Result
-        {
-            get { return _stopwatch.Elapsed; }
-        }
+        public TimeSpan Result => _stopwatch.Elapsed;
     }
 }

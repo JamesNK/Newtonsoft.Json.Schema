@@ -3,14 +3,10 @@
 // License: https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md
 #endregion
 
-using System;
-using System.Collections.Generic;
 using System.IO;
-using Newtonsoft.Json.Schema.Infrastructure;
 #if !(NET20 || NET35 || PORTABLE) || DNXCORE50
 using System.Numerics;
 #endif
-using System.Text;
 #if DNXCORE50
 using Xunit;
 using Test = Xunit.FactAttribute;

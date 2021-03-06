@@ -5,13 +5,12 @@
 
 #endregion
 
+using Newtonsoft.Json.Linq;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
-using Newtonsoft.Json.Linq;
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
 {
@@ -54,7 +53,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                 && o[Constants.PropertyNames.RecursiveAnchor] is JValue recursiveAnchor
                 && (recursiveAnchor.Type == JTokenType.Boolean))
             {
-                return (bool)recursiveAnchor ? bool.TrueString: null;
+                return (bool)recursiveAnchor ? bool.TrueString : null;
             }
 
             return null;

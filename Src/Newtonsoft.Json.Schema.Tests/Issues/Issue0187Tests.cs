@@ -4,10 +4,6 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Newtonsoft.Json.Linq;
 #if DNXCORE50
 using Xunit;
 using Test = Xunit.FactAttribute;
@@ -25,7 +21,7 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
         public void Test()
         {
             // Arrange
-            var schema = new JSchema()
+            JSchema schema = new JSchema()
             {
                 Type = JSchemaType.Object,
                 SchemaVersion = new Uri("http://json-schema.org/draft-07/schema#")
@@ -33,14 +29,14 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
 
             schema.Properties.Add("ShowField", new JSchema() { Type = JSchemaType.Boolean });
 
-            var oneOf1 = new JSchema();
+            JSchema oneOf1 = new JSchema();
             oneOf1.Properties.Add("ShowField", new JSchema() { Enum = { false } });
 
-            var oneOf2 = new JSchema();
+            JSchema oneOf2 = new JSchema();
             oneOf2.Properties.Add("ShowField", new JSchema() { Enum = { true } });
             oneOf2.Properties.Add("ExtraField", new JSchema() { Type = JSchemaType.String });
 
-            var oneOf = new JSchema();
+            JSchema oneOf = new JSchema();
             oneOf.OneOf.Add(oneOf1);
             oneOf.OneOf.Add(oneOf2);
 
@@ -49,7 +45,7 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
             Console.WriteLine();
 
             // Act
-            var result = schema.ToString();
+            string result = schema.ToString();
 
             // Assert
             StringAssert.AreEqual(@"{

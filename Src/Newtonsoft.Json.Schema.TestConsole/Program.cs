@@ -3,14 +3,9 @@
 // License: https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Newtonsoft.Json.Schema.Tests;
+using System;
+using System.Diagnostics;
 
 namespace Newtonsoft.Json.Schema.TestConsole
 {

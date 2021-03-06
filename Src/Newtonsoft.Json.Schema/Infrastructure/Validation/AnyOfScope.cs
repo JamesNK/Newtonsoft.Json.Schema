@@ -3,8 +3,6 @@
 // License: https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md
 #endregion
 
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 {

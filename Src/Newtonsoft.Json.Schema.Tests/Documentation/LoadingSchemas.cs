@@ -4,7 +4,6 @@
 #endregion
 
 using System.IO;
-using Newtonsoft.Json.Schema.Tests;
 #if !(NET35 || NET20 || PORTABLE || DNXCORE50)
 using System;
 using System.Collections.Generic;

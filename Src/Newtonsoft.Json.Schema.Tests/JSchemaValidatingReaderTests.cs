@@ -6,7 +6,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Newtonsoft.Json.Schema.Infrastructure;
 #if !(NET20 || NET35 || PORTABLE) || DNXCORE50
 using System.Numerics;
 #endif
@@ -18,10 +17,7 @@ using Assert = Newtonsoft.Json.Schema.Tests.XUnitAssert;
 #else
 using NUnit.Framework;
 #endif
-using System.Xml;
-using System.Xml.Schema;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Schema;
 using Newtonsoft.Json.Schema.Generation;
 
 namespace Newtonsoft.Json.Schema.Tests
@@ -49,9 +45,11 @@ namespace Newtonsoft.Json.Schema.Tests
 }");
 
             JsonTextReader reader = new JsonTextReader(new StringReader(@"{ ""bomb"":""aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"" }"));
-            JSchemaValidatingReader validatingReader = new JSchemaValidatingReader(reader);
-            validatingReader.RegexMatchTimeout = TimeSpan.FromSeconds(1);
-            validatingReader.Schema = schema;
+            JSchemaValidatingReader validatingReader = new JSchemaValidatingReader(reader)
+            {
+                RegexMatchTimeout = TimeSpan.FromSeconds(1),
+                Schema = schema
+            };
             validatingReader.ValidationEventHandler += (sender, args) => { };
 
             ExceptionAssert.Throws<JSchemaException>(() =>
@@ -75,8 +73,10 @@ namespace Newtonsoft.Json.Schema.Tests
   'Developer',
   'Administrator'
 ]"));
-            JSchemaValidatingReader validatingReader = new JSchemaValidatingReader(reader);
-            validatingReader.Schema = schema;
+            JSchemaValidatingReader validatingReader = new JSchemaValidatingReader(reader)
+            {
+                Schema = schema
+            };
             validatingReader.ValidationEventHandler += (sender, args) => { throw new Exception(args.Message); };
 
             JsonSerializer serializer = new JsonSerializer();
@@ -100,16 +100,17 @@ namespace Newtonsoft.Json.Schema.Tests
         [Test]
         public void PropertyNamesFalse()
         {
-            JSchema schema = new JSchema();
-            schema.PropertyNames = new JSchema
+            JSchema schema = new JSchema
             {
-                Valid = false
+                PropertyNames = new JSchema
+                {
+                    Valid = false
+                }
             };
 
             string json = "{'prop':true}";
 
-            IList<SchemaValidationEventArgs> errors;
-            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out errors);
+            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out IList<SchemaValidationEventArgs> errors);
 
             Assert.IsTrue(validatingReader.Read());
             Assert.IsTrue(validatingReader.Read());
@@ -125,16 +126,17 @@ namespace Newtonsoft.Json.Schema.Tests
         [Test]
         public void PropertyNamesEnum_NoMatch_Fails()
         {
-            JSchema schema = new JSchema();
-            schema.PropertyNames = new JSchema
+            JSchema schema = new JSchema
             {
-                Enum = { "one", "two" }
+                PropertyNames = new JSchema
+                {
+                    Enum = { "one", "two" }
+                }
             };
 
             string json = "{'prop':true}";
 
-            IList<SchemaValidationEventArgs> errors;
-            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out errors);
+            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out IList<SchemaValidationEventArgs> errors);
 
             Assert.IsTrue(validatingReader.Read());
             Assert.IsTrue(validatingReader.Read());
@@ -150,16 +152,17 @@ namespace Newtonsoft.Json.Schema.Tests
         [Test]
         public void PropertyNamesEnum_Match_Passes()
         {
-            JSchema schema = new JSchema();
-            schema.PropertyNames = new JSchema
+            JSchema schema = new JSchema
             {
-                Enum = { "one", "prop" }
+                PropertyNames = new JSchema
+                {
+                    Enum = { "one", "prop" }
+                }
             };
 
             string json = "{'prop':true}";
 
-            IList<SchemaValidationEventArgs> errors;
-            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out errors);
+            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out IList<SchemaValidationEventArgs> errors);
 
             Assert.IsTrue(validatingReader.Read());
             Assert.IsTrue(validatingReader.Read());
@@ -173,10 +176,11 @@ namespace Newtonsoft.Json.Schema.Tests
         [Test]
         public void PropertyNamesAnyOf_Match_Passes()
         {
-            JSchema schema = new JSchema();
-            schema.PropertyNames = new JSchema
+            JSchema schema = new JSchema
             {
-                AnyOf =
+                PropertyNames = new JSchema
+                {
+                    AnyOf =
                 {
                     new JSchema
                     {
@@ -187,12 +191,12 @@ namespace Newtonsoft.Json.Schema.Tests
                         Enum = { "prop" }
                     }
                 }
+                }
             };
 
             string json = "{'prop':true}";
 
-            IList<SchemaValidationEventArgs> errors;
-            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out errors);
+            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out IList<SchemaValidationEventArgs> errors);
 
             Assert.IsTrue(validatingReader.Read());
             Assert.IsTrue(validatingReader.Read());
@@ -206,10 +210,11 @@ namespace Newtonsoft.Json.Schema.Tests
         [Test]
         public void PropertyNamesAnyOf_NoMatch_Fails()
         {
-            JSchema schema = new JSchema();
-            schema.PropertyNames = new JSchema
+            JSchema schema = new JSchema
             {
-                AnyOf =
+                PropertyNames = new JSchema
+                {
+                    AnyOf =
                 {
                     new JSchema
                     {
@@ -220,12 +225,12 @@ namespace Newtonsoft.Json.Schema.Tests
                         Enum = { "two" }
                     }
                 }
+                }
             };
 
             string json = "{'prop':true}";
 
-            IList<SchemaValidationEventArgs> errors;
-            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out errors);
+            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out IList<SchemaValidationEventArgs> errors);
 
             Assert.IsTrue(validatingReader.Read());
             Assert.IsTrue(validatingReader.Read());
@@ -240,16 +245,17 @@ namespace Newtonsoft.Json.Schema.Tests
         [Test]
         public void PropertyNames_Const_Valid()
         {
-            JSchema schema = new JSchema();
-            schema.PropertyNames = new JSchema
+            JSchema schema = new JSchema
             {
-                Const = JToken.Parse("'prop'")
+                PropertyNames = new JSchema
+                {
+                    Const = JToken.Parse("'prop'")
+                }
             };
 
             string json = "{'prop':true}";
 
-            IList<SchemaValidationEventArgs> errors;
-            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out errors);
+            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out IList<SchemaValidationEventArgs> errors);
 
             Assert.IsTrue(validatingReader.Read());
             Assert.IsTrue(validatingReader.Read());
@@ -270,8 +276,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             string json = "{'prop':true}";
 
-            IList<SchemaValidationEventArgs> errors;
-            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out errors);
+            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out IList<SchemaValidationEventArgs> errors);
 
             Assert.IsTrue(validatingReader.Read());
             Assert.IsTrue(validatingReader.Read());
@@ -285,13 +290,14 @@ namespace Newtonsoft.Json.Schema.Tests
         [Test]
         public void ConstComplex_Invalid()
         {
-            JSchema schema = new JSchema();
-            schema.Const = JObject.Parse("{'prop':null}");
+            JSchema schema = new JSchema
+            {
+                Const = JObject.Parse("{'prop':null}")
+            };
 
             string json = "{'prop':true}";
 
-            IList<SchemaValidationEventArgs> errors;
-            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out errors);
+            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out IList<SchemaValidationEventArgs> errors);
 
             Assert.IsTrue(validatingReader.Read());
             Assert.IsTrue(validatingReader.Read());
@@ -307,13 +313,14 @@ namespace Newtonsoft.Json.Schema.Tests
         [Test]
         public void ConstLarge_Invalid()
         {
-            JSchema schema = new JSchema();
-            schema.Const = JObject.Parse("{'const': 9007199254740992}");
+            JSchema schema = new JSchema
+            {
+                Const = JObject.Parse("{'const': 9007199254740992}")
+            };
 
             string json = "9007199254740991";
 
-            IList<SchemaValidationEventArgs> errors;
-            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out errors);
+            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out IList<SchemaValidationEventArgs> errors);
 
             Assert.IsTrue(validatingReader.Read());
 
@@ -325,13 +332,14 @@ namespace Newtonsoft.Json.Schema.Tests
         [Test]
         public void ValidateInteger()
         {
-            JSchema schema = new JSchema();
-            schema.Type = JSchemaType.Integer;
+            JSchema schema = new JSchema
+            {
+                Type = JSchemaType.Integer
+            };
 
             string json = "1";
 
-            IList<SchemaValidationEventArgs> errors;
-            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out errors);
+            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out IList<SchemaValidationEventArgs> errors);
 
             Assert.IsTrue(validatingReader.Read());
 
@@ -341,13 +349,14 @@ namespace Newtonsoft.Json.Schema.Tests
         [Test]
         public void ValidateObject()
         {
-            JSchema schema = new JSchema();
-            schema.Type = JSchemaType.Object;
+            JSchema schema = new JSchema
+            {
+                Type = JSchemaType.Object
+            };
 
             string json = "{}";
 
-            IList<SchemaValidationEventArgs> errors;
-            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out errors);
+            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out IList<SchemaValidationEventArgs> errors);
 
             Assert.IsTrue(validatingReader.Read());
             Assert.IsTrue(validatingReader.Read());
@@ -359,13 +368,14 @@ namespace Newtonsoft.Json.Schema.Tests
         [Test]
         public void ValidateObject_Valid_False()
         {
-            JSchema schema = new JSchema();
-            schema.Valid = false;
+            JSchema schema = new JSchema
+            {
+                Valid = false
+            };
 
             string json = "{}";
 
-            IList<SchemaValidationEventArgs> errors;
-            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out errors);
+            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out IList<SchemaValidationEventArgs> errors);
 
             Assert.IsTrue(validatingReader.Read());
             Assert.IsTrue(validatingReader.Read());
@@ -378,13 +388,14 @@ namespace Newtonsoft.Json.Schema.Tests
         [Test]
         public void ValidateArray_Valid_False()
         {
-            JSchema schema = new JSchema();
-            schema.Valid = false;
+            JSchema schema = new JSchema
+            {
+                Valid = false
+            };
 
             string json = "[]";
 
-            IList<SchemaValidationEventArgs> errors;
-            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out errors);
+            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out IList<SchemaValidationEventArgs> errors);
 
             Assert.IsTrue(validatingReader.Read());
             Assert.IsTrue(validatingReader.Read());
@@ -397,13 +408,14 @@ namespace Newtonsoft.Json.Schema.Tests
         [Test]
         public void ValidatePrimitive_Valid_False()
         {
-            JSchema schema = new JSchema();
-            schema.Valid = false;
+            JSchema schema = new JSchema
+            {
+                Valid = false
+            };
 
             string json = "1";
 
-            IList<SchemaValidationEventArgs> errors;
-            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out errors);
+            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out IList<SchemaValidationEventArgs> errors);
 
             Assert.IsTrue(validatingReader.Read());
             Assert.IsFalse(validatingReader.Read());
@@ -427,8 +439,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             string json = "{'testProp':5,'testProp2':true}";
 
-            IList<SchemaValidationEventArgs> errors;
-            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out errors);
+            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out IList<SchemaValidationEventArgs> errors);
 
             Assert.IsTrue(validatingReader.Read());
             Assert.IsTrue(validatingReader.Read());
@@ -448,14 +459,15 @@ namespace Newtonsoft.Json.Schema.Tests
         [Test]
         public void ValidateArray()
         {
-            JSchema schema = new JSchema();
-            schema.Type = JSchemaType.Array;
+            JSchema schema = new JSchema
+            {
+                Type = JSchemaType.Array
+            };
             schema.Items.Add(new JSchema { Type = JSchemaType.Integer });
 
             string json = "[1,true,2,'hi']";
 
-            IList<SchemaValidationEventArgs> errors;
-            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out errors);
+            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out IList<SchemaValidationEventArgs> errors);
 
             Assert.IsTrue(validatingReader.Read());
             Assert.IsTrue(validatingReader.Read());
@@ -475,17 +487,18 @@ namespace Newtonsoft.Json.Schema.Tests
         [Test]
         public void ValidateContains_Simple_Valid()
         {
-            JSchema schema = new JSchema();
-            schema.Type = JSchemaType.Array;
-            schema.Contains = new JSchema
+            JSchema schema = new JSchema
             {
-                Const = true
+                Type = JSchemaType.Array,
+                Contains = new JSchema
+                {
+                    Const = true
+                }
             };
 
             string json = "[1,true,2,'hi']";
 
-            IList<SchemaValidationEventArgs> errors;
-            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out errors);
+            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out IList<SchemaValidationEventArgs> errors);
 
             Assert.IsTrue(validatingReader.Read());
             Assert.IsTrue(validatingReader.Read());
@@ -501,17 +514,18 @@ namespace Newtonsoft.Json.Schema.Tests
         [Test]
         public void ValidateContains_Complex_Valid()
         {
-            JSchema schema = new JSchema();
-            schema.Type = JSchemaType.Array;
-            schema.Contains = new JSchema
+            JSchema schema = new JSchema
             {
-                Const = JArray.Parse("[1,2]")
+                Type = JSchemaType.Array,
+                Contains = new JSchema
+                {
+                    Const = JArray.Parse("[1,2]")
+                }
             };
 
             string json = "[1,[1,2],2,'hi']";
 
-            IList<SchemaValidationEventArgs> errors;
-            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out errors);
+            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out IList<SchemaValidationEventArgs> errors);
 
             Assert.IsTrue(validatingReader.Read());
             Assert.IsTrue(validatingReader.Read());
@@ -530,17 +544,18 @@ namespace Newtonsoft.Json.Schema.Tests
         [Test]
         public void ValidateContains_Simple_Invalid()
         {
-            JSchema schema = new JSchema();
-            schema.Type = JSchemaType.Array;
-            schema.Contains = new JSchema
+            JSchema schema = new JSchema
             {
-                Const = false
+                Type = JSchemaType.Array,
+                Contains = new JSchema
+                {
+                    Const = false
+                }
             };
 
             string json = "[1,true,2,'hi']";
 
-            IList<SchemaValidationEventArgs> errors;
-            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out errors);
+            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out IList<SchemaValidationEventArgs> errors);
 
             Assert.IsTrue(validatingReader.Read());
             Assert.IsTrue(validatingReader.Read());
@@ -571,17 +586,18 @@ namespace Newtonsoft.Json.Schema.Tests
         [Test]
         public void ValidateContains_Complex_Invalid()
         {
-            JSchema schema = new JSchema();
-            schema.Type = JSchemaType.Array;
-            schema.Contains = new JSchema
+            JSchema schema = new JSchema
             {
-                Const = JArray.Parse("[1]")
+                Type = JSchemaType.Array,
+                Contains = new JSchema
+                {
+                    Const = JArray.Parse("[1]")
+                }
             };
 
             string json = "[1,[1,2],2,'hi']";
 
-            IList<SchemaValidationEventArgs> errors;
-            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out errors);
+            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out IList<SchemaValidationEventArgs> errors);
 
             Assert.IsTrue(validatingReader.Read());
             Assert.IsTrue(validatingReader.Read());
@@ -615,8 +631,10 @@ namespace Newtonsoft.Json.Schema.Tests
         [Test]
         public void ValidateInteger_AllOfFailure()
         {
-            JSchema schema = new JSchema();
-            schema.Type = JSchemaType.Integer;
+            JSchema schema = new JSchema
+            {
+                Type = JSchemaType.Integer
+            };
 
             schema.AllOf.Add(new JSchema
             {
@@ -629,8 +647,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             string json = "1";
 
-            IList<SchemaValidationEventArgs> errors;
-            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out errors);
+            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out IList<SchemaValidationEventArgs> errors);
 
             Assert.IsTrue(validatingReader.Read());
 
@@ -640,8 +657,10 @@ namespace Newtonsoft.Json.Schema.Tests
         [Test]
         public void ValidateInteger_BadTypeFailure()
         {
-            JSchema schema = new JSchema();
-            schema.Type = JSchemaType.Boolean;
+            JSchema schema = new JSchema
+            {
+                Type = JSchemaType.Boolean
+            };
 
             string json = "1";
             JsonReader reader = new JsonTextReader(new StringReader(json));
@@ -1021,8 +1040,10 @@ namespace Newtonsoft.Json.Schema.Tests
   ""maximum"":5
 }";
 
-                JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader("10")));
-                reader.Schema = JSchema.Parse(schemaJson);
+                JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader("10")))
+                {
+                    Schema = JSchema.Parse(schemaJson)
+                };
 
                 Assert.IsTrue(reader.Read());
             }, "Integer 10 exceeds maximum value of 5. Path '', line 1, position 2.");
@@ -2012,8 +2033,7 @@ namespace Newtonsoft.Json.Schema.Tests
         {
             string json = "{'firstproperty':'blah','secondproperty':'blah2','additional':'blah3','additional2':'blah4'}";
 
-            IList<SchemaValidationEventArgs> errors;
-            JSchemaValidatingReader reader = CreateReader(json, GetExtendedSchema(), out errors);
+            JSchemaValidatingReader reader = CreateReader(json, GetExtendedSchema(), out IList<SchemaValidationEventArgs> errors);
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.StartObject, reader.TokenType);
@@ -2610,8 +2630,10 @@ namespace Newtonsoft.Json.Schema.Tests
         [Test]
         public void ReadAsInt32FromSerializer()
         {
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader("[1,2,3]")));
-            reader.Schema = new JSchemaGenerator().Generate(typeof(int[]));
+            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader("[1,2,3]")))
+            {
+                Schema = new JSchemaGenerator().Generate(typeof(int[]))
+            };
             int[] values = new JsonSerializer().Deserialize<int[]>(reader);
 
             Assert.AreEqual(3, values.Length);
@@ -2764,7 +2786,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             Assert.AreEqual(1, errors.Count);
             StringAssert.AreEqual(
-                new []
+                new[]
                 {
                     @"Could not test property names with regex pattern '[]'. There was an error parsing the regex: parsing ""[]"" - Unterminated [] set.",
                     @"Could not test property names with regex pattern '[]'. There was an error parsing the regex: parsing '[]' - Unterminated [] set.",
@@ -2977,8 +2999,8 @@ namespace Newtonsoft.Json.Schema.Tests
         [Test]
         public void CloseAlsoClosesUnderlyingReader()
         {
-            var underlyingReader = new JsonReaderStubWithIsClosed();
-            var validatingReader = new JSchemaValidatingReader(underlyingReader) { CloseInput = true };
+            JsonReaderStubWithIsClosed underlyingReader = new JsonReaderStubWithIsClosed();
+            JSchemaValidatingReader validatingReader = new JSchemaValidatingReader(underlyingReader) { CloseInput = true };
 
             validatingReader.Close();
 

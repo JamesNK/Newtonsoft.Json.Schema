@@ -7,7 +7,6 @@ using System;
 #if !(NET20 || NET35 || PORTABLE) || DNXCORE50
 using System.Numerics;
 #endif
-using System.Reflection;
 using Newtonsoft.Json.Schema.Infrastructure;
 #if DNXCORE50
 using Xunit;

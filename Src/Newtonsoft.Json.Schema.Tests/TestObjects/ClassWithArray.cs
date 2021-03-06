@@ -15,20 +15,17 @@ namespace Newtonsoft.Json.Schema.Tests.TestObjects
 
         public ClassWithArray()
         {
-            bar = new List<Int64>() { int.MaxValue };
+            bar = new List<long>() { int.MaxValue };
         }
 
         [JsonProperty("foo")]
         public string Foo
         {
-            get { return foo; }
-            set { foo = value; }
+            get => foo;
+            set => foo = value;
         }
 
         [JsonProperty(PropertyName = "bar")]
-        public IList<long> Bar
-        {
-            get { return bar; }
-        }
+        public IList<long> Bar => bar;
     }
 }

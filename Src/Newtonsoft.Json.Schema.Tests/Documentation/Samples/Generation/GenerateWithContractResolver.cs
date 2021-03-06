@@ -3,10 +3,6 @@
 // License: https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Newtonsoft.Json.Schema.Generation;
 using Newtonsoft.Json.Serialization;
 #if DNXCORE50
@@ -34,10 +30,12 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation.Samples.Generation
         public void Example()
         {
             #region Usage
-            JSchemaGenerator generator = new JSchemaGenerator();
+            JSchemaGenerator generator = new JSchemaGenerator
+            {
 
-            // change contract resolver so property names are camel case
-            generator.ContractResolver = new CamelCasePropertyNamesContractResolver();
+                // change contract resolver so property names are camel case
+                ContractResolver = new CamelCasePropertyNamesContractResolver()
+            };
 
             JSchema schema = generator.Generate(typeof(Person));
             // {

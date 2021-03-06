@@ -5,9 +5,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Schema.Infrastructure.Discovery;
 #if DNXCORE50
 using Xunit;
 using Test = Xunit.FactAttribute;

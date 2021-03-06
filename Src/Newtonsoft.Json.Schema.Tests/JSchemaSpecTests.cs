@@ -6,13 +6,9 @@
 using Newtonsoft.Json.Schema.Infrastructure;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Text;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Schema;
 #if DNXCORE50
 using Xunit;
 using Test = Xunit.FactAttribute;
@@ -50,7 +46,7 @@ namespace Newtonsoft.Json.Schema.Tests
         {
             if (_resolver == null)
             {
-                var resolver = new JSchemaPreloadedResolver();
+                JSchemaPreloadedResolver resolver = new JSchemaPreloadedResolver();
                 AddSchema(resolver, "draft3.json", "http://json-schema.org/draft-03/schema");
                 AddSchema(resolver, "draft4.json", "http://json-schema.org/draft-04/schema");
                 AddSchema(resolver, "draft6.json", "http://json-schema.org/draft-06/schema");
@@ -106,7 +102,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             JSchemaPreloadedResolver resolver = GetResolver();
 
-            var schemaToken = schemaSpecTest.Schema.DeepClone();
+            JToken schemaToken = schemaSpecTest.Schema.DeepClone();
             if (schemaToken.Type == JTokenType.Object)
             {
                 schemaToken["$schema"] = GetSchemaUri(schemaSpecTest.Version);
@@ -146,7 +142,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             JSchemaPreloadedResolver resolver = GetResolver();
 
-            var schemaToken = schemaSpecTest.Schema.DeepClone();
+            JToken schemaToken = schemaSpecTest.Schema.DeepClone();
             if (schemaToken.Type == JTokenType.Object)
             {
                 schemaToken["$schema"] = GetSchemaUri(schemaSpecTest.Version);
@@ -211,10 +207,12 @@ namespace Newtonsoft.Json.Schema.Tests
                     string version = relativePath.Split('\\').First();
                     string testJson = System.IO.File.ReadAllText(testFile);
 
-                    JsonTextReader testJsonReader = new JsonTextReader(new StringReader(testJson));
-                    testJsonReader.FloatParseHandling = testFile.EndsWith("const.json")
+                    JsonTextReader testJsonReader = new JsonTextReader(new StringReader(testJson))
+                    {
+                        FloatParseHandling = testFile.EndsWith("const.json")
                         ? FloatParseHandling.Decimal
-                        : FloatParseHandling.Double;
+                        : FloatParseHandling.Double
+                    };
 
                     JArray a = (JArray)JToken.ReadFrom(testJsonReader);
 
@@ -222,16 +220,17 @@ namespace Newtonsoft.Json.Schema.Tests
                     {
                         foreach (JObject test in testCase["tests"])
                         {
-                            SchemaSpecTest schemaSpecTest = new SchemaSpecTest();
+                            SchemaSpecTest schemaSpecTest = new SchemaSpecTest
+                            {
+                                FileName = Path.GetFileName(testFile),
+                                Version = version,
+                                TestCaseDescription = (string)testCase["description"],
+                                Schema = testCase["schema"],
 
-                            schemaSpecTest.FileName = Path.GetFileName(testFile);
-                            schemaSpecTest.Version = version;
-                            schemaSpecTest.TestCaseDescription = (string)testCase["description"];
-                            schemaSpecTest.Schema = testCase["schema"];
-
-                            schemaSpecTest.TestDescription = (string)test["description"];
-                            schemaSpecTest.Data = test["data"];
-                            schemaSpecTest.IsValid = (bool)test["valid"];
+                                TestDescription = (string)test["description"],
+                                Data = test["data"],
+                                IsValid = (bool)test["valid"]
+                            };
                             schemaSpecTest.TestNumber = _specTests.Count(t => t.Version == schemaSpecTest.Version) + 1;
 
 #if NET35
@@ -263,7 +262,7 @@ namespace Newtonsoft.Json.Schema.Tests
             } // path can't be made relative.
 
             Uri relativeUri = fromUri.MakeRelativeUri(toUri);
-            String relativePath = Uri.UnescapeDataString(relativeUri.ToString());
+            string relativePath = Uri.UnescapeDataString(relativeUri.ToString());
 
             if (toUri.Scheme.ToUpperInvariant() == "FILE")
             {

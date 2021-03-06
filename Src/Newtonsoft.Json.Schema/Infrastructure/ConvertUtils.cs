@@ -5,11 +5,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 #if HAVE_BIG_INTEGER
 using System.Numerics;
 #endif
-using System.Text;
 
 namespace Newtonsoft.Json.Schema.Infrastructure
 {

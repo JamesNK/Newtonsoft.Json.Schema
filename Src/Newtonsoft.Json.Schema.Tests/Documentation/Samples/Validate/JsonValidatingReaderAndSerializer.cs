@@ -50,8 +50,10 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation.Samples.Validate
 
             JsonTextReader reader = new JsonTextReader(new StringReader(json));
 
-            JSchemaValidatingReader validatingReader = new JSchemaValidatingReader(reader);
-            validatingReader.Schema = JSchema.Parse(schemaJson);
+            JSchemaValidatingReader validatingReader = new JSchemaValidatingReader(reader)
+            {
+                Schema = JSchema.Parse(schemaJson)
+            };
 
             IList<string> messages = new List<string>();
             validatingReader.ValidationEventHandler += (o, a) => messages.Add(a.Message);

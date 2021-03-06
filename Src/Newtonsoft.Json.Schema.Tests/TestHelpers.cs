@@ -4,12 +4,8 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using Newtonsoft.Json.Schema.Infrastructure;
 
 namespace Newtonsoft.Json.Schema.Tests
 {
@@ -55,7 +51,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         public static string OpenFileText(string name)
         {
-            using (var file = OpenFile(name))
+            using (Stream file = OpenFile(name))
             using (StreamReader sr = new StreamReader(file))
             {
                 return sr.ReadToEnd();

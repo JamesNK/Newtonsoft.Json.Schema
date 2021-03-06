@@ -165,7 +165,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
                 while (index < text.Length && text[index] >= '0' && text[index] <= '9')
                 {
-                    value = (value*10) + (text[index] - '0');
+                    value = (value * 10) + (text[index] - '0');
                     index++;
                 }
 

@@ -5,8 +5,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 {
@@ -42,7 +40,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     ConditionalContext.TrackEvaluatedSchema(ChildScopes[i].Schema);
                 }
             }
-            
+
             return true;
         }
     }

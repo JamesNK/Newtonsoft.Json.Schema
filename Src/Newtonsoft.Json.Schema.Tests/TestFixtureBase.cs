@@ -10,8 +10,6 @@ using System.IO;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json.Schema.Infrastructure.Licensing;
-using System.Text;
-using System.Threading;
 #if NETFX_CORE
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using TestFixture = Microsoft.VisualStudio.TestPlatform.UnitTestFramework.TestClassAttribute;
@@ -103,7 +101,9 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.Contains(value, collection, message);
 #else
             if (!collection.Cast<object>().Any(i => i.Equals(value)))
+            {
                 throw new Exception(message ?? "Value not found in collection.");
+            }
 #endif
         }
     }
@@ -222,7 +222,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
     public static class StringAssert
     {
-        private readonly static Regex Regex = new Regex(@"\r\n|\n\r|\n|\r", RegexOptions.CultureInvariant);
+        private static readonly Regex Regex = new Regex(@"\r\n|\n\r|\n|\r", RegexOptions.CultureInvariant);
 
         public static void AreEqual(string expected, string actual)
         {

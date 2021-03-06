@@ -3,11 +3,11 @@
 // License: https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md
 #endregion
 
+using Newtonsoft.Json.Schema.Infrastructure;
+using Newtonsoft.Json.Schema.Infrastructure.Discovery;
 using System;
 using System.IO;
 using System.Net;
-using Newtonsoft.Json.Schema.Infrastructure;
-using Newtonsoft.Json.Schema.Infrastructure.Discovery;
 
 namespace Newtonsoft.Json.Schema
 {
@@ -33,8 +33,10 @@ namespace Newtonsoft.Json.Schema
         {
             Uri? baseUri = ResolveBaseUri(context, out string? fragment);
 
-            SchemaReference schemaReference = new SchemaReference();
-            schemaReference.BaseUri = baseUri;
+            SchemaReference schemaReference = new SchemaReference
+            {
+                BaseUri = baseUri
+            };
             if (fragment != null)
             {
                 schemaReference.SubschemaId = new Uri(fragment, UriKind.RelativeOrAbsolute);
@@ -114,8 +116,10 @@ namespace Newtonsoft.Json.Schema
                 {
                     Resolver = this,
                     BaseUri = rootSchema.BaseUri
-                });
-                resolverSchemaReader.RootSchema = rootSchema;
+                })
+                {
+                    RootSchema = rootSchema
+                };
             }
 
             JSchema? subSchema = null;

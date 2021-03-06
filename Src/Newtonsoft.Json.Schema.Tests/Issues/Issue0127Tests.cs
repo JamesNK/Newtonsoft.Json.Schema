@@ -5,15 +5,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
-using System.IO;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Schema.Generation;
-using Newtonsoft.Json.Schema.Infrastructure;
 #if DNXCORE50
 using Xunit;
 using Test = Xunit.FactAttribute;
@@ -21,7 +13,6 @@ using Assert = Newtonsoft.Json.Schema.Tests.XUnitAssert;
 #else
 using NUnit.Framework;
 #endif
-using DescriptionAttribute = System.ComponentModel.DescriptionAttribute;
 
 namespace Newtonsoft.Json.Schema.Tests.Issues
 {

@@ -22,7 +22,6 @@
 // THE SOFTWARE.
 #endregion
 
-using System.Reflection;
 using Newtonsoft.Json.Schema.Infrastructure;
 #if DNXCORE50
 using Xunit;

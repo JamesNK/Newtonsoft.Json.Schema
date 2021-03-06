@@ -12,9 +12,7 @@ using NUnit.Framework;
 #endif
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
-using System.Reflection;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema.Infrastructure;
 using System.Text;
@@ -226,10 +224,10 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             Assert.AreEqual(JSchemaType.Object, schema.Type);
             Assert.AreEqual("crs", schema.Properties["crs"].Title);
 
-            var geometry = schema.OneOf[0];
+            JSchema geometry = schema.OneOf[0];
             Assert.AreEqual("geometry", geometry.Title);
 
-            var geometryCollection = schema.OneOf[1];
+            JSchema geometryCollection = schema.OneOf[1];
             Assert.AreEqual("GeometryCollection", geometryCollection.Title);
 
             Assert.AreEqual(geometry, geometryCollection.Properties["geometries"].Items[0]);
@@ -260,8 +258,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
               }
             }");
 
-            IList<ValidationError> errors;
-            bool isValid2 = o2.IsValid(schema, out errors);
+            bool isValid2 = o2.IsValid(schema, out IList<ValidationError> errors);
             Assert.IsFalse(isValid2);
 
             Assert.AreEqual(new Uri("http://json-schema.org/geojson/bbox.json"), errors[0].SchemaBaseUri);
@@ -352,8 +349,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             string json = TestHelpers.OpenFileText(@"resources\json\swagger-petstore.json");
             JObject o = JObject.Parse(json);
 
-            IList<string> messages;
-            bool valid = o.IsValid(swaggerSchema, out messages);
+            bool valid = o.IsValid(swaggerSchema, out IList<string> messages);
 
             Assert.IsFalse(valid);
             Assert.AreEqual(1, messages.Count);
@@ -369,8 +365,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 
             JSchema s = JSchema.Parse(schema);
 
-            IList<ValidationError> errors;
-            new JValue("j").IsValid(s, out errors);
+            new JValue("j").IsValid(s, out IList<ValidationError> errors);
 
             Assert.AreEqual(1, errors.Count);
             StringAssert.AreEqual(
@@ -950,9 +945,11 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         [Test]
         public void ReferenceToNestedSchemaWithIdInResolvedSchema()
         {
-            JSchema nested = new JSchema();
-            nested.Id = new Uri("nested.json", UriKind.RelativeOrAbsolute);
-            nested.Type = JSchemaType.Integer;
+            JSchema nested = new JSchema
+            {
+                Id = new Uri("nested.json", UriKind.RelativeOrAbsolute),
+                Type = JSchemaType.Integer
+            };
 
             JSchema root = new JSchema
             {
@@ -1018,9 +1015,11 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         [Test]
         public void ReferenceToNestedSchemaWithIdInResolvedSchema_Root()
         {
-            JSchema nested = new JSchema();
-            nested.Id = new Uri("nested.json", UriKind.RelativeOrAbsolute);
-            nested.Type = JSchemaType.String;
+            JSchema nested = new JSchema
+            {
+                Id = new Uri("nested.json", UriKind.RelativeOrAbsolute),
+                Type = JSchemaType.String
+            };
 
             JSchema root = new JSchema
             {
@@ -1480,8 +1479,10 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             JSchema s = JSchema.Parse(json);
 
             StringWriter writer = new StringWriter();
-            JsonTextWriter jsonWriter = new JsonTextWriter(writer);
-            jsonWriter.Formatting = Formatting.Indented;
+            JsonTextWriter jsonWriter = new JsonTextWriter(writer)
+            {
+                Formatting = Formatting.Indented
+            };
 
             string newJson = s.ToString();
 
@@ -1506,8 +1507,10 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             s = JSchema.Parse(json);
 
             writer = new StringWriter();
-            jsonWriter = new JsonTextWriter(writer);
-            jsonWriter.Formatting = Formatting.Indented;
+            jsonWriter = new JsonTextWriter(writer)
+            {
+                Formatting = Formatting.Indented
+            };
 
             newJson = s.ToString();
 
@@ -1532,8 +1535,10 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             s = JSchema.Parse(json);
 
             writer = new StringWriter();
-            jsonWriter = new JsonTextWriter(writer);
-            jsonWriter.Formatting = Formatting.Indented;
+            jsonWriter = new JsonTextWriter(writer)
+            {
+                Formatting = Formatting.Indented
+            };
 
             newJson = s.ToString();
 
@@ -2718,8 +2723,10 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 
             List<ValidationError> errors = new List<ValidationError>();
 
-            JSchemaReaderSettings settings = new JSchemaReaderSettings();
-            settings.Resolver = resolver;
+            JSchemaReaderSettings settings = new JSchemaReaderSettings
+            {
+                Resolver = resolver
+            };
             settings.ValidationEventHandler += (o, e) => errors.Add(e.ValidationError);
 
             JSchema s = JSchema.Parse(schemaJson, settings);
@@ -2779,8 +2786,10 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 
             List<ValidationError> errors = new List<ValidationError>();
 
-            JSchemaReaderSettings settings = new JSchemaReaderSettings();
-            settings.Resolver = resolver;
+            JSchemaReaderSettings settings = new JSchemaReaderSettings
+            {
+                Resolver = resolver
+            };
             settings.ValidationEventHandler += (o, e) => errors.Add(e.ValidationError);
 
             JSchema s = JSchema.Parse(schemaJson, settings);
@@ -3558,7 +3567,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             JSchema referencedSchema = s.Properties["ReferenceArray"].Items[0];
 
             Assert.AreEqual("TestSchemaReference", referencedSchema.Id.OriginalString);
-            
+
             Assert.AreEqual(referencedSchema, referencedSchema.Properties["SelfreferencedArray"].Items[0]);
         }
 
@@ -3770,7 +3779,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         [Test]
         public void LoadSchemaSpec201909()
         {
-            var resolver = new JSchemaPreloadedResolver();
+            JSchemaPreloadedResolver resolver = new JSchemaPreloadedResolver();
             AddSchema(resolver, "draft2019-09/draft2019-09.json", "https://json-schema.org/draft/2019-09/schema");
             AddSchema(resolver, "draft2019-09/meta/applicator.json", "https://json-schema.org/draft/2019-09/meta/applicator");
             AddSchema(resolver, "draft2019-09/meta/content.json", "https://json-schema.org/draft/2019-09/meta/content");
@@ -3779,7 +3788,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             AddSchema(resolver, "draft2019-09/meta/hyper-schema.json", "https://json-schema.org/draft/2019-09/meta/hyper-schema");
             AddSchema(resolver, "draft2019-09/meta/meta-data.json", "https://json-schema.org/draft/2019-09/meta/meta-data");
             AddSchema(resolver, "draft2019-09/meta/validation.json", "https://json-schema.org/draft/2019-09/meta/validation");
-            
+
             JSchema root = JSchema.Parse(@"{""$ref"": ""https://json-schema.org/draft/2019-09/schema""}", resolver);
 
             Assert.AreEqual("Core and Validation specifications meta-schema", root.Title);
@@ -3813,7 +3822,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             Assert.AreEqual("Validation vocabulary meta-schema", validation.Title);
             Assert.AreEqual(true, validation.RecursiveAnchor);
             Assert.AreEqual("properties.minContains", validation.Properties["minContains"].Path);
-            Assert.AreEqual("$defs.nonNegativeInteger", validation.Properties["minContains"].Ref.Path);            
+            Assert.AreEqual("$defs.nonNegativeInteger", validation.Properties["minContains"].Ref.Path);
             Assert.AreEqual("$defs.nonNegativeInteger", validation.Properties["maxLength"].Path);
             Assert.AreEqual(JSchemaType.Integer, validation.Properties["maxLength"].Type);
             Assert.AreEqual(0, validation.Properties["maxLength"].Minimum);

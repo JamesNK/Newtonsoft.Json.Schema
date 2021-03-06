@@ -3,10 +3,7 @@
 // License: https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md
 #endregion
 
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Newtonsoft.Json.Linq;
 #if DNXCORE50
 using Xunit;
@@ -24,7 +21,7 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
         [Test]
         public void Test()
         {
-            var schema = JSchema.Parse(@"{
+            JSchema schema = JSchema.Parse(@"{
   ""description"" : ""Example Contact Information Array JSON Schema"",
   ""type"" : ""array"",
   ""items"" : {
@@ -53,8 +50,7 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
   }
 ]");
 
-            IList<string> errorMessages;
-            Assert.IsTrue(a.IsValid(schema, out errorMessages));
+            Assert.IsTrue(a.IsValid(schema, out IList<string> errorMessages));
         }
     }
 }

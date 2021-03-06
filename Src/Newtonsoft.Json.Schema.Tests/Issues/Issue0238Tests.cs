@@ -3,14 +3,8 @@
 // License: https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md
 #endregion
 
-using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Schema.Generation;
-using Newtonsoft.Json.Serialization;
 #if DNXCORE50
 using Xunit;
 using Test = Xunit.FactAttribute;
@@ -27,8 +21,8 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
         [Test]
         public void Test()
         {
-            var schemaUrlResolver = new JSchemaUrlResolver();
-            var schemaReaderSettings = new JSchemaReaderSettings
+            JSchemaUrlResolver schemaUrlResolver = new JSchemaUrlResolver();
+            JSchemaReaderSettings schemaReaderSettings = new JSchemaReaderSettings
             {
                 Resolver = schemaUrlResolver,
                 Validators = new List<JsonValidator> { new CustomJsonValidator() { } }
@@ -50,11 +44,13 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
                               ]
                             }", schemaReaderSettings);
 
-            var model = new Model<string>();
-            JObject obj = new JObject();
-            obj["id"] = model.Value;
+            Model<string> model = new Model<string>();
+            JObject obj = new JObject
+            {
+                ["id"] = model.Value
+            };
 
-            var result = obj.IsValid(schema, out IList<ValidationError> errors);
+            bool result = obj.IsValid(schema, out IList<ValidationError> errors);
             Assert.IsFalse(result);
             Assert.AreEqual("Invalid type. Expected Integer but got Null.", errors[0].Message);
         }

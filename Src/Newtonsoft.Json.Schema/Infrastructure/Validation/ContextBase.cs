@@ -3,10 +3,10 @@
 // License: https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md
 #endregion
 
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Newtonsoft.Json.Linq;
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 {
@@ -17,7 +17,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
         public List<Scope> Scopes
         {
             [DebuggerStepThrough]
-            get { return Validator.Scopes; }
+            get => Validator.Scopes;
         }
 
         public JTokenWriter? TokenWriter

@@ -5,8 +5,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 #if DNXCORE50
 using Xunit;
 using Test = Xunit.FactAttribute;
@@ -44,15 +42,9 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
                 return true;
             }
 
-            public int LineNumber
-            {
-                get { return 11; }
-            }
+            public int LineNumber => 11;
 
-            public int LinePosition
-            {
-                get { return 5; }
-            }
+            public int LinePosition => 5;
         }
 
         [Test]

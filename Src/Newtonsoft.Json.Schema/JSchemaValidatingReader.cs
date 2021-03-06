@@ -3,13 +3,13 @@
 // License: https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md
 #endregion
 
+using Newtonsoft.Json.Schema.Infrastructure;
+using Newtonsoft.Json.Schema.Infrastructure.Validation;
+using Newtonsoft.Json.Schema.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using Newtonsoft.Json.Schema.Infrastructure;
-using Newtonsoft.Json.Schema.Infrastructure.Validation;
-using Newtonsoft.Json.Schema.Utilities;
 
 namespace Newtonsoft.Json.Schema
 {
@@ -169,10 +169,10 @@ namespace Newtonsoft.Json.Schema
         }
 
         /// <summary>
-        /// Reads the next JSON token from the stream as a <see cref="Byte"/>[].
+        /// Reads the next JSON token from the stream as a <see cref="byte"/>[].
         /// </summary>
         /// <returns>
-        /// A <see cref="Byte"/>[] or a null reference if the next JSON token is null.
+        /// A <see cref="byte"/>[] or a null reference if the next JSON token is null.
         /// </returns>
         public override byte[]? ReadAsBytes()
         {
@@ -222,9 +222,9 @@ namespace Newtonsoft.Json.Schema
         }
 
         /// <summary>
-        /// Reads the next JSON token from the stream as a <see cref="String"/>.
+        /// Reads the next JSON token from the stream as a <see cref="string"/>.
         /// </summary>
-        /// <returns>A <see cref="String"/>. This method will return <c>null</c> at the end of an array.</returns>
+        /// <returns>A <see cref="string"/>. This method will return <c>null</c> at the end of an array.</returns>
         public override string? ReadAsString()
         {
             string? s;
@@ -253,7 +253,7 @@ namespace Newtonsoft.Json.Schema
         /// <summary>
         /// Reads the next JSON token from the stream as a <see cref="Nullable{DateTime}"/>.
         /// </summary>
-        /// <returns>A <see cref="String"/>. This method will return <c>null</c> at the end of an array.</returns>
+        /// <returns>A <see cref="string"/>. This method will return <c>null</c> at the end of an array.</returns>
         public override DateTime? ReadAsDateTime()
         {
             DateTime? dateTime = base.ReadAsDateTime();

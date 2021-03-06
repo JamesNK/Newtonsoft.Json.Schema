@@ -3,12 +3,7 @@
 // License: https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Newtonsoft.Json.Schema.Generation;
-using Newtonsoft.Json.Serialization;
 #if DNXCORE50
 using Xunit;
 using Test = Xunit.FactAttribute;
@@ -34,10 +29,12 @@ namespace Newtonsoft.Json.Schema.Tests.Documentation.Samples.Generation
         public void Example()
         {
             #region Usage
-            JSchemaGenerator generator = new JSchemaGenerator();
+            JSchemaGenerator generator = new JSchemaGenerator
+            {
 
-            // types with no defined ID have their type name as the ID
-            generator.SchemaIdGenerationHandling = SchemaIdGenerationHandling.TypeName;
+                // types with no defined ID have their type name as the ID
+                SchemaIdGenerationHandling = SchemaIdGenerationHandling.TypeName
+            };
 
             JSchema schema = generator.Generate(typeof(Person));
             // {
