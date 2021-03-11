@@ -252,7 +252,9 @@ namespace Newtonsoft.Json.Schema.Generation
                 }
             }
 
-            if (_generator._generationProviders != null)
+            IList<JSchemaGenerationProvider> generationProviders = _generator.GenerationProviders;
+
+            if (generationProviders != null)
             {
                 JSchemaTypeGenerationContext context = new JSchemaTypeGenerationContext(
                     type,
@@ -263,7 +265,7 @@ namespace Newtonsoft.Json.Schema.Generation
                     GetTitle(type, memberProperty),
                     GetDescription(type, memberProperty));
 
-                foreach (JSchemaGenerationProvider generationProvider in _generator._generationProviders)
+                foreach (JSchemaGenerationProvider generationProvider in generationProviders)
                 {
                     if (generationProvider != currentGenerationProvider && generationProvider.CanGenerateSchema(context))
                     {
