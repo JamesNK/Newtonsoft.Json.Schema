@@ -205,6 +205,13 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
         private void AssertScopeComplete(SchemaScope schemaScope, JsonToken token, object? value, int depth)
         {
+            // Schema references itself conditionally, e.g. { "not": { "ref": "#" } }
+            // A schema forcing itself to complete will cause a loop.
+            if (schemaScope == ParentSchemaScope)
+            {
+                return;
+            }
+
             // the schema scope that the conditional scope depends on may not be complete because it has be re-ordered
             // schema scope will be at the same depth at the conditional so evaluate it immediately
             if (!schemaScope.Complete)
