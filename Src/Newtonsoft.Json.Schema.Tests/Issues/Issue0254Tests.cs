@@ -33,6 +33,7 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
             bool valid = clientJson.IsValid(schema, out IList<ValidationError> errorMessages);
 
             Assert.IsFalse(valid);
+            Assert.AreEqual(1, errorMessages.Count);
             Assert.AreEqual("Invalid type. Expected Integer but got Object.", errorMessages[0].Message);
         }
 
@@ -45,6 +46,7 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
             bool valid = clientJson.IsValid(schema, out IList<ValidationError> errorMessages);
 
             Assert.IsFalse(valid);
+            Assert.AreEqual(1, errorMessages.Count);
             Assert.AreEqual("JSON is valid against schema from 'not'.", errorMessages[0].Message);
         }
 
@@ -57,6 +59,7 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
             bool valid = clientJson.IsValid(schema, out IList<ValidationError> errorMessages);
 
             Assert.IsFalse(valid);
+            Assert.AreEqual(1, errorMessages.Count);
             Assert.AreEqual("JSON is valid against no schemas from 'oneOf'.", errorMessages[0].Message);
         }
 
