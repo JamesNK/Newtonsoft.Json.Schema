@@ -377,7 +377,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
         {
             if (Context is ConditionalContext conditionalContext)
             {
-                return conditionalContext.Errors;
+                return conditionalContext.Errors!.ToArray();
             }
             else if (Context is CompositeContext compositeContext)
             {

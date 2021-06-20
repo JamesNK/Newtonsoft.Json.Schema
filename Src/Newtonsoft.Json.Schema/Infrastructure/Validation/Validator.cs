@@ -107,6 +107,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
         private void PopulateSchemaId(ValidationError error)
         {
             ValidationUtils.Assert(Schema != null);
+            
+            if (error.SchemaId != null)
+            {
+                return;
+            }
 
             Uri? schemaId = null;
             for (int i = 0; i < Schema.KnownSchemas.Count; i++)
