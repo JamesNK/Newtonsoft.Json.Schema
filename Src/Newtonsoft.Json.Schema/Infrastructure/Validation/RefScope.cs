@@ -24,30 +24,37 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             _isReentrant = true;
             try
             {
-                if (!GetChildrenAllValid(token, value, depth))
+                if (TryGetChildrenAllValid(token, value, depth, out bool allValid))
                 {
-                    List<int> invalidIndexes = new List<int>();
-                    int index = 0;
-                    foreach (SchemaScope schemaScope in ChildScopes)
+                    if (!allValid)
                     {
-                        if (!schemaScope.IsValid)
+                        List<int> invalidIndexes = new List<int>();
+                        int index = 0;
+                        foreach (SchemaScope schemaScope in ChildScopes)
                         {
-                            invalidIndexes.Add(index);
-                        }
-                        else
-                        {
-                            ConditionalContext.TrackEvaluatedSchema(schemaScope.Schema);
+                            if (!schemaScope.IsValid)
+                            {
+                                invalidIndexes.Add(index);
+                            }
+                            else
+                            {
+                                ConditionalContext.TrackEvaluatedSchema(schemaScope.Schema);
+                            }
+
+                            index++;
                         }
 
-                        index++;
+                        IFormattable message = $"JSON does not match schema from '$ref'.";
+                        RaiseError(message, ErrorType.Ref, ParentSchemaScope.Schema, null, ConditionalContext.Errors);
                     }
-
-                    IFormattable message = $"JSON does not match schema from '$ref'.";
-                    RaiseError(message, ErrorType.Ref, ParentSchemaScope.Schema, null, ConditionalContext.Errors);
+                    else
+                    {
+                        ConditionalContext.TrackEvaluatedSchema(ChildScopes[0].Schema);
+                    }
                 }
                 else
                 {
-                    ConditionalContext.TrackEvaluatedSchema(ChildScopes[0].Schema);
+                    RaiseCircularDependencyError(ErrorType.Ref);
                 }
 
                 return true;

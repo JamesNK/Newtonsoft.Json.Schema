@@ -229,37 +229,19 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
         {
             if (!ConditionalChildren.IsNullOrEmpty())
             {
-                // Special case running "not" last. Schema could refer to itself with "not". To handle this rare situation,
-                // run all the other conditional validation first, then not last.
-                NotScope? notScope = null;
-
                 for (int i = 0; i < ConditionalChildren.Count; i++)
                 {
                     ConditionalScope conditionalScope = ConditionalChildren[i];
 
-                    if (conditionalScope is NotScope ns)
+                    if (conditionalScope.Complete != CompleteState.Completed)
                     {
-                        notScope = ns;
-                    }
-                    else
-                    {
-                        ValidateConditionalScope(token, value, depth, conditionalScope);
-                    }
-                }
+                        conditionalScope.EvaluateToken(token, value, depth);
+                        OnConditionalScopeValidated(conditionalScope);
 
-                if (notScope != null)
-                {
-                    ValidateConditionalScope(token, value, depth, notScope);
+                        Context.Validator.ReturnScopeToCache(conditionalScope);
+                    }
                 }
             }
-        }
-
-        private void ValidateConditionalScope(JsonToken token, object? value, int depth, ConditionalScope conditionalScope)
-        {
-            conditionalScope.EvaluateToken(token, value, depth);
-            OnConditionalScopeValidated(conditionalScope);
-
-            Context.Validator.ReturnScopeToCache(conditionalScope);
         }
 
         protected virtual void OnConditionalScopeValidated(ConditionalScope conditionalScope)
