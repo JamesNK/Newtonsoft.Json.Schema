@@ -34,7 +34,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
         protected override bool EvaluateTokenCore(JsonToken token, object? value, int depth)
         {
-            SchemaScope ifScope = GetSchemaScopeBySchema(If!, token, value, depth)!;
+            if (!TryGetSchemaScopeBySchema(If!, token, value, depth, out SchemaScope? ifScope))
+            {
+                RaiseCircularDependencyError(ErrorType.None);
+                return true;
+            }
 
             if (ifScope.IsValid)
             {
@@ -42,7 +46,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
                 if (Then != null)
                 {
-                    SchemaScope thenScope = GetSchemaScopeBySchema(Then, token, value, depth)!;
+                    if (!TryGetSchemaScopeBySchema(Then, token, value, depth, out SchemaScope? thenScope))
+                    {
+                        RaiseCircularDependencyError(ErrorType.Then);
+                        return true;
+                    }
 
                     if (!thenScope.IsValid)
                     {
@@ -58,7 +66,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             {
                 if (Else != null)
                 {
-                    SchemaScope elseScope = GetSchemaScopeBySchema(Else, token, value, depth)!;
+                    if (!TryGetSchemaScopeBySchema(Else, token, value, depth, out SchemaScope? elseScope))
+                    {
+                        RaiseCircularDependencyError(ErrorType.Else);
+                        return true;
+                    }
 
                     if (!elseScope.IsValid)
                     {

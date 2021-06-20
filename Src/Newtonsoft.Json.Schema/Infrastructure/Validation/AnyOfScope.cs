@@ -12,18 +12,25 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
     {
         protected override bool EvaluateTokenCore(JsonToken token, object? value, int depth)
         {
-            if (!GetChildrenAnyValid(token, value, depth))
+            if (TryGetChildrenAnyValid(token, value, depth, out bool anyValid))
             {
-                RaiseError($"JSON does not match any schemas from 'anyOf'.", ErrorType.AnyOf, ParentSchemaScope.Schema, null, ConditionalContext.Errors);
-            }
-
-            // TODO: A little inefficent to find the valid children again
-            foreach (SchemaScope childScope in ChildScopes)
-            {
-                if (childScope.IsValid)
+                if (!anyValid)
                 {
-                    ConditionalContext.TrackEvaluatedSchema(childScope.Schema);
+                    RaiseError($"JSON does not match any schemas from 'anyOf'.", ErrorType.AnyOf, ParentSchemaScope.Schema, null, ConditionalContext.Errors);
                 }
+
+                // TODO: A little inefficent to find the valid children again
+                foreach (SchemaScope childScope in ChildScopes)
+                {
+                    if (childScope.IsValid)
+                    {
+                        ConditionalContext.TrackEvaluatedSchema(childScope.Schema);
+                    }
+                }
+            }
+            else
+            {
+                RaiseCircularDependencyError(ErrorType.AnyOf);
             }
 
             return true;

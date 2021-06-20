@@ -177,7 +177,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             {
                 Scope scope = _scopes[i];
 
-                if (!scope.Complete)
+                if (scope.Complete != CompleteState.Completed)
                 {
                     scope.EvaluateToken(token, value, depth);
                 }
@@ -200,7 +200,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             {
                 Scope scope = _scopes[i];
 
-                if (scope.Complete)
+                if (scope.Complete == CompleteState.Completed)
                 {
                     _scopes.RemoveAt(i);
                     _scopesCache.Add(scope);
