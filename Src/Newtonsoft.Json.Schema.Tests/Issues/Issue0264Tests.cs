@@ -30,9 +30,11 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
             JObject clientJson = JObject.Parse(Json);
             JSchema schema = JSchema.Parse(SchemaRecursiveRef);
 
-            bool valid = clientJson.IsValid(schema);
+            bool valid = clientJson.IsValid(schema, out IList<ValidationError> errorMessages);
 
-            Assert.IsTrue(valid);
+            Assert.IsFalse(valid);
+            Assert.AreEqual("Conditional schema has a circular dependency and can't be evaluated.", errorMessages[0].Message);
+            Assert.AreEqual(ErrorType.Dependencies, errorMessages[0].ErrorType);
         }
 
         [Test]
@@ -41,9 +43,11 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
             JObject clientJson = JObject.Parse(Json);
             JSchema schema = JSchema.Parse(SchemaRef);
 
-            bool valid = clientJson.IsValid(schema);
+            bool valid = clientJson.IsValid(schema, out IList<ValidationError> errorMessages);
 
-            Assert.IsTrue(valid);
+            Assert.IsFalse(valid);
+            Assert.AreEqual("Conditional schema has a circular dependency and can't be evaluated.", errorMessages[0].Message);
+            Assert.AreEqual(ErrorType.Dependencies, errorMessages[0].ErrorType);
         }
 
         [Test]
