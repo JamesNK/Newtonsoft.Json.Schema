@@ -24,7 +24,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
         protected override bool EvaluateTokenCore(JsonToken token, object? value, int depth)
         {
-            var readProperties = ((ObjectScope?)Parent)?._readProperties;
+            var readProperties = ((ObjectScope?)Parent)?.ReadProperties;
             ValidationUtils.Assert(readProperties != null);
             ValidationUtils.Assert(PropertyName != null);
 

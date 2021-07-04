@@ -17,8 +17,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
         private int _propertyCount;
         private string? _currentPropertyName;
         private List<string>? _requiredProperties;
-        internal List<string>? _readProperties;
         private Dictionary<string, UnevaluatedContext>? _unevaluatedScopes;
+        internal List<string>? ReadProperties;
 
         public void Initialize(ContextBase context, SchemaScope? parent, int initialDepth, JSchema schema)
         {
@@ -50,13 +50,13 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             //  - Need to validate unevaluated properties
             if (HasDependencies())
             {
-                if (_readProperties != null)
+                if (ReadProperties != null)
                 {
-                    _readProperties.Clear();
+                    ReadProperties.Clear();
                 }
                 else
                 {
-                    _readProperties = new List<string>();
+                    ReadProperties = new List<string>();
                 }
             }
 
@@ -147,7 +147,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                         {
                             // This only checks for dependent properties.
                             // Dependent schemas are validated as conditional schemas.
-                            foreach (string readProperty in _readProperties!)
+                            foreach (string readProperty in ReadProperties!)
                             {
                                 object? dependency = null;
                                 IList<string>? requiredProperties = null;
@@ -156,13 +156,13 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                                     requiredProperties = dependency as IList<string>;
                                     if (requiredProperties != null)
                                     {
-                                        ValidateDependantProperties(readProperty, requiredProperties);
+                                        ValidateDependentProperties(readProperty, requiredProperties);
                                     }
                                 }
 
                                 if (Schema._dependentRequired?.TryGetValue(readProperty, out requiredProperties) ?? false)
                                 {
-                                    ValidateDependantProperties(readProperty, requiredProperties!);
+                                    ValidateDependentProperties(readProperty, requiredProperties!);
                                 }
                             }
                         }
@@ -219,7 +219,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     }
                     if (HasDependencies())
                     {
-                        _readProperties!.Add(_currentPropertyName);
+                        ReadProperties!.Add(_currentPropertyName);
                     }
 
                     if (Schema._propertyNames != null)
@@ -345,13 +345,13 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 || !Schema._dependentSchemas.IsNullOrEmpty();
         }
 
-        private void ValidateDependantProperties(string readProperty, IList<string> requiredProperties)
+        private void ValidateDependentProperties(string readProperty, IList<string> requiredProperties)
         {
-            ValidationUtils.Assert(_readProperties != null);
+            ValidationUtils.Assert(ReadProperties != null);
 
-            if (!requiredProperties.All(r => _readProperties.Contains(r)))
+            if (!requiredProperties.All(r => ReadProperties.Contains(r)))
             {
-                IEnumerable<string> missingRequiredProperties = requiredProperties.Where(r => !_readProperties.Contains(r));
+                IEnumerable<string> missingRequiredProperties = requiredProperties.Where(r => !ReadProperties.Contains(r));
                 IFormattable message = $"Dependencies for property '{readProperty}' failed. Missing required keys: {StringHelpers.Join(", ", missingRequiredProperties)}.";
 
                 RaiseError(message, ErrorType.Dependencies, Schema, readProperty, null);
