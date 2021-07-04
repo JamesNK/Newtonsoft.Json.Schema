@@ -24,32 +24,35 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
         protected override bool EvaluateTokenCore(JsonToken token, object? value, int depth)
         {
-            var readProperties = ((ObjectScope?)Parent)?.ReadProperties;
-            ValidationUtils.Assert(readProperties != null);
-            ValidationUtils.Assert(PropertyName != null);
-
-            if (readProperties.Contains(PropertyName))
+            if (Parent is ObjectScope objectScope)
             {
-                if (TryGetChildrenAnyValid(token, value, depth, out bool anyValid))
+                var readProperties = objectScope.ReadProperties;
+                ValidationUtils.Assert(readProperties != null);
+                ValidationUtils.Assert(PropertyName != null);
+
+                if (readProperties.Contains(PropertyName))
                 {
-                    if (!anyValid)
+                    if (TryGetChildrenAnyValid(token, value, depth, out bool anyValid))
                     {
-                        RaiseError($"Dependencies for property '{PropertyName}' failed.", ErrorType.Dependencies, ParentSchemaScope.Schema, null, ConditionalContext.Errors);
-                    }
-                    else
-                    {
-                        foreach (SchemaScope childScope in ChildScopes)
+                        if (!anyValid)
                         {
-                            if (childScope.IsValid)
+                            RaiseError($"Dependencies for property '{PropertyName}' failed.", ErrorType.Dependencies, ParentSchemaScope.Schema, null, ConditionalContext.Errors);
+                        }
+                        else
+                        {
+                            foreach (SchemaScope childScope in ChildScopes)
                             {
-                                ConditionalContext.TrackEvaluatedSchema(childScope.Schema);
+                                if (childScope.IsValid)
+                                {
+                                    ConditionalContext.TrackEvaluatedSchema(childScope.Schema);
+                                }
                             }
                         }
                     }
-                }
-                else
-                {
-                    RaiseCircularDependencyError(ErrorType.Dependencies);
+                    else
+                    {
+                        RaiseCircularDependencyError(ErrorType.Dependencies);
+                    }
                 }
             }
 

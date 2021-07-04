@@ -63,6 +63,37 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
             Assert.AreEqual(ErrorType.Dependencies, errorMessages[0].ErrorType);
         }
 
+        [Test]
+        public void Test_CastError()
+        {
+            JObject clientJson = JObject.Parse(@"{""Lorem_862"":{}}");
+            JSchema schema = JSchema.Parse(@"{
+  ""propertyNames"": {
+    ""$recursiveRef"": ""#""
+  },
+  ""then"": {
+    ""$recursiveRef"": ""#""
+  },
+  ""readOnly"": false,
+  ""unevaluatedProperties"": {
+    ""$recursiveRef"": ""#""
+  },
+  ""dependencies"": {
+    ""Lorem_862"": {
+      ""$recursiveRef"": ""#""
+    }
+  },
+  ""description"": ""in adipisicing nisi incididunt ut"",
+  ""$id"": ""<mHl~v0f*#""
+}");
+
+            bool valid = clientJson.IsValid(schema, out IList<ValidationError> errorMessages);
+
+            Assert.IsFalse(valid);
+            Assert.AreEqual("Conditional schema has a circular dependency and can't be evaluated.", errorMessages[0].Message);
+            Assert.AreEqual(ErrorType.Dependencies, errorMessages[0].ErrorType);
+        }
+
         private const string SchemaRef = @"{
   ""dependencies"": {
     ""Lorem_862"": {
