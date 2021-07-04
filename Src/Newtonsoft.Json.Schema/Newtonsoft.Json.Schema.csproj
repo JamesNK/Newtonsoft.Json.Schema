@@ -38,7 +38,7 @@
     <PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonPackageVersion)" />
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="$(MicrosoftCodeAnalysisFxCopAnalyzersPackageVersion)" PrivateAssets="All" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="$(MicrosoftSourceLinkGitHubPackageVersion)" PrivateAssets="All" />
-    <EmbeddedResource Include="Resources\*.json" />
+    <EmbeddedResource Include="Resources\**\*.json" />
     <None Include="..\..\LICENSE.md" Pack="true" PackagePath="LICENSE.md" />
     <None Include="$(PackageIconFullPath)" Pack="true" PackagePath="\" />
   </ItemGroup>
