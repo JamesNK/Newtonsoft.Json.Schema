@@ -89,8 +89,6 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     objectScope.Initialize(context, parent, depth, schema);
                     context.Scopes.Add(objectScope);
 
-                    objectScope.InitializeScopes(token);
-
                     scope = objectScope;
                     break;
                 case JsonToken.StartArray:
@@ -203,8 +201,59 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
                 ifThenElseScope.InitializeScopes(token, context.Scopes.Count - 1);
             }
+            if (!schema._dependencies.IsNullOrEmpty())
+            {
+                foreach (KeyValuePair<string, object> dependency in schema._dependencies.GetInnerDictionary())
+                {
+                    if (dependency.Value is JSchema dependencySchema)
+                    {
+                        CreateDependentSchemaScope(token, context, depth, scope, dependency.Key, dependencySchema);
+                    }
+                }
+            }
+            if (!schema._dependentSchemas.IsNullOrEmpty())
+            {
+                foreach (KeyValuePair<string, JSchema> dependency in schema._dependentSchemas)
+                {
+                    CreateDependentSchemaScope(token, context, depth, scope, dependency.Key, dependency.Value);
+                }
+            }
 
             return scope;
+        }
+
+        private static void CreateDependentSchemaScope(JsonToken token, ContextBase context, int depth, SchemaScope scope, string dependencyKey, JSchema dependencySchema)
+        {
+            if (!DependentSchemaAlreadyCreated(scope, dependencyKey))
+            {
+                DependentSchemaScope? dependentSchemaScope = context.Validator.GetCachedScope<DependentSchemaScope>(ScopeType.DependentSchema);
+                if (dependentSchemaScope == null)
+                {
+                    dependentSchemaScope = new DependentSchemaScope();
+                }
+                dependentSchemaScope.Initialize(context, scope, depth, ScopeType.DependentSchema);
+                scope.AddChildScope(dependentSchemaScope);
+
+                dependentSchemaScope.PropertyName = dependencyKey;
+                dependentSchemaScope.InitializeScopes(token, new List<JSchema> { dependencySchema }, context.Scopes.Count - 1);
+            }
+        }
+
+        private static bool DependentSchemaAlreadyCreated(SchemaScope scope, string dependencyKey)
+        {
+            if (scope.ConditionalChildren != null)
+            {
+                for (int i = 0; i < scope.ConditionalChildren.Count; i++)
+                {
+                    if (scope.ConditionalChildren[i] is DependentSchemaScope dependentSchemaScope
+                        && dependentSchemaScope.PropertyName == dependencyKey)
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
 
         protected void EnsureValid(object? value)

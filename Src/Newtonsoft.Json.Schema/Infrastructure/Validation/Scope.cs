@@ -19,7 +19,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
         OneOf,
         Not,
         IfThenElse,
-        Ref
+        Ref,
+        DependentSchema
     }
 
     internal enum CompleteState

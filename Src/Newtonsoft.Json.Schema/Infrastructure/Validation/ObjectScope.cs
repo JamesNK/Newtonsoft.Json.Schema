@@ -17,8 +17,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
         private int _propertyCount;
         private string? _currentPropertyName;
         private List<string>? _requiredProperties;
-        private List<string>? _readProperties;
-        private Dictionary<string, SchemaScope>? _dependencyScopes;
+        internal List<string>? _readProperties;
         private Dictionary<string, UnevaluatedContext>? _unevaluatedScopes;
 
         public void Initialize(ContextBase context, SchemaScope? parent, int initialDepth, JSchema schema)
@@ -58,19 +57,6 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 else
                 {
                     _readProperties = new List<string>();
-                }
-
-                if ((schema._dependencies != null && schema._dependencies.HasSchemas)
-                    || !schema._dependentSchemas.IsNullOrEmpty())
-                {
-                    if (_dependencyScopes != null)
-                    {
-                        _dependencyScopes.Clear();
-                    }
-                    else
-                    {
-                        _dependencyScopes = new Dictionary<string, SchemaScope>(StringComparer.Ordinal);
-                    }
                 }
             }
 
@@ -159,6 +145,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
                         if (HasDependencies())
                         {
+                            // This only checks for dependent properties.
+                            // Dependent schemas are validated as conditional schemas.
                             foreach (string readProperty in _readProperties!)
                             {
                                 object? dependency = null;
@@ -170,20 +158,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                                     {
                                         ValidateDependantProperties(readProperty, requiredProperties);
                                     }
-                                    else
-                                    {
-                                        ValidateDependantSchema(readProperty);
-                                    }
                                 }
 
                                 if (Schema._dependentRequired?.TryGetValue(readProperty, out requiredProperties) ?? false)
                                 {
                                     ValidateDependantProperties(readProperty, requiredProperties!);
-                                }
-
-                                if (Schema._dependentSchemas?.TryGetValue(readProperty, out _) ?? false)
-                                {
-                                    ValidateDependantSchema(readProperty);
                                 }
                             }
                         }
@@ -366,32 +345,6 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 || !Schema._dependentSchemas.IsNullOrEmpty();
         }
 
-        private void ValidateDependantSchema(string readProperty)
-        {
-            ValidationUtils.Assert(_dependencyScopes != null);
-
-            SchemaScope dependencyScope = _dependencyScopes[readProperty];
-            if (dependencyScope.Context.HasErrors)
-            {
-                IFormattable message = $"Dependencies for property '{readProperty}' failed.";
-                RaiseError(message, ErrorType.Dependencies, Schema, readProperty, dependencyScope.GetValidationErrors());
-            }
-            else
-            {
-                if (!_unevaluatedScopes.IsNullOrEmpty())
-                {
-                    foreach (KeyValuePair<string, UnevaluatedContext> item in _unevaluatedScopes)
-                    {
-                        if (!item.Value.Evaluated && IsPropertyDefined(dependencyScope.Schema, item.Key))
-                        {
-                            item.Value.Evaluated = true;
-                        }
-                    }
-                }
-            }
-            
-        }
-
         private void ValidateDependantProperties(string readProperty, IList<string> requiredProperties)
         {
             ValidationUtils.Assert(_readProperties != null);
@@ -432,44 +385,6 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             }
 
             return false;
-        }
-
-        public void InitializeScopes(JsonToken token)
-        {
-            if (!Schema._dependencies.IsNullOrEmpty())
-            {
-                foreach (KeyValuePair<string, object> dependency in Schema._dependencies.GetInnerDictionary())
-                {
-                    if (dependency.Value is JSchema dependencySchema)
-                    {
-                        ValidationUtils.Assert(_dependencyScopes != null);
-
-                        // Could be duplicated in "dependencies" and "dependentSchemas"
-                        if (!_dependencyScopes.ContainsKey(dependency.Key))
-                        {
-                            SchemaScope scope = CreateTokenScope(token, dependencySchema, CreateConditionalContext(), null, InitialDepth);
-                            _dependencyScopes.Add(dependency.Key, scope);
-                        }
-                    }
-                }
-            }
-            if (!Schema._dependentSchemas.IsNullOrEmpty())
-            {
-                foreach (KeyValuePair<string, JSchema> dependency in Schema._dependentSchemas)
-                {
-                    if (dependency.Value is JSchema dependencySchema)
-                    {
-                        ValidationUtils.Assert(_dependencyScopes != null);
-
-                        // Could be duplicated in "dependencies" and "dependentSchemas"
-                        if (!_dependencyScopes.ContainsKey(dependency.Key))
-                        {
-                            SchemaScope scope = CreateTokenScope(token, dependencySchema, CreateConditionalContext(), null, InitialDepth);
-                            _dependencyScopes.Add(dependency.Key, scope);
-                        }
-                    }
-                }
-            }
         }
     }
 }
