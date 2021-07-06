@@ -12,33 +12,40 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
     {
         protected override bool EvaluateTokenCore(JsonToken token, object? value, int depth)
         {
-            if (!GetChildrenAllValid(token, value, depth))
+            if (TryGetChildrenAllValid(token, value, depth, out bool allValid))
             {
-                List<int> invalidIndexes = new();
-                int index = 0;
-                foreach (SchemaScope schemaScope in ChildScopes)
+                if (!allValid)
                 {
-                    if (!schemaScope.IsValid)
+                    List<int> invalidIndexes = new();
+                    int index = 0;
+                    foreach (SchemaScope schemaScope in ChildScopes)
                     {
-                        invalidIndexes.Add(index);
-                    }
-                    else
-                    {
-                        ConditionalContext.TrackEvaluatedSchema(schemaScope.Schema);
+                        if (!schemaScope.IsValid)
+                        {
+                            invalidIndexes.Add(index);
+                        }
+                        else
+                        {
+                            ConditionalContext.TrackEvaluatedSchema(schemaScope.Schema);
+                        }
+
+                        index++;
                     }
 
-                    index++;
+                    IFormattable message = $"JSON does not match all schemas from 'allOf'. Invalid schema indexes: {StringHelpers.Join(", ", invalidIndexes)}.";
+                    RaiseError(message, ErrorType.AllOf, ParentSchemaScope.Schema, null, ConditionalContext.Errors);
                 }
-
-                IFormattable message = $"JSON does not match all schemas from 'allOf'. Invalid schema indexes: {StringHelpers.Join(", ", invalidIndexes)}.";
-                RaiseError(message, ErrorType.AllOf, ParentSchemaScope.Schema, null, ConditionalContext.Errors);
+                else
+                {
+                    for (int i = 0; i < ChildScopes.Count; i++)
+                    {
+                        ConditionalContext.TrackEvaluatedSchema(ChildScopes[i].Schema);
+                    }
+                }
             }
             else
             {
-                for (int i = 0; i < ChildScopes.Count; i++)
-                {
-                    ConditionalContext.TrackEvaluatedSchema(ChildScopes[i].Schema);
-                }
+                RaiseCircularDependencyError(ErrorType.AllOf);
             }
 
             return true;

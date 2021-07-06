@@ -12,44 +12,49 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
     {
         protected override bool EvaluateTokenCore(JsonToken token, object? value, int depth)
         {
-            int validCount = GetChildrenValidCount(token, value, depth);
-
-            if (validCount != 1)
+            if (TryGetChildrenValidCount(token, value, depth, out int validCount))
             {
-                List<int> validIndexes = new();
-                int index = 0;
-                foreach (SchemaScope schemaScope in ChildScopes)
+                if (validCount != 1)
                 {
-                    if (schemaScope.IsValid)
+                    List<int> validIndexes = new();
+                    int index = 0;
+                    foreach (SchemaScope schemaScope in ChildScopes)
                     {
-                        validIndexes.Add(index);
+                        if (schemaScope.IsValid)
+                        {
+                            validIndexes.Add(index);
+                        }
+
+                        index++;
                     }
 
-                    index++;
-                }
+                    IFormattable message;
+                    if (validIndexes.Count > 0)
+                    {
+                        message = $"JSON is valid against more than one schema from 'oneOf'. Valid schema indexes: {StringHelpers.Join(", ", validIndexes)}.";
+                    }
+                    else
+                    {
+                        message = $"JSON is valid against no schemas from 'oneOf'.";
+                    }
 
-                IFormattable message;
-                if (validIndexes.Count > 0)
-                {
-                    message = $"JSON is valid against more than one schema from 'oneOf'. Valid schema indexes: {StringHelpers.Join(", ", validIndexes)}.";
+                    RaiseError(message, ErrorType.OneOf, ParentSchemaScope.Schema, null, ConditionalContext.Errors);
                 }
                 else
                 {
-                    message = $"JSON is valid against no schemas from 'oneOf'.";
+                    // TODO: A little inefficent to find the valid child again
+                    foreach (SchemaScope childScope in ChildScopes)
+                    {
+                        if (childScope.IsValid)
+                        {
+                            ConditionalContext.TrackEvaluatedSchema(childScope.Schema);
+                        }
+                    }
                 }
-
-                RaiseError(message, ErrorType.OneOf, ParentSchemaScope.Schema, null, ConditionalContext.Errors);
             }
             else
             {
-                // TODO: A little inefficent to find the valid child again
-                foreach (SchemaScope childScope in ChildScopes)
-                {
-                    if (childScope.IsValid)
-                    {
-                        ConditionalContext.TrackEvaluatedSchema(childScope.Schema);
-                    }
-                }
+                RaiseCircularDependencyError(ErrorType.OneOf);
             }
 
             return true;

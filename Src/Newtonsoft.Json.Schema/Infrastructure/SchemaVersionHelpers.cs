@@ -4,12 +4,27 @@
 #endregion
 
 using System;
+using System.Globalization;
 using System.IO;
 
 namespace Newtonsoft.Json.Schema.Infrastructure
 {
     internal static class SchemaVersionHelpers
     {
+        private static readonly object _lock = new();
+        private static JSchemaPreloadedResolver? SchemaVersionResolver;
+
+        private static readonly SchemaVersionMap[] VersionMap =
+        {
+            new SchemaVersionMap(SchemaVersion.Draft3, Constants.SchemaVersions.Draft3, "schema-draft-v3.json"),
+            new SchemaVersionMap(SchemaVersion.Draft4, Constants.SchemaVersions.Draft4, "schema-draft-v4.json"),
+            new SchemaVersionMap(SchemaVersion.Draft6, Constants.SchemaVersions.Draft6, "schema-draft-v6.json"),
+            new SchemaVersionMap(SchemaVersion.Draft7, Constants.SchemaVersions.Draft7, "schema-draft-v7.json"),
+            new SchemaVersionMap(SchemaVersion.Draft2019_09, Constants.SchemaVersions.Draft2019_09, "draft2019_09.schema.json"),
+        };
+
+        private static readonly ThreadSafeStore<string, JSchema> SpecSchemaCache = new(LoadResourceSchema);
+
         private class SchemaVersionMap
         {
             public readonly SchemaVersion Version;
@@ -24,22 +39,58 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             }
         }
 
-        private static readonly SchemaVersionMap[] VersionMap =
+        private static JSchemaPreloadedResolver GetSchemaResolver()
         {
-            new SchemaVersionMap(SchemaVersion.Draft3, Constants.SchemaVersions.Draft3, "schema-draft-v3.json"),
-            new SchemaVersionMap(SchemaVersion.Draft4, Constants.SchemaVersions.Draft4, "schema-draft-v4.json"),
-            new SchemaVersionMap(SchemaVersion.Draft6, Constants.SchemaVersions.Draft6, "schema-draft-v6.json"),
-            new SchemaVersionMap(SchemaVersion.Draft7, Constants.SchemaVersions.Draft7, "schema-draft-v7.json"),
-            new SchemaVersionMap(SchemaVersion.Draft2019_09, Constants.SchemaVersions.Draft2019_09, "draft2019-09/schema.json"),
-        };
+            if (SchemaVersionResolver == null)
+            {
+                lock (_lock)
+                {
+                    if (SchemaVersionResolver == null)
+                    {
+                        JSchemaPreloadedResolver resolver = new();
+                        AddPreloadedSchema(resolver, new Uri("https://json-schema.org/draft/2019-09/meta/applicator"), "draft2019_09.meta.applicator.json");
+                        AddPreloadedSchema(resolver, new Uri("https://json-schema.org/draft/2019-09/meta/content"), "draft2019_09.meta.content.json");
+                        AddPreloadedSchema(resolver, new Uri("https://json-schema.org/draft/2019-09/meta/core"), "draft2019_09.meta.core.json");
+                        AddPreloadedSchema(resolver, new Uri("https://json-schema.org/draft/2019-09/meta/format"), "draft2019_09.meta.format.json");
+                        AddPreloadedSchema(resolver, new Uri("https://json-schema.org/draft/2019-09/meta/hyper-schema"), "draft2019_09.meta.hyper-schema.json");
+                        AddPreloadedSchema(resolver, new Uri("https://json-schema.org/draft/2019-09/meta/meta-data"), "draft2019_09.meta.meta-data.json");
+                        AddPreloadedSchema(resolver, new Uri("https://json-schema.org/draft/2019-09/meta/validation"), "draft2019_09.meta.validation.json");
 
-        private static readonly ThreadSafeStore<string, JSchema> SpecSchemaCache = new(LoadResourceSchema);
+                        SchemaVersionResolver = resolver;
+                    }
+                }
+            }
+
+            return SchemaVersionResolver;
+        }
+
+        private static void AddPreloadedSchema(JSchemaPreloadedResolver resolver, Uri uri, string resourceName)
+        {
+            Stream schemaData = GetEmbeddedResourceStream(resourceName);
+            MemoryStream ms = new();
+            schemaData.CopyTo(ms);
+
+            resolver.Add(uri, ms.ToArray());
+        }
 
         private static JSchema LoadResourceSchema(string name)
         {
-            using Stream schemaData = typeof(JSchemaReader).Assembly().GetManifestResourceStream("Newtonsoft.Json.Schema.Resources." + name);
+            Stream schemaData = GetEmbeddedResourceStream(name);
+
             using StreamReader sr = new(schemaData);
-            return JSchema.Load(new JsonTextReader(sr));
+            return JSchema.Load(new JsonTextReader(sr), GetSchemaResolver());
+        }
+
+        private static Stream GetEmbeddedResourceStream(string name)
+        {
+            string resourceName = "Newtonsoft.Json.Schema.Resources." + name;
+            Stream schemaData = typeof(JSchemaReader).Assembly().GetManifestResourceStream(resourceName);
+            if (schemaData == null)
+            {
+                throw new InvalidOperationException("Can't find embedded resource '{0}'.".FormatWith(CultureInfo.InvariantCulture, resourceName));
+            }
+
+            return schemaData;
         }
 
         public static bool EnsureVersion(SchemaVersion currentVersion, SchemaVersion minimum, SchemaVersion? maximum = null)

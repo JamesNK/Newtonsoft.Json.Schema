@@ -3,8 +3,10 @@
 // License: https://raw.github.com/JamesNK/Newtonsoft.Json.Schema/master/LICENSE.md
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 {
@@ -65,7 +67,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 {
                     // The schema scope needs to be part of a different conditional contexts.
                     // We need to create a composite so that errors are raised to both.
-                    if (childScope.Context is not CompositeContext compositeContext)
+                    CompositeContext? compositeContext = childScope.Context as CompositeContext;
+                    if (compositeContext == null)
                     {
                         compositeContext = new CompositeContext(context.Validator);
                         compositeContext.Contexts.Add(childScope.Context);
@@ -98,7 +101,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 {
                     if (scope.InitialDepth == InitialDepth)
                     {
-                        if (!scope.Complete && scope.Schema == schema)
+                        if (scope.Complete != CompleteState.Completed && scope.Schema == schema)
                         {
                             if (i < scopeCurrentIndex)
                             {
@@ -135,86 +138,120 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             return null;
         }
 
-        protected int GetChildrenValidCount(JsonToken token, object? value, int depth)
+        protected bool TryGetChildrenValidCount(JsonToken token, object? value, int depth, out int validCount)
         {
-            int count = 0;
+            validCount = 0;
             for (int i = 0; i < ChildScopes.Count; i++)
             {
                 SchemaScope schemaScope = ChildScopes[i];
-                AssertScopeComplete(schemaScope, token, value, depth);
-
-                if (schemaScope.IsValid)
-                {
-                    count++;
-                }
-            }
-
-            return count;
-        }
-
-        protected bool GetChildrenAnyValid(JsonToken token, object? value, int depth)
-        {
-            for (int i = 0; i < ChildScopes.Count; i++)
-            {
-                SchemaScope schemaScope = ChildScopes[i];
-                AssertScopeComplete(schemaScope, token, value, depth);
-
-                if (schemaScope.IsValid)
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        protected bool GetChildrenAllValid(JsonToken token, object? value, int depth)
-        {
-            for (int i = 0; i < ChildScopes.Count; i++)
-            {
-                SchemaScope schemaScope = ChildScopes[i];
-                AssertScopeComplete(schemaScope, token, value, depth);
-
-                if (!schemaScope.IsValid)
+                if (!AssertScopeComplete(schemaScope, token, value, depth))
                 {
                     return false;
+                }
+
+                if (schemaScope.IsValid)
+                {
+                    validCount++;
                 }
             }
 
             return true;
         }
 
-        protected SchemaScope? GetSchemaScopeBySchema(JSchema schema, JsonToken token, object? value, int depth)
+        protected bool TryGetChildrenAnyValid(JsonToken token, object? value, int depth, out bool anyValid)
         {
             for (int i = 0; i < ChildScopes.Count; i++)
             {
                 SchemaScope schemaScope = ChildScopes[i];
+                if (!AssertScopeComplete(schemaScope, token, value, depth))
+                {
+                    anyValid = default;
+                    return false;
+                }
+
+                if (schemaScope.IsValid)
+                {
+                    anyValid = true;
+                    return true;
+                }
+            }
+
+            anyValid = false;
+            return true;
+        }
+
+        protected bool TryGetChildrenAllValid(JsonToken token, object? value, int depth, out bool allValid)
+        {
+            for (int i = 0; i < ChildScopes.Count; i++)
+            {
+                SchemaScope schemaScope = ChildScopes[i];
+                if (!AssertScopeComplete(schemaScope, token, value, depth))
+                {
+                    allValid = default;
+                    return false;
+                }
+
+                if (!schemaScope.IsValid)
+                {
+                    allValid = false;
+                    return true;
+                }
+            }
+
+            allValid = true;
+            return true;
+        }
+
+        protected bool TryGetSchemaScopeBySchema(JSchema schema, JsonToken token, object? value, int depth, [NotNullWhen(true)] out SchemaScope? schemaScope)
+        {
+            for (int i = 0; i < ChildScopes.Count; i++)
+            {
+                schemaScope = ChildScopes[i];
 
                 if (schemaScope.Schema == schema)
                 {
-                    AssertScopeComplete(schemaScope, token, value, depth);
-                    return schemaScope;
+                    if (!AssertScopeComplete(schemaScope, token, value, depth))
+                    {
+                        schemaScope = null;
+                        return false;
+                    }
+
+                    return true;
                 }
             }
 
-            return null;
+            throw new InvalidOperationException("Expected to find schema scope for schema.");
         }
 
-        private void AssertScopeComplete(SchemaScope schemaScope, JsonToken token, object? value, int depth)
+        private bool AssertScopeComplete(SchemaScope schemaScope, JsonToken token, object? value, int depth)
         {
-            // the schema scope that the conditional scope depends on may not be complete because it has be re-ordered
-            // schema scope will be at the same depth at the conditional so evaluate it immediately
-            if (!schemaScope.Complete)
+            switch (schemaScope.Complete)
             {
-                schemaScope.EvaluateToken(token, value, depth);
+                case CompleteState.Incomplete:
+                    // the schema scope that the conditional scope depends on may not be complete because it has be re-ordered
+                    // schema scope will be at the same depth at the conditional so evaluate it immediately
+                    schemaScope.Complete = CompleteState.Completing;
+                    schemaScope.EvaluateToken(token, value, depth);
 
 #if DEBUG
-                if (!schemaScope.Complete)
-                {
-                    throw new Exception("Schema scope {0} is not complete.".FormatWith(CultureInfo.InvariantCulture, schemaScope.DebugId));
-                }
+                    if (schemaScope.Complete != CompleteState.Completed)
+                    {
+                        throw new Exception("Schema scope {0} is not complete.".FormatWith(CultureInfo.InvariantCulture, schemaScope.DebugId));
+                    }
 #endif
+                    return true;
+                case CompleteState.Completing:
+                    return false;
+                case CompleteState.Completed:
+                    return true;
+                default:
+                    throw new InvalidOperationException("Unexpected complete state.");
             }
+        }
+
+        protected void RaiseCircularDependencyError(ErrorType errorType)
+        {
+            RaiseError($"Conditional schema has a circular dependency and can't be evaluated.", errorType, ParentSchemaScope.Schema, null, ConditionalContext.Errors);
         }
     }
 }

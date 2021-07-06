@@ -16,9 +16,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
         private int _propertyCount;
         private string? _currentPropertyName;
         private List<string>? _requiredProperties;
-        private List<string>? _readProperties;
-        private Dictionary<string, SchemaScope>? _dependencyScopes;
         private Dictionary<string, UnevaluatedContext>? _unevaluatedScopes;
+        internal List<string>? ReadProperties;
 
         public void Initialize(ContextBase context, SchemaScope? parent, int initialDepth, JSchema schema)
         {
@@ -50,26 +49,13 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             //  - Need to validate unevaluated properties
             if (HasDependencies())
             {
-                if (_readProperties != null)
+                if (ReadProperties != null)
                 {
-                    _readProperties.Clear();
+                    ReadProperties.Clear();
                 }
                 else
                 {
-                    _readProperties = new List<string>();
-                }
-
-                if ((schema._dependencies != null && schema._dependencies.HasSchemas)
-                    || !schema._dependentSchemas.IsNullOrEmpty())
-                {
-                    if (_dependencyScopes != null)
-                    {
-                        _dependencyScopes.Clear();
-                    }
-                    else
-                    {
-                        _dependencyScopes = new Dictionary<string, SchemaScope>(StringComparer.Ordinal);
-                    }
+                    ReadProperties = new List<string>();
                 }
             }
 
@@ -158,7 +144,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
                         if (HasDependencies())
                         {
-                            foreach (string readProperty in _readProperties!)
+                            // This only checks for dependent properties.
+                            // Dependent schemas are validated as conditional schemas.
+                            foreach (string readProperty in ReadProperties!)
                             {
                                 object? dependency = null;
                                 IList<string>? requiredProperties = null;
@@ -167,22 +155,13 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                                     requiredProperties = dependency as IList<string>;
                                     if (requiredProperties != null)
                                     {
-                                        ValidateDependantProperties(readProperty, requiredProperties);
-                                    }
-                                    else
-                                    {
-                                        ValidateDependantSchema(readProperty);
+                                        ValidateDependentProperties(readProperty, requiredProperties);
                                     }
                                 }
 
                                 if (Schema._dependentRequired?.TryGetValue(readProperty, out requiredProperties) ?? false)
                                 {
-                                    ValidateDependantProperties(readProperty, requiredProperties!);
-                                }
-
-                                if (Schema._dependentSchemas?.TryGetValue(readProperty, out _) ?? false)
-                                {
-                                    ValidateDependantSchema(readProperty);
+                                    ValidateDependentProperties(readProperty, requiredProperties!);
                                 }
                             }
                         }
@@ -239,7 +218,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     }
                     if (HasDependencies())
                     {
-                        _readProperties!.Add(_currentPropertyName);
+                        ReadProperties!.Add(_currentPropertyName);
                     }
 
                     if (Schema._propertyNames != null)
@@ -365,39 +344,13 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 || !Schema._dependentSchemas.IsNullOrEmpty();
         }
 
-        private void ValidateDependantSchema(string readProperty)
+        private void ValidateDependentProperties(string readProperty, IList<string> requiredProperties)
         {
-            ValidationUtils.Assert(_dependencyScopes != null);
+            ValidationUtils.Assert(ReadProperties != null);
 
-            SchemaScope dependencyScope = _dependencyScopes[readProperty];
-            if (dependencyScope.Context.HasErrors)
+            if (!requiredProperties.All(r => ReadProperties.Contains(r)))
             {
-                IFormattable message = $"Dependencies for property '{readProperty}' failed.";
-                RaiseError(message, ErrorType.Dependencies, Schema, readProperty, dependencyScope.GetValidationErrors());
-            }
-            else
-            {
-                if (!_unevaluatedScopes.IsNullOrEmpty())
-                {
-                    foreach (KeyValuePair<string, UnevaluatedContext> item in _unevaluatedScopes)
-                    {
-                        if (!item.Value.Evaluated && IsPropertyDefined(dependencyScope.Schema, item.Key))
-                        {
-                            item.Value.Evaluated = true;
-                        }
-                    }
-                }
-            }
-
-        }
-
-        private void ValidateDependantProperties(string readProperty, IList<string> requiredProperties)
-        {
-            ValidationUtils.Assert(_readProperties != null);
-
-            if (!requiredProperties.All(r => _readProperties.Contains(r)))
-            {
-                IEnumerable<string> missingRequiredProperties = requiredProperties.Where(r => !_readProperties.Contains(r));
+                IEnumerable<string> missingRequiredProperties = requiredProperties.Where(r => !ReadProperties.Contains(r));
                 IFormattable message = $"Dependencies for property '{readProperty}' failed. Missing required keys: {StringHelpers.Join(", ", missingRequiredProperties)}.";
 
                 RaiseError(message, ErrorType.Dependencies, Schema, readProperty, null);
@@ -431,44 +384,6 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             }
 
             return false;
-        }
-
-        public void InitializeScopes(JsonToken token)
-        {
-            if (!Schema._dependencies.IsNullOrEmpty())
-            {
-                foreach (KeyValuePair<string, object> dependency in Schema._dependencies.GetInnerDictionary())
-                {
-                    if (dependency.Value is JSchema dependencySchema)
-                    {
-                        ValidationUtils.Assert(_dependencyScopes != null);
-
-                        // Could be duplicated in "dependencies" and "dependentSchemas"
-                        if (!_dependencyScopes.ContainsKey(dependency.Key))
-                        {
-                            SchemaScope scope = CreateTokenScope(token, dependencySchema, CreateConditionalContext(), null, InitialDepth);
-                            _dependencyScopes.Add(dependency.Key, scope);
-                        }
-                    }
-                }
-            }
-            if (!Schema._dependentSchemas.IsNullOrEmpty())
-            {
-                foreach (KeyValuePair<string, JSchema> dependency in Schema._dependentSchemas)
-                {
-                    if (dependency.Value is JSchema dependencySchema)
-                    {
-                        ValidationUtils.Assert(_dependencyScopes != null);
-
-                        // Could be duplicated in "dependencies" and "dependentSchemas"
-                        if (!_dependencyScopes.ContainsKey(dependency.Key))
-                        {
-                            SchemaScope scope = CreateTokenScope(token, dependencySchema, CreateConditionalContext(), null, InitialDepth);
-                            _dependencyScopes.Add(dependency.Key, scope);
-                        }
-                    }
-                }
-            }
         }
     }
 }
