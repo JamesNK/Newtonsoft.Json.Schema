@@ -374,40 +374,54 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             // look in the root schema's definitions for a definition with the same property name and id as reference
             if (schema.ExtensionData.TryGetValue(definitionsName, out JToken definitions))
             {
-                if (definitions is JObject definitionsObject)
+                // Add root schema ID to the scope stack. This is required because schemas in definitions may be loaded as
+                // fragments when defered schemas are resolver. If the root schema has an "$id" value, this is need to
+                // correctly resolve IDs using it.
+                schemaReader._identiferScopeStack.Add(new JsonIdentiferScope(rootSchemaId, true, dynamicAnchor: null));
+
+                try
                 {
-                    JProperty? matchingProperty = null;
-                    foreach (JProperty property in definitionsObject.Properties())
-                    {
-                        if (TryCompare(property.Name, resolvedReference))
+                        if (definitions is JObject definitionsObject)
                         {
-                            matchingProperty = property;
-                            break;
+                        JProperty? matchingProperty = null;
+                        foreach (JProperty property in definitionsObject.Properties())
+                        {
+                            if (TryCompare(property.Name, resolvedReference))
+                            {
+                                matchingProperty = property;
+                                break;
+                            }
+                        }
+
+
+                        if (matchingProperty?.Value is JObject o)
+                        {
+                            if (IsIdMatch(schemaReader, resolvedReference, o, rootSchemaId))
+                            {
+                                JSchema inlineSchema = schemaReader.ReadInlineSchema(setSchema, o, dynamicScope);
+
+                                discovery.Discover(inlineSchema, rootSchemaId, definitionsName + "/" + matchingProperty.Name);
+
+                                return true;
+                            }
+                        }
+                        else
+                        {
+                            SplitReference(resolvedReference, out Uri path, out Uri? fragment);
+
+                            return CheckDefinitionSchemaIds(definitionsName, setSchema, rootSchemaId, dynamicScope, schemaReader, discovery, resolvedReference, path, fragment, definitionsObject);
                         }
                     }
-
-                    if (matchingProperty?.Value is JObject o)
-                    {
-                        if (IsIdMatch(schemaReader, resolvedReference, o, rootSchemaId))
-                        {
-                            JSchema inlineSchema = schemaReader.ReadInlineSchema(setSchema, o, dynamicScope);
-
-                            discovery.Discover(inlineSchema, rootSchemaId, definitionsName + "/" + matchingProperty.Name);
-
-                            return true;
-                        }
-                    }
-                    else
-                    {
-                        SplitReference(resolvedReference, out Uri path, out Uri? fragment);
-
-                        return CheckDefinitionSchemaIds(definitionsName, setSchema, rootSchemaId, dynamicScope, schemaReader, discovery, resolvedReference, path, fragment, definitionsObject);
-                    }
+                }
+                finally
+                {
+                    schemaReader._identiferScopeStack.RemoveAt(schemaReader._identiferScopeStack.Count - 1);
                 }
             }
 
             return false;
         }
+
 
         private static bool CheckDefinitionSchemaIds(string definitionsName, Action<JSchema> setSchema, Uri? rootSchemaId, Uri? dynamicScope, JSchemaReader schemaReader, JSchemaDiscovery discovery, Uri resolvedReference, Uri matchingId, Uri? matchingFragment, JObject definitionsObject)
         {
