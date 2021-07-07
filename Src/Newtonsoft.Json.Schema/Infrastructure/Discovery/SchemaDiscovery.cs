@@ -338,6 +338,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             // look in the root schema's definitions for a definition with the same property name and id as reference
             if (schema.ExtensionData.TryGetValue(definitionsName, out JToken definitions))
             {
+                // Add root schema ID to the scope stack. This is required because schemas in definitions may be loaded as
+                // fragments when defered schemas are resolver. If the root schema has an "$id" value, this is need to
+                // correctly resolve IDs using it.
                 schemaReader._identiferScopeStack.Add(new JsonIdentiferScope(rootSchemaId, true, dynamicAnchor: null));
 
                 try
