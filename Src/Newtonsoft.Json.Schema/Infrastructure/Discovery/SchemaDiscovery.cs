@@ -338,29 +338,41 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             // look in the root schema's definitions for a definition with the same property name and id as reference
             if (schema.ExtensionData.TryGetValue(definitionsName, out JToken definitions))
             {
-                if (definitions is JObject definitionsObject)
+                // Add root schema ID to the scope stack. This is required because schemas in definitions may be loaded as
+                // fragments when defered schemas are resolver. If the root schema has an "$id" value, this is need to
+                // correctly resolve IDs using it.
+                schemaReader._identiferScopeStack.Add(new JsonIdentiferScope(rootSchemaId, true, dynamicAnchor: null));
+
+                try
                 {
-                    JProperty matchingProperty = definitionsObject
-                        .Properties()
-                        .FirstOrDefault(p => TryCompare(p.Name, resolvedReference));
-
-                    if (matchingProperty?.Value is JObject o)
+                    if (definitions is JObject definitionsObject)
                     {
-                        if (IsIdMatch(schemaReader, resolvedReference, o, rootSchemaId))
+                        JProperty matchingProperty = definitionsObject
+                            .Properties()
+                            .FirstOrDefault(p => TryCompare(p.Name, resolvedReference));
+
+                        if (matchingProperty?.Value is JObject o)
                         {
-                            JSchema inlineSchema = schemaReader.ReadInlineSchema(setSchema, o, dynamicScope);
+                            if (IsIdMatch(schemaReader, resolvedReference, o, rootSchemaId))
+                            {
+                                JSchema inlineSchema = schemaReader.ReadInlineSchema(setSchema, o, dynamicScope);
 
-                            discovery.Discover(inlineSchema, rootSchemaId, definitionsName + "/" + matchingProperty.Name);
+                                discovery.Discover(inlineSchema, rootSchemaId, definitionsName + "/" + matchingProperty.Name);
 
-                            return true;
+                                return true;
+                            }
+                        }
+                        else
+                        {
+                            SplitReference(resolvedReference, out Uri path, out Uri? fragment);
+
+                            return CheckDefinitionSchemaIds(definitionsName, setSchema, rootSchemaId, dynamicScope, schemaReader, discovery, resolvedReference, path, fragment, definitionsObject);
                         }
                     }
-                    else
-                    {
-                        SplitReference(resolvedReference, out Uri path, out Uri? fragment);
-
-                        return CheckDefinitionSchemaIds(definitionsName, setSchema, rootSchemaId, dynamicScope, schemaReader, discovery, resolvedReference, path, fragment, definitionsObject);
-                    }
+                }
+                finally
+                {
+                    schemaReader._identiferScopeStack.RemoveAt(schemaReader._identiferScopeStack.Count - 1);
                 }
             }
 
