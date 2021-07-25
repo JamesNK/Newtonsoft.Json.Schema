@@ -876,15 +876,15 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         {
             EnsureRead(reader, name);
 
-            List<JSchemaType>? types = new List<JSchemaType>();
-            JSchemaCollection? typeSchemas = null;
-            bool isAny = false;
-
             switch (reader.TokenType)
             {
                 case JsonToken.String:
                     return MapType(reader);
                 case JsonToken.StartArray:
+                    List<JSchemaType>? types = new List<JSchemaType>();
+                    JSchemaCollection? typeSchemas = null;
+                    bool isAny = false;
+
                     while (reader.Read())
                     {
                         switch (reader.TokenType)

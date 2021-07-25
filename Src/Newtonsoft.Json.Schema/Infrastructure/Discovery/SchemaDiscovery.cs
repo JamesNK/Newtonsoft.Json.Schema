@@ -10,7 +10,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
-using System.Linq;
 using Newtonsoft.Json.Linq;
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
@@ -99,6 +98,44 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             return id;
         }
 
+        private struct SplitEnumerator
+        {
+            private int _currentIndex;
+            public string OriginalString { get; }
+
+            public SplitEnumerator(string str)
+            {
+                OriginalString = str;
+                _currentIndex = 0;
+                Current = null!;
+            }
+
+            // Needed to be compatible with the foreach operator
+            public SplitEnumerator GetEnumerator() => this;
+
+            public bool MoveNext()
+            {
+                if (OriginalString.Length == _currentIndex) // Reach the end of the string
+                {
+                    return false;
+                }
+
+                var index = OriginalString.IndexOf('/', _currentIndex);
+                if (index == -1) // The string is composed of only one line
+                {
+                    Current = OriginalString.Substring(_currentIndex);
+                    _currentIndex = OriginalString.Length;
+                    return true;
+                }
+
+                Current = OriginalString.Substring(_currentIndex, index - _currentIndex);
+                _currentIndex = index + 1;
+                return true;
+            }
+
+            public string Current { get; private set; }
+        }
+
         public static bool FindSchema(
             Action<JSchema> setSchema,
             JSchema schema,
@@ -109,12 +146,13 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             JSchemaReader schemaReader,
             ref JSchemaDiscovery discovery)
         {
-            // todo, better way to get parts from Uri
-            string[] parts = reference.ToString().Split('/');
-
             bool resolvedSchema;
 
-            if (parts.Length > 0 && IsInternalSchemaReference(parts[0], rootSchemaId))
+            // todo, better way to get parts from Uri
+            SplitEnumerator enumerator = new SplitEnumerator(reference.ToString());
+            enumerator.MoveNext();
+
+            if (IsInternalSchemaReference(enumerator.Current, rootSchemaId))
             {
                 int scopeInitialCount = schemaReader._identiferScopeStack.Count;
 
@@ -122,9 +160,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
 
                 JSchema parent = schema;
                 object? current = schema;
-                for (int i = 1; i != parts.Length; ++i)
+                while (enumerator.MoveNext())
                 {
-                    string unescapedPart = UnescapeReference(parts[i]);
+                    string unescapedPart = UnescapeReference(enumerator.Current);
 
                     switch (current)
                     {
@@ -239,8 +277,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
 
                 Uri resolvedReference = ResolveSchemaId(rootSchemaId, reference);
 
-                // use firstordefault to handle duplicates
-                KnownSchema knownSchema = discovery.KnownSchemas.FirstOrDefault(s => UriComparer.Instance.Equals(s.Id, resolvedReference));
+                KnownSchema? knownSchema = discovery.KnownSchemas.GetById(resolvedReference);
 
                 if (knownSchema != null)
                 {
@@ -251,8 +288,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                 {
                     if (SplitReference(resolvedReference, out Uri path, out Uri? fragment))
                     {
-                        // there could be duplicated ids. use FirstOrDefault to get first schema with an id
-                        knownSchema = discovery.KnownSchemas.FirstOrDefault(s => UriComparer.Instance.Equals(s.Id, path));
+                        knownSchema = discovery.KnownSchemas.GetById(path);
 
                         if (knownSchema != null)
                         {
@@ -340,9 +376,15 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             {
                 if (definitions is JObject definitionsObject)
                 {
-                    JProperty matchingProperty = definitionsObject
-                        .Properties()
-                        .FirstOrDefault(p => TryCompare(p.Name, resolvedReference));
+                    JProperty? matchingProperty = null;
+                    foreach (JProperty property in definitionsObject.Properties())
+                    {
+                        if (TryCompare(property.Name, resolvedReference))
+                        {
+                            matchingProperty = property;
+                            break;
+                        }
+                    }
 
                     if (matchingProperty?.Value is JObject o)
                     {
@@ -521,7 +563,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             {
                 if (int.TryParse(unescapedPart, NumberStyles.None, CultureInfo.InvariantCulture, out int index))
                 {
-                    if (index >= t.Count() || index < 0)
+                    if (index >= ((JContainer) t).Count || index < 0)
                     {
                         resolvedToken = null;
                     }

@@ -567,6 +567,8 @@ namespace Newtonsoft.Json.Schema
         /// </summary>
         public JSchema()
         {
+            // Alway create a KnownSchemaCollection. Collection is locked when populating
+            // so can't allocate it when used.
             KnownSchemas = new KnownSchemaCollection();
 #if DEBUG
             Interlocked.Increment(ref LastDebugId);
