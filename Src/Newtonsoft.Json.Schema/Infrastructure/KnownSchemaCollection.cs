@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using Newtonsoft.Json.Schema.Infrastructure.Discovery;
 
 namespace Newtonsoft.Json.Schema.Infrastructure
@@ -16,7 +17,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         private Dictionary<JSchema, KnownSchema>? _jSchemaKnownSchemaLookup;
 
-        internal Dictionary<Uri, KnownSchema> UriKnownSchemaLookup
+        private Dictionary<Uri, KnownSchema> UriKnownSchemaLookup
         {
             get
             {
@@ -29,7 +30,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             }
         }
 
-        internal Dictionary<JSchema, KnownSchema> JSchemaKnownSchemaLookup
+        private Dictionary<JSchema, KnownSchema> JSchemaKnownSchemaLookup
         {
             get
             {
@@ -44,7 +45,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         protected override void InsertItem(int index, KnownSchema item)
         {
-            UriKnownSchemaLookup[item.Id] = item;
+            // First Uri ID wins.
+            if (!UriKnownSchemaLookup.ContainsKey(item.Id))
+            {
+                UriKnownSchemaLookup[item.Id] = item;
+            }
             JSchemaKnownSchemaLookup[item.Schema] = item;
 
             base.InsertItem(index, item);
@@ -56,8 +61,16 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
             if (!UriComparer.Instance.Equals(item.Id, knownSchema.Id))
             {
-                UriKnownSchemaLookup.Remove(knownSchema.Id);
-                UriKnownSchemaLookup[item.Id] = item;
+                if (UriKnownSchemaLookup.TryGetValue(knownSchema.Id, out var existingKnownSchema) && knownSchema == existingKnownSchema)
+                {
+                    UriKnownSchemaLookup.Remove(knownSchema.Id);
+                }
+                // First Uri ID wins.
+                if (!UriKnownSchemaLookup.ContainsKey(item.Id))
+                {
+                    UriKnownSchemaLookup[item.Id] = item;
+                }
+
                 JSchemaKnownSchemaLookup.Remove(knownSchema.Schema);
                 JSchemaKnownSchemaLookup[item.Schema] = item;
             }

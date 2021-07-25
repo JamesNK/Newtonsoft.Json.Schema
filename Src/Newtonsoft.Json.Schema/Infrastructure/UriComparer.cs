@@ -38,20 +38,29 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         public int GetHashCode(Uri obj)
         {
-            if (!obj.IsAbsoluteUri || string.IsNullOrEmpty(obj.Fragment))
+            if (!obj.IsAbsoluteUri)
             {
                 return obj.GetHashCode();
             }
 
-            return obj.GetHashCode() ^ obj.Fragment.GetHashCode();
+            string resolvedFragment = ResolveFragment(obj);
+            if (string.IsNullOrEmpty(resolvedFragment))
+            {
+                return obj.GetHashCode();
+            }
+
+            return obj.GetHashCode() ^ resolvedFragment.GetHashCode();
         }
 
         private string ResolveFragment(Uri uri)
         {
+            string resolvedFragment = uri.Fragment;
+
             // an empty fragment '#' is the same as no fragment
-            string resolvedFragment = string.Equals(uri.Fragment, "#", StringComparison.Ordinal)
-                ? string.Empty
-                : uri.Fragment;
+            if (string.Equals(resolvedFragment, "#", StringComparison.Ordinal))
+            {
+                resolvedFragment = string.Empty;
+            }
 
             return resolvedFragment;
         }
