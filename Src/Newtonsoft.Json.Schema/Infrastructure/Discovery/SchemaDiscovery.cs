@@ -393,7 +393,6 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                             }
                         }
 
-
                         if (matchingProperty?.Value is JObject o)
                         {
                             if (IsIdMatch(schemaReader, resolvedReference, o, rootSchemaId))
