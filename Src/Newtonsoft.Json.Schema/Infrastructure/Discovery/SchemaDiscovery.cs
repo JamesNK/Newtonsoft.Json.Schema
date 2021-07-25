@@ -381,8 +381,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
 
                 try
                 {
-                        if (definitions is JObject definitionsObject)
-                        {
+                    if (definitions is JObject definitionsObject)
+                    {
                         JProperty? matchingProperty = null;
                         foreach (JProperty property in definitionsObject.Properties())
                         {
@@ -421,7 +421,6 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
 
             return false;
         }
-
 
         private static bool CheckDefinitionSchemaIds(string definitionsName, Action<JSchema> setSchema, Uri? rootSchemaId, Uri? dynamicScope, JSchemaReader schemaReader, JSchemaDiscovery discovery, Uri resolvedReference, Uri matchingId, Uri? matchingFragment, JObject definitionsObject)
         {
