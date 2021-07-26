@@ -33,7 +33,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 return true;
             }
 
-            return string.Equals(ResolveFragment(x), ResolveFragment(y), StringComparison.Ordinal);
+            return ResolveFragment(x).Equals(ResolveFragment(y));
         }
 
         public int GetHashCode(Uri obj)
@@ -43,8 +43,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 return obj.GetHashCode();
             }
 
-            string resolvedFragment = ResolveFragment(obj);
-            if (string.IsNullOrEmpty(resolvedFragment))
+            StringSegment resolvedFragment = ResolveFragment(obj);
+            if (resolvedFragment.IsEmpty)
             {
                 return obj.GetHashCode();
             }
@@ -52,17 +52,78 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             return obj.GetHashCode() ^ resolvedFragment.GetHashCode();
         }
 
-        private string ResolveFragment(Uri uri)
+        private StringSegment ResolveFragment(Uri uri)
         {
-            string resolvedFragment = uri.Fragment;
-
-            // an empty fragment '#' is the same as no fragment
-            if (string.Equals(resolvedFragment, "#", StringComparison.Ordinal))
+            int fragmentIndex = uri.OriginalString.IndexOf('#');
+            if (fragmentIndex == -1)
             {
-                resolvedFragment = string.Empty;
+                return default;
             }
 
-            return resolvedFragment;
+            int length = uri.OriginalString.Length - fragmentIndex;
+            if (length == 1)
+            {
+                // an empty fragment '#' is the same as no fragment
+                return default;
+            }
+
+            return new StringSegment(uri.OriginalString, fragmentIndex, length);
+        }
+
+        private readonly struct StringSegment : IEquatable<StringSegment>
+        {
+            private readonly string _s;
+            private readonly int _startIndex;
+            private readonly int _length;
+
+            public StringSegment(string s, int startIndex, int length)
+            {
+                _s = s;
+                _startIndex = startIndex;
+                _length = length;
+            }
+
+            public bool IsEmpty => _s == null;
+
+            public bool Equals(StringSegment other)
+            {
+                if (other._length != _length)
+                {
+                    return false;
+                }
+
+                for (int i = 0; i < _length; i++)
+                {
+                    if (_s[_startIndex + i] != other._s[other._startIndex + i])
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+
+            public override bool Equals(object obj)
+            {
+                if (obj is StringSegment other)
+                {
+                    return Equals(other);
+                }
+                return false;
+            }
+
+            public override int GetHashCode()
+            {
+                int hashCode = 257;
+
+                int end = _startIndex + _length;
+                for (int i = _startIndex; i < end; i++)
+                {
+                    hashCode = hashCode ^ _s[i];
+                }
+
+                return hashCode;
+            }
         }
     }
 }

@@ -199,21 +199,15 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                     }
                 }
 
-                currentPath = StringHelpers.Join("/", currentParts);
-
                 if (!string.IsNullOrEmpty(currentScopeId.OriginalString)
-                    && !currentPath.StartsWith("#", StringComparison.Ordinal))
+                    && (currentParts.Count == 0 || !currentParts[0].StartsWith("#", StringComparison.Ordinal)))
                 {
-                    currentPath = "#/" + currentPath;
+                    currentParts.Insert(0, "#");
                 }
 
-                if (!string.IsNullOrEmpty(currentPath)
-                    && !currentPath.EndsWith("/", StringComparison.Ordinal))
-                {
-                    currentPath += "/";
-                }
+                currentParts.Add(latestPath);
 
-                currentPath += latestPath;
+                currentPath = StringHelpers.Join("/", currentParts);
             }
 
             Uri schemaKnownId = ResolveSchemaIdAndScopeId(currentScopeId, schema, currentPath, out newScopeId);

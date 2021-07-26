@@ -67,7 +67,9 @@ namespace Newtonsoft.Json.Schema
 
         private Uri RemoveFragment(Uri uri, out string? fragment)
         {
-            if (uri.IsAbsoluteUri && string.IsNullOrEmpty(uri.Fragment))
+            int index = uri.OriginalString.IndexOf('#');
+
+            if (uri.IsAbsoluteUri && index == -1)
             {
                 fragment = null;
                 return uri;
@@ -75,7 +77,6 @@ namespace Newtonsoft.Json.Schema
 
             string uriText;
 
-            int index = uri.OriginalString.IndexOf('#');
             if (index != -1)
             {
                 uriText = uri.OriginalString.Substring(0, index);
