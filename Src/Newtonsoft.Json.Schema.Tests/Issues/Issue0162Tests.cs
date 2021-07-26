@@ -29,10 +29,11 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
 
             ExceptionAssert.Throws<JSchemaException>(
                 () => JSchema.Parse(Json, settings),
-                "Error resolving schema ID 'file:/action_scenario.json#' in the current scope. The resolved ID must be a valid URI. Path 'properties.prop1', line 3, position 14.");
+                "Error resolving schema ID 'file:/action_scenario.json#' in the current scope. The resolved ID must be a valid URI. Path 'properties.prop1', line 4, position 14.");
         }
 
         private const string Json = @"{
+  ""$id"": ""test"",
   ""properties"": {
     ""prop1"": {
       ""$id"": ""file:/action_scenario.json#""

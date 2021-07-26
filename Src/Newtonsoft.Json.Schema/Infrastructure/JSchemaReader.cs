@@ -881,84 +881,88 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 case JsonToken.String:
                     return MapType(reader);
                 case JsonToken.StartArray:
-                    List<JSchemaType>? types = new List<JSchemaType>();
-                    JSchemaCollection? typeSchemas = null;
-                    bool isAny = false;
-
-                    while (reader.Read())
-                    {
-                        switch (reader.TokenType)
-                        {
-                            case JsonToken.String:
-                                JSchemaType? t = MapType(reader);
-
-                                if (t == null)
-                                {
-                                    isAny = true;
-                                }
-                                else
-                                {
-                                    if (typeSchemas != null)
-                                    {
-                                        typeSchemas.Add(new JSchema {Type = t});
-                                    }
-                                    else
-                                    {
-                                        types!.Add(t.Value);
-                                    }
-                                }
-                                break;
-                            case JsonToken.Comment:
-                                // nom nom nom
-                                break;
-                            case JsonToken.EndArray:
-                                // type of "any" removes all other type constraints
-                                if (isAny)
-                                {
-                                    return null;
-                                }
-
-                                if (typeSchemas != null)
-                                {
-                                    return typeSchemas;
-                                }
-
-                                JSchemaType finalType = JSchemaType.None;
-                                foreach (JSchemaType type in types!)
-                                {
-                                    finalType = finalType | type;
-                                }
-
-                                return finalType;
-                            default:
-                                if (EnsureVersion(SchemaVersion.Draft3, SchemaVersion.Draft3))
-                                {
-                                    if (typeSchemas == null)
-                                    {
-                                        typeSchemas = new JSchemaCollection(target);
-                                        foreach (JSchemaType type in types!)
-                                        {
-                                            typeSchemas.Add(new JSchema
-                                            {
-                                                Type = type
-                                            });
-                                        }
-                                        types = null;
-                                    }
-                                    int count = typeSchemas.Count;
-                                    JSchemaCollection l = typeSchemas;
-                                    LoadAndSetSchema(reader, target, s => SetAtIndex(l, count, s));
-                                }
-                                else
-                                {
-                                    throw JSchemaReaderException.Create(reader, _baseUri, "Expected string token for type, got {0}.".FormatWith(CultureInfo.InvariantCulture, reader.TokenType));
-                                }
-                                break;
-                        }
-                    }
-                    break;
+                    return ReadTypeArray(reader, target);
                 default:
                     throw JSchemaReaderException.Create(reader, _baseUri, "Expected array or string for '{0}', got {1}.".FormatWith(CultureInfo.InvariantCulture, Constants.PropertyNames.Type, reader.TokenType));
+            }
+        }
+
+        private object? ReadTypeArray(JsonReader reader, JSchema target)
+        {
+            List<JSchemaType>? types = new List<JSchemaType>();
+            JSchemaCollection? typeSchemas = null;
+            bool isAny = false;
+
+            while (reader.Read())
+            {
+                switch (reader.TokenType)
+                {
+                    case JsonToken.String:
+                        JSchemaType? t = MapType(reader);
+
+                        if (t == null)
+                        {
+                            isAny = true;
+                        }
+                        else
+                        {
+                            if (typeSchemas != null)
+                            {
+                                typeSchemas.Add(new JSchema { Type = t });
+                            }
+                            else
+                            {
+                                types!.Add(t.Value);
+                            }
+                        }
+                        break;
+                    case JsonToken.Comment:
+                        // nom nom nom
+                        break;
+                    case JsonToken.EndArray:
+                        // type of "any" removes all other type constraints
+                        if (isAny)
+                        {
+                            return null;
+                        }
+
+                        if (typeSchemas != null)
+                        {
+                            return typeSchemas;
+                        }
+
+                        JSchemaType finalType = JSchemaType.None;
+                        foreach (JSchemaType type in types!)
+                        {
+                            finalType = finalType | type;
+                        }
+
+                        return finalType;
+                    default:
+                        if (EnsureVersion(SchemaVersion.Draft3, SchemaVersion.Draft3))
+                        {
+                            if (typeSchemas == null)
+                            {
+                                typeSchemas = new JSchemaCollection(target);
+                                foreach (JSchemaType type in types!)
+                                {
+                                    typeSchemas.Add(new JSchema
+                                    {
+                                        Type = type
+                                    });
+                                }
+                                types = null;
+                            }
+                            int count = typeSchemas.Count;
+                            JSchemaCollection l = typeSchemas;
+                            LoadAndSetSchema(reader, target, s => SetAtIndex(l, count, s));
+                        }
+                        else
+                        {
+                            throw JSchemaReaderException.Create(reader, _baseUri, "Expected string token for type, got {0}.".FormatWith(CultureInfo.InvariantCulture, reader.TokenType));
+                        }
+                        break;
+                }
             }
 
             throw JSchemaReaderException.Create(reader, _baseUri, "Unexpected end when reading schema type.");

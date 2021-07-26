@@ -8,6 +8,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using Newtonsoft.Json.Linq;
@@ -65,7 +66,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             {
                 if (!string.IsNullOrEmpty(anchor))
                 {
-                    return new Uri(id, "#" + anchor);
+                    return ResolveSchemaId(id, new Uri("#" + anchor, UriKind.RelativeOrAbsolute));
                 }
                 else
                 {
@@ -103,10 +104,10 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             private int _currentIndex;
             public string OriginalString { get; }
 
-            public SplitEnumerator(string str)
+            public SplitEnumerator(string s, int currentIndex)
             {
-                OriginalString = str;
-                _currentIndex = 0;
+                OriginalString = s;
+                _currentIndex = currentIndex;
                 Current = null!;
             }
 
@@ -148,11 +149,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
         {
             bool resolvedSchema;
 
-            // todo, better way to get parts from Uri
-            SplitEnumerator enumerator = new SplitEnumerator(reference.ToString());
-            enumerator.MoveNext();
+            string referenceText = reference.ToString();
 
-            if (IsInternalSchemaReference(enumerator.Current, rootSchemaId))
+            if (IsInternalSchemaReference(referenceText, rootSchemaId))
             {
                 int scopeInitialCount = schemaReader._identiferScopeStack.Count;
 
@@ -160,66 +159,72 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
 
                 JSchema parent = schema;
                 object? current = schema;
-                while (enumerator.MoveNext())
+
+                int separatorIndex = referenceText.IndexOf('/');
+                if (separatorIndex != -1)
                 {
-                    string unescapedPart = UnescapeReference(enumerator.Current);
-
-                    switch (current)
+                    SplitEnumerator enumerator = new SplitEnumerator(referenceText, separatorIndex + 1);
+                    while (enumerator.MoveNext())
                     {
-                        case JSchema s:
-                            if (s != schema)
-                            {
-                                schemaReader._identiferScopeStack.Add(s);
-                            }
+                        string unescapedPart = UnescapeReference(enumerator.Current);
 
-                            parent = s;
-                            current = GetCurrentFromSchema(s, unescapedPart);
-                            break;
-                        case JToken t:
-                            IIdentiferScope? scope = null;
-                            if (t is JObject)
-                            {
-                                Uri? id = GetTokenId(t, schemaReader);
-                                if (id != null)
+                        switch (current)
+                        {
+                            case JSchema s:
+                                if (s != schema)
                                 {
-                                    scope = new JsonIdentiferScope(id, false, GetTokenDynamicAnchor(t, schemaReader));
+                                    schemaReader._identiferScopeStack.Add(s);
                                 }
-                            }
 
-                            schemaReader._identiferScopeStack.Add(scope ?? JsonIdentiferScope.Empty);
-
-                            current = GetCurrentFromToken(t, unescapedPart, dynamicScope);
-                            break;
-                        case IDictionary<string, JSchema> d:
-                            d.TryGetValue(unescapedPart, out JSchema temp);
-                            current = temp;
-                            break;
-                        case IList<JSchema> l:
-                            if (TryGetImplicitItemsSchema(parent, l, out JSchema? itemsSchema))
-                            {
-                                current = GetCurrentFromSchema(itemsSchema, unescapedPart);
-                            }
-                            else if (int.TryParse(unescapedPart, NumberStyles.None, CultureInfo.InvariantCulture, out int index))
-                            {
-                                if (index >= l.Count || index < 0)
+                                parent = s;
+                                current = GetCurrentFromSchema(s, unescapedPart);
+                                break;
+                            case JToken t:
+                                IIdentiferScope? scope = null;
+                                if (t is JObject)
                                 {
-                                    current = null;
+                                    Uri? id = GetTokenId(t, schemaReader);
+                                    if (id != null)
+                                    {
+                                        scope = new JsonIdentiferScope(id, false, GetTokenDynamicAnchor(t, schemaReader));
+                                    }
+                                }
+
+                                schemaReader._identiferScopeStack.Add(scope ?? JsonIdentiferScope.Empty);
+
+                                current = GetCurrentFromToken(t, unescapedPart, dynamicScope);
+                                break;
+                            case IDictionary<string, JSchema> d:
+                                d.TryGetValue(unescapedPart, out JSchema temp);
+                                current = temp;
+                                break;
+                            case IList<JSchema> l:
+                                if (TryGetImplicitItemsSchema(parent, l, out JSchema? itemsSchema))
+                                {
+                                    current = GetCurrentFromSchema(itemsSchema, unescapedPart);
+                                }
+                                else if (int.TryParse(unescapedPart, NumberStyles.None, CultureInfo.InvariantCulture, out int index))
+                                {
+                                    if (index >= l.Count || index < 0)
+                                    {
+                                        current = null;
+                                    }
+                                    else
+                                    {
+                                        current = l[index];
+                                    }
                                 }
                                 else
                                 {
-                                    current = l[index];
+                                    current = null;
                                 }
-                            }
-                            else
-                            {
-                                current = null;
-                            }
-                            break;
-                    }
+                                break;
+                        }
 
-                    if (current == null)
-                    {
-                        break;
+                        if (current == null)
+                        {
+                            break;
+                        }
                     }
                 }
 
@@ -346,22 +351,49 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             }
         }
 
-        private static bool IsInternalSchemaReference(string firstPart, Uri? rootSchemaId)
+        private static bool IsInternalSchemaReference(string reference, Uri? rootSchemaId)
         {
-            if (firstPart == "#")
+            if (reference.Length > 0)
             {
-                return true;
+                if (reference[0] == '#')
+                {
+                    if (reference.Length == 1)
+                    {
+                        return true;
+                    }
+                    if (reference[1] == '/')
+                    {
+                        return true;
+                    }
+                }
             }
 
             if (rootSchemaId != null)
             {
                 string id = rootSchemaId.ToString();
+
+                var separatorIndex = reference.IndexOf('/');
+                var length = separatorIndex == -1 ? reference.Length : separatorIndex;
+
                 if (!id.EndsWith("#", StringComparison.Ordinal))
                 {
                     id += "#";
                 }
 
-                return firstPart == id;
+                if (length != id.Length)
+                {
+                    return false;
+                }
+
+                for (int i = 0; i < length; i++)
+                {
+                    if (reference[i] != id[i])
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
             }
 
             return false;
@@ -626,32 +658,32 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             return false;
         }
 
+        private static readonly Uri TempRoot = new Uri("http://localhost/");
+
         public static Uri ResolveSchemaId(Uri? idScope, Uri schemaId)
         {
             if (idScope == null || schemaId.IsAbsoluteUri || schemaId.OriginalString.StartsWith("//", StringComparison.Ordinal))
             {
-                idScope = schemaId;
+                return schemaId;
             }
             else
             {
-                Uri newId;
-                Uri? tempRoot;
-
                 try
                 {
-                    Uri resolvedId;
-                    if (!idScope.IsAbsoluteUri)
+                    if (string.IsNullOrEmpty(idScope.OriginalString))
                     {
-                        tempRoot = new Uri("http://localhost/");
-                        resolvedId = new Uri(tempRoot, idScope);
-                    }
-                    else
-                    {
-                        tempRoot = null;
-                        resolvedId = idScope;
+                        return schemaId;
                     }
 
-                    newId = new Uri(resolvedId, schemaId);
+                    if (idScope.IsAbsoluteUri)
+                    {
+                        return new Uri(idScope, schemaId);
+                    }
+
+                    // Unable to combine two Uris when one isn't absolute.
+                    Uri tempId = new Uri(new Uri(TempRoot, idScope), schemaId);
+                    string relativeId = tempId.OriginalString.Substring(TempRoot.OriginalString.Length);
+                    return new Uri(relativeId, UriKind.RelativeOrAbsolute);
                 }
                 catch (Exception ex)
                 {
@@ -659,17 +691,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
 
                     throw new JSchemaException(errorMessage, ex);
                 }
-
-                if (tempRoot != null)
-                {
-                    string relativeId = newId.OriginalString.Substring(tempRoot.OriginalString.Length);
-                    newId = new Uri(relativeId, UriKind.RelativeOrAbsolute);
-                }
-
-                idScope = newId;
             }
-
-            return idScope;
         }
     }
 }
