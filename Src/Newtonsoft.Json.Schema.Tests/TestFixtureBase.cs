@@ -309,8 +309,6 @@ namespace Newtonsoft.Json.Schema.Tests
             try
             {
                 action();
-
-                Assert.Fail("Exception of type {0} expected. No exception thrown.", typeof(TException).Name);
             }
             catch (TException ex)
             {
@@ -331,11 +329,15 @@ namespace Newtonsoft.Json.Schema.Tests
                         throw new Exception("Unexpected exception message." + Environment.NewLine + "Expected one of: " + string.Join(Environment.NewLine, possibleMessages) + Environment.NewLine + "Got: " + ex.Message + Environment.NewLine + Environment.NewLine + ex, ex);
                     }
                 }
+
+                return;
             }
             catch (Exception ex)
             {
                 throw new Exception(string.Format("Exception of type {0} expected; got exception of type {1}.", typeof(TException).Name, ex.GetType().Name), ex);
             }
+
+            Assert.Fail("Exception of type {0} expected. No exception thrown.", typeof(TException).Name);
         }
     }
 }
