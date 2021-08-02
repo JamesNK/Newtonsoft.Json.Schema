@@ -11,11 +11,14 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 {
     internal static class EnumHelpers
     {
-        public static List<T> GetAllEnums<T>() where T : struct
+        public static List<T> GetAllEnums<T>() where T : struct, Enum
         {
             List<T> result = new List<T>();
-
+#if NET5_0_OR_GREATER
+            int[] values = Enum.GetValues<T>().Cast<int>().ToArray();
+#else
             int[] values = Enum.GetValues(typeof(T)).Cast<int>().ToArray();
+#endif
             int[] valuesInverted = values.Select(v => ~v).ToArray();
             int max = 0;
             for (int i = 0; i < values.Length; i++)
