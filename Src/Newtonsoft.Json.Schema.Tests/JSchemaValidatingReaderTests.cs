@@ -29,7 +29,7 @@ namespace Newtonsoft.Json.Schema.Tests
     [TestFixture]
     public class JSchemaValidatingReaderTests : TestFixtureBase
     {
-#if !(NET35 || NET40)
+#if !(NET35 || NET40 || NET5_0)
         [Test]
         public void RegexMatchTimeout()
         {
