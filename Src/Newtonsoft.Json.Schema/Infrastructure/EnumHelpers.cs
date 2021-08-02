@@ -11,11 +11,22 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 {
     internal static class EnumHelpers
     {
-        public static List<T> GetAllEnums<T>() where T : struct
+        public static List<JSchemaType> GetAllJSchemaTypeEnums()
         {
-            List<T> result = new List<T>();
+            List<JSchemaType> result = new List<JSchemaType>();
 
-            int[] values = Enum.GetValues(typeof(T)).Cast<int>().ToArray();
+            // These values should be kept in sync with Src/Newtonsoft.Json.Schema/JSchemaType.cs
+            JSchemaType[] allValues = new[]
+            {
+                JSchemaType.None,
+                JSchemaType.String,
+                JSchemaType.Integer,
+                JSchemaType.Boolean,
+                JSchemaType.Object,
+                JSchemaType.Array,
+                JSchemaType.Null,
+            };
+            int[] values = allValues.Cast<int>().ToArray();
             int[] valuesInverted = values.Select(v => ~v).ToArray();
             int max = 0;
             for (int i = 0; i < values.Length; i++)
@@ -31,7 +42,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                     unaccountedBits &= valuesInverted[j];
                     if (unaccountedBits == 0)
                     {
-                        result.Add((T)(object)i);
+                        result.Add((JSchemaType)i);
                         break;
                     }
                 }
