@@ -19,7 +19,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
     {
         private static string UnescapeReference(string reference)
         {
+#if NET5_0_OR_GREATER
+            return Uri.UnescapeDataString(reference).Replace("~1", "/", StringComparison.Ordinal).Replace("~0", "~", StringComparison.Ordinal);
+#else
             return Uri.UnescapeDataString(reference).Replace("~1", "/").Replace("~0", "~");
+#endif
         }
 
         private static Uri? GetTokenId(JToken o, JSchemaReader schemaReader)
@@ -160,7 +164,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                 JSchema parent = schema;
                 object? current = schema;
 
+#if NET5_0_OR_GREATER
+                int separatorIndex = referenceText.IndexOf('/', StringComparison.Ordinal);
+#else
                 int separatorIndex = referenceText.IndexOf('/');
+#endif
                 if (separatorIndex != -1)
                 {
                     SplitEnumerator enumerator = new SplitEnumerator(referenceText, separatorIndex + 1);
@@ -336,7 +344,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
 
         private static bool SplitReference(Uri reference, out Uri path, [NotNullWhen(true)] out Uri? fragment)
         {
+#if NET5_0_OR_GREATER
+            int hashIndex = reference.OriginalString.IndexOf('#', StringComparison.Ordinal);
+#else
             int hashIndex = reference.OriginalString.IndexOf('#');
+#endif
             if (hashIndex != -1)
             {
                 path = new Uri(reference.OriginalString.Substring(0, hashIndex), UriKind.RelativeOrAbsolute);
@@ -372,7 +384,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             {
                 string id = rootSchemaId.ToString();
 
+#if NET5_0_OR_GREATER
+                var separatorIndex = reference.IndexOf('/', StringComparison.Ordinal);
+#else
                 var separatorIndex = reference.IndexOf('/');
+#endif
                 var length = separatorIndex == -1 ? reference.Length : separatorIndex;
 
                 if (!id.EndsWith("#", StringComparison.Ordinal))

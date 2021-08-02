@@ -37,7 +37,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         private static bool IsAtom(char c, bool allowInternational)
         {
+#if NET5_0_OR_GREATER
+            return c < 128 ? IsLetterOrDigit(c) || AtomCharacters.IndexOf(c, StringComparison.Ordinal) != -1 : allowInternational;
+#else
             return c < 128 ? IsLetterOrDigit(c) || AtomCharacters.IndexOf(c) != -1 : allowInternational;
+#endif
         }
 
         private static bool IsDomain(char c, bool allowInternational)

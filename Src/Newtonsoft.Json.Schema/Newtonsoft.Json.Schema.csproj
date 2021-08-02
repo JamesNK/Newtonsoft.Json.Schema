@@ -65,6 +65,10 @@
     <AssemblyTitle>Json.NET Schema .NET Standard 2.0</AssemblyTitle>
     <DefineConstants>HAVE_ADO_NET;HAVE_BIG_INTEGER;HAVE_DATE_TIME_OFFSET;HAVE_FULL_REFLECTION;NETSTANDARD2_0;PORTABLE;$(AdditionalConstants)</DefineConstants>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net5.0'">
+    <AssemblyTitle>Json.NET Schema .NET 5.0</AssemblyTitle>
+    <DefineConstants>HAVE_ADO_NET;HAVE_BIG_INTEGER;HAVE_DATE_TIME_OFFSET;HAVE_FULL_REFLECTION;NETSTANDARD2_0;PORTABLE;$(AdditionalConstants)</DefineConstants>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'portable-net45+win8+wpa81+wp8'">
     <AssemblyTitle>Json.NET Schema Portable</AssemblyTitle>
     <DefineConstants>HAVE_DATE_TIME_OFFSET;PORTABLE;$(AdditionalConstants)</DefineConstants>

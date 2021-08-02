@@ -93,11 +93,19 @@ namespace Newtonsoft.Json.Schema.Generation
             }
             if (Title != null)
             {
+#if NET5_0_OR_GREATER
+                hashCode ^= Title.GetHashCode(StringComparison.Ordinal);
+#else
                 hashCode ^= Title.GetHashCode();
+#endif
             }
             if (Description != null)
             {
+#if NET5_0_OR_GREATER
+                hashCode ^= Description.GetHashCode(StringComparison.Ordinal);
+#else
                 hashCode ^= Description.GetHashCode();
+#endif
             }
 
             return hashCode;
