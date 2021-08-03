@@ -20,6 +20,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             {
                 JSchemaType.None,
                 JSchemaType.String,
+                JSchemaType.Number,
                 JSchemaType.Integer,
                 JSchemaType.Boolean,
                 JSchemaType.Object,
