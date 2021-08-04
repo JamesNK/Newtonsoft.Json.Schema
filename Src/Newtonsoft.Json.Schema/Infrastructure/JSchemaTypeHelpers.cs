@@ -18,7 +18,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         static JSchemaTypeHelpers()
         {
-            List<JSchemaType> allValues = EnumHelpers.GetAllEnums<JSchemaType>();
+            List<JSchemaType> allValues = EnumHelpers.GetAllJSchemaTypeEnums();
             CachedSchemaTypeNames = new Dictionary<JSchemaType, string>(allValues.Count);
 
             foreach (JSchemaType type in allValues)

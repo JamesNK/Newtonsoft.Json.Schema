@@ -21,7 +21,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         [Test]
         public void GetAllEnums()
         {
-            List<JSchemaType> allEnums = EnumHelpers.GetAllEnums<JSchemaType>();
+            List<JSchemaType> allEnums = EnumHelpers.GetAllJSchemaTypeEnums();
 
             CollectionAssert.Contains(allEnums, JSchemaType.None);
             CollectionAssert.Contains(allEnums, JSchemaType.Array);
