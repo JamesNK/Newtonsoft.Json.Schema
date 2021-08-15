@@ -19,6 +19,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         private static readonly double DoubleEpsilon;
         private static readonly decimal DecimalEpsilon;
         private static readonly decimal DecimalTolerance;
+        private static readonly decimal DecimalSmallestFraction;
         private static readonly double DoubleTolerance;
 #if HAVE_BIG_INTEGER
         private static readonly BigInteger BigIntegerDecimalMaxValue;
@@ -36,6 +37,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
             DecimalDoubleMaxValue = Convert.ToDouble(decimal.MaxValue);
             DecimalDoubleMinValue = Convert.ToDouble(decimal.MinValue);
+            DecimalSmallestFraction = 0.0000000000000000000000000001m;
 
 #if HAVE_BIG_INTEGER
             BigIntegerDecimalMaxValue = new BigInteger(decimal.MaxValue);
@@ -156,6 +158,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             if ((FitsInDecimal(d) || value is decimal) && FitsInDecimal(multipleOf))
             {
                 decimal multipleOfD = Convert.ToDecimal(multipleOf);
+                if (multipleOfD == 0)
+                {
+                    multipleOfD = DecimalSmallestFraction;
+                }
+
                 decimal valueD = Convert.ToDecimal(value, CultureInfo.InvariantCulture);
 
                 // check if value divided by multipleOf is too big for decimal - the modulus will error if it is
