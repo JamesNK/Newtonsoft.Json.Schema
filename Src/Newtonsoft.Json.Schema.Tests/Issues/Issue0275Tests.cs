@@ -36,20 +36,15 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
         private const string Schema = @"{
     ""$schema"": ""http://json-schema.org/draft-07/schema"",
     ""type"": ""object"",
-    ""title"": ""DiscontinueSKUSplit"",
-    ""description"": ""name of object at Inter"",
     ""properties"": {
         ""contentSource"": {
-            ""type"": ""string"",
-            ""description"": ""The source system of the interface""
+            ""type"": ""string""
         },
         ""contentInterface"": {
-            ""type"": ""string"",
-            ""description"": ""The interface name of the integration in jira insight""
+            ""type"": ""string""
         },
         ""contents"": {
             ""type"": ""array"",
-            ""description"": ""List of contents having metaDataHeader and dataObjectValues"",
             ""additionalItems"": false,
             ""minItems"": 1,
             ""items"": {
@@ -72,7 +67,6 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
             ""properties"": {
                 ""lastOrderQTY"": {
                     ""type"": ""number"",
-                    ""description"": ""It is DI Type plan arrivals."",
                     ""maximum"": 99999999999999999999.99,
                     ""multipleOf"": 0.00000000000000000000000000001
                 }
