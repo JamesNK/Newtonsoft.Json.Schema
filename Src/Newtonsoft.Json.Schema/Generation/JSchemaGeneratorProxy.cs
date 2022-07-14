@@ -71,8 +71,13 @@ namespace Newtonsoft.Json.Schema.Generation
         {
             Required required = rootSchemaNullable ? Required.AllowNull : Required.Always;
 
+            return Generate(type, required, memberProperty: null);
+        }
+
+        public override JSchema Generate(Type type, Required required, JsonProperty? memberProperty)
+        {
             // the current generation provider will not be called to avoid stackoverflow
-            return _generatorInternal.GenerateSubschema(type, required, _generationProvider);
+            return _generatorInternal.GenerateSubschema(type, required, memberProperty, _generationProvider);
         }
     }
 }

@@ -133,7 +133,24 @@ namespace Newtonsoft.Json.Schema.Generation
             Required required = rootSchemaNullable ? Required.AllowNull : Required.Always;
 
             JSchemaGeneratorInternal generator = new JSchemaGeneratorInternal(this);
-            return generator.Generate(type, required);
+            return generator.Generate(type, required, memberProperty: null);
+        }
+
+        /// <summary>
+        /// Generate a <see cref="JSchema"/> from the specified type.
+        /// </summary>
+        /// <param name="type">The type to generate a <see cref="JSchema"/> from.</param>
+        /// <param name="required">Specify the required state of the generated root <see cref="JSchema"/>.</param>
+        /// <param name="memberProperty">Specify the <see cref="JsonProperty"/> of the generated root <see cref="JSchema"/>.</param>
+        /// <returns>A <see cref="JSchema"/> generated from the specified type.</returns>
+        public virtual JSchema Generate(Type type, Required required, JsonProperty? memberProperty)
+        {
+            ValidationUtils.ArgumentNotNull(type, nameof(type));
+
+            LicenseHelpers.IncrementAndCheckGenerationCount();
+
+            JSchemaGeneratorInternal generator = new JSchemaGeneratorInternal(this);
+            return generator.Generate(type, required, memberProperty);
         }
     }
 }
