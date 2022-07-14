@@ -29,7 +29,6 @@ using System.Reflection;
 using Newtonsoft.Json.Linq;
 using System.Text;
 using System.Linq;
-using static Newtonsoft.Json.Schema.Tests.Issues.Issue0091Tests;
 
 namespace Newtonsoft.Json.Schema.Tests
 {
