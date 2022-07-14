@@ -1918,7 +1918,90 @@ namespace Newtonsoft.Json.Schema.Tests
             // check that generic definitions can be parsed
             JSchema loadedSchema = JSchema.Parse(json);
         }
+
+#if !(NET40 || NET35)
+        [Test]
+        public void JSchemaGenerationProvider_MemberProperty()
+        {
+            var generator = new JSchemaGenerator() { DefaultRequired = Required.Default };
+            generator.GenerationProviders.Add(new JsonArraySchemaProvider());
+
+            var schema = generator.Generate(typeof(Root));
+            var json = schema.ToString();
+
+            StringAssert.AreEqual(@"{
+  ""type"": ""object"",
+  ""properties"": {
+    ""WeekForecast"": {
+      ""indexNames"": [
+        ""Today"",
+        ""Tomorrow"",
+        ""In 2 Days"",
+        ""In 3 Days"",
+        ""In 4 Days"",
+        ""In 5 Days"",
+        ""In 6 Days"",
+        ""In 7 Days""
+      ],
+      ""type"": [
+        ""array"",
+        ""null""
+      ],
+      ""items"": {
+        ""type"": [
+          ""string"",
+          ""null""
+        ]
+      },
+      ""minItems"": 8,
+      ""maxItems"": 8
     }
+  }
+}", json);
+        }
+#endif
+    }
+
+#if !(NET40 || NET35)
+    public class Root
+    {
+        [JsonIndexNames("Today", "Tomorrow", "In 2 Days", "In 3 Days", "In 4 Days", "In 5 Days", "In 6 Days", "In 7 Days")]
+        [MaxLength(8), MinLength(8)]
+        public List<string> WeekForecast { get; set; } = new List<string>() { "Cloudy", "Rain", "Rain", "Sunny", "Breezy", "Humid", "Rain", "Sunny" };
+    }
+
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
+    public class JsonIndexNamesAttribute : Attribute
+    {
+        public JsonIndexNamesAttribute(params string[] names)
+        {
+            IndexNames = names ?? new string[0];
+        }
+
+        public string[] IndexNames { get; }
+    }
+
+    public class JsonArraySchemaProvider : JSchemaGenerationProvider
+    {
+        public override JSchema GetSchema(JSchemaTypeGenerationContext context)
+        {
+            var schema = context.Generator.Generate(context.ObjectType, context.Required, context.MemberProperty);
+
+            // If the array specifies index names, add that information to the schema
+            if (context.MemberProperty?.AttributeProvider.GetAttributes(typeof(JsonIndexNamesAttribute), false).FirstOrDefault() is JsonIndexNamesAttribute attribute)
+            {
+                schema.ExtensionData.Add(new KeyValuePair<string, JToken>("indexNames", new Newtonsoft.Json.Linq.JArray(attribute.IndexNames)));
+            }
+
+            return schema;
+        }
+
+        public override bool CanGenerateSchema(JSchemaTypeGenerationContext context)
+        {
+            return typeof(ICollection).IsAssignableFrom(context.ObjectType);
+        }
+    }
+#endif
 
     public class NullableInt32TestClass
     {
