@@ -73,7 +73,7 @@ namespace Newtonsoft.Json.Schema.Generation
                     }
 
                     // definition schemas alphabetical ordered
-                    foreach (KeyValuePair<string, JSchema> definitionSchema in definitionsSchemas.OrderBy(s => s.Key))
+                    foreach (KeyValuePair<string, JSchema> definitionSchema in definitionsSchemas.OrderBy(s => s.Key, StringComparer.Ordinal))
                     {
                         definitions[definitionSchema.Key] = definitionSchema.Value;
                     }
