@@ -8,7 +8,7 @@
     <MicrosoftCodeAnalysisFxCopAnalyzersPackageVersion>3.0.0</MicrosoftCodeAnalysisFxCopAnalyzersPackageVersion>
     <MicrosoftNETTestSdkPackageVersion>16.6.1</MicrosoftNETTestSdkPackageVersion>
     <MicrosoftSourceLinkGitHubPackageVersion>1.0.0</MicrosoftSourceLinkGitHubPackageVersion>    
-    <NewtonsoftJsonPackageVersion>13.0.1</NewtonsoftJsonPackageVersion>
+    <NewtonsoftJsonPackageVersion>13.0.3</NewtonsoftJsonPackageVersion>
     <NunitPackageVersion>3.11.0</NunitPackageVersion>
     <Nunit3TestAdapterPackageVersion>3.13.0</Nunit3TestAdapterPackageVersion>
     <SystemComponentModelAnnotationsPackageVersion>4.3.0</SystemComponentModelAnnotationsPackageVersion>
