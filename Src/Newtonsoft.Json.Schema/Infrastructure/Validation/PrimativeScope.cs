@@ -11,6 +11,7 @@ using System.Numerics;
 #endif
 using System.Text.RegularExpressions;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Schema.Utilities;
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 {
@@ -319,16 +320,13 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     }
                 case Constants.Formats.Time:
                     {
-                        return DateTime.TryParseExact(value, "HH:mm:ss.FFFFFFFK", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime _);
+                        var parser = new DateTimeParser();
+                        return parser.ParseTime(value, 0, value.Length);
                     }
                 case Constants.Formats.DateTime:
                     {
-                        // RFC 3339 states that the T and Z characters in the "date-time" format are case insensitive.
-                        if (value.IndexOfAny(CaseInsensitiveDateTimeChars) != -1)
-                        {
-                            value = value.ToUpperInvariant();
-                        }
-                        return DateTime.TryParseExact(value, @"yyyy-MM-dd\THH:mm:ss.FFFFFFFK", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime _);
+                        var parser = new DateTimeParser();
+                        return parser.ParseDateTime(value, 0, value.Length);
                     }
                 case Constants.Formats.UtcMilliseconds:
                     {
