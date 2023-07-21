@@ -2,6 +2,7 @@
     {
         "description": "single dependency",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "dependentSchemas": {
                 "bar": {
                     "properties": {
@@ -36,12 +37,28 @@
                 "description": "wrong type both",
                 "data": {"foo": "quux", "bar": "quux"},
                 "valid": false
+            },
+            {
+                "description": "ignores arrays",
+                "data": ["bar"],
+                "valid": true
+            },
+            {
+                "description": "ignores strings",
+                "data": "foobar",
+                "valid": true
+            },
+            {
+                "description": "ignores other non-objects",
+                "data": 12,
+                "valid": true
             }
         ]
     },
     {
         "description": "boolean subschemas",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "dependentSchemas": {
                 "foo": true,
                 "bar": false
@@ -73,6 +90,7 @@
     {
         "description": "dependencies with escaped characters",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "dependentSchemas": {
                 "foo\tbar": {"minProperties": 4},
                 "foo'bar": {"required": ["foo\"bar"]}
@@ -108,6 +126,44 @@
                 "description": "quoted quote invalid under dependent schema",
                 "data": {"foo'bar": 1},
                 "valid": false
+            }
+        ]
+    },
+    {
+        "description": "dependent subschema incompatible with root",
+        "schema": {
+            "properties": {
+                "foo": {}
+            },
+            "dependentSchemas": {
+                "foo": {
+                    "properties": {
+                        "bar": {}
+                    },
+                    "additionalProperties": false
+                }
+            }
+        },
+        "tests": [
+            {
+                "description": "matches root",
+                "data": {"foo": 1},
+                "valid": false
+            },
+            {
+                "description": "matches dependency",
+                "data": {"bar": 1},
+                "valid": true
+            },
+            {
+                "description": "matches both",
+                "data": {"foo": 1, "bar": 2},
+                "valid": false
+            },
+            {
+                "description": "no dependency",
+                "data": {"baz": 1},
+                "valid": true
             }
         ]
     }

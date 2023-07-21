@@ -42,11 +42,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         }
     }
 
-    [DebuggerDisplay("Reference = {ResolvedReference}, IsRecursive = {IsRecursiveReference}, Success = {Success}")]
+    [DebuggerDisplay("Reference = {ResolvedReference}, IsRecursive = {IsRecursiveReference}, Success = {Success}, DynamicScope = {DynamicScope}")]
     internal class DeferedSchema : IIdentiferScope
     {
         public readonly Uri OriginalReference;
-        public readonly List<IIdentiferScope>? IdentiferScopeStack;
+        public readonly Uri? DynamicScope;
         public readonly Uri ResolvedReference;
         public readonly JSchema ReferenceSchema;
         private readonly bool _supportsRef;
@@ -65,14 +65,14 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         public bool Root => false;
         public string? DynamicAnchor { get; }
 
-        public DeferedSchema(Uri resolvedReference, Uri originalReference, Uri? scopeId, string? dynamicAnchor, List<IIdentiferScope>? identiferScopeStack, bool isRecursiveReference, JSchema referenceSchema, bool supportsRef)
+        public DeferedSchema(Uri resolvedReference, Uri originalReference, Uri? scopeId, string? dynamicAnchor, Uri? dynamicScope, bool isRecursiveReference, JSchema referenceSchema, bool supportsRef)
         {
             SetSchemas = new List<SetSchema>();
             ResolvedReference = resolvedReference;
             OriginalReference = originalReference;
             ScopeId = scopeId;
             DynamicAnchor = dynamicAnchor;
-            IdentiferScopeStack = identiferScopeStack;
+            DynamicScope = dynamicScope;
             IsRecursiveReference = isRecursiveReference;
             ReferenceSchema = referenceSchema;
             _supportsRef = supportsRef;

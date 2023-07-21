@@ -41,6 +41,9 @@ namespace Newtonsoft.Json.Schema
         internal JSchemaReader? InternalReader { get; set; }
         internal bool HasNonRefContent { get; set; }
 
+        // This is used when checking whether a dynamically loaded schema can be cached.
+        internal Uri? DynamicLoadScope { get; set; }
+
         internal Dictionary<string, JToken>? _extensionData;
         internal JSchemaCollection? _items;
         internal JSchemaCollection? _anyOf;
@@ -923,7 +926,8 @@ namespace Newtonsoft.Json.Schema
             }
         }
 
-        internal bool HasAdditionalItems => AllowAdditionalItemsSpecified || AdditionalItems != null;
+        // additionalItems is ignored when items isn't present.
+        internal bool HasAdditionalItems => (AllowAdditionalItemsSpecified || AdditionalItems != null) && _items != null;
 
         /// <summary>
         /// Gets or sets the <see cref="JSchema"/> for unevaluated items.

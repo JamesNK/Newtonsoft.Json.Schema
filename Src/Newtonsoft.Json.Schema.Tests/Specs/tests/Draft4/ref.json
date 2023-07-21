@@ -127,7 +127,7 @@
                 "b": {"$ref": "#/definitions/a"},
                 "c": {"$ref": "#/definitions/b"}
             },
-            "$ref": "#/definitions/c"
+            "allOf": [{ "$ref": "#/definitions/c" }]
         },
         "tests": [
             {
@@ -172,6 +172,42 @@
                 "description": "ref invalid",
                 "data": { "foo": "string" },
                 "valid": false
+            }
+        ]
+    },
+    {
+        "description": "$ref prevents a sibling id from changing the base uri",
+        "schema": {
+            "id": "http://localhost:1234/sibling_id/base/",
+            "definitions": {
+                "foo": {
+                    "id": "http://localhost:1234/sibling_id/foo.json",
+                    "type": "string"
+                },
+                "base_foo": {
+                    "$comment": "this canonical uri is http://localhost:1234/sibling_id/base/foo.json",
+                    "id": "foo.json",
+                    "type": "number"
+                }
+            },
+            "allOf": [
+                {
+                    "$comment": "$ref resolves to http://localhost:1234/sibling_id/base/foo.json, not http://localhost:1234/sibling_id/foo.json",
+                    "id": "http://localhost:1234/sibling_id/",
+                    "$ref": "foo.json"
+                }
+            ]
+        },
+        "tests": [
+            {
+                "description": "$ref resolves to /definitions/base_foo, data does not validate",
+                "data": "a",
+                "valid": false
+            },
+            {
+                "description": "$ref resolves to /definitions/base_foo, data validates",
+                "data": 1,
+                "valid": true
             }
         ]
     },
@@ -378,32 +414,6 @@
         ]
     },
     {
-        "description": "Location-independent identifier with absolute URI",
-        "schema": {
-            "allOf": [{
-                "$ref": "http://localhost:1234/bar#foo"
-            }],
-            "definitions": {
-                "A": {
-                    "id": "http://localhost:1234/bar#foo",
-                    "type": "integer"
-                }
-            }
-        },
-        "tests": [
-            {
-                "data": 1,
-                "description": "match",
-                "valid": true
-            },
-            {
-                "data": "a",
-                "description": "mismatch",
-                "valid": false
-            }
-        ]
-    },
-    {
         "description": "Location-independent identifier with base URI change in subschema",
         "schema": {
             "id": "http://localhost:1234/root",
@@ -447,7 +457,7 @@
         },
         "tests": [
             {
-                "description": "do not evaluate the $ref inside the enum",
+                "description": "do not evaluate the $ref inside the enum, matching any string",
                 "data": "this is a string",
                 "valid": false
             },
@@ -455,6 +465,127 @@
                 "description": "match the enum exactly",
                 "data": { "$ref": "#/definitions/a_string" },
                 "valid": true
+            }
+        ]
+    },
+    {
+        "description": "id must be resolved against nearest parent, not just immediate parent",
+        "schema": {
+            "id": "http://example.com/a.json",
+            "definitions": {
+                "x": {
+                    "id": "http://example.com/b/c.json",
+                    "not": {
+                        "definitions": {
+                            "y": {
+                                "id": "d.json",
+                                "type": "number"
+                            }
+                        }
+                    }
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "http://example.com/b/d.json"
+                }
+            ]
+        },
+        "tests": [
+            {
+                "description": "number is valid",
+                "data": 1,
+                "valid": true
+            },
+            {
+                "description": "non-number is invalid",
+                "data": "a",
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "id with file URI still resolves pointers - *nix",
+        "schema": {
+            "id": "file:///folder/file.json",
+            "definitions": {
+                "foo": {
+                    "type": "number"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/foo"
+                }
+            ]
+        },
+        "tests": [
+            {
+                "description": "number is valid",
+                "data": 1,
+                "valid": true
+            },
+            {
+                "description": "non-number is invalid",
+                "data": "a",
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "id with file URI still resolves pointers - windows",
+        "schema": {
+            "id": "file:///c:/folder/file.json",
+            "definitions": {
+                "foo": {
+                    "type": "number"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/foo"
+                }
+            ]
+        },
+        "tests": [
+            {
+                "description": "number is valid",
+                "data": 1,
+                "valid": true
+            },
+            {
+                "description": "non-number is invalid",
+                "data": "a",
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "empty tokens in $ref json-pointer",
+        "schema": {
+            "definitions": {
+                "": {
+                    "definitions": {
+                        "": { "type": "number" }
+                    }
+                } 
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions//definitions/"
+                }
+            ]
+        },
+        "tests": [
+            {
+                "description": "number is valid",
+                "data": 1,
+                "valid": true
+            },
+            {
+                "description": "non-number is invalid",
+                "data": "a",
+                "valid": false
             }
         ]
     }

@@ -19,7 +19,7 @@
         ]
     },
     {
-        "description": "items is schema, no additionalItems",
+        "description": "when items is schema, additionalItems does nothing",
         "schema": {
             "items": {},
             "additionalItems": false
@@ -33,7 +33,7 @@
         ]
     },
     {
-        "description": "array of items with no additionalItems",
+        "description": "array of items with no additionalItems permitted",
         "schema": {
             "items": [{}, {}, {}],
             "additionalItems": false
@@ -95,7 +95,7 @@
         ]
     },
     {
-        "description": "additionalItems should not look in applicators, valid case",
+        "description": "additionalItems does not look in applicators, valid case",
         "schema": {
             "allOf": [
                 { "items": [ { "type": "integer" } ] }
@@ -111,7 +111,7 @@
         ]
     },
     {
-        "description": "additionalItems should not look in applicators, invalid case",
+        "description": "additionalItems does not look in applicators, invalid case",
         "schema": {
             "allOf": [
                 { "items": [ { "type": "integer" }, { "type": "string" } ] }
@@ -124,6 +124,40 @@
                 "description": "items defined in allOf are not examined",
                 "data": [ 1, "hello" ],
                 "valid": false
+            }
+        ]
+    },
+    {
+        "description": "items validation adjusts the starting index for additionalItems",
+        "schema": {
+            "items": [ { "type": "string" } ],
+            "additionalItems": { "type": "integer" }
+        },
+        "tests": [
+            {
+                "description": "valid items",
+                "data": [ "x", 2, 3 ],
+                "valid": true
+            },
+            {
+                "description": "wrong type of second item",
+                "data": [ "x", "y" ],
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "additionalItems with null instance elements",
+        "schema": {
+            "additionalItems": {
+                "type": "null"
+            }
+        },
+        "tests": [
+            {
+                "description": "allows null elements",
+                "data": [ null ],
+                "valid": true
             }
         ]
     }

@@ -94,13 +94,14 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 bool hasDigit = false;
                 while (localIndex < text.Length)
                 {
-                    if (char.IsDigit(text[localIndex]))
+                    char c = text[localIndex];
+                    if (char.IsDigit(c) && IsAscii(c))
                     {
                         hasDigit = true;
                         localIndex++;
                         continue;
                     }
-                    else if (text[localIndex] == expectedElementChar)
+                    else if (c == expectedElementChar)
                     {
                         if (hasDigit)
                         {
@@ -114,6 +115,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
                 return false;
             }
+        }
+
+        private static bool IsAscii(char ch)
+        {
+            return (ch <= '\x007f');
         }
 
         public static bool ValidateIPv6(string value)
@@ -142,6 +148,17 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
             for (int i = 0; i < parts.Length; i++)
             {
+                var part = parts[i];
+                if (string.IsNullOrEmpty(part))
+                {
+                    return false;
+                }
+                if (part.Length >= 2 && part[0] == '0')
+                {
+                    // Reject leading zeros. Don't want octal values.
+                    return false;
+                }
+
                 if (!int.TryParse(parts[i], NumberStyles.Integer, CultureInfo.InvariantCulture, out int num)
                     || (num < 0 || num > 255))
                 {
