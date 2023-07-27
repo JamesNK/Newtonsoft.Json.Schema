@@ -3736,6 +3736,54 @@ namespace Newtonsoft.Json.Schema.Tests
             var result = a.IsValid(s);
             Assert.IsFalse(result);
         }
+
+        [Test]
+        public void Read_UnevaluatedProperties()
+        {
+            string json = @"{
+              ""type"": ""object"",
+              ""properties"": {
+                ""foo"": {
+                  ""type"": ""string""
+                }
+              },
+              ""oneOf"": [
+                {
+                  ""properties"": {
+                    ""bar"": {
+                      ""const"": ""bar""
+                    }
+                  },
+                  ""required"": [
+                    ""bar""
+                  ]
+                },
+                {
+                  ""properties"": {
+                    ""baz"": {
+                      ""const"": ""baz""
+                    }
+                  },
+                  ""required"": [
+                    ""baz""
+                  ]
+                }
+              ],
+              ""unevaluatedProperties"": {
+                ""type"": ""number""
+              }
+            }";
+
+            JSchema s = JSchema.Parse(json);
+
+            JObject a = JObject.Parse(@"{
+              ""foo"": ""foo"",
+              ""bar"": ""bar"",
+              ""baz"": ""baz""
+            }");
+            var result = a.IsValid(s);
+            Assert.IsFalse(result);
+        }
     }
 
     public sealed class JsonReaderStubWithIsClosed : JsonReader

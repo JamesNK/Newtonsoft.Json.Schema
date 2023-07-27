@@ -79,6 +79,10 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
             PopulateSchemaId(error);
 
+#if DEBUG
+            ValidateErrorNotRecursive(error);
+#endif
+
             SchemaValidationEventHandler? handler = ValidationEventHandler;
             if (handler != null)
             {
@@ -87,6 +91,27 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             else
             {
                 throw JSchemaValidationException.Create(error);
+            }
+        }
+
+        private static void ValidateErrorNotRecursive(ValidationError error)
+        {
+            List<ValidationError> errorStack = new List<ValidationError>();
+            AddAndValidate(errorStack, error);
+
+            static void AddAndValidate(List<ValidationError> errorStack, ValidationError error)
+            {
+                if (errorStack.Contains(error))
+                {
+                    throw new Exception("Recursive validation error.");
+                }
+
+                errorStack.Add(error);
+                foreach (var item in error.ChildErrors)
+                {
+                    AddAndValidate(errorStack, item);
+                }
+                errorStack.RemoveAt(errorStack.Count - 1);
             }
         }
 
