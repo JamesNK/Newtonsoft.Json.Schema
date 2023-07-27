@@ -134,13 +134,13 @@ namespace Newtonsoft.Json.Schema.Utilities
         private bool ParseTime(ref int start)
         {
             if (!(Parse2Digit(start, out Hour)
-                  && Hour <= 24
+                  && Hour < 24
                   && ParseChar(start + LzHH, ':')
                   && Parse2Digit(start + LzHH_, out Minute)
                   && Minute < 60
                   && ParseChar(start + LzHH_mm, ':')
                   && Parse2Digit(start + LzHH_mm_, out Second)
-                  && Second < 60
+                  && Second <= 60 // second can be 60 when there is a leap second
                   && (Hour != 24 || (Minute == 0 && Second == 0)))) // hour can be 24 if minute/second is zero)
             {
                 return false;
@@ -197,7 +197,7 @@ namespace Newtonsoft.Json.Schema.Utilities
                 {
                     if (start + 2 < _end
                         && Parse2Digit(start + Lz_, out ZoneHour)
-                        && ZoneHour <= 99)
+                        && ZoneHour <= 23)
                     {
                         switch (ch)
                         {
@@ -221,7 +221,7 @@ namespace Newtonsoft.Json.Schema.Utilities
 
                             if (start + 1 < _end
                                 && Parse2Digit(start, out ZoneMinute)
-                                && ZoneMinute <= 99)
+                                && ZoneMinute <= 59)
                             {
                                 start += 2;
                             }
@@ -230,7 +230,7 @@ namespace Newtonsoft.Json.Schema.Utilities
                         {
                             if (start + 1 < _end
                                 && Parse2Digit(start, out ZoneMinute)
-                                && ZoneMinute <= 99)
+                                && ZoneMinute <= 59)
                             {
                                 start += 2;
                             }

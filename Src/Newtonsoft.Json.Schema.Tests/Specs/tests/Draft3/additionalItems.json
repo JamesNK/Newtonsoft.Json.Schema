@@ -19,7 +19,7 @@
         ]
     },
     {
-        "description": "items is schema, no additionalItems",
+        "description": "when items is schema, additionalItems does nothing",
         "schema": {
             "items": {},
             "additionalItems": false
@@ -33,7 +33,7 @@
         ]
     },
     {
-        "description": "array of items with no additionalItems",
+        "description": "array of items with no additionalItems permitted",
         "schema": {
             "items": [{}, {}, {}],
             "additionalItems": false
@@ -95,7 +95,7 @@
         ]
     },
     {
-        "description": "additionalItems should not look in applicators",
+        "description": "additionalItems does not look in applicators",
         "schema": {
             "extends": [
                 { "items": [ { "type": "integer" } ] }
@@ -106,6 +106,21 @@
             {
                 "description": "items defined in extends are not examined",
                 "data": [ 1, null ],
+                "valid": true
+            }
+        ]
+    },
+    {
+        "description": "additionalItems with null instance elements",
+        "schema": {
+            "additionalItems": {
+                "type": "null"
+            }
+        },
+        "tests": [
+            {
+                "description": "allows null elements",
+                "data": [ null ],
                 "valid": true
             }
         ]

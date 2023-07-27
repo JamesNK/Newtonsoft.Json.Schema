@@ -7,23 +7,22 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using Newtonsoft.Json.Schema.Infrastructure.Discovery;
 
-namespace Newtonsoft.Json.Schema.Infrastructure
+namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
 {
-    internal class KnownSchemaCollection : KeyedCollection<JSchema, KnownSchema>
+    internal class KnownSchemaCollection : KeyedCollection<KnownSchemaKey, KnownSchema>
     {
-        private Dictionary<Uri, KnownSchema>? _uriKnownSchemaLookup;
+        private Dictionary<KnownSchemaUriKey, KnownSchema>? _uriKnownSchemaLookup;
 
         private Dictionary<JSchema, KnownSchema>? _jSchemaKnownSchemaLookup;
 
-        private Dictionary<Uri, KnownSchema> UriKnownSchemaLookup
+        private Dictionary<KnownSchemaUriKey, KnownSchema> UriKnownSchemaLookup
         {
             get
             {
                 if (_uriKnownSchemaLookup == null)
                 {
-                    _uriKnownSchemaLookup = new Dictionary<Uri, KnownSchema>(UriComparer.Instance);
+                    _uriKnownSchemaLookup = new Dictionary<KnownSchemaUriKey, KnownSchema>();
                 }
 
                 return _uriKnownSchemaLookup;
@@ -46,9 +45,10 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         protected override void InsertItem(int index, KnownSchema item)
         {
             // First Uri ID wins.
-            if (!UriKnownSchemaLookup.ContainsKey(item.Id))
+            KnownSchemaUriKey key = KnownSchemaUriKey.Create(item);
+            if (!UriKnownSchemaLookup.ContainsKey(key))
             {
-                UriKnownSchemaLookup[item.Id] = item;
+                UriKnownSchemaLookup[key] = item;
             }
             JSchemaKnownSchemaLookup[item.Schema] = item;
 
@@ -57,21 +57,23 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         protected override void SetItem(int index, KnownSchema item)
         {
-            KnownSchema knownSchema = Items[index];
+            KnownSchema currentKnownSchema = Items[index];
+            KnownSchemaUriKey currentKey = KnownSchemaUriKey.Create(currentKnownSchema);
+            KnownSchemaUriKey argKey = KnownSchemaUriKey.Create(item);
 
-            if (!UriComparer.Instance.Equals(item.Id, knownSchema.Id))
+            if (!currentKey.Equals(argKey))
             {
-                if (UriKnownSchemaLookup.TryGetValue(knownSchema.Id, out var existingKnownSchema) && knownSchema == existingKnownSchema)
+                if (UriKnownSchemaLookup.TryGetValue(currentKey, out var existingKnownSchema) && currentKnownSchema == existingKnownSchema)
                 {
-                    UriKnownSchemaLookup.Remove(knownSchema.Id);
+                    UriKnownSchemaLookup.Remove(currentKey);
                 }
                 // First Uri ID wins.
-                if (!UriKnownSchemaLookup.ContainsKey(item.Id))
+                if (!UriKnownSchemaLookup.ContainsKey(argKey))
                 {
-                    UriKnownSchemaLookup[item.Id] = item;
+                    UriKnownSchemaLookup[argKey] = item;
                 }
 
-                JSchemaKnownSchemaLookup.Remove(knownSchema.Schema);
+                JSchemaKnownSchemaLookup.Remove(currentKnownSchema.Schema);
                 JSchemaKnownSchemaLookup[item.Schema] = item;
             }
 
@@ -81,7 +83,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         protected override void RemoveItem(int index)
         {
             KnownSchema knownSchema = Items[index];
-            _uriKnownSchemaLookup?.Remove(knownSchema.Id);
+            KnownSchemaUriKey key = KnownSchemaUriKey.Create(knownSchema);
+
+            _uriKnownSchemaLookup?.Remove(key);
             _jSchemaKnownSchemaLookup?.Remove(knownSchema.Schema);
 
             base.RemoveItem(index);
@@ -95,20 +99,19 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             base.ClearItems();
         }
 
-        protected override JSchema GetKeyForItem(KnownSchema item)
+        protected override KnownSchemaKey GetKeyForItem(KnownSchema item)
         {
-            return item.Schema;
+            return new KnownSchemaKey(item.Schema, item.DynamicScope);
         }
 
-        public KnownSchema? GetById(Uri id)
+        public KnownSchema? GetById(KnownSchemaUriKey key)
         {
             if (_uriKnownSchemaLookup == null)
             {
                 return null;
             }
 
-            _uriKnownSchemaLookup.TryGetValue(id, out KnownSchema knownSchema);
-
+            _uriKnownSchemaLookup.TryGetValue(key, out KnownSchema knownSchema);
             return knownSchema;
         }
 

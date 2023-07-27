@@ -321,12 +321,22 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 case Constants.Formats.Time:
                     {
                         var parser = new DateTimeParser();
-                        return parser.ParseTime(value, 0, value.Length);
+                        var result = parser.ParseTime(value, 0, value.Length);
+                        if (!result)
+                        {
+                            return false;
+                        }
+                        return ValidateLeapSecond(parser);
                     }
                 case Constants.Formats.DateTime:
                     {
                         var parser = new DateTimeParser();
-                        return parser.ParseDateTime(value, 0, value.Length);
+                        var result = parser.ParseDateTime(value, 0, value.Length);
+                        if (!result)
+                        {
+                            return false;
+                        }
+                        return ValidateLeapSecond(parser);
                     }
                 case Constants.Formats.UtcMilliseconds:
                     {
@@ -349,6 +359,28 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                         return true;
                     }
             }
+        }
+
+        private static bool ValidateLeapSecond(DateTimeParser parser)
+        {
+            // A leap second is only valid at the end of the day: 23:59.60 UTC
+            if (parser.Second == 60)
+            {
+                if (parser.Minute + parser.ZoneMinute != 59)
+                {
+                    return false;
+                }
+                if ((parser.Hour + ResolveZoneComponent(parser.Zone, parser.ZoneHour)) % 23 != 0)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        private static int ResolveZoneComponent(ParserTimeZone zone, int value)
+        {
+            return (zone == ParserTimeZone.LocalEastOfUtc) ? -value : value;
         }
 
         private bool ValidateNumber(JSchema schema, object value)

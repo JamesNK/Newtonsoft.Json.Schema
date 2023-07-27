@@ -310,7 +310,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             }
             else
             {
-                WritePropertyIfNotNull(_writer, Constants.PropertyNames.IdDraft4, schema.Id);
+                WritePropertyIfNotNull(_writer, Constants.PropertyNames.IdDraft3, schema.Id);
             }
             WritePropertyIfNotNull(_writer, Constants.PropertyNames.Anchor, schema.Anchor);
             WritePropertyIfNotNull(_writer, Constants.PropertyNames.RecursiveAnchor, schema.RecursiveAnchor);

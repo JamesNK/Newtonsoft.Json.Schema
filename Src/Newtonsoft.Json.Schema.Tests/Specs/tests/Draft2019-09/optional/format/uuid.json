@@ -2,9 +2,40 @@
     {
         "description": "uuid format",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "format": "uuid"
         },
         "tests": [
+            {
+                "description": "all string formats ignore integers",
+                "data": 12,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore floats",
+                "data": 13.7,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore objects",
+                "data": {},
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore arrays",
+                "data": [],
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore booleans",
+                "data": false,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore nulls",
+                "data": null,
+                "valid": true
+            },
             {
                 "description": "all upper-case",
                 "data": "2EB8AA08-AA98-11EA-B4AA-73B441D16380",
@@ -43,6 +74,21 @@
             {
                 "description": "no dashes",
                 "data": "2eb8aa08aa9811eab4aa73b441d16380",
+                "valid": false
+            },
+            {
+                "description": "too few dashes",
+                "data": "2eb8aa08aa98-11ea-b4aa73b441d16380",
+                "valid": false
+            },
+            {
+                "description": "too many dashes",
+                "data": "2eb8-aa08-aa98-11ea-b4aa73b44-1d16380",
+                "valid": false
+            },
+            {
+                "description": "dashes in the wrong spot",
+                "data": "2eb8aa08aa9811eab4aa73b441d16380----",
                 "valid": false
             },
             {

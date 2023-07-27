@@ -21,6 +21,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             _schemas = new Dictionary<Uri, JSchema>(UriComparer.Instance);
         }
 
+        public bool HasSchemas => _schemas.Count > 0;
+
         public void RegisterSchema(Uri? dynamicScope, JSchema schema)
         {
             _schemas[dynamicScope ?? NoScope] = schema;
@@ -30,6 +32,18 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         {
             _schemas.TryGetValue(dynamicScope ?? NoScope, out JSchema? schema);
             return schema;
+        }
+
+        public IEnumerable<KeyValuePair<Uri?, JSchema>> GetSchemas()
+        {
+            foreach (var item in _schemas)
+            {
+                if (item.Key == NoScope)
+                {
+                    yield return new KeyValuePair<Uri?, JSchema>(null, item.Value);
+                }
+                yield return new KeyValuePair<Uri?, JSchema>(item.Key, item.Value);
+            }
         }
 
         public bool TryGetSingle([NotNullWhen(true)] out JSchema? schema)

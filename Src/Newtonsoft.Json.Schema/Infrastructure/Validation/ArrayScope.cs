@@ -217,8 +217,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                             {
                                 RaiseError($"Index {_index + 1} has not been defined and the schema does not allow additional items.", ErrorType.AdditionalItems, Schema, value, null);
                             }
-                            else if (Schema.AdditionalItems != null)
+                            else if (Schema._items != null && Schema.AdditionalItems != null)
                             {
+                                // additionalItems is ignored when items isn't present.
                                 CreateScopesAndEvaluateToken(token, value, depth, Schema.AdditionalItems);
                                 matched = true;
                             }
@@ -310,8 +311,10 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                                     // Need to check these for oneOf, allOf, etc.
                                     if (scope is SchemaScope schemaScope)
                                     {
-                                        if (schemaScope.Schema._allowAdditionalItems.GetValueOrDefault() ||
-                                            schemaScope.Schema.AdditionalItems != null ||
+                                        var hasAdditionalItems = schemaScope.Schema._allowAdditionalItems.GetValueOrDefault() ||
+                                            schemaScope.Schema.AdditionalItems != null;
+
+                                        if ((hasAdditionalItems && schemaScope.Schema._items != null) ||
                                             schemaScope.Schema.AllowUnevaluatedItems.GetValueOrDefault())
                                         {
                                             unevaluatedContext.AddValidScope(schemaScope.Schema);

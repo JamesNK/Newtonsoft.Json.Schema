@@ -59,7 +59,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             public const string Extends = "extends";
             public const string Id = "$id";
             public const string Anchor = "$anchor";
-            public const string IdDraft4 = "id";
+            public const string IdDraft3 = "id";
             public const string UniqueItems = "uniqueItems";
             public const string MinimumProperties = "minProperties";
             public const string MaximumProperties = "maxProperties";

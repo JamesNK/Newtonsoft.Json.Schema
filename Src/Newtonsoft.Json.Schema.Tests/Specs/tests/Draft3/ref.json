@@ -201,6 +201,42 @@
         ]
     },
     {
+        "description": "$ref prevents a sibling id from changing the base uri",
+        "schema": {
+            "id": "http://localhost:1234/sibling_id/base/",
+            "definitions": {
+                "foo": {
+                    "id": "http://localhost:1234/sibling_id/foo.json",
+                    "type": "string"
+                },
+                "base_foo": {
+                    "$comment": "this canonical uri is http://localhost:1234/sibling_id/base/foo.json",
+                    "id": "foo.json",
+                    "type": "number"
+                }
+            },
+            "extends": [
+                {
+                    "$comment": "$ref resolves to http://localhost:1234/sibling_id/base/foo.json, not http://localhost:1234/sibling_id/foo.json",
+                    "id": "http://localhost:1234/sibling_id/",
+                    "$ref": "foo.json"
+                }
+            ]
+        },
+        "tests": [
+            {
+                "description": "$ref resolves to /definitions/base_foo, data does not validate",
+                "data": "a",
+                "valid": false
+            },
+            {
+                "description": "$ref resolves to /definitions/base_foo, data validates",
+                "data": 1,
+                "valid": true
+            }
+        ]
+    },
+    {
         "description": "remote ref, containing refs itself",
         "schema": {"$ref": "http://json-schema.org/draft-03/schema#"},
         "tests": [
@@ -228,7 +264,7 @@
         },
         "tests": [
             {
-                "description": "do not evaluate the $ref inside the enum",
+                "description": "do not evaluate the $ref inside the enum, matching any string",
                 "data": "this is a string",
                 "valid": false
             },

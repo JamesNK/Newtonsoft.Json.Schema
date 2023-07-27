@@ -6,9 +6,11 @@
 #endregion
 
 using System;
+using System.Diagnostics;
 
 namespace Newtonsoft.Json.Schema.Infrastructure
 {
+    [DebuggerDisplay("ScopeId = {ScopeId}, Root = {Root}, DynamicAnchor = {DynamicAnchor}")]
     internal class JsonIdentiferScope : IIdentiferScope
     {
         public static readonly JsonIdentiferScope Empty = new JsonIdentiferScope(null, false, null);

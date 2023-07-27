@@ -3594,6 +3594,148 @@ namespace Newtonsoft.Json.Schema.Tests
             JObject o = new JObject();
             Assert.IsFalse(o.IsValid(s));
         }
+
+        [Test]
+        public void Read_UevaluatedItemsCanSeeAnnotationsFromIfWithoutThenAndElse()
+        {
+            string json = @"{
+                ""$schema"": ""https://json-schema.org/draft/2019-09/schema"",
+                ""if"": {
+                    ""items"": [{""const"": ""a""}]
+                },
+                ""unevaluatedItems"": false
+            }";
+
+            JSchema s = JSchema.Parse(json);
+
+            JArray a = JArray.Parse(@"[ ""a"" ]");
+            var result = a.IsValid(s, out IList<string> errorMessages);
+            Assert.IsTrue(result);
+        }
+
+        [Test]
+        public void Read_UnevaluatedItemsWithIgnoredAdditionalItems()
+        {
+            string json = @"{
+                ""$schema"": ""https://json-schema.org/draft/2019-09/schema"",
+                ""additionalItems"": {""type"": ""number""},
+                ""unevaluatedItems"": {""type"": ""string""}
+            }";
+
+            JSchema s = JSchema.Parse(json);
+
+            // AdditionalItems is entirely ignored when items isn't present, so all elements need to be valid against the unevaluatedItems schema.
+            JArray a = JArray.Parse(@"[""foo"", 1]");
+            var result = a.IsValid(s);
+            Assert.IsFalse(result);
+        }
+
+        [Test]
+        public void Read_UnevaluatedItemsWithIgnoredApplicatorAdditionalItems()
+        {
+            string json = @"{
+                ""$schema"": ""https://json-schema.org/draft/2019-09/schema"",
+                ""allOf"": [ { ""additionalItems"": { ""type"": ""number"" } } ],
+                ""unevaluatedItems"": {""type"": ""string""}
+            }";
+
+            JSchema s = JSchema.Parse(json);
+
+            // AdditionalItems is entirely ignored when items isn't present, so all elements need to be valid against the unevaluatedItems schema.
+            JArray a = JArray.Parse(@"[""foo"", 1]");
+            var result = a.IsValid(s);
+            Assert.IsFalse(result);
+        }
+
+        [Test]
+        public void Read_MultipleDynamicPathsToTheRecursiveRefKeyword_RefToInner()
+        {
+            string json = @"{
+                ""$schema"": ""https://json-schema.org/draft/2019-09/schema"",
+                ""$id"": ""https://example.com/recursiveRef8_main.json"",
+                ""$defs"": {
+                    ""inner"": {
+                        ""$id"": ""recursiveRef8_inner.json"",
+                        ""$recursiveAnchor"": true,
+                        ""title"": ""inner"",
+                        ""additionalProperties"": {
+                            ""$recursiveRef"": ""#""
+                        }
+                    }
+                },
+                ""if"": {
+                    ""propertyNames"": {
+                        ""pattern"": ""^[a-m]""
+                    }
+                },
+                ""then"": {
+                    ""title"": ""any type of node"",
+                    ""$id"": ""recursiveRef8_anyLeafNode.json"",
+                    ""$recursiveAnchor"": true,
+                    ""$ref"": ""recursiveRef8_inner.json""
+                },
+                ""else"": {
+                    ""title"": ""integer node"",
+                    ""$id"": ""recursiveRef8_integerNode.json"",
+                    ""$recursiveAnchor"": true,
+                    ""type"": [ ""object"", ""integer"" ],
+                    ""$ref"": ""recursiveRef8_inner.json""
+                }
+            }";
+
+            JSchema s = JSchema.Parse(json);
+            Assert.AreNotEqual(s.Then.Ref, s.Else.Ref);
+            Assert.AreEqual("recursiveRef8_anyLeafNode.json", s.Then.Ref.AdditionalProperties.Id.OriginalString);
+            Assert.AreEqual("recursiveRef8_integerNode.json", s.Else.Ref.AdditionalProperties.Id.OriginalString);
+
+            // recurse to integerNode - floats are not allowed
+            JObject a = JObject.Parse(@"{ ""november"": 1.1 }");
+            var result = a.IsValid(s);
+            Assert.IsFalse(result);
+        }
+
+        [Test]
+        public void Read_MultipleDynamicPathsToTheRecursiveRefKeyword_RefRelative()
+        {
+            string json = @"{
+                ""$id"": ""recursiveRef8_main.json"",
+                ""$defs"": {
+                    ""inner"": {
+                        ""$id"": ""recursiveRef8_inner.json"",
+                        ""$recursiveAnchor"": true,
+                        ""title"": ""inner"",
+                        ""additionalProperties"": {
+                            ""$recursiveRef"": ""#""
+                        }
+                    }
+                },
+                ""if"": {
+                    ""propertyNames"": {
+                        ""pattern"": ""^[a-m]""
+                    }
+                },
+                ""then"": {
+                    ""title"": ""any type of node"",
+                    ""$id"": ""recursiveRef8_anyLeafNode.json"",
+                    ""$recursiveAnchor"": true,
+                    ""$ref"": ""recursiveRef8_main.json#/$defs/inner""
+                },
+                ""else"": {
+                    ""title"": ""integer node"",
+                    ""$id"": ""recursiveRef8_integerNode.json"",
+                    ""$recursiveAnchor"": true,
+                    ""type"": [ ""object"", ""integer"" ],
+                    ""$ref"": ""recursiveRef8_main.json#/$defs/inner""
+                }
+            }";
+
+            JSchema s = JSchema.Parse(json);
+
+            // recurse to integerNode - floats are not allowed
+            JObject a = JObject.Parse(@"{ ""november"": 1.1 }");
+            var result = a.IsValid(s);
+            Assert.IsFalse(result);
+        }
     }
 
     public sealed class JsonReaderStubWithIsClosed : JsonReader

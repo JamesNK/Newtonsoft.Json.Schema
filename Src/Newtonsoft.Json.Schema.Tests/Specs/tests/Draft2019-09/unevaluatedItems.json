@@ -2,7 +2,7 @@
     {
         "description": "unevaluatedItems true",
         "schema": {
-            "type": "array",
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "unevaluatedItems": true
         },
         "tests": [
@@ -21,7 +21,7 @@
     {
         "description": "unevaluatedItems false",
         "schema": {
-            "type": "array",
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "unevaluatedItems": false
         },
         "tests": [
@@ -40,7 +40,7 @@
     {
         "description": "unevaluatedItems as schema",
         "schema": {
-            "type": "array",
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "unevaluatedItems": { "type": "string" }
         },
         "tests": [
@@ -64,7 +64,7 @@
     {
         "description": "unevaluatedItems with uniform items",
         "schema": {
-            "type": "array",
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "items": { "type": "string" },
             "unevaluatedItems": false
         },
@@ -79,7 +79,7 @@
     {
         "description": "unevaluatedItems with tuple",
         "schema": {
-            "type": "array",
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "items": [
                 { "type": "string" }
             ],
@@ -99,9 +99,9 @@
         ]
     },
     {
-        "description": "unevaluatedItems with additionalItems",
+        "description": "unevaluatedItems with items and additionalItems",
         "schema": {
-            "type": "array",
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "items": [
                 { "type": "string" }
             ],
@@ -117,9 +117,51 @@
         ]
     },
     {
+        "description": "unevaluatedItems with ignored additionalItems",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "additionalItems": {"type": "number"},
+            "unevaluatedItems": {"type": "string"}
+        },
+        "tests": [
+            {
+                "description": "invalid under unevaluatedItems",
+                "comment": "additionalItems is entirely ignored when items isn't present, so all elements need to be valid against the unevaluatedItems schema",
+                "data": ["foo", 1],
+                "valid": false
+            },
+            {
+                "description": "all valid under unevaluatedItems",
+                "data": ["foo", "bar", "baz"],
+                "valid": true
+            }
+        ]
+    },
+    {
+        "description": "unevaluatedItems with ignored applicator additionalItems",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "allOf": [ { "additionalItems": { "type": "number" } } ],
+            "unevaluatedItems": {"type": "string"}
+        },
+        "tests": [
+            {
+                "description": "invalid under unevaluatedItems",
+                "comment": "additionalItems is entirely ignored when items isn't present, so all elements need to be valid against the unevaluatedItems schema",
+                "data": ["foo", 1],
+                "valid": false
+            },
+            {
+                "description": "all valid under unevaluatedItems",
+                "data": ["foo", "bar", "baz"],
+                "valid": true
+            }
+        ]
+    },
+    {
         "description": "unevaluatedItems with nested tuple",
         "schema": {
-            "type": "array",
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "items": [
                 { "type": "string" }
             ],
@@ -147,9 +189,37 @@
         ]
     },
     {
-        "description": "unevaluatedItems with nested additionalItems",
+        "description": "unevaluatedItems with nested items",
         "schema": {
-            "type": "array",
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "unevaluatedItems": {"type": "boolean"},
+            "anyOf": [
+                { "items": {"type": "string"} },
+                true
+            ]
+        },
+        "tests": [
+            {
+                "description": "with only (valid) additional items",
+                "data": [true, false],
+                "valid": true
+            },
+            {
+                "description": "with no additional items",
+                "data": ["yes", "no"],
+                "valid": true
+            },
+            {
+                "description": "with invalid additional item",
+                "data": ["yes", false],
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "unevaluatedItems with nested items and additionalItems",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "allOf": [
                 {
                     "items": [
@@ -176,16 +246,14 @@
     {
         "description": "unevaluatedItems with nested unevaluatedItems",
         "schema": {
-            "type": "array",
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "allOf": [
                 {
                     "items": [
                         { "type": "string" }
                     ]
                 },
-                {
-                    "unevaluatedItems": true
-                }
+                { "unevaluatedItems": true }
             ],
             "unevaluatedItems": false
         },
@@ -205,7 +273,7 @@
     {
         "description": "unevaluatedItems with anyOf",
         "schema": {
-            "type": "array",
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "items": [
                 { "const": "foo" }
             ],
@@ -252,7 +320,7 @@
     {
         "description": "unevaluatedItems with oneOf",
         "schema": {
-            "type": "array",
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "items": [
                 { "const": "foo" }
             ],
@@ -288,7 +356,7 @@
     {
         "description": "unevaluatedItems with not",
         "schema": {
-            "type": "array",
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "items": [
                 { "const": "foo" }
             ],
@@ -313,10 +381,8 @@
     {
         "description": "unevaluatedItems with if/then/else",
         "schema": {
-            "type": "array",
-            "items": [
-                { "const": "foo" }
-            ],
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "items": [ { "const": "foo" } ],
             "if": {
                 "items": [
                     true,
@@ -366,7 +432,7 @@
     {
         "description": "unevaluatedItems with boolean schemas",
         "schema": {
-            "type": "array",
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "allOf": [true],
             "unevaluatedItems": false
         },
@@ -386,7 +452,7 @@
     {
         "description": "unevaluatedItems with $ref",
         "schema": {
-            "type": "array",
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "$ref": "#/$defs/bar",
             "items": [
                 { "type": "string" }
@@ -417,13 +483,12 @@
     {
         "description": "unevaluatedItems can't see inside cousins",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "allOf": [
                 {
                     "items": [ true ]
                 },
-                {
-                    "unevaluatedItems": false
-                }
+                { "unevaluatedItems": false }
             ]
         },
         "tests": [
@@ -432,6 +497,131 @@
                 "data": [ 1 ],
                 "valid": false
             }
+        ]
+    },
+    {
+        "description": "item is evaluated in an uncle schema to unevaluatedItems",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "properties": {
+                "foo": {
+                    "items": [
+                        { "type": "string" }
+                    ],
+                    "unevaluatedItems": false
+                  }
+            },
+            "anyOf": [
+                {
+                    "properties": {
+                        "foo": {
+                            "items": [
+                                true,
+                                { "type": "string" }
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "tests": [
+            {
+                "description": "no extra items",
+                "data": {
+                    "foo": [
+                        "test"
+                    ]
+                },
+                "valid": true
+            },
+            {
+                "description": "uncle keyword evaluation is not significant",
+                "data": {
+                    "foo": [
+                        "test",
+                        "test"
+                    ]
+                },
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "non-array instances are valid",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "unevaluatedItems": false
+        },
+        "tests": [
+            {
+                "description": "ignores booleans",
+                "data": true,
+                "valid": true
+            },
+            {
+                "description": "ignores integers",
+                "data": 123,
+                "valid": true
+            },
+            {
+                "description": "ignores floats",
+                "data": 1.0,
+                "valid": true
+            },
+            {
+                "description": "ignores objects",
+                "data": {},
+                "valid": true
+            },
+            {
+                "description": "ignores strings",
+                "data": "foo",
+                "valid": true
+            },
+            {
+                "description": "ignores null",
+                "data": null,
+                "valid": true
+            }
+        ]
+    },
+    {
+        "description": "unevaluatedItems with null instance elements",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "unevaluatedItems": {
+                "type": "null"
+            }
+        },
+        "tests": [
+            {
+                "description": "allows null elements",
+                "data": [ null ],
+                "valid": true
+            }
+        ]
+    },
+    {
+        "description": "unevaluatedItems can see annotations from if without then and else",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "if": {
+                "items": [{"const": "a"}]
+            },
+            "unevaluatedItems": false
+        },
+        "tests": [
+            {
+                "description": "valid in case if is evaluated",
+                "data": [ "a" ],
+                "valid": true
+            },
+            {
+                "description": "invalid in case if is evaluated",
+                "data": [ "b" ],
+                "valid": false
+            }
+
         ]
     }
 ]

@@ -1,7 +1,10 @@
 [
     {
         "description": "uniqueItems validation",
-        "schema": {"uniqueItems": true},
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "uniqueItems": true
+        },
         "tests": [
             {
                 "description": "unique array of integers is valid",
@@ -11,6 +14,11 @@
             {
                 "description": "non-unique array of integers is invalid",
                 "data": [1, 1],
+                "valid": false
+            },
+            {
+                "description": "non-unique array of more than two integers is invalid",
+                "data": [1, 2, 1],
                 "valid": false
             },
             {
@@ -29,6 +37,16 @@
                 "valid": true
             },
             {
+                "description": "unique array of strings is valid",
+                "data": ["foo", "bar", "baz"],
+                "valid": true
+            },
+            {
+                "description": "non-unique array of strings is invalid",
+                "data": ["foo", "bar", "foo"],
+                "valid": false
+            },
+            {
                 "description": "unique array of objects is valid",
                 "data": [{"foo": "bar"}, {"foo": "baz"}],
                 "valid": true
@@ -36,6 +54,11 @@
             {
                 "description": "non-unique array of objects is invalid",
                 "data": [{"foo": "bar"}, {"foo": "bar"}],
+                "valid": false
+            },
+            {
+                "description": "property order of array of objects is ignored",
+                "data": [{"foo": "bar", "bar": "foo"}, {"bar": "foo", "foo": "bar"}],
                 "valid": false
             },
             {
@@ -62,6 +85,11 @@
             {
                 "description": "non-unique array of arrays is invalid",
                 "data": [["foo"], ["foo"]],
+                "valid": false
+            },
+            {
+                "description": "non-unique array of more than two arrays is invalid",
+                "data": [["foo"], ["bar"], ["foo"]],
                 "valid": false
             },
             {
@@ -129,6 +157,7 @@
     {
         "description": "uniqueItems with an array of items",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "items": [{"type": "boolean"}, {"type": "boolean"}],
             "uniqueItems": true
         },
@@ -178,6 +207,7 @@
     {
         "description": "uniqueItems with an array of items and additionalItems=false",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "items": [{"type": "boolean"}, {"type": "boolean"}],
             "uniqueItems": true,
             "additionalItems": false
@@ -212,7 +242,10 @@
     },
     {
         "description": "uniqueItems=false validation",
-        "schema": { "uniqueItems": false },
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "uniqueItems": false
+        },
         "tests": [
             {
                 "description": "unique array of integers is valid",
@@ -300,6 +333,7 @@
     {
         "description": "uniqueItems=false with an array of items",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "items": [{"type": "boolean"}, {"type": "boolean"}],
             "uniqueItems": false
         },
@@ -349,6 +383,7 @@
     {
         "description": "uniqueItems=false with an array of items and additionalItems=false",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "items": [{"type": "boolean"}, {"type": "boolean"}],
             "uniqueItems": false,
             "additionalItems": false

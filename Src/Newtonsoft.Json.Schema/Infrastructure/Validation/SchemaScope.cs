@@ -176,8 +176,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
                 notScope.InitializeScopes(token, new List<JSchema> { schema.Not }, context.Scopes.Count - 1);
             }
-            // only makes sense to eval if/then/else when there is an if and either a then or a else
-            if (schema.If != null && (schema.Then != null || schema.Else != null))
+            // Eval if even when there is no then/else because of unevaluated items
+            if (schema.If != null)
             {
                 IfThenElseScope? ifThenElseScope = context.Validator.GetCachedScope<IfThenElseScope>(ScopeType.IfThenElse);
                 if (ifThenElseScope == null)
