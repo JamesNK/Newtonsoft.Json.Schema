@@ -19,7 +19,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
         private JSchemaDictionary? _insensitivePropertySchemas;
         private ICollection<string>? _requiredProperties;
         private Dictionary<string, UnevaluatedContext>? _unevaluatedScopes;
-        internal List<string>? ReadProperties;
+        internal ICollection<string>? ReadProperties;
 
         private JSchemaDictionary? PropertySchemas => Context.Validator.PropertyNameCaseInsensitive ? _insensitivePropertySchemas : Schema._properties;
 
@@ -45,7 +45,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 else
                 {
                     _requiredProperties = context.Validator.PropertyNameCaseInsensitive
-                        ? new HashSet<string>(schema._required, comparer: StringComparer.OrdinalIgnoreCase)
+                        ? new HashSet<string>(schema._required, StringComparer.OrdinalIgnoreCase)
                         : new List<string>(schema._required.Count);
                 }
 
@@ -69,7 +69,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 }
                 else
                 {
-                    ReadProperties = new List<string>();
+                    ReadProperties = context.Validator.PropertyNameCaseInsensitive
+                        ? new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+                        : new List<string>();
                 }
             }
 
