@@ -29,6 +29,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
         public JTokenWriter? TokenWriter;
         public JSchema? Schema;
         public event SchemaValidationEventHandler? ValidationEventHandler;
+        public bool PropertyNameCaseInsensitive;
 #if !(NET35 || NET40)
         public TimeSpan? RegexMatchTimeout;
 #endif

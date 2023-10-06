@@ -16,9 +16,12 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
     {
         private int _propertyCount;
         private string? _currentPropertyName;
+        private JSchemaDictionary? _insensitivePropertySchemas;
         private List<string>? _requiredProperties;
         private Dictionary<string, UnevaluatedContext>? _unevaluatedScopes;
         internal List<string>? ReadProperties;
+
+        private JSchemaDictionary? PropertySchemas => Context.Validator.PropertyNameCaseInsensitive ? _insensitivePropertySchemas : Schema._properties;
 
         public void Initialize(ContextBase context, SchemaScope? parent, int initialDepth, JSchema schema)
         {
@@ -27,6 +30,18 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
             _propertyCount = 0;
             _currentPropertyName = null;
+
+            if (context.Validator.PropertyNameCaseInsensitive && !schema._properties.IsNullOrEmpty())
+            {
+                if (_insensitivePropertySchemas != null)
+                {
+                    _insensitivePropertySchemas.Clear();
+                }
+                else
+                {
+                    _insensitivePropertySchemas = new JSchemaDictionary(schema, new Dictionary<string, JSchema>(schema._properties, StringComparer.OrdinalIgnoreCase));
+                }
+            }
 
             if (!schema._required.IsNullOrEmpty())
             {
@@ -243,9 +258,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     if (JsonTokenHelpers.IsPrimitiveOrStartToken(token))
                     {
                         bool matched = false;
-                        if (Schema._properties != null)
+                        if (PropertySchemas != null)
                         {
-                            if (Schema._properties.TryGetValue(_currentPropertyName, out JSchema propertySchema))
+                            if (PropertySchemas.TryGetValue(_currentPropertyName, out JSchema propertySchema))
                             {
                                 CreateScopesAndEvaluateToken(token, value, depth, propertySchema);
                                 matched = true;
@@ -360,7 +375,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
         private bool IsPropertyDefined(JSchema schema, string propertyName)
         {
-            if (schema._properties != null && schema._properties.ContainsKey(propertyName))
+            if (PropertySchemas != null && PropertySchemas.ContainsKey(propertyName))
             {
                 return true;
             }

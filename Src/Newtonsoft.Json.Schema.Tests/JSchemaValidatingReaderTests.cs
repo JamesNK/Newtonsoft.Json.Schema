@@ -446,6 +446,40 @@ namespace Newtonsoft.Json.Schema.Tests
         }
 
         [Test]
+        public void ValidateObjectWithProperty_CaseInsensitive()
+        {
+            JSchema schema = new JSchema
+            {
+                Type = JSchemaType.Object,
+                Properties =
+                {
+                    { "testProp", new JSchema { Type = JSchemaType.Boolean } },
+                    { "testProp2", new JSchema { Type = JSchemaType.Integer } }
+                }
+            };
+
+            string json = "{'TestProp':5,'TestProp2':true}";
+
+            IList<SchemaValidationEventArgs> errors;
+            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out errors);
+            validatingReader.PropertyNameCaseInsensitive = true;
+
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsTrue(validatingReader.Read());
+            Assert.IsFalse(validatingReader.Read());
+
+            Assert.AreEqual(2, errors.Count);
+            Assert.AreEqual("Invalid type. Expected Boolean but got Integer. Path 'TestProp', line 1, position 13.", errors[0].Message);
+            Assert.AreEqual(5L, errors[0].ValidationError.Value);
+            Assert.AreEqual("Invalid type. Expected Integer but got Boolean. Path 'TestProp2', line 1, position 30.", errors[1].Message);
+            Assert.AreEqual(true, errors[1].ValidationError.Value);
+        }
+
+        [Test]
         public void ValidateArray()
         {
             JSchema schema = new JSchema();
