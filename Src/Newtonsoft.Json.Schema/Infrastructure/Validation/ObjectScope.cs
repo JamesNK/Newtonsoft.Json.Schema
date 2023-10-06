@@ -17,7 +17,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
         private int _propertyCount;
         private string? _currentPropertyName;
         private JSchemaDictionary? _insensitivePropertySchemas;
-        private List<string>? _requiredProperties;
+        private ICollection<string>? _requiredProperties;
         private Dictionary<string, UnevaluatedContext>? _unevaluatedScopes;
         internal List<string>? ReadProperties;
 
@@ -33,14 +33,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
             if (context.Validator.PropertyNameCaseInsensitive && !schema._properties.IsNullOrEmpty())
             {
-                if (_insensitivePropertySchemas != null)
-                {
-                    _insensitivePropertySchemas.Clear();
-                }
-                else
-                {
-                    _insensitivePropertySchemas = new JSchemaDictionary(schema, new Dictionary<string, JSchema>(schema._properties, StringComparer.OrdinalIgnoreCase));
-                }
+                _insensitivePropertySchemas = new JSchemaDictionary(schema, new Dictionary<string, JSchema>(schema._properties, StringComparer.OrdinalIgnoreCase));
             }
 
             if (!schema._required.IsNullOrEmpty())
@@ -51,12 +44,17 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 }
                 else
                 {
-                    _requiredProperties = new List<string>(schema._required.Count);
+                    _requiredProperties = context.Validator.PropertyNameCaseInsensitive
+                        ? new HashSet<string>(schema._required, comparer: StringComparer.OrdinalIgnoreCase)
+                        : new List<string>(schema._required.Count);
                 }
 
-                foreach (string required in schema._required)
+                if (_requiredProperties.Count == 0)
                 {
-                    _requiredProperties.Add(required);
+                    foreach (string required in schema._required)
+                    {
+                        _requiredProperties.Add(required);
+                    }
                 }
             }
 

@@ -1866,7 +1866,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             Assert.IsNotNull(validationEventArgs);
         }
-
+        
         [Test]
         public void MissingNonRequiredProperties()
         {
@@ -1908,6 +1908,46 @@ namespace Newtonsoft.Json.Schema.Tests
         }
 
         [Test]
+        public void RequiredProperties_CaseInsensitive()
+        {
+            string schemaJson = @"{
+  ""description"":""A person"",
+  ""type"":""object"",
+  ""properties"":
+  {
+    ""name"":{""type"":""string"",""required"":true},
+    ""age"":{""type"":""integer"",""required"":false}
+  }
+}";
+
+            string json = "{'NAME':'James'}";
+
+            SchemaValidationEventArgs validationEventArgs = null;
+
+            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
+            reader.Schema = JSchema.Parse(schemaJson);
+            reader.PropertyNameCaseInsensitive = true;
+
+            Assert.IsTrue(reader.Read());
+            Assert.AreEqual(JsonToken.StartObject, reader.TokenType);
+
+            Assert.IsTrue(reader.Read());
+            Assert.AreEqual(JsonToken.PropertyName, reader.TokenType);
+            Assert.AreEqual("NAME", reader.Value.ToString());
+
+            Assert.IsTrue(reader.Read());
+            Assert.AreEqual(JsonToken.String, reader.TokenType);
+            Assert.AreEqual("James", reader.Value.ToString());
+            Assert.AreEqual(null, validationEventArgs);
+
+            Assert.IsTrue(reader.Read());
+            Assert.AreEqual(JsonToken.EndObject, reader.TokenType);
+
+            Assert.IsNull(validationEventArgs);
+        }
+
+        [Test]
         public void DisableAdditionalProperties()
         {
             string schemaJson = @"{
@@ -1934,6 +1974,66 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.PropertyName, reader.TokenType);
             Assert.AreEqual("name", reader.Value.ToString());
+
+            Assert.IsTrue(reader.Read());
+            Assert.AreEqual(JsonToken.String, reader.TokenType);
+            Assert.AreEqual("James", reader.Value.ToString());
+            Assert.AreEqual(null, validationEventArgs);
+
+            Assert.IsTrue(reader.Read());
+            Assert.AreEqual(JsonToken.PropertyName, reader.TokenType);
+            Assert.AreEqual("additionalProperty1", reader.Value.ToString());
+
+            Assert.IsTrue(reader.Read());
+            Assert.AreEqual(JsonToken.Null, reader.TokenType);
+            Assert.AreEqual(null, reader.Value);
+
+            Assert.IsNotNull(validationEventArgs);
+            Assert.AreEqual("Property 'additionalProperty1' has not been defined and the schema does not allow additional properties. Path 'additionalProperty1', line 1, position 38.", validationEventArgs.Message);
+            Assert.AreEqual("additionalProperty1", validationEventArgs.ValidationError.Value);
+
+            Assert.IsTrue(reader.Read());
+            Assert.AreEqual(JsonToken.PropertyName, reader.TokenType);
+            Assert.AreEqual("additionalProperty2", reader.Value.ToString());
+
+            Assert.IsTrue(reader.Read());
+            Assert.AreEqual(JsonToken.Null, reader.TokenType);
+            Assert.AreEqual(null, reader.Value);
+            Assert.AreEqual("Property 'additionalProperty2' has not been defined and the schema does not allow additional properties. Path 'additionalProperty2', line 1, position 65.", validationEventArgs.Message);
+            Assert.AreEqual("additionalProperty2", validationEventArgs.ValidationError.Value);
+
+            Assert.IsTrue(reader.Read());
+            Assert.AreEqual(JsonToken.EndObject, reader.TokenType);
+        }
+
+        [Test]
+        public void DisableAdditionalProperties_CaseInsensitive()
+        {
+            string schemaJson = @"{
+  ""description"":""A person"",
+  ""type"":""object"",
+  ""properties"":
+  {
+    ""name"":{""type"":""string""}
+  },
+  ""additionalProperties"":false
+}";
+
+            string json = "{'NAME':'James','additionalProperty1':null,'additionalProperty2':null}";
+
+            SchemaValidationEventArgs validationEventArgs = null;
+
+            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
+            reader.Schema = JSchema.Parse(schemaJson);
+            reader.PropertyNameCaseInsensitive = true;
+
+            Assert.IsTrue(reader.Read());
+            Assert.AreEqual(JsonToken.StartObject, reader.TokenType);
+
+            Assert.IsTrue(reader.Read());
+            Assert.AreEqual(JsonToken.PropertyName, reader.TokenType);
+            Assert.AreEqual("NAME", reader.Value.ToString());
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.String, reader.TokenType);
