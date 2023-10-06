@@ -15,7 +15,12 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Collections
         private int _schemasCount;
 
         public JSchemaDependencyDictionary(JSchema parentSchema)
-            : base(StringComparer.Ordinal)
+            : this(parentSchema, new Dictionary<string, object>(StringComparer.Ordinal))
+        {
+        }
+
+        public JSchemaDependencyDictionary(JSchema parentSchema, IDictionary<string, object> dictionary)
+            : base(dictionary)
         {
             _parentSchema = parentSchema;
         }

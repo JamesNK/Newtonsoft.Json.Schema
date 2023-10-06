@@ -17,11 +17,13 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
         private int _propertyCount;
         private string? _currentPropertyName;
         private JSchemaDictionary? _insensitivePropertySchemas;
+        private JSchemaDependencyDictionary? _insensitiveDependencySchemas;
         private ICollection<string>? _requiredProperties;
         private Dictionary<string, UnevaluatedContext>? _unevaluatedScopes;
         internal ICollection<string>? ReadProperties;
 
         private JSchemaDictionary? PropertySchemas => Context.Validator.PropertyNameCaseInsensitive ? _insensitivePropertySchemas : Schema._properties;
+        private JSchemaDependencyDictionary? DependencySchemas => Context.Validator.PropertyNameCaseInsensitive ? _insensitiveDependencySchemas : Schema._dependencies;
 
         public void Initialize(ContextBase context, SchemaScope? parent, int initialDepth, JSchema schema)
         {
@@ -31,9 +33,17 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             _propertyCount = 0;
             _currentPropertyName = null;
 
-            if (context.Validator.PropertyNameCaseInsensitive && !schema._properties.IsNullOrEmpty())
+            if (context.Validator.PropertyNameCaseInsensitive)
             {
-                _insensitivePropertySchemas = new JSchemaDictionary(schema, new Dictionary<string, JSchema>(schema._properties, StringComparer.OrdinalIgnoreCase));
+                if (!schema._properties.IsNullOrEmpty())
+                {
+                    _insensitivePropertySchemas = new JSchemaDictionary(schema, new Dictionary<string, JSchema>(schema._properties, StringComparer.OrdinalIgnoreCase));
+                }
+
+                if (!schema._dependencies.IsNullOrEmpty())
+                {
+                    _insensitiveDependencySchemas = new JSchemaDependencyDictionary(schema, new Dictionary<string, object>(schema._dependencies, StringComparer.OrdinalIgnoreCase));
+                }
             }
 
             if (!schema._required.IsNullOrEmpty())
@@ -166,7 +176,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                             {
                                 object? dependency = null;
                                 IList<string>? requiredProperties = null;
-                                if (Schema._dependencies?.TryGetValue(readProperty, out dependency) ?? false)
+                                if (DependencySchemas?.TryGetValue(readProperty, out dependency) ?? false)
                                 {
                                     requiredProperties = dependency as IList<string>;
                                     if (requiredProperties != null)
