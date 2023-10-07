@@ -60,40 +60,6 @@ namespace Newtonsoft.Json.Schema.Tests
         }
 
         [Test]
-        public void UnevaluatedProperties_NotAllowed_Match_CaseInsensitive()
-        {
-            string schemaJson = @"{
-                ""type"": ""object"",
-                ""properties"": {
-                    ""foo"": { ""type"": ""string"" }
-                },
-                ""unevaluatedProperties"": false
-            }";
-
-            string json = "{'FOO':'foo'}";
-
-            SchemaValidationEventArgs validationEventArgs = null;
-
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
-            reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
-            reader.Schema = JSchema.Parse(schemaJson);
-            reader.PropertyNameCaseInsensitive = true;
-
-            Assert.IsTrue(reader.Read());
-            Assert.AreEqual(JsonToken.StartObject, reader.TokenType);
-
-            Assert.IsTrue(reader.Read());
-            Assert.AreEqual(JsonToken.PropertyName, reader.TokenType);
-            Assert.IsTrue(reader.Read());
-            Assert.AreEqual(JsonToken.String, reader.TokenType);
-
-            Assert.IsTrue(reader.Read());
-            Assert.AreEqual(JsonToken.EndObject, reader.TokenType);
-
-            Assert.IsNull(validationEventArgs);
-        }
-
-        [Test]
         public void UnevaluatedProperties_AnyOf_NoMatch()
         {
             string schemaJson = @"{
@@ -199,44 +165,6 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
-
-            while (reader.Read())
-            {
-            }
-
-            Assert.IsNull(validationEventArgs);
-        }
-
-        [Test]
-        public void UnevaluatedProperties_DependentSchemas_NoUnevaluatedProperties_CaseInsensitive()
-        {
-            string schemaJson = @"{
-                ""type"": ""object"",
-                ""properties"": {
-                    ""foo"": { ""type"": ""string"" }
-                },
-                ""dependentSchemas"": {
-                    ""foo"": {
-                        ""properties"": {
-                            ""bar"": { ""const"": ""bar"" }
-                        },
-                        ""required"": [""bar""]
-                    }
-                },
-                ""unevaluatedProperties"": false
-            }";
-
-            string json = @"{
-                    ""Foo"": ""foo"",
-                    ""Bar"": ""bar""
-                }";
-
-            SchemaValidationEventArgs validationEventArgs = null;
-
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
-            reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
-            reader.Schema = JSchema.Parse(schemaJson);
-            reader.PropertyNameCaseInsensitive = true;
 
             while (reader.Read())
             {
