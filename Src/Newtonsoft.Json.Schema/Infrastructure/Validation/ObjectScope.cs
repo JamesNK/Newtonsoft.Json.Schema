@@ -18,12 +18,14 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
         private string? _currentPropertyName;
         private JSchemaDictionary? _insensitivePropertySchemas;
         private JSchemaDependencyDictionary? _insensitiveDependencySchemas;
+        private Dictionary<string, IList<string>>? _insensitiveDependentRequired;
         private ICollection<string>? _requiredProperties;
         private Dictionary<string, UnevaluatedContext>? _unevaluatedScopes;
         internal ICollection<string>? ReadProperties;
 
         private JSchemaDictionary? PropertySchemas => Context.Validator.PropertyNameCaseInsensitive ? _insensitivePropertySchemas : Schema._properties;
         private JSchemaDependencyDictionary? DependencySchemas => Context.Validator.PropertyNameCaseInsensitive ? _insensitiveDependencySchemas : Schema._dependencies;
+        private Dictionary<string, IList<string>>? DependentRequired => Context.Validator.PropertyNameCaseInsensitive ? _insensitiveDependentRequired : Schema._dependentRequired;
 
         public void Initialize(ContextBase context, SchemaScope? parent, int initialDepth, JSchema schema)
         {
@@ -43,6 +45,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 if (!schema._dependencies.IsNullOrEmpty())
                 {
                     _insensitiveDependencySchemas = new JSchemaDependencyDictionary(schema, new Dictionary<string, object>(schema._dependencies, StringComparer.OrdinalIgnoreCase));
+                }
+
+                if (!schema._dependentRequired.IsNullOrEmpty())
+                {
+                    _insensitiveDependentRequired = new Dictionary<string, IList<string>>(schema._dependentRequired, StringComparer.OrdinalIgnoreCase);
                 }
             }
 
@@ -185,7 +192,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                                     }
                                 }
 
-                                if (Schema._dependentRequired?.TryGetValue(readProperty, out requiredProperties) ?? false)
+                                if (DependentRequired?.TryGetValue(readProperty, out requiredProperties) ?? false)
                                 {
                                     ValidateDependentProperties(readProperty, requiredProperties!);
                                 }
