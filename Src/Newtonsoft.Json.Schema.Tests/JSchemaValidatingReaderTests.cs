@@ -13,7 +13,8 @@ using System.Numerics;
 using System.Text;
 #if DNXCORE50
 using Xunit;
-using Test = Xunit.FactAttribute;
+using Test = Xunit.TheoryAttribute;
+using TestCase = Xunit.InlineDataAttribute;
 using Assert = Newtonsoft.Json.Schema.Tests.XUnitAssert;
 #else
 using NUnit.Framework;
@@ -30,8 +31,10 @@ namespace Newtonsoft.Json.Schema.Tests
     public class JSchemaValidatingReaderTests : TestFixtureBase
     {
 #if !(NET35 || NET40)
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void RegexMatchTimeout()
+        public void RegexMatchTimeout(bool propertyNameCaseInsensitive)
         {
             JSchema schema = JSchema.Parse(@"{
     ""description"": ""Sample regexp schema, which will take ** ~1h ** per event to validate…"",
@@ -52,6 +55,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader validatingReader = new JSchemaValidatingReader(reader);
             validatingReader.RegexMatchTimeout = TimeSpan.FromSeconds(1);
             validatingReader.Schema = schema;
+            validatingReader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
             validatingReader.ValidationEventHandler += (sender, args) => { };
 
             ExceptionAssert.Throws<JSchemaException>(() =>
@@ -63,8 +67,10 @@ namespace Newtonsoft.Json.Schema.Tests
         }
 #endif
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void Sample()
+        public void Sample(bool propertyNameCaseInsensitive)
         {
             JSchema schema = JSchema.Parse(@"{
   'type': 'array',
@@ -77,13 +83,14 @@ namespace Newtonsoft.Json.Schema.Tests
 ]"));
             JSchemaValidatingReader validatingReader = new JSchemaValidatingReader(reader);
             validatingReader.Schema = schema;
+            validatingReader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
             validatingReader.ValidationEventHandler += (sender, args) => { throw new Exception(args.Message); };
 
             JsonSerializer serializer = new JsonSerializer();
             List<string> roles = serializer.Deserialize<List<string>>(validatingReader);
         }
 
-        private JSchemaValidatingReader CreateReader(string json, JSchema schema, out IList<SchemaValidationEventArgs> errors)
+        private JSchemaValidatingReader CreateReader(string json, JSchema schema, bool propertyNameCaseInsensitive, out IList<SchemaValidationEventArgs> errors)
         {
             JsonReader reader = new JsonTextReader(new StringReader(json));
 
@@ -92,13 +99,16 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader validatingReader = new JSchemaValidatingReader(reader);
             validatingReader.ValidationEventHandler += (sender, args) => { localErrors.Add(args); };
             validatingReader.Schema = schema;
+            validatingReader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
 
             errors = localErrors;
             return validatingReader;
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void PropertyNamesFalse()
+        public void PropertyNamesFalse(bool propertyNameCaseInsensitive)
         {
             JSchema schema = new JSchema();
             schema.PropertyNames = new JSchema
@@ -109,7 +119,7 @@ namespace Newtonsoft.Json.Schema.Tests
             string json = "{'prop':true}";
 
             IList<SchemaValidationEventArgs> errors;
-            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out errors);
+            JSchemaValidatingReader validatingReader = CreateReader(json, schema, propertyNameCaseInsensitive, out errors);
 
             Assert.IsTrue(validatingReader.Read());
             Assert.IsTrue(validatingReader.Read());
@@ -122,8 +132,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual("Schema always fails validation.", errors[0].ValidationError.Message);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void PropertyNamesEnum_NoMatch_Fails()
+        public void PropertyNamesEnum_NoMatch_Fails(bool propertyNameCaseInsensitive)
         {
             JSchema schema = new JSchema();
             schema.PropertyNames = new JSchema
@@ -134,7 +146,7 @@ namespace Newtonsoft.Json.Schema.Tests
             string json = "{'prop':true}";
 
             IList<SchemaValidationEventArgs> errors;
-            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out errors);
+            JSchemaValidatingReader validatingReader = CreateReader(json, schema, propertyNameCaseInsensitive, out errors);
 
             Assert.IsTrue(validatingReader.Read());
             Assert.IsTrue(validatingReader.Read());
@@ -147,8 +159,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(@"Value ""prop"" is not defined in enum.", errors[0].ValidationError.Message);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void PropertyNamesEnum_Match_Passes()
+        public void PropertyNamesEnum_Match_Passes(bool propertyNameCaseInsensitive)
         {
             JSchema schema = new JSchema();
             schema.PropertyNames = new JSchema
@@ -159,7 +173,7 @@ namespace Newtonsoft.Json.Schema.Tests
             string json = "{'prop':true}";
 
             IList<SchemaValidationEventArgs> errors;
-            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out errors);
+            JSchemaValidatingReader validatingReader = CreateReader(json, schema, propertyNameCaseInsensitive, out errors);
 
             Assert.IsTrue(validatingReader.Read());
             Assert.IsTrue(validatingReader.Read());
@@ -170,8 +184,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(0, errors.Count);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void PropertyNamesAnyOf_Match_Passes()
+        public void PropertyNamesAnyOf_Match_Passes(bool propertyNameCaseInsensitive)
         {
             JSchema schema = new JSchema();
             schema.PropertyNames = new JSchema
@@ -192,7 +208,7 @@ namespace Newtonsoft.Json.Schema.Tests
             string json = "{'prop':true}";
 
             IList<SchemaValidationEventArgs> errors;
-            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out errors);
+            JSchemaValidatingReader validatingReader = CreateReader(json, schema, propertyNameCaseInsensitive, out errors);
 
             Assert.IsTrue(validatingReader.Read());
             Assert.IsTrue(validatingReader.Read());
@@ -203,8 +219,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(0, errors.Count);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void PropertyNamesAnyOf_NoMatch_Fails()
+        public void PropertyNamesAnyOf_NoMatch_Fails(bool propertyNameCaseInsensitive)
         {
             JSchema schema = new JSchema();
             schema.PropertyNames = new JSchema
@@ -225,7 +243,7 @@ namespace Newtonsoft.Json.Schema.Tests
             string json = "{'prop':true}";
 
             IList<SchemaValidationEventArgs> errors;
-            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out errors);
+            JSchemaValidatingReader validatingReader = CreateReader(json, schema, propertyNameCaseInsensitive, out errors);
 
             Assert.IsTrue(validatingReader.Read());
             Assert.IsTrue(validatingReader.Read());
@@ -237,8 +255,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual("JSON does not match any schemas from 'anyOf'.", errors[0].ValidationError.Message);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void PropertyNames_Const_Valid()
+        public void PropertyNames_Const_Valid(bool propertyNameCaseInsensitive)
         {
             JSchema schema = new JSchema();
             schema.PropertyNames = new JSchema
@@ -249,7 +269,7 @@ namespace Newtonsoft.Json.Schema.Tests
             string json = "{'prop':true}";
 
             IList<SchemaValidationEventArgs> errors;
-            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out errors);
+            JSchemaValidatingReader validatingReader = CreateReader(json, schema, propertyNameCaseInsensitive, out errors);
 
             Assert.IsTrue(validatingReader.Read());
             Assert.IsTrue(validatingReader.Read());
@@ -260,8 +280,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(0, errors.Count);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void ConstComplex_Valid()
+        public void ConstComplex_Valid(bool propertyNameCaseInsensitive)
         {
             JSchema schema = new JSchema
             {
@@ -271,7 +293,7 @@ namespace Newtonsoft.Json.Schema.Tests
             string json = "{'prop':true}";
 
             IList<SchemaValidationEventArgs> errors;
-            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out errors);
+            JSchemaValidatingReader validatingReader = CreateReader(json, schema, propertyNameCaseInsensitive, out errors);
 
             Assert.IsTrue(validatingReader.Read());
             Assert.IsTrue(validatingReader.Read());
@@ -282,8 +304,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(0, errors.Count);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void ConstComplex_Invalid()
+        public void ConstComplex_Invalid(bool propertyNameCaseInsensitive)
         {
             JSchema schema = new JSchema();
             schema.Const = JObject.Parse("{'prop':null}");
@@ -291,7 +315,7 @@ namespace Newtonsoft.Json.Schema.Tests
             string json = "{'prop':true}";
 
             IList<SchemaValidationEventArgs> errors;
-            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out errors);
+            JSchemaValidatingReader validatingReader = CreateReader(json, schema, propertyNameCaseInsensitive, out errors);
 
             Assert.IsTrue(validatingReader.Read());
             Assert.IsTrue(validatingReader.Read());
@@ -304,8 +328,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(@"Value {""prop"":true} does not match const.", errors[0].ValidationError.Message);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void ConstLarge_Invalid()
+        public void ConstLarge_Invalid(bool propertyNameCaseInsensitive)
         {
             JSchema schema = new JSchema();
             schema.Const = JObject.Parse("{'const': 9007199254740992}");
@@ -313,7 +339,7 @@ namespace Newtonsoft.Json.Schema.Tests
             string json = "9007199254740991";
 
             IList<SchemaValidationEventArgs> errors;
-            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out errors);
+            JSchemaValidatingReader validatingReader = CreateReader(json, schema, propertyNameCaseInsensitive, out errors);
 
             Assert.IsTrue(validatingReader.Read());
 
@@ -322,8 +348,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual("Value 9007199254740991 does not match const.", errors[0].ValidationError.Message);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void ValidateInteger()
+        public void ValidateInteger(bool propertyNameCaseInsensitive)
         {
             JSchema schema = new JSchema();
             schema.Type = JSchemaType.Integer;
@@ -331,15 +359,17 @@ namespace Newtonsoft.Json.Schema.Tests
             string json = "1";
 
             IList<SchemaValidationEventArgs> errors;
-            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out errors);
+            JSchemaValidatingReader validatingReader = CreateReader(json, schema, propertyNameCaseInsensitive, out errors);
 
             Assert.IsTrue(validatingReader.Read());
 
             Assert.AreEqual(0, errors.Count);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void ValidateObject()
+        public void ValidateObject(bool propertyNameCaseInsensitive)
         {
             JSchema schema = new JSchema();
             schema.Type = JSchemaType.Object;
@@ -347,7 +377,7 @@ namespace Newtonsoft.Json.Schema.Tests
             string json = "{}";
 
             IList<SchemaValidationEventArgs> errors;
-            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out errors);
+            JSchemaValidatingReader validatingReader = CreateReader(json, schema, propertyNameCaseInsensitive, out errors);
 
             Assert.IsTrue(validatingReader.Read());
             Assert.IsTrue(validatingReader.Read());
@@ -356,8 +386,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(0, errors.Count);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void ValidateObject_Valid_False()
+        public void ValidateObject_Valid_False(bool propertyNameCaseInsensitive)
         {
             JSchema schema = new JSchema();
             schema.Valid = false;
@@ -365,7 +397,7 @@ namespace Newtonsoft.Json.Schema.Tests
             string json = "{}";
 
             IList<SchemaValidationEventArgs> errors;
-            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out errors);
+            JSchemaValidatingReader validatingReader = CreateReader(json, schema, propertyNameCaseInsensitive, out errors);
 
             Assert.IsTrue(validatingReader.Read());
             Assert.IsTrue(validatingReader.Read());
@@ -375,8 +407,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(schema, errors[0].ValidationError.Schema);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void ValidateArray_Valid_False()
+        public void ValidateArray_Valid_False(bool propertyNameCaseInsensitive)
         {
             JSchema schema = new JSchema();
             schema.Valid = false;
@@ -384,7 +418,7 @@ namespace Newtonsoft.Json.Schema.Tests
             string json = "[]";
 
             IList<SchemaValidationEventArgs> errors;
-            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out errors);
+            JSchemaValidatingReader validatingReader = CreateReader(json, schema, propertyNameCaseInsensitive, out errors);
 
             Assert.IsTrue(validatingReader.Read());
             Assert.IsTrue(validatingReader.Read());
@@ -394,8 +428,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(schema, errors[0].ValidationError.Schema);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void ValidatePrimitive_Valid_False()
+        public void ValidatePrimitive_Valid_False(bool propertyNameCaseInsensitive)
         {
             JSchema schema = new JSchema();
             schema.Valid = false;
@@ -403,7 +439,7 @@ namespace Newtonsoft.Json.Schema.Tests
             string json = "1";
 
             IList<SchemaValidationEventArgs> errors;
-            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out errors);
+            JSchemaValidatingReader validatingReader = CreateReader(json, schema, propertyNameCaseInsensitive, out errors);
 
             Assert.IsTrue(validatingReader.Read());
             Assert.IsFalse(validatingReader.Read());
@@ -412,8 +448,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(schema, errors[0].ValidationError.Schema);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void ValidateObjectWithProperty()
+        public void ValidateObjectWithProperty(bool propertyNameCaseInsensitive)
         {
             JSchema schema = new JSchema
             {
@@ -428,7 +466,7 @@ namespace Newtonsoft.Json.Schema.Tests
             string json = "{'testProp':5,'testProp2':true}";
 
             IList<SchemaValidationEventArgs> errors;
-            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out errors);
+            JSchemaValidatingReader validatingReader = CreateReader(json, schema, propertyNameCaseInsensitive, out errors);
 
             Assert.IsTrue(validatingReader.Read());
             Assert.IsTrue(validatingReader.Read());
@@ -445,8 +483,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(true, errors[1].ValidationError.Value);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void ValidateArray()
+        public void ValidateArray(bool propertyNameCaseInsensitive)
         {
             JSchema schema = new JSchema();
             schema.Type = JSchemaType.Array;
@@ -455,7 +495,7 @@ namespace Newtonsoft.Json.Schema.Tests
             string json = "[1,true,2,'hi']";
 
             IList<SchemaValidationEventArgs> errors;
-            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out errors);
+            JSchemaValidatingReader validatingReader = CreateReader(json, schema, propertyNameCaseInsensitive, out errors);
 
             Assert.IsTrue(validatingReader.Read());
             Assert.IsTrue(validatingReader.Read());
@@ -472,8 +512,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual("hi", errors[1].ValidationError.Value);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void ValidateContains_Simple_Valid()
+        public void ValidateContains_Simple_Valid(bool propertyNameCaseInsensitive)
         {
             JSchema schema = new JSchema();
             schema.Type = JSchemaType.Array;
@@ -485,7 +527,7 @@ namespace Newtonsoft.Json.Schema.Tests
             string json = "[1,true,2,'hi']";
 
             IList<SchemaValidationEventArgs> errors;
-            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out errors);
+            JSchemaValidatingReader validatingReader = CreateReader(json, schema, propertyNameCaseInsensitive, out errors);
 
             Assert.IsTrue(validatingReader.Read());
             Assert.IsTrue(validatingReader.Read());
@@ -498,8 +540,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(0, errors.Count);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void ValidateContains_Complex_Valid()
+        public void ValidateContains_Complex_Valid(bool propertyNameCaseInsensitive)
         {
             JSchema schema = new JSchema();
             schema.Type = JSchemaType.Array;
@@ -511,7 +555,7 @@ namespace Newtonsoft.Json.Schema.Tests
             string json = "[1,[1,2],2,'hi']";
 
             IList<SchemaValidationEventArgs> errors;
-            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out errors);
+            JSchemaValidatingReader validatingReader = CreateReader(json, schema, propertyNameCaseInsensitive, out errors);
 
             Assert.IsTrue(validatingReader.Read());
             Assert.IsTrue(validatingReader.Read());
@@ -527,8 +571,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(0, errors.Count);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void ValidateContains_Simple_Invalid()
+        public void ValidateContains_Simple_Invalid(bool propertyNameCaseInsensitive)
         {
             JSchema schema = new JSchema();
             schema.Type = JSchemaType.Array;
@@ -540,7 +586,7 @@ namespace Newtonsoft.Json.Schema.Tests
             string json = "[1,true,2,'hi']";
 
             IList<SchemaValidationEventArgs> errors;
-            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out errors);
+            JSchemaValidatingReader validatingReader = CreateReader(json, schema, propertyNameCaseInsensitive, out errors);
 
             Assert.IsTrue(validatingReader.Read());
             Assert.IsTrue(validatingReader.Read());
@@ -568,8 +614,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual("[3]", errors[0].ValidationError.ChildErrors[3].Path);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void ValidateContains_Complex_Invalid()
+        public void ValidateContains_Complex_Invalid(bool propertyNameCaseInsensitive)
         {
             JSchema schema = new JSchema();
             schema.Type = JSchemaType.Array;
@@ -581,7 +629,7 @@ namespace Newtonsoft.Json.Schema.Tests
             string json = "[1,[1,2],2,'hi']";
 
             IList<SchemaValidationEventArgs> errors;
-            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out errors);
+            JSchemaValidatingReader validatingReader = CreateReader(json, schema, propertyNameCaseInsensitive, out errors);
 
             Assert.IsTrue(validatingReader.Read());
             Assert.IsTrue(validatingReader.Read());
@@ -612,8 +660,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual("[3]", errors[0].ValidationError.ChildErrors[3].Path);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void ValidateInteger_AllOfFailure()
+        public void ValidateInteger_AllOfFailure(bool propertyNameCaseInsensitive)
         {
             JSchema schema = new JSchema();
             schema.Type = JSchemaType.Integer;
@@ -630,15 +680,17 @@ namespace Newtonsoft.Json.Schema.Tests
             string json = "1";
 
             IList<SchemaValidationEventArgs> errors;
-            JSchemaValidatingReader validatingReader = CreateReader(json, schema, out errors);
+            JSchemaValidatingReader validatingReader = CreateReader(json, schema, propertyNameCaseInsensitive, out errors);
 
             Assert.IsTrue(validatingReader.Read());
 
             Assert.AreEqual(1, errors.Count);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void ValidateInteger_BadTypeFailure()
+        public void ValidateInteger_BadTypeFailure(bool propertyNameCaseInsensitive)
         {
             JSchema schema = new JSchema();
             schema.Type = JSchemaType.Boolean;
@@ -650,6 +702,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader validatingReader = new JSchemaValidatingReader(reader);
             validatingReader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             validatingReader.Schema = schema;
+            validatingReader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
 
             Assert.IsTrue(validatingReader.Read());
 
@@ -658,18 +711,23 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(1L, validationEventArgs.ValidationError.Value);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void CheckInnerReader()
+        public void CheckInnerReader(bool propertyNameCaseInsensitive)
         {
             string json = "{'name':'James','hobbies':['pie','cake']}";
             JsonReader reader = new JsonTextReader(new StringReader(json));
 
             JSchemaValidatingReader validatingReader = new JSchemaValidatingReader(reader);
+            validatingReader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
             Assert.AreEqual(reader, validatingReader.Reader);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void ValidateTypes()
+        public void ValidateTypes(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
   ""description"":""A person"",
@@ -693,6 +751,7 @@ namespace Newtonsoft.Json.Schema.Tests
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             JSchema schema = JSchema.Parse(schemaJson);
             reader.Schema = schema;
+            reader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
             Assert.AreEqual(schema, reader.Schema);
             Assert.AreEqual(0, reader.Depth);
             Assert.AreEqual("", reader.Path);
@@ -748,8 +807,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsNull(validationEventArgs);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void ValidateUnrestrictedArray()
+        public void ValidateUnrestrictedArray(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
   ""type"":""array""
@@ -762,6 +823,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
+            reader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.StartArray, reader.TokenType);
@@ -821,8 +883,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsNull(validationEventArgs);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void StringLessThanMinimumLength()
+        public void StringLessThanMinimumLength(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
   ""type"":""string"",
@@ -837,6 +901,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
+            reader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.String, reader.TokenType);
@@ -846,8 +911,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsNotNull(validationEventArgs);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void StringGreaterThanMaximumLength()
+        public void StringGreaterThanMaximumLength(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
   ""type"":""string"",
@@ -862,6 +929,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
+            reader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.String, reader.TokenType);
@@ -872,8 +940,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsNotNull(validationEventArgs);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void StringIsNotInEnum()
+        public void StringIsNotInEnum(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
   ""type"":""array"",
@@ -891,6 +961,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
+            reader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.StartArray, reader.TokenType);
@@ -914,8 +985,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual("[2]", validationEventArgs.Path);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void StringDoesNotMatchPattern()
+        public void StringDoesNotMatchPattern(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
   ""type"":""string"",
@@ -929,6 +1002,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
+            reader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.String, reader.TokenType);
@@ -939,8 +1013,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsNotNull(validationEventArgs);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void IntegerGreaterThanMaximumValue()
+        public void IntegerGreaterThanMaximumValue(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
   ""type"":""integer"",
@@ -954,6 +1030,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
+            reader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.Integer, reader.TokenType);
@@ -965,8 +1042,10 @@ namespace Newtonsoft.Json.Schema.Tests
         }
 
 #if !(NET20 || NET35 || PORTABLE || PORTABLE40)
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void IntegerGreaterThanMaximumValue_BigInteger()
+        public void IntegerGreaterThanMaximumValue_BigInteger(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
   ""type"":""integer"",
@@ -980,6 +1059,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
+            reader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.Integer, reader.TokenType);
@@ -990,8 +1070,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsNotNull(validationEventArgs);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void IntegerLessThanMaximumValue_BigInteger()
+        public void IntegerLessThanMaximumValue_BigInteger(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
   ""type"":""integer"",
@@ -1011,8 +1093,10 @@ namespace Newtonsoft.Json.Schema.Tests
         }
 #endif
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void ThrowExceptionWhenNoValidationEventHandler()
+        public void ThrowExceptionWhenNoValidationEventHandler(bool propertyNameCaseInsensitive)
         {
             ExceptionAssert.Throws<JSchemaException>(() =>
             {
@@ -1023,13 +1107,16 @@ namespace Newtonsoft.Json.Schema.Tests
 
                 JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader("10")));
                 reader.Schema = JSchema.Parse(schemaJson);
+                reader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
 
                 Assert.IsTrue(reader.Read());
             }, "Integer 10 exceeds maximum value of 5. Path '', line 1, position 2.");
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void IntegerLessThanMinimumValue()
+        public void IntegerLessThanMinimumValue(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
   ""type"":""integer"",
@@ -1043,6 +1130,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
+            reader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.Integer, reader.TokenType);
@@ -1054,8 +1142,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsNotNull(validationEventArgs);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void IntegerIsNotInEnum()
+        public void IntegerIsNotInEnum(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
   ""type"":""array"",
@@ -1073,6 +1163,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
+            reader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.StartArray, reader.TokenType);
@@ -1096,8 +1187,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsNotNull(validationEventArgs);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void FloatGreaterThanMaximumValue()
+        public void FloatGreaterThanMaximumValue(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
   ""type"":""number"",
@@ -1111,6 +1204,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
+            reader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.Float, reader.TokenType);
@@ -1120,8 +1214,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsNotNull(validationEventArgs);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void FloatLessThanMinimumValue()
+        public void FloatLessThanMinimumValue(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
   ""type"":""number"",
@@ -1135,6 +1231,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
+            reader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.Float, reader.TokenType);
@@ -1144,8 +1241,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsNotNull(validationEventArgs);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void FloatIsNotInEnum()
+        public void FloatIsNotInEnum(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
   ""type"":""array"",
@@ -1163,6 +1262,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
+            reader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.StartArray, reader.TokenType);
@@ -1186,8 +1286,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsNotNull(validationEventArgs);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void FloatDivisibleBy()
+        public void FloatDivisibleBy(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
   ""type"":""array"",
@@ -1204,6 +1306,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
+            reader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.StartArray, reader.TokenType);
@@ -1228,8 +1331,10 @@ namespace Newtonsoft.Json.Schema.Tests
         }
 
 #if !(NET20 || NET35 || PORTABLE || PORTABLE40)
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void BigIntegerDivisibleBy_Success()
+        public void BigIntegerDivisibleBy_Success(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
   ""type"":""array"",
@@ -1246,6 +1351,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
+            reader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.StartArray, reader.TokenType);
@@ -1258,8 +1364,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(JsonToken.EndArray, reader.TokenType);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void BigIntegerDivisibleBy_Failure()
+        public void BigIntegerDivisibleBy_Failure(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
   ""type"":""array"",
@@ -1276,6 +1384,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
+            reader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.StartArray, reader.TokenType);
@@ -1292,8 +1401,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsNotNull(validationEventArgs);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void BigIntegerDivisibleBy_Fraction()
+        public void BigIntegerDivisibleBy_Fraction(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
   ""type"":""array"",
@@ -1310,6 +1421,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
+            reader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.StartArray, reader.TokenType);
@@ -1325,8 +1437,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(JsonToken.EndArray, reader.TokenType);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void BigIntegerDivisibleBy_FractionWithZeroValue()
+        public void BigIntegerDivisibleBy_FractionWithZeroValue(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
   ""type"":""array"",
@@ -1346,8 +1460,10 @@ namespace Newtonsoft.Json.Schema.Tests
         }
 #endif
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void ReadDateTimes()
+        public void ReadDateTimes(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
   ""type"":""array"",
@@ -1368,6 +1484,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { a = args; };
             reader.Schema = JSchema.Parse(schemaJson);
+            reader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.StartArray, reader.TokenType);
@@ -1396,8 +1513,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsNull(a);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void ReadDateTimes_DateParseHandling()
+        public void ReadDateTimes_DateParseHandling(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
   ""type"":""array"",
@@ -1421,6 +1540,7 @@ namespace Newtonsoft.Json.Schema.Tests
             });
             reader.ValidationEventHandler += (sender, args) => { a = args; };
             reader.Schema = JSchema.Parse(schemaJson);
+            reader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.StartArray, reader.TokenType);
@@ -1453,8 +1573,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsNull(a);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void ReadDateTimes_ReadAsDateTime()
+        public void ReadDateTimes_ReadAsDateTime(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
   ""type"":""array"",
@@ -1475,6 +1597,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { a = args; };
             reader.Schema = JSchema.Parse(schemaJson);
+            reader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.StartArray, reader.TokenType);
@@ -1503,8 +1626,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsNull(a);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void ReadDateTimes_ReadAsDateTimeOffset()
+        public void ReadDateTimes_ReadAsDateTimeOffset(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
   ""type"":""array"",
@@ -1525,6 +1650,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { a = args; };
             reader.Schema = JSchema.Parse(schemaJson);
+            reader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.StartArray, reader.TokenType);
@@ -1553,8 +1679,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsNull(a);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void IntValidForNumber()
+        public void IntValidForNumber(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
   ""type"":""array"",
@@ -1570,6 +1698,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
+            reader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.StartArray, reader.TokenType);
@@ -1583,8 +1712,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsNull(validationEventArgs);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void NullNotInEnum()
+        public void NullNotInEnum(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
   ""type"":""array"",
@@ -1602,6 +1733,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
+            reader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.StartArray, reader.TokenType);
@@ -1618,8 +1750,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsNotNull(validationEventArgs);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void BooleanNotInEnum()
+        public void BooleanNotInEnum(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
   ""type"":""array"",
@@ -1637,6 +1771,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
+            reader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.StartArray, reader.TokenType);
@@ -1657,8 +1792,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsNotNull(validationEventArgs);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void ArrayCountGreaterThanMaximumItems()
+        public void ArrayCountGreaterThanMaximumItems(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
   ""type"":""array"",
@@ -1673,6 +1810,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
+            reader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.StartArray, reader.TokenType);
@@ -1694,8 +1832,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(4, validationEventArgs.ValidationError.Value);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void ArrayCountLessThanMinimumItems()
+        public void ArrayCountLessThanMinimumItems(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
   ""type"":""array"",
@@ -1710,6 +1850,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
+            reader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.StartArray, reader.TokenType);
@@ -1725,8 +1866,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsNotNull(validationEventArgs);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void InvalidDataType()
+        public void InvalidDataType(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
   ""type"":""string"",
@@ -1742,6 +1885,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
+            reader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.StartArray, reader.TokenType);
@@ -1751,8 +1895,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsNotNull(validationEventArgs);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void StringDisallowed()
+        public void StringDisallowed(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
   ""type"":""array"",
@@ -1769,6 +1915,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
+            reader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.StartArray, reader.TokenType);
@@ -1789,8 +1936,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(JsonToken.EndArray, reader.TokenType);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void MissingRequiredProperties()
+        public void MissingRequiredProperties(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
   ""description"":""A person"",
@@ -1810,6 +1959,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
+            reader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.StartObject, reader.TokenType);
@@ -1833,8 +1983,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsNotNull(validationEventArgs);
         }
         
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void MissingNonRequiredProperties()
+        public void MissingNonRequiredProperties(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
   ""description"":""A person"",
@@ -1854,6 +2006,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
+            reader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.StartObject, reader.TokenType);
@@ -1873,8 +2026,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsNull(validationEventArgs);
         }
         
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void DisableAdditionalProperties()
+        public void DisableAdditionalProperties(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
   ""description"":""A person"",
@@ -1893,6 +2048,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
+            reader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.StartObject, reader.TokenType);
@@ -1932,8 +2088,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(JsonToken.EndObject, reader.TokenType);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void ExtendsStringGreaterThanMaximumLength()
+        public void ExtendsStringGreaterThanMaximumLength(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
   ""extends"":{
@@ -1956,6 +2114,7 @@ namespace Newtonsoft.Json.Schema.Tests
                 errors.Add(validationEventArgs.ValidationError);
             };
             reader.Schema = JSchema.Parse(schemaJson);
+            reader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.String, reader.TokenType);
@@ -2007,13 +2166,15 @@ namespace Newtonsoft.Json.Schema.Tests
             return secondSchema;
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void ExtendsDisallowAdditionProperties()
+        public void ExtendsDisallowAdditionProperties(bool propertyNameCaseInsensitive)
         {
             string json = "{'firstproperty':'blah','secondproperty':'blah2','additional':'blah3','additional2':'blah4'}";
 
             IList<SchemaValidationEventArgs> errors;
-            JSchemaValidatingReader reader = CreateReader(json, GetExtendedSchema(), out errors);
+            JSchemaValidatingReader reader = CreateReader(json, GetExtendedSchema(), propertyNameCaseInsensitive, out errors);
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.StartObject, reader.TokenType);
@@ -2068,8 +2229,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsFalse(reader.Read());
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void ExtendsMissingRequiredProperties()
+        public void ExtendsMissingRequiredProperties(bool propertyNameCaseInsensitive)
         {
             string json = "{}";
 
@@ -2078,6 +2241,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { errors.Add(args.ValidationError); };
             reader.Schema = GetExtendedSchema();
+            reader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.StartObject, reader.TokenType);
@@ -2098,8 +2262,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual("second", errors[1].SchemaId.ToString());
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void NoAdditionalItems()
+        public void NoAdditionalItems(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
   ""type"":""array"",
@@ -2114,6 +2280,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
+            reader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.StartArray, reader.TokenType);
@@ -2139,8 +2306,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsFalse(reader.Read());
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void PatternPropertiesNoAdditionalProperties()
+        public void PatternPropertiesNoAdditionalProperties(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
   ""type"":""object"",
@@ -2163,6 +2332,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
+            reader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.StartObject, reader.TokenType);
@@ -2204,8 +2374,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsFalse(reader.Read());
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void ExtendedComplex()
+        public void ExtendedComplex(bool propertyNameCaseInsensitive)
         {
             string first = @"{
   ""id"":""first"",
@@ -2277,6 +2449,7 @@ namespace Newtonsoft.Json.Schema.Tests
                 errors.Add(validationEventArgs.ValidationError);
             };
             reader.Schema = secondSchema;
+            reader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.StartObject, reader.TokenType);
@@ -2355,8 +2528,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(4, errors.Count);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void DuplicateErrorsTest()
+        public void DuplicateErrorsTest(bool propertyNameCaseInsensitive)
         {
             string schema = @"{
   ""id"":""ErrorDemo.Database"",
@@ -2463,6 +2638,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs.Add(args); };
             reader.Schema = JSchema.Parse(schema);
+            reader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
 
             while (reader.Read())
             {
@@ -2471,8 +2647,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(2, validationEventArgs.Count);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void ReadAsBytes()
+        public void ReadAsBytes(bool propertyNameCaseInsensitive)
         {
             JSchema s = new JSchemaGenerator().Generate(typeof(byte[]));
 
@@ -2480,15 +2658,18 @@ namespace Newtonsoft.Json.Schema.Tests
 
             JsonReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(@"""" + Convert.ToBase64String(data) + @"""")))
             {
-                Schema = s
+                Schema = s,
+                PropertyNameCaseInsensitive = propertyNameCaseInsensitive
             };
             byte[] bytes = reader.ReadAsBytes();
 
             CollectionAssert.AreEquivalent(data, bytes);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void ReadAsBoolean_Failure()
+        public void ReadAsBoolean_Failure(bool propertyNameCaseInsensitive)
         {
             ExceptionAssert.Throws<JSchemaException>(() =>
             {
@@ -2497,42 +2678,51 @@ namespace Newtonsoft.Json.Schema.Tests
 
                 JsonReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(@"true")))
                 {
-                    Schema = s
+                    Schema = s,
+                    PropertyNameCaseInsensitive = propertyNameCaseInsensitive
                 };
                 reader.ReadAsBoolean();
             }, "Value true is not defined in enum. Path '', line 1, position 4.");
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void ReadAsBoolean()
+        public void ReadAsBoolean(bool propertyNameCaseInsensitive)
         {
             JSchema s = new JSchemaGenerator().Generate(typeof(bool));
 
             JsonReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(@"true")))
             {
-                Schema = s
+                Schema = s,
+                PropertyNameCaseInsensitive = propertyNameCaseInsensitive
             };
             bool? b = reader.ReadAsBoolean();
 
             Assert.AreEqual(true, b);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void ReadAsInt32()
+        public void ReadAsInt32(bool propertyNameCaseInsensitive)
         {
             JSchema s = new JSchemaGenerator().Generate(typeof(int));
 
             JsonReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(@"1")))
             {
-                Schema = s
+                Schema = s,
+                PropertyNameCaseInsensitive = propertyNameCaseInsensitive
             };
             int? i = reader.ReadAsInt32();
 
             Assert.AreEqual(1, i);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void ReadAsInt32Failure()
+        public void ReadAsInt32Failure(bool propertyNameCaseInsensitive)
         {
             ExceptionAssert.Throws<JSchemaException>(() =>
             {
@@ -2541,28 +2731,34 @@ namespace Newtonsoft.Json.Schema.Tests
 
                 JsonReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(@"5")))
                 {
-                    Schema = s
+                    Schema = s,
+                    PropertyNameCaseInsensitive = propertyNameCaseInsensitive
                 };
                 reader.ReadAsInt32();
             }, "Integer 5 exceeds maximum value of 2. Path '', line 1, position 1.");
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void ReadAsDouble()
+        public void ReadAsDouble(bool propertyNameCaseInsensitive)
         {
             JSchema s = new JSchemaGenerator().Generate(typeof(double));
 
             JsonReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(@"1.0")))
             {
-                Schema = s
+                Schema = s,
+                PropertyNameCaseInsensitive = propertyNameCaseInsensitive
             };
             double? d = reader.ReadAsDouble();
 
             Assert.AreEqual(1d, d);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void ReadAsDoubleFailure()
+        public void ReadAsDoubleFailure(bool propertyNameCaseInsensitive)
         {
             ExceptionAssert.Throws<JSchemaException>(() =>
             {
@@ -2571,28 +2767,34 @@ namespace Newtonsoft.Json.Schema.Tests
 
                 JsonReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(@"5.0")))
                 {
-                    Schema = s
+                    Schema = s,
+                    PropertyNameCaseInsensitive = propertyNameCaseInsensitive
                 };
                 reader.ReadAsDouble();
             }, "Float 5.0 exceeds maximum value of 2. Path '', line 1, position 3.");
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void ReadAsDecimal()
+        public void ReadAsDecimal(bool propertyNameCaseInsensitive)
         {
             JSchema s = new JSchemaGenerator().Generate(typeof(decimal));
 
             JsonReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(@"1.5")))
             {
-                Schema = s
+                Schema = s,
+                PropertyNameCaseInsensitive = propertyNameCaseInsensitive
             };
             decimal? d = reader.ReadAsDecimal();
 
             Assert.AreEqual(1.5m, d);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void ReadAsDecimalFailure()
+        public void ReadAsDecimalFailure(bool propertyNameCaseInsensitive)
         {
             ExceptionAssert.Throws<JSchemaException>(() =>
             {
@@ -2601,17 +2803,21 @@ namespace Newtonsoft.Json.Schema.Tests
 
                 JsonReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(@"5.5")))
                 {
-                    Schema = s
+                    Schema = s,
+                    PropertyNameCaseInsensitive = propertyNameCaseInsensitive
                 };
                 reader.ReadAsDecimal();
             }, "Float 5.5 is not a multiple of 1. Path '', line 1, position 3.");
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void ReadAsInt32FromSerializer()
+        public void ReadAsInt32FromSerializer(bool propertyNameCaseInsensitive)
         {
             JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader("[1,2,3]")));
             reader.Schema = new JSchemaGenerator().Generate(typeof(int[]));
+            reader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
             int[] values = new JsonSerializer().Deserialize<int[]>(reader);
 
             Assert.AreEqual(3, values.Length);
@@ -2620,8 +2826,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(3, values[2]);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void ReadAsInt32InArray()
+        public void ReadAsInt32InArray(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
   ""type"":""array"",
@@ -2638,6 +2846,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
+            reader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
 
             reader.Read();
             Assert.AreEqual(JsonToken.StartArray, reader.TokenType);
@@ -2657,8 +2866,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual("", validationEventArgs.Path);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void ReadAsInt32InArrayIncomplete()
+        public void ReadAsInt32InArrayIncomplete(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
   ""type"":""array"",
@@ -2675,6 +2886,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
+            reader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
 
             reader.Read();
             Assert.AreEqual(JsonToken.StartArray, reader.TokenType);
@@ -2692,8 +2904,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(null, validationEventArgs);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void SchemaPath()
+        public void SchemaPath(bool propertyNameCaseInsensitive)
         {
             string schema = @"{
    ""$schema"" : ""http://json-schema.org/draft-04/schema#"",
@@ -2708,6 +2922,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader("{}")));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schema);
+            reader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
 
             reader.Read();
             Assert.AreEqual(JsonToken.StartObject, reader.TokenType);
@@ -2718,8 +2933,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreNotEqual(null, validationEventArgs);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void InvalidPatternPropertyRegex()
+        public void InvalidPatternPropertyRegex(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
   ""$schema"": ""http://json-schema.org/draft-04/schema"",
@@ -2757,6 +2974,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (o, e) => errors.Add(e.ValidationError);
             reader.Schema = schema;
+            reader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
 
             while (reader.Read())
             {
@@ -2776,9 +2994,11 @@ namespace Newtonsoft.Json.Schema.Tests
         }
 
 #if !DNXCORE50
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
         [Ignore("WIP")]
-        public void DateFormat()
+        public void DateFormat(bool propertyNameCaseInsensitive)
         {
             string schemaJson = "{\"type\":\"object\",\"properties\":{\"DueDate\":{\"required\":true,\"type\":\"string\",\"format\":\"date\"},\"DateCompleted\":{\"required\":true,\"type\":\"string\",\"format\":\"date-time\"}}}";
 
@@ -2790,6 +3010,7 @@ namespace Newtonsoft.Json.Schema.Tests
             var jsonReader = new JsonTextReader(new StringReader(json));
             var validatingReader = new JSchemaValidatingReader(jsonReader);
             validatingReader.Schema = schema;
+            validatingReader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
             validatingReader.ValidationEventHandler += (o, a) => errors.Add(a.Path + ": " + a.Message);
 
             var serializer = new JsonSerializer();
@@ -2805,8 +3026,10 @@ namespace Newtonsoft.Json.Schema.Tests
             public DateTime DateCompleted { get; set; }
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void ValidateConstructorAndUndefinedWithNoType()
+        public void ValidateConstructorAndUndefinedWithNoType(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
 
@@ -2845,6 +3068,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (o, e) => errors.Add(e.ValidationError);
             reader.Schema = schema;
+            reader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
 
             while (reader.Read())
             {
@@ -2853,8 +3077,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(0, errors.Count);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void ValidateUndefinedWithType()
+        public void ValidateUndefinedWithType(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
 
@@ -2893,6 +3119,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (o, e) => errors.Add(e.ValidationError);
             reader.Schema = schema;
+            reader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
 
             while (reader.Read())
             {
@@ -2905,8 +3132,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual("Date", errors[1].Value);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void ValidateMaxPropertiesInArray()
+        public void ValidateMaxPropertiesInArray(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
    ""$schema"":""http://json-schema.org/draft-04/schema#"",
@@ -2944,6 +3173,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (o, e) => errors.Add(e.ValidationError);
             reader.Schema = schema;
+            reader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
 
             while (reader.Read())
             {
@@ -2952,8 +3182,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(0, errors.Count);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void DeeplyNestedConditionalScopes()
+        public void DeeplyNestedConditionalScopes(bool propertyNameCaseInsensitive)
         {
             string schemaJson = TestHelpers.OpenFileText(@"resources\schemas\components-10definitions.schema.json");
 
@@ -2966,6 +3198,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (o, e) => errors.Add(e.ValidationError);
             reader.Schema = schema;
+            reader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
 
             while (reader.Read())
             {
@@ -2974,19 +3207,23 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(0, errors.Count);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void CloseAlsoClosesUnderlyingReader()
+        public void CloseAlsoClosesUnderlyingReader(bool propertyNameCaseInsensitive)
         {
             var underlyingReader = new JsonReaderStubWithIsClosed();
-            var validatingReader = new JSchemaValidatingReader(underlyingReader) { CloseInput = true };
+            var validatingReader = new JSchemaValidatingReader(underlyingReader) { CloseInput = true, PropertyNameCaseInsensitive = propertyNameCaseInsensitive };
 
             validatingReader.Close();
 
             Assert.IsTrue(underlyingReader.IsClosed);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void ContainsCountGreaterThanMaximumContains()
+        public void ContainsCountGreaterThanMaximumContains(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
   ""type"":""array"",
@@ -3001,6 +3238,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
+            reader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.StartArray, reader.TokenType);
@@ -3023,8 +3261,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(null, validationEventArgs.ValidationError.Value);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void ContainsCountGreaterThanMaximumContains_WithOneNoMatch()
+        public void ContainsCountGreaterThanMaximumContains_WithOneNoMatch(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
   ""type"":""array"",
@@ -3039,6 +3279,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
+            reader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.StartArray, reader.TokenType);
@@ -3063,8 +3304,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(1, validationEventArgs.ValidationError.ChildErrors.Count);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void ContainsCountLessThanMinimumContains()
+        public void ContainsCountLessThanMinimumContains(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
   ""type"":""array"",
@@ -3079,6 +3322,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
+            reader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.StartArray, reader.TokenType);
@@ -3097,8 +3341,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(null, validationEventArgs.ValidationError.Value);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void ContainsCountLessThanMinimumContains_WithOneNoMatch()
+        public void ContainsCountLessThanMinimumContains_WithOneNoMatch(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
   ""type"":""array"",
@@ -3113,6 +3359,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
+            reader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.StartArray, reader.TokenType);
@@ -3133,8 +3380,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(1, validationEventArgs.ValidationError.ChildErrors.Count);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void Ref_AlongsideSiblingKeywords_NoMatchAgainstOriginal()
+        public void Ref_AlongsideSiblingKeywords_NoMatchAgainstOriginal(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
                 ""$defs"": {
@@ -3157,6 +3406,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
+            reader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
 
             while (reader.Read())
             {
@@ -3166,8 +3416,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual("Array item count 3 exceeds maximum count of 2. Path 'foo', line 1, position 18.", validationEventArgs.Message);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void Ref_AlongsideSiblingKeywords_NoMatchAgainstRef()
+        public void Ref_AlongsideSiblingKeywords_NoMatchAgainstRef(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
                 ""$defs"": {
@@ -3190,6 +3442,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
+            reader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
 
             while (reader.Read())
             {
@@ -3202,8 +3455,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual("Invalid type. Expected Array but got Integer.", validationEventArgs.ValidationError.ChildErrors[0].Message);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void SchemaReused_ChildErrorsPropagated()
+        public void SchemaReused_ChildErrorsPropagated(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
   ""$schema"": ""http://json-schema.org/draft-07/schema#"",
@@ -3289,6 +3544,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
+            reader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
 
             while (reader.Read())
             {
@@ -3301,8 +3557,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual("Required properties are missing from object: Slug.", validationEventArgs.ValidationError.ChildErrors[0].ChildErrors[0].ChildErrors[0].Message);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void SchemaReused_Repeated()
+        public void SchemaReused_Repeated(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
   ""$schema"": ""http://json-schema.org/draft-07/schema#"",
@@ -3335,6 +3593,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
+            reader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
 
             while (reader.Read())
             {
@@ -3346,8 +3605,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual("Required properties are missing from object: Slug.", validationEventArgs.ValidationError.ChildErrors[0].Message);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void RecursiveRef_RecursiveAnchorFalse()
+        public void RecursiveRef_RecursiveAnchorFalse(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
     ""$id"": ""http://localhost:4242/recursiveRef4/schema.json"",
@@ -3378,6 +3639,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
+            reader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
 
             while (reader.Read())
             {
@@ -3395,8 +3657,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual("JSON does not match any schemas from 'anyOf'.", validationEventArgs.ValidationError.ChildErrors[1].ChildErrors[1].Message);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void Ref_ResolveToScope()
+        public void Ref_ResolveToScope(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
     ""$id"": ""http://localhost:4242/recursiveRef4/schema.json"",
@@ -3427,6 +3691,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
+            reader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
 
             while (reader.Read())
             {
@@ -3444,8 +3709,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual("JSON does not match any schemas from 'anyOf'.", validationEventArgs.ValidationError.ChildErrors[1].ChildErrors[1].Message);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void ValidateDynamicRef()
+        public void ValidateDynamicRef(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
     ""$id"": ""recursiveRef8_main.json"",
@@ -3486,6 +3753,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
+            reader.PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
 
             while (reader.Read())
             {
@@ -3501,8 +3769,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual("Invalid type. Expected Integer, Object but got Number.", validationEventArgs.ValidationError.ChildErrors[0].ChildErrors[0].Message);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void Read_KeyDuplicatedInDependenciesAndDependentSchemas_IgnoreSecond()
+        public void Read_KeyDuplicatedInDependenciesAndDependentSchemas_IgnoreSecond(bool propertyNameCaseInsensitive)
         {
             string json = @"{
   ""$schema"": ""http://json-schema.org/draft-07/schema"",
@@ -3595,8 +3865,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsFalse(o.IsValid(s));
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void Read_UevaluatedItemsCanSeeAnnotationsFromIfWithoutThenAndElse()
+        public void Read_UevaluatedItemsCanSeeAnnotationsFromIfWithoutThenAndElse(bool propertyNameCaseInsensitive)
         {
             string json = @"{
                 ""$schema"": ""https://json-schema.org/draft/2019-09/schema"",
@@ -3613,8 +3885,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsTrue(result);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void Read_UnevaluatedItemsWithIgnoredAdditionalItems()
+        public void Read_UnevaluatedItemsWithIgnoredAdditionalItems(bool propertyNameCaseInsensitive)
         {
             string json = @"{
                 ""$schema"": ""https://json-schema.org/draft/2019-09/schema"",
@@ -3630,8 +3904,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsFalse(result);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void Read_UnevaluatedItemsWithIgnoredApplicatorAdditionalItems()
+        public void Read_UnevaluatedItemsWithIgnoredApplicatorAdditionalItems(bool propertyNameCaseInsensitive)
         {
             string json = @"{
                 ""$schema"": ""https://json-schema.org/draft/2019-09/schema"",
@@ -3647,8 +3923,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsFalse(result);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void Read_MultipleDynamicPathsToTheRecursiveRefKeyword_RefToInner()
+        public void Read_MultipleDynamicPathsToTheRecursiveRefKeyword_RefToInner(bool propertyNameCaseInsensitive)
         {
             string json = @"{
                 ""$schema"": ""https://json-schema.org/draft/2019-09/schema"",
@@ -3694,8 +3972,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsFalse(result);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void Read_MultipleDynamicPathsToTheRecursiveRefKeyword_RefRelative()
+        public void Read_MultipleDynamicPathsToTheRecursiveRefKeyword_RefRelative(bool propertyNameCaseInsensitive)
         {
             string json = @"{
                 ""$id"": ""recursiveRef8_main.json"",
@@ -3737,8 +4017,10 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsFalse(result);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
         [Test]
-        public void Read_UnevaluatedProperties()
+        public void Read_UnevaluatedProperties(bool propertyNameCaseInsensitive)
         {
             string json = @"{
               ""type"": ""object"",
