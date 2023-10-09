@@ -13,11 +13,13 @@ using System.Numerics;
 using System.Text;
 #if DNXCORE50
 using Xunit;
-using Test = Xunit.TheoryAttribute;
+using Test = Xunit.FactAttribute;
+using Theory = Xunit.TheoryAttribute;
 using TestCase = Xunit.InlineDataAttribute;
 using Assert = Newtonsoft.Json.Schema.Tests.XUnitAssert;
 #else
 using NUnit.Framework;
+using Theory = NUnit.Framework.TestAttribute;
 #endif
 
 namespace Newtonsoft.Json.Schema.Tests
@@ -27,7 +29,7 @@ namespace Newtonsoft.Json.Schema.Tests
     {
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void UnevaluatedProperties_NotAllowed_NoMatch(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -65,7 +67,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void UnevaluatedProperties_AnyOf_NoMatch(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -120,7 +122,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void UnevaluatedProperties_TrueWithUnevaluatedProperties_Match(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -148,7 +150,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void UnevaluatedProperties_DependentSchemas_NoUnevaluatedProperties(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -188,7 +190,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void UnevaluatedProperties_HasUnevaluatedProperty_AllowAllSchema(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -241,7 +243,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void UnevaluatedProperties_HasUnevaluatedProperty_AdditionalPropertiesSchema(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -274,7 +276,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void UnevaluatedProperties_HasUnevaluatedProperty_Not(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -318,7 +320,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void UnevaluatedProperties_NotAllowed_AllOfProperties_Match(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -361,7 +363,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void UnevaluatedProperties_AnyOfProperties_Match(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -413,7 +415,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void UnevaluatedProperties_NestedAdditionalProperties_Match(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -450,7 +452,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void UnevaluatedProperties_NestedUnevaluatedProperties_Match(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -490,7 +492,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void UnevaluatedProperties_NestedUnevaluatedPropertiesSchema_Match(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -530,7 +532,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void UnevaluatedProperties_Schema_Match(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -561,7 +563,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void UnevaluatedItems_Schema_Match(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -590,7 +592,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void UnevaluatedItems_Schema_NoMatch(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -621,7 +623,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void UnevaluatedProperties_WithRef_Match(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -661,7 +663,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void UnevaluatedProperties_WithRefAndAllOf_Match(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -705,7 +707,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void SchemaReused_UnevaluatedProperties(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -795,7 +797,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void UnevaluatedItems_ConditionalSchema_Match(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -832,7 +834,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void UnevaluatedItems_ConditionalSchema_NoMatch(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -870,7 +872,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void UnevaluatedProperties_SchemaEvaluatedOnInvalidProperty_ErrorDisplayed(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -908,7 +910,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void UnevaluatedItems_SchemaEvaluatedOnInvalidItem_ErrorDisplayed(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{

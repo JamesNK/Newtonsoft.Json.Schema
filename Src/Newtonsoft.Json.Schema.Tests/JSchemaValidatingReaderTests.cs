@@ -13,11 +13,13 @@ using System.Numerics;
 using System.Text;
 #if DNXCORE50
 using Xunit;
-using Test = Xunit.TheoryAttribute;
+using Test = Xunit.FactAttribute;
+using Theory = Xunit.TheoryAttribute;
 using TestCase = Xunit.InlineDataAttribute;
 using Assert = Newtonsoft.Json.Schema.Tests.XUnitAssert;
 #else
 using NUnit.Framework;
+using Theory = NUnit.Framework.TestAttribute;
 #endif
 using System.Xml;
 using System.Xml.Schema;
@@ -33,7 +35,7 @@ namespace Newtonsoft.Json.Schema.Tests
 #if !(NET35 || NET40)
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void RegexMatchTimeout(bool propertyNameCaseInsensitive)
         {
             JSchema schema = JSchema.Parse(@"{
@@ -69,7 +71,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void Sample(bool propertyNameCaseInsensitive)
         {
             JSchema schema = JSchema.Parse(@"{
@@ -107,7 +109,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void PropertyNamesFalse(bool propertyNameCaseInsensitive)
         {
             JSchema schema = new JSchema();
@@ -134,7 +136,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void PropertyNamesEnum_NoMatch_Fails(bool propertyNameCaseInsensitive)
         {
             JSchema schema = new JSchema();
@@ -161,7 +163,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void PropertyNamesEnum_Match_Passes(bool propertyNameCaseInsensitive)
         {
             JSchema schema = new JSchema();
@@ -186,7 +188,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void PropertyNamesAnyOf_Match_Passes(bool propertyNameCaseInsensitive)
         {
             JSchema schema = new JSchema();
@@ -221,7 +223,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void PropertyNamesAnyOf_NoMatch_Fails(bool propertyNameCaseInsensitive)
         {
             JSchema schema = new JSchema();
@@ -257,7 +259,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void PropertyNames_Const_Valid(bool propertyNameCaseInsensitive)
         {
             JSchema schema = new JSchema();
@@ -282,7 +284,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void ConstComplex_Valid(bool propertyNameCaseInsensitive)
         {
             JSchema schema = new JSchema
@@ -306,7 +308,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void ConstComplex_Invalid(bool propertyNameCaseInsensitive)
         {
             JSchema schema = new JSchema();
@@ -330,7 +332,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void ConstLarge_Invalid(bool propertyNameCaseInsensitive)
         {
             JSchema schema = new JSchema();
@@ -350,7 +352,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void ValidateInteger(bool propertyNameCaseInsensitive)
         {
             JSchema schema = new JSchema();
@@ -368,7 +370,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void ValidateObject(bool propertyNameCaseInsensitive)
         {
             JSchema schema = new JSchema();
@@ -388,7 +390,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void ValidateObject_Valid_False(bool propertyNameCaseInsensitive)
         {
             JSchema schema = new JSchema();
@@ -409,7 +411,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void ValidateArray_Valid_False(bool propertyNameCaseInsensitive)
         {
             JSchema schema = new JSchema();
@@ -430,7 +432,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void ValidatePrimitive_Valid_False(bool propertyNameCaseInsensitive)
         {
             JSchema schema = new JSchema();
@@ -450,7 +452,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void ValidateObjectWithProperty(bool propertyNameCaseInsensitive)
         {
             JSchema schema = new JSchema
@@ -485,7 +487,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void ValidateArray(bool propertyNameCaseInsensitive)
         {
             JSchema schema = new JSchema();
@@ -514,7 +516,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void ValidateContains_Simple_Valid(bool propertyNameCaseInsensitive)
         {
             JSchema schema = new JSchema();
@@ -542,7 +544,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void ValidateContains_Complex_Valid(bool propertyNameCaseInsensitive)
         {
             JSchema schema = new JSchema();
@@ -573,7 +575,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void ValidateContains_Simple_Invalid(bool propertyNameCaseInsensitive)
         {
             JSchema schema = new JSchema();
@@ -616,7 +618,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void ValidateContains_Complex_Invalid(bool propertyNameCaseInsensitive)
         {
             JSchema schema = new JSchema();
@@ -662,7 +664,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void ValidateInteger_AllOfFailure(bool propertyNameCaseInsensitive)
         {
             JSchema schema = new JSchema();
@@ -689,7 +691,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void ValidateInteger_BadTypeFailure(bool propertyNameCaseInsensitive)
         {
             JSchema schema = new JSchema();
@@ -713,7 +715,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void CheckInnerReader(bool propertyNameCaseInsensitive)
         {
             string json = "{'name':'James','hobbies':['pie','cake']}";
@@ -726,7 +728,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void ValidateTypes(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -809,7 +811,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void ValidateUnrestrictedArray(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -885,7 +887,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void StringLessThanMinimumLength(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -913,7 +915,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void StringGreaterThanMaximumLength(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -942,7 +944,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void StringIsNotInEnum(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -987,7 +989,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void StringDoesNotMatchPattern(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -1015,7 +1017,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void IntegerGreaterThanMaximumValue(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -1044,7 +1046,7 @@ namespace Newtonsoft.Json.Schema.Tests
 #if !(NET20 || NET35 || PORTABLE || PORTABLE40)
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void IntegerGreaterThanMaximumValue_BigInteger(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -1072,7 +1074,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void IntegerLessThanMaximumValue_BigInteger(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -1095,7 +1097,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void ThrowExceptionWhenNoValidationEventHandler(bool propertyNameCaseInsensitive)
         {
             ExceptionAssert.Throws<JSchemaException>(() =>
@@ -1115,7 +1117,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void IntegerLessThanMinimumValue(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -1144,7 +1146,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void IntegerIsNotInEnum(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -1189,7 +1191,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void FloatGreaterThanMaximumValue(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -1216,7 +1218,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void FloatLessThanMinimumValue(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -1243,7 +1245,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void FloatIsNotInEnum(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -1288,7 +1290,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void FloatDivisibleBy(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -1333,7 +1335,7 @@ namespace Newtonsoft.Json.Schema.Tests
 #if !(NET20 || NET35 || PORTABLE || PORTABLE40)
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void BigIntegerDivisibleBy_Success(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -1366,7 +1368,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void BigIntegerDivisibleBy_Failure(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -1403,7 +1405,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void BigIntegerDivisibleBy_Fraction(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -1439,7 +1441,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void BigIntegerDivisibleBy_FractionWithZeroValue(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -1462,7 +1464,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void ReadDateTimes(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -1515,7 +1517,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void ReadDateTimes_DateParseHandling(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -1575,7 +1577,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void ReadDateTimes_ReadAsDateTime(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -1628,7 +1630,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void ReadDateTimes_ReadAsDateTimeOffset(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -1681,7 +1683,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void IntValidForNumber(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -1714,7 +1716,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void NullNotInEnum(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -1752,7 +1754,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void BooleanNotInEnum(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -1794,7 +1796,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void ArrayCountGreaterThanMaximumItems(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -1834,7 +1836,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void ArrayCountLessThanMinimumItems(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -1868,7 +1870,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void InvalidDataType(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -1897,7 +1899,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void StringDisallowed(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -1938,7 +1940,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void MissingRequiredProperties(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -1985,7 +1987,7 @@ namespace Newtonsoft.Json.Schema.Tests
         
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void MissingNonRequiredProperties(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -2028,7 +2030,7 @@ namespace Newtonsoft.Json.Schema.Tests
         
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void DisableAdditionalProperties(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -2090,7 +2092,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void ExtendsStringGreaterThanMaximumLength(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -2168,7 +2170,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void ExtendsDisallowAdditionProperties(bool propertyNameCaseInsensitive)
         {
             string json = "{'firstproperty':'blah','secondproperty':'blah2','additional':'blah3','additional2':'blah4'}";
@@ -2231,7 +2233,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void ExtendsMissingRequiredProperties(bool propertyNameCaseInsensitive)
         {
             string json = "{}";
@@ -2264,7 +2266,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void NoAdditionalItems(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -2308,7 +2310,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void PatternPropertiesNoAdditionalProperties(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -2376,7 +2378,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void ExtendedComplex(bool propertyNameCaseInsensitive)
         {
             string first = @"{
@@ -2530,7 +2532,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void DuplicateErrorsTest(bool propertyNameCaseInsensitive)
         {
             string schema = @"{
@@ -2649,7 +2651,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void ReadAsBytes(bool propertyNameCaseInsensitive)
         {
             JSchema s = new JSchemaGenerator().Generate(typeof(byte[]));
@@ -2668,7 +2670,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void ReadAsBoolean_Failure(bool propertyNameCaseInsensitive)
         {
             ExceptionAssert.Throws<JSchemaException>(() =>
@@ -2687,7 +2689,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void ReadAsBoolean(bool propertyNameCaseInsensitive)
         {
             JSchema s = new JSchemaGenerator().Generate(typeof(bool));
@@ -2704,7 +2706,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void ReadAsInt32(bool propertyNameCaseInsensitive)
         {
             JSchema s = new JSchemaGenerator().Generate(typeof(int));
@@ -2721,7 +2723,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void ReadAsInt32Failure(bool propertyNameCaseInsensitive)
         {
             ExceptionAssert.Throws<JSchemaException>(() =>
@@ -2740,7 +2742,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void ReadAsDouble(bool propertyNameCaseInsensitive)
         {
             JSchema s = new JSchemaGenerator().Generate(typeof(double));
@@ -2757,7 +2759,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void ReadAsDoubleFailure(bool propertyNameCaseInsensitive)
         {
             ExceptionAssert.Throws<JSchemaException>(() =>
@@ -2776,7 +2778,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void ReadAsDecimal(bool propertyNameCaseInsensitive)
         {
             JSchema s = new JSchemaGenerator().Generate(typeof(decimal));
@@ -2793,7 +2795,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void ReadAsDecimalFailure(bool propertyNameCaseInsensitive)
         {
             ExceptionAssert.Throws<JSchemaException>(() =>
@@ -2812,7 +2814,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void ReadAsInt32FromSerializer(bool propertyNameCaseInsensitive)
         {
             JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader("[1,2,3]")));
@@ -2828,7 +2830,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void ReadAsInt32InArray(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -2868,7 +2870,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void ReadAsInt32InArrayIncomplete(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -2906,7 +2908,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void SchemaPath(bool propertyNameCaseInsensitive)
         {
             string schema = @"{
@@ -2935,7 +2937,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void InvalidPatternPropertyRegex(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -2996,7 +2998,7 @@ namespace Newtonsoft.Json.Schema.Tests
 #if !DNXCORE50
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         [Ignore("WIP")]
         public void DateFormat(bool propertyNameCaseInsensitive)
         {
@@ -3028,7 +3030,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void ValidateConstructorAndUndefinedWithNoType(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -3079,7 +3081,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void ValidateUndefinedWithType(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -3134,7 +3136,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void ValidateMaxPropertiesInArray(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -3184,7 +3186,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void DeeplyNestedConditionalScopes(bool propertyNameCaseInsensitive)
         {
             string schemaJson = TestHelpers.OpenFileText(@"resources\schemas\components-10definitions.schema.json");
@@ -3209,7 +3211,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void CloseAlsoClosesUnderlyingReader(bool propertyNameCaseInsensitive)
         {
             var underlyingReader = new JsonReaderStubWithIsClosed();
@@ -3222,7 +3224,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void ContainsCountGreaterThanMaximumContains(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -3263,7 +3265,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void ContainsCountGreaterThanMaximumContains_WithOneNoMatch(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -3306,7 +3308,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void ContainsCountLessThanMinimumContains(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -3343,7 +3345,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void ContainsCountLessThanMinimumContains_WithOneNoMatch(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -3382,7 +3384,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void Ref_AlongsideSiblingKeywords_NoMatchAgainstOriginal(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -3418,7 +3420,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void Ref_AlongsideSiblingKeywords_NoMatchAgainstRef(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -3457,7 +3459,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void SchemaReused_ChildErrorsPropagated(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -3559,7 +3561,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void SchemaReused_Repeated(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -3607,7 +3609,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void RecursiveRef_RecursiveAnchorFalse(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -3659,7 +3661,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void Ref_ResolveToScope(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -3711,7 +3713,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void ValidateDynamicRef(bool propertyNameCaseInsensitive)
         {
             string schemaJson = @"{
@@ -3769,10 +3771,8 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual("Invalid type. Expected Integer, Object but got Number.", validationEventArgs.ValidationError.ChildErrors[0].ChildErrors[0].Message);
         }
 
-        [TestCase(false)]
-        [TestCase(true)]
         [Test]
-        public void Read_KeyDuplicatedInDependenciesAndDependentSchemas_IgnoreSecond(bool propertyNameCaseInsensitive)
+        public void Read_KeyDuplicatedInDependenciesAndDependentSchemas_IgnoreSecond()
         {
             string json = @"{
   ""$schema"": ""http://json-schema.org/draft-07/schema"",
@@ -3867,7 +3867,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Test]
+        [@Theory]
         public void Read_UevaluatedItemsCanSeeAnnotationsFromIfWithoutThenAndElse(bool propertyNameCaseInsensitive)
         {
             string json = @"{
@@ -3885,10 +3885,8 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsTrue(result);
         }
 
-        [TestCase(false)]
-        [TestCase(true)]
         [Test]
-        public void Read_UnevaluatedItemsWithIgnoredAdditionalItems(bool propertyNameCaseInsensitive)
+        public void Read_UnevaluatedItemsWithIgnoredAdditionalItems()
         {
             string json = @"{
                 ""$schema"": ""https://json-schema.org/draft/2019-09/schema"",
@@ -3904,10 +3902,8 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsFalse(result);
         }
 
-        [TestCase(false)]
-        [TestCase(true)]
         [Test]
-        public void Read_UnevaluatedItemsWithIgnoredApplicatorAdditionalItems(bool propertyNameCaseInsensitive)
+        public void Read_UnevaluatedItemsWithIgnoredApplicatorAdditionalItems()
         {
             string json = @"{
                 ""$schema"": ""https://json-schema.org/draft/2019-09/schema"",
@@ -3923,10 +3919,8 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsFalse(result);
         }
 
-        [TestCase(false)]
-        [TestCase(true)]
         [Test]
-        public void Read_MultipleDynamicPathsToTheRecursiveRefKeyword_RefToInner(bool propertyNameCaseInsensitive)
+        public void Read_MultipleDynamicPathsToTheRecursiveRefKeyword_RefToInner()
         {
             string json = @"{
                 ""$schema"": ""https://json-schema.org/draft/2019-09/schema"",
@@ -3972,10 +3966,8 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsFalse(result);
         }
 
-        [TestCase(false)]
-        [TestCase(true)]
         [Test]
-        public void Read_MultipleDynamicPathsToTheRecursiveRefKeyword_RefRelative(bool propertyNameCaseInsensitive)
+        public void Read_MultipleDynamicPathsToTheRecursiveRefKeyword_RefRelative()
         {
             string json = @"{
                 ""$id"": ""recursiveRef8_main.json"",
@@ -4017,10 +4009,8 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsFalse(result);
         }
 
-        [TestCase(false)]
-        [TestCase(true)]
         [Test]
-        public void Read_UnevaluatedProperties(bool propertyNameCaseInsensitive)
+        public void Read_UnevaluatedProperties()
         {
             string json = @"{
               ""type"": ""object"",
