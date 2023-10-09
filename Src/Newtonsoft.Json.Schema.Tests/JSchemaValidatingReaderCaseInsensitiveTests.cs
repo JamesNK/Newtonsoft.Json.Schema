@@ -270,6 +270,49 @@ namespace Newtonsoft.Json.Schema.Tests
         }
 
         [Test]
+        public void DependenctRequired_Single_CaseInsensitive()
+        {
+            string schemaJson = @"{
+                ""dependentRequired"": {""bar"": [""foo""]}
+            }";
+
+            string json = @"{""Bar"": ""bar"", ""Foo"": ""foo""}";
+
+            SchemaValidationEventArgs validationEventArgs = null;
+
+            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
+            reader.Schema = JSchema.Parse(schemaJson);
+            reader.PropertyNameCaseInsensitive = true;
+
+            Assert.IsTrue(reader.Read());
+            Assert.AreEqual(JsonToken.StartObject, reader.TokenType);
+
+            Assert.IsTrue(reader.Read());
+            Assert.AreEqual(JsonToken.PropertyName, reader.TokenType);
+            Assert.AreEqual("Bar", reader.Value.ToString());
+
+            Assert.IsTrue(reader.Read());
+            Assert.AreEqual(JsonToken.String, reader.TokenType);
+            Assert.AreEqual("bar", reader.Value.ToString());
+            Assert.AreEqual(null, validationEventArgs);
+
+            Assert.IsTrue(reader.Read());
+            Assert.AreEqual(JsonToken.PropertyName, reader.TokenType);
+            Assert.AreEqual("Foo", reader.Value.ToString());
+
+            Assert.IsTrue(reader.Read());
+            Assert.AreEqual(JsonToken.String, reader.TokenType);
+            Assert.AreEqual("foo", reader.Value.ToString());
+            Assert.AreEqual(null, validationEventArgs);
+
+            Assert.IsTrue(reader.Read());
+            Assert.AreEqual(JsonToken.EndObject, reader.TokenType);
+
+            Assert.IsNull(validationEventArgs);
+        }
+
+        [Test]
         public void DisableAdditionalProperties_CaseInsensitive()
         {
             string schemaJson = @"{
