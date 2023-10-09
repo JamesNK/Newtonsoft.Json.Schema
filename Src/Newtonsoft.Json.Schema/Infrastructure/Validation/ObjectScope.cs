@@ -37,17 +37,29 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
             if (context.Validator.PropertyNameCaseInsensitive)
             {
-                if (!schema._properties.IsNullOrEmpty())
+                if (schema._properties.IsNullOrEmpty())
+                {
+                    _insensitivePropertySchemas?.Clear();
+                }
+                else
                 {
                     _insensitivePropertySchemas = new JSchemaDictionary(schema, new Dictionary<string, JSchema>(schema._properties, StringComparer.OrdinalIgnoreCase));
                 }
 
-                if (!schema._dependencies.IsNullOrEmpty())
+                if (schema._dependencies.IsNullOrEmpty())
+                {
+                    _insensitiveDependencySchemas?.Clear();
+                }
+                else
                 {
                     _insensitiveDependencySchemas = new JSchemaDependencyDictionary(schema, new Dictionary<string, object>(schema._dependencies, StringComparer.OrdinalIgnoreCase));
                 }
 
-                if (!schema._dependentRequired.IsNullOrEmpty())
+                if (schema._dependentRequired.IsNullOrEmpty())
+                {
+                    _insensitiveDependentRequired?.Clear();
+                }
+                else
                 {
                     _insensitiveDependentRequired = new Dictionary<string, IList<string>>(schema._dependentRequired, StringComparer.OrdinalIgnoreCase);
                 }

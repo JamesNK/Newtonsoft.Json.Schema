@@ -67,7 +67,7 @@ namespace Newtonsoft.Json.Schema.Tests
         }
 
         [Test]
-        public void RequiredProperties_CaseInsensitive()
+        public void RequiredProperties_Inline_CaseInsensitive()
         {
             string schemaJson = @"{
   ""description"":""A person"",
@@ -77,6 +77,47 @@ namespace Newtonsoft.Json.Schema.Tests
     ""name"":{""type"":""string"",""required"":true},
     ""age"":{""type"":""integer"",""required"":false}
   }
+}";
+
+            string json = "{'NAME':'James'}";
+
+            SchemaValidationEventArgs validationEventArgs = null;
+
+            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
+            reader.Schema = JSchema.Parse(schemaJson);
+            reader.PropertyNameCaseInsensitive = true;
+
+            Assert.IsTrue(reader.Read());
+            Assert.AreEqual(JsonToken.StartObject, reader.TokenType);
+
+            Assert.IsTrue(reader.Read());
+            Assert.AreEqual(JsonToken.PropertyName, reader.TokenType);
+            Assert.AreEqual("NAME", reader.Value.ToString());
+
+            Assert.IsTrue(reader.Read());
+            Assert.AreEqual(JsonToken.String, reader.TokenType);
+            Assert.AreEqual("James", reader.Value.ToString());
+            Assert.AreEqual(null, validationEventArgs);
+
+            Assert.IsTrue(reader.Read());
+            Assert.AreEqual(JsonToken.EndObject, reader.TokenType);
+
+            Assert.IsNull(validationEventArgs);
+        }
+
+        [Test]
+        public void RequiredProperties_CaseInsensitive()
+        {
+            string schemaJson = @"{
+  ""description"":""A person"",
+  ""type"":""object"",
+  ""properties"":
+  {
+    ""name"":{""type"":""string""},
+    ""age"":{""type"":""integer""}
+  },
+  ""required"": [""name""]
 }";
 
             string json = "{'NAME':'James'}";
@@ -349,6 +390,25 @@ namespace Newtonsoft.Json.Schema.Tests
             SchemaValidationEventArgs validationEventArgs = null;
 
             JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
+            reader.Schema = JSchema.Parse(schemaJson);
+            reader.PropertyNameCaseInsensitive = true;
+
+            while (reader.Read())
+            {
+            }
+
+            Assert.IsNull(validationEventArgs);
+        }
+
+        [Test]
+        public void SchemaDraft4()
+        {
+            string schemaJson = TestHelpers.OpenFileText("Resources/Schemas/schema-draft-v4.json");
+
+            SchemaValidationEventArgs validationEventArgs = null;
+
+            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(schemaJson)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
             reader.PropertyNameCaseInsensitive = true;
