@@ -1072,10 +1072,8 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsNotNull(validationEventArgs);
         }
 
-        [TestCase(false)]
-        [TestCase(true)]
-        [@Theory]
-        public void IntegerLessThanMaximumValue_BigInteger(bool propertyNameCaseInsensitive)
+        [Test]
+        public void IntegerLessThanMaximumValue_BigInteger()
         {
             string schemaJson = @"{
   ""type"":""integer"",
@@ -1439,10 +1437,8 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual(JsonToken.EndArray, reader.TokenType);
         }
 
-        [TestCase(false)]
-        [TestCase(true)]
-        [@Theory]
-        public void BigIntegerDivisibleBy_FractionWithZeroValue(bool propertyNameCaseInsensitive)
+        [Test]
+        public void BigIntegerDivisibleBy_FractionWithZeroValue()
         {
             string schemaJson = @"{
   ""type"":""array"",
@@ -3865,10 +3861,8 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsFalse(o.IsValid(s));
         }
 
-        [TestCase(false)]
-        [TestCase(true)]
-        [@Theory]
-        public void Read_UevaluatedItemsCanSeeAnnotationsFromIfWithoutThenAndElse(bool propertyNameCaseInsensitive)
+        [Test]
+        public void Read_UevaluatedItemsCanSeeAnnotationsFromIfWithoutThenAndElse()
         {
             string json = @"{
                 ""$schema"": ""https://json-schema.org/draft/2019-09/schema"",
