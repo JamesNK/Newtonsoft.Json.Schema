@@ -16,16 +16,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
     {
         private int _propertyCount;
         private string? _currentPropertyName;
-        private JSchemaDictionary? _insensitivePropertySchemas;
-        private JSchemaDependencyDictionary? _insensitiveDependencySchemas;
-        private Dictionary<string, IList<string>>? _insensitiveDependentRequired;
         private ICollection<string>? _requiredProperties;
         private Dictionary<string, UnevaluatedContext>? _unevaluatedScopes;
         internal ICollection<string>? ReadProperties;
-
-        private JSchemaDictionary? PropertySchemas => Context.Validator.PropertyNameCaseInsensitive ? _insensitivePropertySchemas : Schema._properties;
-        private JSchemaDependencyDictionary? DependencySchemas => Context.Validator.PropertyNameCaseInsensitive ? _insensitiveDependencySchemas : Schema._dependencies;
-        private Dictionary<string, IList<string>>? DependentRequired => Context.Validator.PropertyNameCaseInsensitive ? _insensitiveDependentRequired : Schema._dependentRequired;
 
         public void Initialize(ContextBase context, SchemaScope? parent, int initialDepth, JSchema schema)
         {
@@ -34,36 +27,6 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
             _propertyCount = 0;
             _currentPropertyName = null;
-
-            if (context.Validator.PropertyNameCaseInsensitive)
-            {
-                if (schema._properties.IsNullOrEmpty())
-                {
-                    _insensitivePropertySchemas?.Clear();
-                }
-                else
-                {
-                    _insensitivePropertySchemas = new JSchemaDictionary(schema, new Dictionary<string, JSchema>(schema._properties, StringComparer.OrdinalIgnoreCase));
-                }
-
-                if (schema._dependencies.IsNullOrEmpty())
-                {
-                    _insensitiveDependencySchemas?.Clear();
-                }
-                else
-                {
-                    _insensitiveDependencySchemas = new JSchemaDependencyDictionary(schema, new Dictionary<string, object>(schema._dependencies, StringComparer.OrdinalIgnoreCase));
-                }
-
-                if (schema._dependentRequired.IsNullOrEmpty())
-                {
-                    _insensitiveDependentRequired?.Clear();
-                }
-                else
-                {
-                    _insensitiveDependentRequired = new Dictionary<string, IList<string>>(schema._dependentRequired, StringComparer.OrdinalIgnoreCase);
-                }
-            }
 
             if (!schema._required.IsNullOrEmpty())
             {
@@ -195,7 +158,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                             {
                                 object? dependency = null;
                                 IList<string>? requiredProperties = null;
-                                if (DependencySchemas?.TryGetValue(readProperty, out dependency) ?? false)
+                                if (Schema._dependencies?.TryGetValue(readProperty, out dependency, ignoreCase: Context.Validator.PropertyNameCaseInsensitive) ?? false)
                                 {
                                     requiredProperties = dependency as IList<string>;
                                     if (requiredProperties != null)
@@ -204,7 +167,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                                     }
                                 }
 
-                                if (DependentRequired?.TryGetValue(readProperty, out requiredProperties) ?? false)
+                                if (TryGetDependentRequired(readProperty, out requiredProperties))
                                 {
                                     ValidateDependentProperties(readProperty, requiredProperties!);
                                 }
@@ -287,9 +250,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     if (JsonTokenHelpers.IsPrimitiveOrStartToken(token))
                     {
                         bool matched = false;
-                        if (PropertySchemas != null)
+                        if (Schema._properties != null)
                         {
-                            if (PropertySchemas.TryGetValue(_currentPropertyName, out JSchema propertySchema))
+                            if (Schema._properties.TryGetValue(_currentPropertyName, out JSchema propertySchema, ignoreCase: Context.Validator.PropertyNameCaseInsensitive))
                             {
                                 CreateScopesAndEvaluateToken(token, value, depth, propertySchema);
                                 matched = true;
@@ -404,7 +367,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
         private bool IsPropertyDefined(JSchema schema, string propertyName)
         {
-            if (PropertySchemas != null && PropertySchemas.ContainsKey(propertyName))
+            if (Schema._properties != null && Schema._properties.ContainsKey(propertyName, ignoreCase: Context.Validator.PropertyNameCaseInsensitive))
             {
                 return true;
             }
@@ -428,6 +391,29 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 }
             }
 
+            return false;
+        }
+
+        private bool TryGetDependentRequired(string key, out IList<string>? value)
+        {
+            if (!Schema._dependentRequired.IsNullOrEmpty())
+            {
+                if (!Context.Validator.PropertyNameCaseInsensitive)
+                {
+                    return Schema._dependentRequired.TryGetValue(key, out value);
+                }
+
+                foreach (var kvp in Schema._dependentRequired)
+                {
+                    if (string.Equals(key, kvp.Key, StringComparison.OrdinalIgnoreCase))
+                    {
+                        value = kvp.Value;
+                        return true;
+                    }
+                }
+            }
+
+            value = null;
             return false;
         }
     }
