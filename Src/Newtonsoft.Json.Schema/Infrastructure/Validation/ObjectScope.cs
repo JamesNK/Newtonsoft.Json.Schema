@@ -252,9 +252,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                         bool matched = false;
                         if (Schema._properties != null)
                         {
-                            if (Schema._properties.TryGetValue(_currentPropertyName, out JSchema propertySchema, ignoreCase: Context.Validator.PropertyNameCaseInsensitive))
+                            if (Schema._properties.TryGetValue(_currentPropertyName, out JSchema? propertySchema, ignoreCase: Context.Validator.PropertyNameCaseInsensitive))
                             {
-                                CreateScopesAndEvaluateToken(token, value, depth, propertySchema);
+                                CreateScopesAndEvaluateToken(token, value, depth, propertySchema!);
                                 matched = true;
                             }
                         }
