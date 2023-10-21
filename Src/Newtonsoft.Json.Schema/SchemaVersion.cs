@@ -35,6 +35,10 @@ namespace Newtonsoft.Json.Schema
         /// <summary>
         /// Draft 2019-09. Schema URI <c>https://json-schema.org/draft/2019-09/schema</c>.
         /// </summary>
-        Draft2019_09
+        Draft2019_09,
+        /// <summary>
+        /// Draft 2020-12. Schema URI <c>https://json-schema.org/draft/2020-12/schema</c>.
+        /// </summary>
+        Draft2020_12
     }
 }

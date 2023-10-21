@@ -3771,7 +3771,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         public void LoadSchemaSpec201909()
         {
             var resolver = new JSchemaPreloadedResolver();
-            AddSchema(resolver, "draft2019-09/draft2019-09.json", "https://json-schema.org/draft/2019-09/schema", "drafts");
+            AddSchema(resolver, "draft2019-09/schema.json", "https://json-schema.org/draft/2019-09/schema", "drafts");
             AddSchema(resolver, "draft2019-09/meta/applicator.json", "https://json-schema.org/draft/2019-09/meta/applicator", "drafts");
             AddSchema(resolver, "draft2019-09/meta/content.json", "https://json-schema.org/draft/2019-09/meta/content", "drafts");
             AddSchema(resolver, "draft2019-09/meta/core.json", "https://json-schema.org/draft/2019-09/meta/core", "drafts");

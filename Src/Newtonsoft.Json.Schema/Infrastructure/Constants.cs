@@ -157,6 +157,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             public static readonly Uri Draft6 = new Uri("http://json-schema.org/draft-06/schema#");
             public static readonly Uri Draft7 = new Uri("http://json-schema.org/draft-07/schema#");
             public static readonly Uri Draft2019_09 = new Uri("https://json-schema.org/draft/2019-09/schema");
+            public static readonly Uri Draft2020_12 = new Uri("https://json-schema.org/draft/2020-12/schema");
         }
     }
 }
