@@ -21,6 +21,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             new SchemaVersionMap(SchemaVersion.Draft6, Constants.SchemaVersions.Draft6, "schema-draft-v6.json"),
             new SchemaVersionMap(SchemaVersion.Draft7, Constants.SchemaVersions.Draft7, "schema-draft-v7.json"),
             new SchemaVersionMap(SchemaVersion.Draft2019_09, Constants.SchemaVersions.Draft2019_09, "draft2019_09.schema.json"),
+            new SchemaVersionMap(SchemaVersion.Draft2020_12, Constants.SchemaVersions.Draft2020_12, "draft2020_12.schema.json"),
         };
 
         private static readonly ThreadSafeStore<string, JSchema> SpecSchemaCache = new ThreadSafeStore<string, JSchema>(LoadResourceSchema);
