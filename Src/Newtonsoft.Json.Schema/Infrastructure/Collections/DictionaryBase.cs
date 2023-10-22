@@ -142,29 +142,6 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Collections
             return _dictionary.ContainsKey(key);
         }
 
-        public bool ContainsKey(TKey key, bool ignoreCase)
-        {
-            if (!typeof(TKey).Equals(typeof(string)))
-            {
-                throw new InvalidOperationException("The type of the keys in the dictionary is not string.");
-            }
-
-            if (!ignoreCase)
-            {
-                return _dictionary.ContainsKey(key);
-            }
-
-            foreach (var kvp in _dictionary)
-            {
-                if (string.Equals(key as string, kvp.Key as string, StringComparison.OrdinalIgnoreCase))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
         public void Add(TKey key, TValue value)
         {
             AddItem(key, value);
@@ -178,31 +155,6 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Collections
         public bool TryGetValue(TKey key, out TValue value)
         {
             return _dictionary.TryGetValue(key, out value);
-        }
-
-        public bool TryGetValue(TKey key, out TValue? value, bool ignoreCase)
-        {
-            if (!typeof(TKey).Equals(typeof(string)))
-            {
-                throw new InvalidOperationException("The type of the keys in the dictionary is not string.");
-            }
-
-            if (!ignoreCase)
-            {
-                return _dictionary.TryGetValue(key, out value);
-            }
-
-            foreach (var kvp in _dictionary)
-            {
-                if (string.Equals(key as string, kvp.Key as string, StringComparison.OrdinalIgnoreCase))
-                {
-                    value = kvp.Value;
-                    return true;
-                }
-            }
-
-            value = default;
-            return false;
         }
 
         public TValue this[TKey key]

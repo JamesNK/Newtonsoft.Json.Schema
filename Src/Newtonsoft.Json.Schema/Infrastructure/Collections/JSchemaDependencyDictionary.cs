@@ -6,10 +6,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Collections
 {
-    internal class JSchemaDependencyDictionary : DictionaryBase<string, object>
+    internal class JSchemaDependencyDictionary : DictionaryBase<string, object>, ICaseInsensitiveLookup<object>
     {
         private readonly JSchema _parentSchema;
         private int _schemasCount;
@@ -119,6 +120,16 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Collections
             {
                 OnChanged();
             }
+        }
+
+        public bool ContainsKey(string key, bool ignoreCase)
+        {
+            return CollectionHelpers.ContainsKey(GetInnerDictionary(), key, ignoreCase);
+        }
+
+        public bool TryGetValue(string key, [NotNullWhen(true)] out object? value, bool ignoreCase)
+        {
+            return CollectionHelpers.TryGetValue(GetInnerDictionary(), key, out value, ignoreCase);
         }
     }
 }
