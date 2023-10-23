@@ -56,7 +56,6 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { errors.Add(args); };
             reader.Schema = schema;
-            reader.PropertyNameCaseInsensitive = true;
 
             Assert.IsTrue(reader.Read());
             Assert.IsTrue(reader.Read());
@@ -93,7 +92,6 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
-            reader.PropertyNameCaseInsensitive = true;
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.StartObject, reader.TokenType);
@@ -134,7 +132,6 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
-            reader.PropertyNameCaseInsensitive = true;
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.StartObject, reader.TokenType);
@@ -168,7 +165,6 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
-            reader.PropertyNameCaseInsensitive = true;
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.StartObject, reader.TokenType);
@@ -203,7 +199,6 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
-            reader.PropertyNameCaseInsensitive = true;
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.StartObject, reader.TokenType);
@@ -255,7 +250,6 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
-            reader.PropertyNameCaseInsensitive = true;
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.StartObject, reader.TokenType);
@@ -290,7 +284,6 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
-            reader.PropertyNameCaseInsensitive = true;
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.StartObject, reader.TokenType);
@@ -339,7 +332,6 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
-            reader.PropertyNameCaseInsensitive = true;
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.StartObject, reader.TokenType);
@@ -397,7 +389,6 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
-            reader.PropertyNameCaseInsensitive = true;
 
             Assert.IsTrue(reader.Read());
             Assert.AreEqual(JsonToken.StartObject, reader.TokenType);
@@ -442,7 +433,6 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
-            reader.PropertyNameCaseInsensitive = true;
 
             while (reader.Read())
             {
@@ -461,7 +451,6 @@ namespace Newtonsoft.Json.Schema.Tests
             JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(schemaJson)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
-            reader.PropertyNameCaseInsensitive = true;
 
             while (reader.Read())
             {
