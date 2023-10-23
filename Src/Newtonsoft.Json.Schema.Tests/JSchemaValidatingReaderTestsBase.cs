@@ -14,9 +14,12 @@ using System.Text;
 #if DNXCORE50
 using Xunit;
 using Test = Xunit.FactAttribute;
+using Theory = Xunit.TheoryAttribute;
+using TestCase = Xunit.InlineDataAttribute;
 using Assert = Newtonsoft.Json.Schema.Tests.XUnitAssert;
 #else
 using NUnit.Framework;
+using Theory = NUnit.Framework.TestAttribute;
 #endif
 using System.Xml;
 using System.Xml.Schema;
@@ -27,8 +30,10 @@ using Newtonsoft.Json.Schema.Generation;
 namespace Newtonsoft.Json.Schema.Tests
 {
     [TestFixture]
-    public class JSchemaValidatingReaderTests : TestFixtureBase
+    public abstract class JSchemaValidatingReaderTestsBase : TestFixtureBase
     {
+        protected abstract JSchemaValidatingReader CreateValidatingReader(JsonReader reader);
+
 #if !(NET35 || NET40)
         [Test]
         public void RegexMatchTimeout()
@@ -49,7 +54,7 @@ namespace Newtonsoft.Json.Schema.Tests
 }");
 
             JsonTextReader reader = new JsonTextReader(new StringReader(@"{ ""bomb"":""aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"" }"));
-            JSchemaValidatingReader validatingReader = new JSchemaValidatingReader(reader);
+            JSchemaValidatingReader validatingReader = CreateValidatingReader(reader);
             validatingReader.RegexMatchTimeout = TimeSpan.FromSeconds(1);
             validatingReader.Schema = schema;
             validatingReader.ValidationEventHandler += (sender, args) => { };
@@ -75,7 +80,7 @@ namespace Newtonsoft.Json.Schema.Tests
   'Developer',
   'Administrator'
 ]"));
-            JSchemaValidatingReader validatingReader = new JSchemaValidatingReader(reader);
+            JSchemaValidatingReader validatingReader = CreateValidatingReader(reader);
             validatingReader.Schema = schema;
             validatingReader.ValidationEventHandler += (sender, args) => { throw new Exception(args.Message); };
 
@@ -89,7 +94,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             List<SchemaValidationEventArgs> localErrors = new List<SchemaValidationEventArgs>();
 
-            JSchemaValidatingReader validatingReader = new JSchemaValidatingReader(reader);
+            JSchemaValidatingReader validatingReader = CreateValidatingReader(reader);
             validatingReader.ValidationEventHandler += (sender, args) => { localErrors.Add(args); };
             validatingReader.Schema = schema;
 
@@ -647,7 +652,7 @@ namespace Newtonsoft.Json.Schema.Tests
             JsonReader reader = new JsonTextReader(new StringReader(json));
 
             SchemaValidationEventArgs validationEventArgs = null;
-            JSchemaValidatingReader validatingReader = new JSchemaValidatingReader(reader);
+            JSchemaValidatingReader validatingReader = CreateValidatingReader(reader);
             validatingReader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             validatingReader.Schema = schema;
 
@@ -664,7 +669,7 @@ namespace Newtonsoft.Json.Schema.Tests
             string json = "{'name':'James','hobbies':['pie','cake']}";
             JsonReader reader = new JsonTextReader(new StringReader(json));
 
-            JSchemaValidatingReader validatingReader = new JSchemaValidatingReader(reader);
+            JSchemaValidatingReader validatingReader = CreateValidatingReader(reader);
             Assert.AreEqual(reader, validatingReader.Reader);
         }
 
@@ -689,7 +694,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             JSchema schema = JSchema.Parse(schemaJson);
             reader.Schema = schema;
@@ -759,7 +764,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
 
@@ -834,7 +839,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
 
@@ -859,7 +864,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
 
@@ -888,7 +893,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
 
@@ -926,7 +931,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
 
@@ -951,7 +956,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
 
@@ -977,7 +982,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
 
@@ -1021,7 +1026,7 @@ namespace Newtonsoft.Json.Schema.Tests
   ""maximum"":5
 }";
 
-                JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader("10")));
+                JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader("10")));
                 reader.Schema = JSchema.Parse(schemaJson);
 
                 Assert.IsTrue(reader.Read());
@@ -1040,7 +1045,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
 
@@ -1070,7 +1075,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
 
@@ -1108,7 +1113,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
 
@@ -1132,7 +1137,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
 
@@ -1160,7 +1165,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
 
@@ -1201,7 +1206,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
 
@@ -1243,7 +1248,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
 
@@ -1273,7 +1278,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
 
@@ -1307,7 +1312,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
 
@@ -1365,7 +1370,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             SchemaValidationEventArgs a = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { a = args; };
             reader.Schema = JSchema.Parse(schemaJson);
 
@@ -1415,7 +1420,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             SchemaValidationEventArgs a = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json))
+            JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json))
             {
                 DateParseHandling = DateParseHandling.DateTimeOffset
             });
@@ -1472,7 +1477,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             SchemaValidationEventArgs a = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { a = args; };
             reader.Schema = JSchema.Parse(schemaJson);
 
@@ -1522,7 +1527,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             SchemaValidationEventArgs a = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { a = args; };
             reader.Schema = JSchema.Parse(schemaJson);
 
@@ -1567,7 +1572,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
 
@@ -1599,7 +1604,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
 
@@ -1634,7 +1639,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
 
@@ -1670,7 +1675,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
 
@@ -1707,7 +1712,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
 
@@ -1739,7 +1744,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
 
@@ -1766,7 +1771,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
 
@@ -1807,7 +1812,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
 
@@ -1832,7 +1837,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             Assert.IsNotNull(validationEventArgs);
         }
-
+        
         [Test]
         public void MissingNonRequiredProperties()
         {
@@ -1851,7 +1856,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
 
@@ -1872,7 +1877,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             Assert.IsNull(validationEventArgs);
         }
-
+        
         [Test]
         public void DisableAdditionalProperties()
         {
@@ -1890,7 +1895,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
 
@@ -1949,7 +1954,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) =>
             {
                 validationEventArgs = args;
@@ -2075,7 +2080,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             List<ValidationError> errors = new List<ValidationError>();
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { errors.Add(args.ValidationError); };
             reader.Schema = GetExtendedSchema();
 
@@ -2111,7 +2116,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
 
@@ -2160,7 +2165,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
 
@@ -2270,7 +2275,7 @@ namespace Newtonsoft.Json.Schema.Tests
             SchemaValidationEventArgs validationEventArgs = null;
             List<ValidationError> errors = new List<ValidationError>();
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) =>
             {
                 validationEventArgs = args;
@@ -2460,7 +2465,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             IList<SchemaValidationEventArgs> validationEventArgs = new List<SchemaValidationEventArgs>();
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs.Add(args); };
             reader.Schema = JSchema.Parse(schema);
 
@@ -2478,10 +2483,8 @@ namespace Newtonsoft.Json.Schema.Tests
 
             byte[] data = Encoding.UTF8.GetBytes("Hello world");
 
-            JsonReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(@"""" + Convert.ToBase64String(data) + @"""")))
-            {
-                Schema = s
-            };
+            JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(@"""" + Convert.ToBase64String(data) + @"""")));
+            reader.Schema = s;
             byte[] bytes = reader.ReadAsBytes();
 
             CollectionAssert.AreEquivalent(data, bytes);
@@ -2495,10 +2498,8 @@ namespace Newtonsoft.Json.Schema.Tests
                 JSchema s = new JSchemaGenerator().Generate(typeof(bool));
                 s.Enum.Add(new JValue(false));
 
-                JsonReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(@"true")))
-                {
-                    Schema = s
-                };
+                JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(@"true")));
+                reader.Schema = s;
                 reader.ReadAsBoolean();
             }, "Value true is not defined in enum. Path '', line 1, position 4.");
         }
@@ -2508,10 +2509,8 @@ namespace Newtonsoft.Json.Schema.Tests
         {
             JSchema s = new JSchemaGenerator().Generate(typeof(bool));
 
-            JsonReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(@"true")))
-            {
-                Schema = s
-            };
+            JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(@"true")));
+            reader.Schema = s;
             bool? b = reader.ReadAsBoolean();
 
             Assert.AreEqual(true, b);
@@ -2522,10 +2521,8 @@ namespace Newtonsoft.Json.Schema.Tests
         {
             JSchema s = new JSchemaGenerator().Generate(typeof(int));
 
-            JsonReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(@"1")))
-            {
-                Schema = s
-            };
+            JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(@"1")));
+            reader.Schema = s;
             int? i = reader.ReadAsInt32();
 
             Assert.AreEqual(1, i);
@@ -2539,10 +2536,8 @@ namespace Newtonsoft.Json.Schema.Tests
                 JSchema s = new JSchemaGenerator().Generate(typeof(int));
                 s.Maximum = 2;
 
-                JsonReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(@"5")))
-                {
-                    Schema = s
-                };
+                JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(@"5")));
+                reader.Schema = s;
                 reader.ReadAsInt32();
             }, "Integer 5 exceeds maximum value of 2. Path '', line 1, position 1.");
         }
@@ -2552,10 +2547,8 @@ namespace Newtonsoft.Json.Schema.Tests
         {
             JSchema s = new JSchemaGenerator().Generate(typeof(double));
 
-            JsonReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(@"1.0")))
-            {
-                Schema = s
-            };
+            JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(@"1.0")));
+            reader.Schema = s;
             double? d = reader.ReadAsDouble();
 
             Assert.AreEqual(1d, d);
@@ -2569,10 +2562,8 @@ namespace Newtonsoft.Json.Schema.Tests
                 JSchema s = new JSchemaGenerator().Generate(typeof(double));
                 s.Maximum = 2;
 
-                JsonReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(@"5.0")))
-                {
-                    Schema = s
-                };
+                JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(@"5.0")));
+                reader.Schema = s;
                 reader.ReadAsDouble();
             }, "Float 5.0 exceeds maximum value of 2. Path '', line 1, position 3.");
         }
@@ -2582,10 +2573,8 @@ namespace Newtonsoft.Json.Schema.Tests
         {
             JSchema s = new JSchemaGenerator().Generate(typeof(decimal));
 
-            JsonReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(@"1.5")))
-            {
-                Schema = s
-            };
+            JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(@"1.5")));
+            reader.Schema = s;
             decimal? d = reader.ReadAsDecimal();
 
             Assert.AreEqual(1.5m, d);
@@ -2599,10 +2588,8 @@ namespace Newtonsoft.Json.Schema.Tests
                 JSchema s = new JSchemaGenerator().Generate(typeof(decimal));
                 s.MultipleOf = 1;
 
-                JsonReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(@"5.5")))
-                {
-                    Schema = s
-                };
+                JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(@"5.5")));
+                reader.Schema = s;
                 reader.ReadAsDecimal();
             }, "Float 5.5 is not a multiple of 1. Path '', line 1, position 3.");
         }
@@ -2610,7 +2597,7 @@ namespace Newtonsoft.Json.Schema.Tests
         [Test]
         public void ReadAsInt32FromSerializer()
         {
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader("[1,2,3]")));
+            JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader("[1,2,3]")));
             reader.Schema = new JSchemaGenerator().Generate(typeof(int[]));
             int[] values = new JsonSerializer().Deserialize<int[]>(reader);
 
@@ -2635,7 +2622,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
 
@@ -2672,7 +2659,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
 
@@ -2705,7 +2692,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader("{}")));
+            JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader("{}")));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schema);
 
@@ -2754,7 +2741,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             List<ValidationError> errors = new List<ValidationError>();
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (o, e) => errors.Add(e.ValidationError);
             reader.Schema = schema;
 
@@ -2788,7 +2775,7 @@ namespace Newtonsoft.Json.Schema.Tests
             var schema = JSchema.Parse(schemaJson);
 
             var jsonReader = new JsonTextReader(new StringReader(json));
-            var validatingReader = new JSchemaValidatingReader(jsonReader);
+            var validatingReader = CreateValidatingReader(jsonReader);
             validatingReader.Schema = schema;
             validatingReader.ValidationEventHandler += (o, a) => errors.Add(a.Path + ": " + a.Message);
 
@@ -2842,7 +2829,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             List<ValidationError> errors = new List<ValidationError>();
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (o, e) => errors.Add(e.ValidationError);
             reader.Schema = schema;
 
@@ -2890,7 +2877,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             List<ValidationError> errors = new List<ValidationError>();
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (o, e) => errors.Add(e.ValidationError);
             reader.Schema = schema;
 
@@ -2941,7 +2928,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             List<ValidationError> errors = new List<ValidationError>();
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (o, e) => errors.Add(e.ValidationError);
             reader.Schema = schema;
 
@@ -2963,7 +2950,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             List<ValidationError> errors = new List<ValidationError>();
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (o, e) => errors.Add(e.ValidationError);
             reader.Schema = schema;
 
@@ -2978,7 +2965,8 @@ namespace Newtonsoft.Json.Schema.Tests
         public void CloseAlsoClosesUnderlyingReader()
         {
             var underlyingReader = new JsonReaderStubWithIsClosed();
-            var validatingReader = new JSchemaValidatingReader(underlyingReader) { CloseInput = true };
+            var validatingReader = CreateValidatingReader(underlyingReader);
+            validatingReader.CloseInput = true;
 
             validatingReader.Close();
 
@@ -2998,7 +2986,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
 
@@ -3036,7 +3024,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
 
@@ -3076,7 +3064,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
 
@@ -3110,7 +3098,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
 
@@ -3154,7 +3142,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
 
@@ -3187,7 +3175,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
 
@@ -3286,7 +3274,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
 
@@ -3332,7 +3320,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
 
@@ -3375,7 +3363,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
 
@@ -3424,7 +3412,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
 
@@ -3483,7 +3471,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             SchemaValidationEventArgs validationEventArgs = null;
 
-            JSchemaValidatingReader reader = new JSchemaValidatingReader(new JsonTextReader(new StringReader(json)));
+            JSchemaValidatingReader reader = CreateValidatingReader(new JsonTextReader(new StringReader(json)));
             reader.ValidationEventHandler += (sender, args) => { validationEventArgs = args; };
             reader.Schema = JSchema.Parse(schemaJson);
 

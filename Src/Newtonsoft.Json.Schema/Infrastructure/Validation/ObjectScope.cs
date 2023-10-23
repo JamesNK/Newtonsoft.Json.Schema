@@ -16,9 +16,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
     {
         private int _propertyCount;
         private string? _currentPropertyName;
-        private List<string>? _requiredProperties;
+        private ICollection<string>? _requiredProperties;
         private Dictionary<string, UnevaluatedContext>? _unevaluatedScopes;
-        internal List<string>? ReadProperties;
+        internal ICollection<string>? ReadProperties;
 
         public void Initialize(ContextBase context, SchemaScope? parent, int initialDepth, JSchema schema)
         {
@@ -36,12 +36,17 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 }
                 else
                 {
-                    _requiredProperties = new List<string>(schema._required.Count);
+                    _requiredProperties = context.Validator.PropertyNameCaseInsensitive
+                        ? new HashSet<string>(schema._required, StringComparer.OrdinalIgnoreCase)
+                        : new List<string>(schema._required.Count);
                 }
 
-                foreach (string required in schema._required)
+                if (_requiredProperties.Count == 0)
                 {
-                    _requiredProperties.Add(required);
+                    foreach (string required in schema._required)
+                    {
+                        _requiredProperties.Add(required);
+                    }
                 }
             }
 
@@ -56,7 +61,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 }
                 else
                 {
-                    ReadProperties = new List<string>();
+                    ReadProperties = context.Validator.PropertyNameCaseInsensitive
+                        ? new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+                        : new List<string>();
                 }
             }
 
@@ -151,7 +158,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                             {
                                 object? dependency = null;
                                 IList<string>? requiredProperties = null;
-                                if (Schema._dependencies?.TryGetValue(readProperty, out dependency) ?? false)
+                                if (Schema._dependencies?.TryGetValue(readProperty, out dependency, ignoreCase: Context.Validator.PropertyNameCaseInsensitive) ?? false)
                                 {
                                     requiredProperties = dependency as IList<string>;
                                     if (requiredProperties != null)
@@ -160,7 +167,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                                     }
                                 }
 
-                                if (Schema._dependentRequired?.TryGetValue(readProperty, out requiredProperties) ?? false)
+                                if (TryGetDependentRequired(readProperty, out requiredProperties))
                                 {
                                     ValidateDependentProperties(readProperty, requiredProperties!);
                                 }
@@ -245,9 +252,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                         bool matched = false;
                         if (Schema._properties != null)
                         {
-                            if (Schema._properties.TryGetValue(_currentPropertyName, out JSchema propertySchema))
+                            if (Schema._properties.TryGetValue(_currentPropertyName, out JSchema? propertySchema, ignoreCase: Context.Validator.PropertyNameCaseInsensitive))
                             {
-                                CreateScopesAndEvaluateToken(token, value, depth, propertySchema);
+                                CreateScopesAndEvaluateToken(token, value, depth, propertySchema!);
                                 matched = true;
                             }
                         }
@@ -360,7 +367,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
         private bool IsPropertyDefined(JSchema schema, string propertyName)
         {
-            if (schema._properties != null && schema._properties.ContainsKey(propertyName))
+            if (Schema._properties != null && Schema._properties.ContainsKey(propertyName, ignoreCase: Context.Validator.PropertyNameCaseInsensitive))
             {
                 return true;
             }
@@ -384,6 +391,29 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 }
             }
 
+            return false;
+        }
+
+        private bool TryGetDependentRequired(string key, out IList<string>? value)
+        {
+            if (!Schema._dependentRequired.IsNullOrEmpty())
+            {
+                if (!Context.Validator.PropertyNameCaseInsensitive)
+                {
+                    return Schema._dependentRequired.TryGetValue(key, out value);
+                }
+
+                foreach (var kvp in Schema._dependentRequired)
+                {
+                    if (string.Equals(key, kvp.Key, StringComparison.OrdinalIgnoreCase))
+                    {
+                        value = kvp.Value;
+                        return true;
+                    }
+                }
+            }
+
+            value = null;
             return false;
         }
     }

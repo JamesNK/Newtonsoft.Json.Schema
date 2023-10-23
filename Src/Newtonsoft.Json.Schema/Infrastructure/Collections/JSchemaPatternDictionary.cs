@@ -50,7 +50,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Collections
         }
     }
 
-    internal class JSchemaPatternDictionary : IDictionary<string, JSchema>
+    internal class JSchemaPatternDictionary : IDictionary<string, JSchema>, ICaseInsensitiveLookup<JSchema>
     {
         private readonly Dictionary<string, PatternSchema> _inner;
         private ValuesCollection? _values;
@@ -156,6 +156,23 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Collections
 
             value = null;
             return false;
+        }
+
+        public bool TryGetValue(string key, [NotNullWhen(true)] out JSchema? value, bool ignoreCase)
+        {
+            if (CollectionHelpers.TryGetValue(_inner, key, out var v, ignoreCase))
+            {
+                value = v.Schema;
+                return true;
+            }
+
+            value = default;
+            return false;
+        }
+
+        public bool ContainsKey(string key, bool ignoreCase)
+        {
+            return CollectionHelpers.ContainsKey(_inner, key, ignoreCase);
         }
 
         public JSchema this[string key]

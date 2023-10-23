@@ -63,6 +63,15 @@ namespace Newtonsoft.Json.Schema
 #endif
 
         /// <summary>
+        /// Gets or sets a value indicating whether property names are compared case-insensitively during validation.
+        /// </summary>
+        public bool PropertyNameCaseInsensitive
+        {
+            get => _validator.PropertyNameCaseInsensitive;
+            set => _validator.PropertyNameCaseInsensitive = value;
+        }
+
+        /// <summary>
         /// Gets the text value of the current JSON token.
         /// </summary>
         /// <value></value>

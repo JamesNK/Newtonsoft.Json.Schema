@@ -5,10 +5,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Collections
 {
-    internal class JSchemaDictionary : DictionaryBase<string, JSchema>
+    internal class JSchemaDictionary : DictionaryBase<string, JSchema>, ICaseInsensitiveLookup<JSchema>
     {
         private readonly JSchema _parentSchema;
 
@@ -109,6 +110,38 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Collections
             if (changed)
             {
                 OnChanged();
+            }
+        }
+
+        public bool ContainsKey(string key, bool ignoreCase)
+        {
+            if (Dictionary is Dictionary<string, JSchema> dictionary)
+            {
+                return CollectionHelpers.ContainsKey(dictionary, key, ignoreCase);
+            }
+            else if (Dictionary is ICaseInsensitiveLookup<JSchema> caseInsensitiveLookup)
+            {
+                return caseInsensitiveLookup.ContainsKey(key, ignoreCase);
+            }
+            else
+            {
+                throw new NotSupportedException();
+            }
+        }
+
+        public bool TryGetValue(string key, [NotNullWhen(true)] out JSchema? value, bool ignoreCase)
+        {
+            if (Dictionary is Dictionary<string, JSchema> dictionary)
+            {
+                return CollectionHelpers.TryGetValue(dictionary, key, out value, ignoreCase);
+            }
+            else if (Dictionary is ICaseInsensitiveLookup<JSchema> caseInsensitiveLookup)
+            {
+                return caseInsensitiveLookup.TryGetValue(key, out value, ignoreCase);
+            }
+            else
+            {
+                throw new NotSupportedException();
             }
         }
     }
