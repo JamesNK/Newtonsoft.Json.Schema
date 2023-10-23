@@ -62,7 +62,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             {
                 if (string.Equals(key, kvp.Key, StringComparison.OrdinalIgnoreCase))
                 {
-                    value = kvp.Value;
+                    value = kvp.Value!;
                     return true;
                 }
             }
