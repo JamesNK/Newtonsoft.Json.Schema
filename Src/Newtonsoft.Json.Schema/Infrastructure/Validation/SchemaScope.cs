@@ -104,14 +104,14 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     scope = arrayScope;
                     break;
                 default:
-                    PrimativeScope? primativeScope = context.Validator.GetCachedScope<PrimativeScope>(ScopeType.Primitive);
-                    if (primativeScope == null)
+                    PrimitiveScope? primitiveScope = context.Validator.GetCachedScope<PrimitiveScope>(ScopeType.Primitive);
+                    if (primitiveScope == null)
                     {
-                        primativeScope = new PrimativeScope();
+                        primitiveScope = new PrimitiveScope();
                     }
-                    primativeScope.Initialize(context, parent, depth, schema);
+                    primitiveScope.Initialize(context, parent, depth, schema);
 
-                    scope = primativeScope;
+                    scope = primitiveScope;
                     context.Scopes.Add(scope);
                     break;
             }
