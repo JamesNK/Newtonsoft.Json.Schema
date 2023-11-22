@@ -34,6 +34,7 @@ namespace Newtonsoft.Json.Schema.Tests
         public JToken Data { get; set; }
         public bool IsValid { get; set; }
         public int TestNumber { get; set; }
+        public bool IsFormatTest { get; set; }
 
         public override string ToString()
         {
@@ -107,21 +108,6 @@ namespace Newtonsoft.Json.Schema.Tests
             resolver.Add(new Uri(id), json);
         }
 
-        private static void AddSchemaRemote(JSchemaPreloadedResolver resolver, string schemaFileName, string id, string subDirectory = null)
-        {
-            AddSchema(resolver, schemaFileName, id, subDirectory);
-
-            if (id.StartsWith("http://localhost:1234/"))
-            {
-                id = id.Substring("http://localhost:1234/".Length);
-            }
-
-            if (schemaFileName != id)
-            {
-                throw new Exception("No match: " + schemaFileName + " - " + id);
-            }
-        }
-
 #if DNXCORE50
         [Theory]
 #endif
@@ -148,6 +134,10 @@ namespace Newtonsoft.Json.Schema.Tests
             {
                 reader.Schema = s;
                 reader.ValidationEventHandler += (sender, args) => errorMessages.Add(args.Message);
+                if (schemaSpecTest.IsFormatTest)
+                {
+                    reader.FormatHandling = FormatHandling.Assertion;
+                }
 
                 while (reader.Read())
                 {
@@ -185,6 +175,10 @@ namespace Newtonsoft.Json.Schema.Tests
             {
                 validatingWriter.Schema = s;
                 validatingWriter.ValidationEventHandler += (sender, args) => errorMessages.Add(args.Message);
+                if (schemaSpecTest.IsFormatTest)
+                {
+                    validatingWriter.FormatHandling = FormatHandling.Assertion;
+                }
 
                 while (jsonReader.Read())
                 {
@@ -218,6 +212,7 @@ namespace Newtonsoft.Json.Schema.Tests
                 testFiles = testFiles.Where(f => !f.EndsWith("ecmascript-regex.json")).ToArray();
                 testFiles = testFiles.Where(f => !f.EndsWith("float-overflow.json")).ToArray();
                 testFiles = testFiles.Where(f => !f.EndsWith("vocabulary.json")).ToArray();
+                testFiles = testFiles.Where(f => !f.EndsWith("format-assertion.json")).ToArray();                
 
                 // todo - add support for all formats
                 testFiles = testFiles.Where(f => !f.EndsWith("content.json")
@@ -252,6 +247,7 @@ namespace Newtonsoft.Json.Schema.Tests
                             schemaSpecTest.Version = version;
                             schemaSpecTest.TestCaseDescription = (string)testCase["description"];
                             schemaSpecTest.Schema = testCase["schema"];
+                            schemaSpecTest.IsFormatTest = Path.GetDirectoryName(testFile).EndsWith(Path.Combine("optional", "format"), StringComparison.OrdinalIgnoreCase);
 
                             schemaSpecTest.TestDescription = (string)test["description"];
                             schemaSpecTest.Data = test["data"];

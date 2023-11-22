@@ -94,11 +94,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             return schemaData;
         }
 
-        public static bool EnsureVersion(SchemaVersion currentVersion, SchemaVersion minimum, SchemaVersion? maximum = null)
+        public static bool EnsureVersion(SchemaVersion currentVersion, SchemaVersion minimum, SchemaVersion? maximum = null, bool unsetDefault = true)
         {
             if (currentVersion == SchemaVersion.Unset)
             {
-                return true;
+                return unsetDefault;
             }
 
             if (currentVersion >= minimum)

@@ -91,6 +91,23 @@ namespace Newtonsoft.Json.Schema
 #endif
 
         /// <summary>
+        /// Gets or sets how <c>format</c> keywords are validated.
+        /// </summary>
+        public FormatHandling FormatHandling
+        {
+            get => _validator.FormatHandling;
+            set
+            {
+                if (value < FormatHandling.Default || value > FormatHandling.Assertion)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(value));
+                }
+
+                _validator.FormatHandling = value;
+            }
+        }
+
+        /// <summary>
         /// Flushes whatever is in the buffer to the underlying streams and also flushes the underlying stream.
         /// </summary>
         public override void Flush()
