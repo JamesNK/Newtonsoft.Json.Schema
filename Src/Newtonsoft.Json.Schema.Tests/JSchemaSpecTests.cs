@@ -77,36 +77,6 @@ namespace Newtonsoft.Json.Schema.Tests
 
                 // Test resource schemas
                 AddRemotes(resolver);
-                //AddSchema(resolver, "integer.json", "http://localhost:1234/integer.json");
-                //AddSchema(resolver, "baseUriChange/folderInteger.json", "http://localhost:1234/baseUriChange/folderInteger.json");
-                //AddSchema(resolver, "baseUriChangeFolder/folderInteger.json", "http://localhost:1234/baseUriChangeFolder/folderInteger.json");
-                //AddSchema(resolver, "baseUriChangeFolderInSubschema/folderInteger.json", "http://localhost:1234/baseUriChangeFolderInSubschema/folderInteger.json");
-                //AddSchema(resolver, "subSchemas.json", "http://localhost:1234/subSchemas.json");
-                //AddSchema(resolver, "subSchemas-defs.json", "http://localhost:1234/subSchemas-defs.json");
-                //AddSchema(resolver, "name.json", "http://localhost:1234/name.json");
-                //AddSchema(resolver, "name-defs.json", "http://localhost:1234/name-defs.json");
-
-                //AddSchema(resolver, "draft2020-12/prefixItems.json", "http://localhost:1234/draft2020-12/prefixItems.json");
-                //AddSchema(resolver, "draft7/ignore-dependentRequired.json", "http://localhost:1234/draft7/ignore-dependentRequired.json");
-                //AddSchema(resolver, "draft2019-09/locationIndependentIdentifier.json", "http://localhost:1234/draft2019-09/locationIndependentIdentifier.json");
-                //AddSchema(resolver, "draft2019-09/baseUriChange/folderInteger.json", "http://localhost:1234/draft2019-09/baseUriChange/folderInteger.json");
-                //AddSchema(resolver, "draft2019-09/baseUriChangeFolder/folderInteger.json", "http://localhost:1234/draft2019-09/baseUriChangeFolder/folderInteger.json");
-                //AddSchema(resolver, "draft2019-09/baseUriChangeFolderInSubschema/folderInteger.json", "http://localhost:1234/draft2019-09/baseUriChangeFolderInSubschema/folderInteger.json");
-                //AddSchema(resolver, "draft2019-09/subSchemas-defs.json", "http://localhost:1234/draft2019-09/subSchemas-defs.json");
-                //AddSchema(resolver, "different-id-ref-string.json", "http://localhost:1234/different-id-ref-string.json");
-                //AddSchema(resolver, "urn-ref-string.json", "http://localhost:1234/urn-ref-string.json");
-                //AddSchema(resolver, "nested-absolute-ref-to-string.json", "http://localhost:1234/nested-absolute-ref-to-string.json");
-                //AddSchema(resolver, "draft2019-09/integer.json", "http://localhost:1234/draft2019-09/integer.json");
-                //AddSchema(resolver, "draft2019-09/ref-and-defs.json", "http://localhost:1234/draft2019-09/ref-and-defs.json");
-                //AddSchema(resolver, "draft2019-09/nested/foo-ref-string.json", "http://localhost:1234/draft2019-09/nested/foo-ref-string.json");
-                //AddSchema(resolver, "draft2019-09/nested/string.json", "http://localhost:1234/draft2019-09/nested/string.json");
-                //AddSchema(resolver, "draft2019-09/name-defs.json", "http://localhost:1234/draft2019-09/name-defs.json");
-                //AddSchema(resolver, "locationIndependentIdentifierDraft4.json", "http://localhost:1234/locationIndependentIdentifierDraft4.json");
-                //AddSchema(resolver, "locationIndependentIdentifierPre2019.json", "http://localhost:1234/locationIndependentIdentifierPre2019.json");
-                //AddSchema(resolver, "ref-and-definitions.json", "http://localhost:1234/ref-and-definitions.json");
-                //AddSchema(resolver, "nested/foo-ref-string.json", "http://localhost:1234/nested/foo-ref-string.json");
-                //AddSchema(resolver, "nested/string.json", "http://localhost:1234/nested/string.json");
-                //AddSchema(resolver, "draft2019-09/dependentRequired.json", "http://localhost:1234/draft2019-09/dependentRequired.json");
 
                 _resolver = resolver;
             }
@@ -126,18 +96,6 @@ namespace Newtonsoft.Json.Schema.Tests
                 string id = "http://localhost:1234/" + remoteFile.Substring(baseRemotePath.Length + 1);
                 resolver.Add(new Uri(id), json);
             }
-
-            //Directory.GetFiles(baseRemotePath);
-
-            //if (id.StartsWith("http://localhost:1234/"))
-            //{
-            //    id = id.Substring("http://localhost:1234/".Length);
-            //}
-
-            //if (schemaFileName != id)
-            //{
-            //    throw new Exception("No match: " + schemaFileName + " - " + id);
-            //}
         }
 
         private static void AddSchema(JSchemaPreloadedResolver resolver, string schemaFileName, string id, string subDirectory = null)
