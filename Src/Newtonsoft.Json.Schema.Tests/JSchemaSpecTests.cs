@@ -96,6 +96,10 @@ namespace Newtonsoft.Json.Schema.Tests
                 AddSchema(resolver, "nested/foo-ref-string.json", "http://localhost:1234/nested/foo-ref-string.json");
                 AddSchema(resolver, "nested/string.json", "http://localhost:1234/nested/string.json");
                 AddSchema(resolver, "draft2019-09/dependentRequired.json", "http://localhost:1234/draft2019-09/dependentRequired.json");
+                AddSchema(resolver, "draft6/detached-ref.json", "http://localhost:1234/draft6/detached-ref.json");
+                AddSchema(resolver, "draft7/detached-ref.json", "http://localhost:1234/draft7/detached-ref.json");
+                AddSchema(resolver, "draft2019-09/detached-ref.json", "http://localhost:1234/draft2019-09/detached-ref.json");
+                AddSchema(resolver, "draft2019-09/subSchemas.json", "http://localhost:1234/draft2019-09/subSchemas.json");
 
                 _resolver = resolver;
             }
