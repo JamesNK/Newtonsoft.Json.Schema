@@ -637,7 +637,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         {
             EnsureRead(reader, Constants.PropertyNames.AdditionalItems);
 
-            if (reader.TokenType == JsonToken.Boolean)
+            if (EnsureVersion(SchemaVersion.Draft3, SchemaVersion.Draft2019_09) &&
+                reader.TokenType == JsonToken.Boolean)
             {
                 target.AllowAdditionalItems = (bool) reader.Value!;
             }

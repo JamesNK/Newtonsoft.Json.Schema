@@ -348,15 +348,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             {
                 ReferenceOrWriteSchema(schema, schema.AdditionalProperties, Constants.PropertyNames.AdditionalProperties);
             }
-            if (schema._allowAdditionalItems != null)
-            {
-                _writer.WritePropertyName(Constants.PropertyNames.AdditionalItems);
-                _writer.WriteValue(schema._allowAdditionalItems);
-            }
-            else if (schema.AdditionalItems != null)
-            {
-                ReferenceOrWriteSchema(schema, schema.AdditionalItems, Constants.PropertyNames.AdditionalItems);
-            }
+            WriteAdditionalItems(schema);
             if (schema.AllowUnevaluatedProperties != null)
             {
                 _writer.WritePropertyName(Constants.PropertyNames.UnevaluatedProperties);
@@ -527,6 +519,23 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             }
         }
 
+        private void WriteAdditionalItems(JSchema schema)
+        {
+            string propertyName = EnsureVersion(SchemaVersion.Draft3, SchemaVersion.Draft2019_09)
+               ? Constants.PropertyNames.AdditionalItems
+               : Constants.PropertyNames.Items;
+
+            if (schema._allowAdditionalItems != null)
+            {
+                _writer.WritePropertyName(propertyName);
+                _writer.WriteValue(schema._allowAdditionalItems);
+            }
+            else if (schema.AdditionalItems != null)
+            {
+                ReferenceOrWriteSchema(schema, schema.AdditionalItems, propertyName);
+            }
+        }
+
         private void WriteItems(JSchema schema)
         {
             if (schema._items.IsNullOrEmpty() && !schema.ItemsPositionValidation)
@@ -534,11 +543,15 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 return;
             }
 
+            string propertyName = EnsureVersion(SchemaVersion.Draft3, SchemaVersion.Draft2019_09)
+                ? Constants.PropertyNames.Items
+                : Constants.PropertyNames.PrefixItems;
+
             if (!schema.ItemsPositionValidation)
             {
                 if (!schema._items.IsNullOrEmpty())
                 {
-                    ReferenceOrWriteSchema(schema, schema._items[0], Constants.PropertyNames.Items);
+                    ReferenceOrWriteSchema(schema, schema._items[0], propertyName);
                 }
                 else
                 {
@@ -548,7 +561,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             }
             else
             {
-                _writer.WritePropertyName(Constants.PropertyNames.Items);
+                _writer.WritePropertyName(propertyName);
 
                 _writer.WriteStartArray();
                 if (schema._items != null)

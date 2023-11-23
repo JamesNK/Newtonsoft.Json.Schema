@@ -3768,6 +3768,39 @@ namespace Newtonsoft.Json.Schema.Tests
             var result = a.IsValid(s);
             Assert.IsFalse(result);
         }
+
+        [Test]
+        public void Read_Items_Schema_2020_12()
+        {
+            string json = @"{
+                ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
+                ""items"": {""type"": ""integer""}
+            }";
+
+            JSchema s = JSchema.Parse(json);
+
+            JArray a = JArray.Parse(@"[1, ""x""]");
+            var result = a.IsValid(s, out IList<string> errorMessages);
+            Assert.IsFalse(result);
+            Assert.AreEqual("Invalid type. Expected Integer but got String. Path '[1]', line 1, position 7.", errorMessages[0]);
+        }
+
+        [Test]
+        public void Read_Items_False_2020_12()
+        {
+            string json = @"{
+                ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
+                ""items"": false
+            }";
+
+            JSchema s = JSchema.Parse(json);
+
+            JArray a = JArray.Parse(@"[1, ""x""]");
+            var result = a.IsValid(s, out IList<string> errorMessages);
+            Assert.IsFalse(result);
+            Assert.AreEqual("Schema always fails validation. Path '[0]', line 1, position 2.", errorMessages[0]);
+            Assert.AreEqual("Schema always fails validation. Path '[1]', line 1, position 7.", errorMessages[1]);
+        }
     }
 
     public sealed class JsonReaderStubWithIsClosed : JsonReader

@@ -4521,5 +4521,36 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             JSchema s = JSchema.Parse(json, resolver);
             Assert.AreEqual(s, s.AllOf[0].Properties["$defs"].AdditionalProperties);
         }
+
+        [Test]
+        public void Items_Schema_2020_12()
+        {
+            string json = @"{
+                ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
+                ""items"": {""type"": ""integer""}
+            }";
+
+            JSchema s = JSchema.Parse(json);
+
+            Assert.AreEqual(JSchemaType.Integer, s.AdditionalItems.Type);
+            Assert.AreEqual(null, s.AdditionalItems.Valid);
+            Assert.AreEqual(false, s.AllowAdditionalItemsSpecified);
+            Assert.AreEqual(null, s._items);
+        }
+
+        [Test]
+        public void Items_False_2020_12()
+        {
+            string json = @"{
+                ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
+                ""items"": false
+            }";
+
+            JSchema s = JSchema.Parse(json);
+
+            Assert.AreEqual(false, s.AdditionalItems.Valid);
+            Assert.AreEqual(false, s.AllowAdditionalItemsSpecified);
+            Assert.AreEqual(null, s._items);
+        }
     }
 }

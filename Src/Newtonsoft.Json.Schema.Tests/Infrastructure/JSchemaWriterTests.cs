@@ -1664,5 +1664,69 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 
             StringAssert.AreEqual(expected, json);
         }
+
+        [Test]
+        public void WriteTo_Items_Schema_2020_12()
+        {
+            string schemaJson = @"{
+  ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
+  ""items"": {
+    ""type"": ""integer""
+  }
+}";
+
+            JSchema schema = JSchema.Parse(schemaJson);
+            string json = schema.ToString();
+
+            StringAssert.AreEqual(schemaJson, json);
+        }
+
+        [Test]
+        public void WriteTo_Items_False_2020_12()
+        {
+            string schemaJson = @"{
+  ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
+  ""items"": false
+}";
+
+            JSchema schema = JSchema.Parse(schemaJson);
+            string json = schema.ToString();
+
+            StringAssert.AreEqual(schemaJson, json);
+        }
+
+        [Test]
+        public void WriteTo_PrefixItems_Schema_2020_12()
+        {
+            string schemaJson = @"{
+  ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
+  ""prefixItems"": {
+    ""type"": ""integer""
+  }
+}";
+
+            JSchema schema = JSchema.Parse(schemaJson);
+            string json = schema.ToString();
+
+            StringAssert.AreEqual(schemaJson, json);
+        }
+
+        [Test]
+        public void WriteTo_PrefixItems_SchemaArray_2020_12()
+        {
+            string schemaJson = @"{
+  ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
+  ""prefixItems"": [
+    {
+      ""type"": ""integer""
+    }
+  ]
+}";
+
+            JSchema schema = JSchema.Parse(schemaJson);
+            string json = schema.ToString();
+
+            StringAssert.AreEqual(schemaJson, json);
+        }
     }
 }
