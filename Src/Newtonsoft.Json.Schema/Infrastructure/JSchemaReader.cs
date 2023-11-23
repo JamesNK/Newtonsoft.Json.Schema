@@ -1359,7 +1359,26 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                     }
                     break;
                 case Constants.PropertyNames.Items:
-                    ReadItems(reader, target);
+                    // The meaning of "items" changed in 2020-12 to be like "additionalItems".
+                    // Continue to use the old behavior if the schema version is unset.
+                    if (EnsureVersion(SchemaVersion.Draft3, SchemaVersion.Draft2019_09))
+                    {
+                        ReadItems(reader, target);
+                    }
+                    else
+                    {
+                        ReadAdditionalItems(reader, target);
+                    }
+                    break;
+                case Constants.PropertyNames.PrefixItems:
+                    if (EnsureVersion(SchemaVersion.Draft2020_12))
+                    {
+                        ReadItems(reader, target);
+                    }
+                    else
+                    {
+                        ReadExtensionData(reader, target, name);
+                    }
                     break;
                 case Constants.PropertyNames.Type:
                 {
