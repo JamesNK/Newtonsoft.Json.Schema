@@ -232,6 +232,17 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                             CreateScopesAndEvaluateToken(token, value, depth, Schema._items[0]);
                             matched = true;
                         }
+                        else
+                        {
+                            if (SchemaVersionHelpers.EnsureVersion(Context.Validator.SchemaVersion, SchemaVersion.Draft2020_12, unsetDefault: false))
+                            {
+                                if (Schema.AdditionalItems != null)
+                                {
+                                    CreateScopesAndEvaluateToken(token, value, depth, Schema.AdditionalItems);
+                                    matched = true;
+                                }
+                            }
+                        }
                     }
 
                     if (ShouldEvaluateContains())
