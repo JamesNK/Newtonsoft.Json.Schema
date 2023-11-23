@@ -3801,6 +3801,96 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual("Schema always fails validation. Path '[0]', line 1, position 2.", errorMessages[0]);
             Assert.AreEqual("Schema always fails validation. Path '[1]', line 1, position 7.", errorMessages[1]);
         }
+
+        [Test]
+        public void Read_UnevaluatedItemsDependsOnAdjacentContains_SecondItemEvaluatedByContains()
+        {
+            string json = @"{
+    ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
+    ""prefixItems"": [true],
+    ""contains"": {""type"": ""string""},
+    ""unevaluatedItems"": false
+}";
+
+            JSchema s = JSchema.Parse(json);
+
+            JArray a = JArray.Parse(@"[ 1, ""foo"" ]");
+            var result = a.IsValid(s, out IList<string> errorMessages);
+            Assert.IsTrue(result);
+        }
+
+        [Test]
+        public void Read_UnevaluatedItemsDependsOnAdjacentContains_SecondItemInvalid()
+        {
+            string json = @"{
+    ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
+    ""prefixItems"": [true],
+    ""contains"": {""type"": ""string""},
+    ""unevaluatedItems"": false
+}";
+
+            JSchema s = JSchema.Parse(json);
+
+            JArray a = JArray.Parse(@"[ 1, 2, ""foo"" ]");
+            var result = a.IsValid(s, out IList<string> errorMessages);
+            Assert.IsFalse(result);
+        }
+
+        [Test]
+        public void Read_UnevaluatedItems_Contains_IfElse_A_B_Valid()
+        {
+            string json = @"{
+                ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
+                ""if"": {
+                    ""contains"": {""const"": ""a""}
+                },
+                ""then"": {
+                    ""if"": {
+                        ""contains"": {""const"": ""b""}
+                    },
+                    ""then"": {
+                        ""if"": {
+                            ""contains"": {""const"": ""c""}
+                        }
+                    }
+                },
+                ""unevaluatedItems"": false
+            }";
+
+            JSchema s = JSchema.Parse(json);
+
+            JArray a = JArray.Parse(@"[ ""a"", ""b"", ""a"", ""b"", ""a"" ]");
+            var result = a.IsValid(s, out IList<string> errorMessages);
+            Assert.IsTrue(result);
+        }
+
+        [Test]
+        public void Read_UnevaluatedItems_Contains_IfElse_A_C_Invalid()
+        {
+            string json = @"{
+                ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
+                ""if"": {
+                    ""contains"": {""const"": ""a""}
+                },
+                ""then"": {
+                    ""if"": {
+                        ""contains"": {""const"": ""b""}
+                    },
+                    ""then"": {
+                        ""if"": {
+                            ""contains"": {""const"": ""c""}
+                        }
+                    }
+                },
+                ""unevaluatedItems"": false
+            }";
+
+            JSchema s = JSchema.Parse(json);
+
+            JArray a = JArray.Parse(@"[ ""a"", ""c"" ]");
+            var result = a.IsValid(s, out IList<string> errorMessages);
+            Assert.IsFalse(result);
+        }
     }
 
     public sealed class JsonReaderStubWithIsClosed : JsonReader

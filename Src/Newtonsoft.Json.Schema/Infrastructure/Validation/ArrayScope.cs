@@ -293,6 +293,10 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                         if (!currentContainsContext.HasErrors)
                         {
                             _matchCount++;
+                            if (ShouldValidateUnevaluated())
+                            {
+                                _unevaluatedScopes!.Remove(_index);
+                            }
                         }
                     }
 
@@ -329,6 +333,19 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                                             schemaScope.Schema.AllowUnevaluatedItems.GetValueOrDefault())
                                         {
                                             unevaluatedContext.AddValidScope(schemaScope.Schema);
+                                            continue;
+                                        }
+                                        
+                                        if (schemaScope is ArrayScope arrayScope && arrayScope.Schema.Contains != null)
+                                        {
+                                            ConditionalContext? containsContext = (arrayScope._containsContexts != null && arrayScope._containsContexts.Count > _index)
+                                                ? arrayScope._containsContexts[_index]
+                                                : null;
+
+                                            if (containsContext != null && !containsContext.HasErrors)
+                                            {
+                                                unevaluatedContext.AddValidScope(schemaScope.Schema);
+                                            }
                                         }
                                     }
                                 }

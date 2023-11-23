@@ -5,10 +5,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 {
+    [DebuggerDisplay("Errors = {Errors?.Count ?? 0}")]
     internal class ConditionalContext : ContextBase, ISchemaTracker
     {
         private readonly ISchemaTracker? _parentSchemaTracker;
@@ -40,7 +42,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
         {
             if (TrackEvaluatedSchemas)
             {
-                // If a parent is available then only store schemas in parent for efficency
+                // If a parent is available then only store schemas in parent for efficiency
                 if (_parentSchemaTracker != null && _parentSchemaTracker.TrackEvaluatedSchemas)
                 {
                     _parentSchemaTracker.TrackEvaluatedSchema(schema);
