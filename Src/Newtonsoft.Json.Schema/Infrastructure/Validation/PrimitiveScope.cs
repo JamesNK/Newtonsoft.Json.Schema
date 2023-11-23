@@ -273,8 +273,6 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             }
         }
 
-        private static readonly char[] CaseInsensitiveDateTimeChars = new[] { 't', 'z' };
-
         private static bool ValidateFormat(string format, string value)
         {
             switch (format)

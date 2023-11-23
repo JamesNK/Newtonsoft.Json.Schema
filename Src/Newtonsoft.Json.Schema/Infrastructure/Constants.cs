@@ -71,6 +71,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             public const string ContentMediaType = "contentMediaType";
             public const string ReadOnly = "readOnly";
             public const string WriteOnly = "writeOnly";
+            public const string PrefixItems = "prefixItems";
 
             public const string AnyOf = "anyOf";
             public const string AllOf = "allOf";

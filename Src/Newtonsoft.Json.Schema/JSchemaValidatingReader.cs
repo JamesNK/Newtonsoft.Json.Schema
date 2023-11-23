@@ -320,7 +320,7 @@ namespace Newtonsoft.Json.Schema
         /// </returns>
         public override bool Read()
         {
-            // clear out exlicit value and token so inner reader values are used
+            // clear out explicit value and token so inner reader values are used
             _readAsValue = null;
             _readAsToken = null;
 
