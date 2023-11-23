@@ -191,12 +191,12 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 if (schema.Then != null)
                 {
                     ifThenElseScope.Then = schema.Then;
-                    ifThenElseScope.ThenContext = scope.CreateConditionalContext();
+                    //ifThenElseScope.ThenContext = scope.CreateConditionalContext();
                 }
                 if (schema.Else != null)
                 {
                     ifThenElseScope.Else = schema.Else;
-                    ifThenElseScope.ElseContext = scope.CreateConditionalContext();
+                    //ifThenElseScope.ElseContext = scope.CreateConditionalContext();
                 }
 
                 ifThenElseScope.InitializeScopes(token, context.Scopes.Count - 1);

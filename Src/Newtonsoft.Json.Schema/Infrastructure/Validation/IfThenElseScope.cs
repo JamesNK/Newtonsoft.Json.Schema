@@ -91,10 +91,12 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             InitializeScope(token, scopeIndex, If!, ConditionalContext);
             if (Then != null)
             {
+                ThenContext = ConditionalContext.Create(ConditionalContext, trackEvaluatedSchemas: false);
                 InitializeScope(token, scopeIndex, Then, ThenContext!);
             }
             if (Else != null)
             {
+                ElseContext = ConditionalContext.Create(ConditionalContext, trackEvaluatedSchemas: false);
                 InitializeScope(token, scopeIndex, Else, ElseContext!);
             }
         }
