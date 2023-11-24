@@ -22,14 +22,14 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
         public ConditionalContext(Validator validator, ContextBase parentContext, bool trackEvaluatedSchemas, bool useParentTracker)
             : base(validator)
         {
-            var parentSchemaTracker = parentContext as ISchemaTracker;
-            if (useParentTracker && (parentSchemaTracker?.TrackEvaluatedSchemas ?? false))
+            var parentSchemaTracker = (parentContext is ISchemaTracker st && st.TrackEvaluatedSchemas) ? st : null;
+            if (useParentTracker)
             {
                 _parentSchemaTracker = parentSchemaTracker;
             }
 
             // Track evaluated schemas if requested, or the parent context is already tracking.
-            TrackEvaluatedSchemas = trackEvaluatedSchemas || (parentSchemaTracker?.TrackEvaluatedSchemas ?? false);
+            TrackEvaluatedSchemas = trackEvaluatedSchemas || parentSchemaTracker != null;
         }
 
         private string DebuggerDisplay()
