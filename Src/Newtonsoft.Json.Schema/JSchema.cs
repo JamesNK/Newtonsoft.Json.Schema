@@ -29,7 +29,7 @@ namespace Newtonsoft.Json.Schema
     /// An in-memory representation of a JSON Schema.
     /// </summary>
     [JsonConverter(typeof(JSchemaConverter))]
-    [DebuggerDisplay("{DebuggerDisplay,nq}")]
+    [DebuggerDisplay("{DebuggerDisplay(),nq}")]
     public class JSchema : IJsonLineInfo, IIdentifierScope
     {
 #if DEBUG
@@ -1093,21 +1093,18 @@ namespace Newtonsoft.Json.Schema
             _linePosition = lineInfo.LinePosition;
         }
 
-        private string DebuggerDisplay
+        private string DebuggerDisplay()
         {
-            get
+            if (Reference != null)
             {
-                if (Reference != null)
-                {
-                    return $"$ref: {Reference}";
-                }
-                if (RecursiveReference != null)
-                {
-                    return $"$recursiveRef: {RecursiveReference}";
-                }
-
-                return ToString();
+                return $"$ref: {Reference}";
             }
+            if (RecursiveReference != null)
+            {
+                return $"$recursiveRef: {RecursiveReference}";
+            }
+
+            return ToString();
         }
     }
 }

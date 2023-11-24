@@ -10,7 +10,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 {
-    [DebuggerDisplay("{DebuggerDisplay,nq}")]
+    [DebuggerDisplay("{DebuggerDisplay(),nq}")]
     internal class ConditionalContext : ContextBase, ISchemaTracker
     {
         private readonly ISchemaTracker? _parentSchemaTracker;
@@ -31,13 +31,10 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             TrackEvaluatedSchemas = trackEvaluatedSchemas || _parentSchemaTracker != null;
         }
 
-        private string DebuggerDisplay
+        private string DebuggerDisplay()
         {
-            get
-            {
-                var evaluatedSchemas = _parentSchemaTracker?.EvaluatedSchemas ?? EvaluatedSchemas;
-                return $"Errors = {Errors?.Count ?? 0}, TrackEvaluatedSchemas = {TrackEvaluatedSchemas}, EvaluatedSchemas = {evaluatedSchemas?.Count ?? 0}";
-            }
+            var evaluatedSchemas = _parentSchemaTracker?.EvaluatedSchemas ?? EvaluatedSchemas;
+            return $"Errors = {Errors?.Count ?? 0}, TrackEvaluatedSchemas = {TrackEvaluatedSchemas}, EvaluatedSchemas = {evaluatedSchemas?.Count ?? 0}";
         }
 
         public override void RaiseError(IFormattable message, ErrorType errorType, JSchema schema, object? value, IList<ValidationError>? childErrors)

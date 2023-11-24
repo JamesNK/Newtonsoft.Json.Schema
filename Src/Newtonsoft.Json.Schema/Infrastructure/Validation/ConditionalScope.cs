@@ -11,7 +11,7 @@ using System.Globalization;
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 {
-    [DebuggerDisplay("{DebuggerDisplay,nq}")]
+    [DebuggerDisplay("{DebuggerDisplay(),nq}")]
     internal abstract class ConditionalScope : Scope
     {
         protected ConditionalContext ConditionalContext = default!;
@@ -23,7 +23,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             ChildScopes = new List<SchemaScope>();
         }
 
-        internal string DebuggerDisplay => GetType().Name + " - Complete=" + Complete
+        internal string DebuggerDisplay() => GetType().Name + " - Complete=" + Complete
 #if DEBUG
                                            + " - ScopeId=" + DebugId
 #endif

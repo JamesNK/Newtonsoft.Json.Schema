@@ -12,7 +12,7 @@ using Newtonsoft.Json.Linq;
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 {
-    [DebuggerDisplay("{DebuggerDisplay,nq}")]
+    [DebuggerDisplay("{DebuggerDisplay(),nq}")]
     internal abstract class SchemaScope : Scope
     {
         public JSchema Schema = default!;
@@ -66,7 +66,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             ConditionalChildren.Add(scope);
         }
 
-        internal virtual string DebuggerDisplay => GetType().Name + " - IsValid=" + IsValid + " - Complete=" + Complete + " - ValidateUnevaluated=" + ShouldValidateUnevaluated()
+        internal virtual string DebuggerDisplay() => GetType().Name + " - IsValid=" + IsValid + " - Complete=" + Complete + " - ValidateUnevaluated=" + ShouldValidateUnevaluated()
 #if DEBUG
                                            + " - SchemaId=" + Schema?.DebugId ?? "(null)"
                                            + " - ScopeId=" + DebugId
@@ -459,20 +459,20 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 return true;
             }
 
-            if (Context is ISchemaTracker tracker && tracker.EvaluatedSchemas != null)
-            {
-                foreach (var item in tracker.EvaluatedSchemas)
-                {
-                    if (item.Schema == validScopes)
-                    {
-                        return true;
-                    }
-                    //if (item.HasEvaluatedSchema(validScopes))
-                    //{
-                    //    return true;
-                    //}
-                }
-            }
+            //if (Context is ISchemaTracker tracker && tracker.EvaluatedSchemas != null)
+            //{
+            //    foreach (var item in tracker.EvaluatedSchemas)
+            //    {
+            //        if (item.Schema == validScopes)
+            //        {
+            //            return true;
+            //        }
+            //        //if (item.HasEvaluatedSchema(validScopes))
+            //        //{
+            //        //    return true;
+            //        //}
+            //    }
+            //}
             return false;
         }
     }

@@ -66,7 +66,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             }
         }
 
-        internal override string DebuggerDisplay => base.DebuggerDisplay + " - Contains=" + _containsContexts?.Count ?? "(null)";
+        internal override string DebuggerDisplay() => base.DebuggerDisplay() + " - Contains=" + _containsContexts?.Count ?? "(null)";
 
         public override bool ShouldValidateUnevaluated()
         {
