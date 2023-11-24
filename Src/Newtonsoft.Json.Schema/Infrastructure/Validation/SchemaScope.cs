@@ -51,10 +51,15 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             return false;
         }
 
-        public ConditionalContext CreateConditionalContext()
+        public ConditionalContext CreateConditionalContext(bool useParentTracker = true)
         {
-            return ConditionalContext.Create(Context, ShouldValidateUnevaluated());
+            return ConditionalContext.Create(Context, ShouldValidateUnevaluated(), useParentTracker);
         }
+
+        //public ConditionalContext CreateConditionalContext(ContextBase context)
+        //{
+        //    return ConditionalContext.Create(context, ShouldValidateUnevaluated());
+        //}
 
         private void AddChildScope(ConditionalScope scope)
         {
@@ -187,15 +192,16 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 scope.AddChildScope(ifThenElseScope);
 
                 ifThenElseScope.If = schema.If;
+                ifThenElseScope.IfContext = scope.CreateConditionalContext(useParentTracker: false);
                 if (schema.Then != null)
                 {
                     ifThenElseScope.Then = schema.Then;
-                    ifThenElseScope.ThenContext = scope.CreateConditionalContext();
+                    ifThenElseScope.ThenContext = scope.CreateConditionalContext(useParentTracker: false);
                 }
                 if (schema.Else != null)
                 {
                     ifThenElseScope.Else = schema.Else;
-                    ifThenElseScope.ElseContext = scope.CreateConditionalContext();
+                    ifThenElseScope.ElseContext = scope.CreateConditionalContext(useParentTracker: false);
                 }
 
                 ifThenElseScope.InitializeScopes(token, context.Scopes.Count - 1);

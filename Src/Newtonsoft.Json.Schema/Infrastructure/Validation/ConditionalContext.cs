@@ -19,16 +19,17 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
         public List<SchemaScope>? EvaluatedSchemas { get; private set; }
         public bool TrackEvaluatedSchemas { get; }
 
-        public ConditionalContext(Validator validator, ContextBase parentContext, bool trackEvaluatedSchemas)
+        public ConditionalContext(Validator validator, ContextBase parentContext, bool trackEvaluatedSchemas, bool useParentTracker)
             : base(validator)
         {
-            if (parentContext is ISchemaTracker schemaTracker && schemaTracker.TrackEvaluatedSchemas)
+            var parentSchemaTracker = parentContext as ISchemaTracker;
+            if (useParentTracker)
             {
-                _parentSchemaTracker = schemaTracker;
+                _parentSchemaTracker = parentSchemaTracker;
             }
 
             // Track evaluated schemas if requested, or the parent context is already tracking.
-            TrackEvaluatedSchemas = trackEvaluatedSchemas || _parentSchemaTracker != null;
+            TrackEvaluatedSchemas = trackEvaluatedSchemas || (parentSchemaTracker?.TrackEvaluatedSchemas ?? false);
         }
 
         private string DebuggerDisplay()
@@ -68,9 +69,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             }
         }
 
-        public static ConditionalContext Create(ContextBase context, bool trackEvaluatedSchemas)
+        public static ConditionalContext Create(ContextBase context, bool trackEvaluatedSchemas, bool useParentTracker = true)
         {
-            return new ConditionalContext(context.Validator, context, trackEvaluatedSchemas);
+            return new ConditionalContext(context.Validator, context, trackEvaluatedSchemas, useParentTracker);
         }
 
         [MemberNotNullWhen(true, nameof(Errors))]
