@@ -60,14 +60,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     }
                     else
                     {
-                        ConditionalContext.TrackEvaluatedSchemaScope(thenScope);
-                        if (thenScope.Context is ISchemaTracker tracker && !tracker.EvaluatedSchemas.IsNullOrEmpty())
-                        {
-                            foreach (var item in tracker.EvaluatedSchemas)
-                            {
-                                ConditionalContext.TrackEvaluatedSchemaScope(item);
-                            }
-                        }
+                        TrackScope(thenScope);
                     }
                 }
             }
@@ -87,14 +80,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     }
                     else
                     {
-                        ConditionalContext.TrackEvaluatedSchemaScope(elseScope);
-                        if (elseScope.Context is ISchemaTracker tracker && !tracker.EvaluatedSchemas.IsNullOrEmpty())
-                        {
-                            foreach (var item in tracker.EvaluatedSchemas)
-                            {
-                                ConditionalContext.TrackEvaluatedSchemaScope(item);
-                            }
-                        }
+                        TrackScope(elseScope);
                     }
                 }
             }
@@ -102,17 +88,27 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             return true;
         }
 
+        private void TrackScope(SchemaScope scope)
+        {
+            ConditionalContext.TrackEvaluatedSchemaScope(scope);
+            if (scope.Context is ISchemaTracker tracker && !tracker.EvaluatedSchemas.IsNullOrEmpty())
+            {
+                foreach (var item in tracker.EvaluatedSchemas)
+                {
+                    ConditionalContext.TrackEvaluatedSchemaScope(item);
+                }
+            }
+        }
+
         public void InitializeScopes(JsonToken token, int scopeIndex)
         {
             InitializeScope(token, scopeIndex, If!, IfContext!);
             if (Then != null)
             {
-                //ThenContext = ConditionalContext.Create(ConditionalContext, trackEvaluatedSchemas: false);
                 InitializeScope(token, scopeIndex, Then, ThenContext!);
             }
             if (Else != null)
             {
-                //ElseContext = ConditionalContext.Create(ConditionalContext, trackEvaluatedSchemas: false);
                 InitializeScope(token, scopeIndex, Else, ElseContext!);
             }
         }
