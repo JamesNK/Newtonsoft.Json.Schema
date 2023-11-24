@@ -42,7 +42,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
             if (ifScope.IsValid)
             {
-                ConditionalContext.TrackEvaluatedSchema(ifScope.Schema);
+                ConditionalContext.TrackEvaluatedSchemaScope(ifScope);
 
                 if (Then != null)
                 {
@@ -58,7 +58,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     }
                     else
                     {
-                        ConditionalContext.TrackEvaluatedSchema(thenScope.Schema);
+                        ConditionalContext.TrackEvaluatedSchemaScope(thenScope);
                     }
                 }
             }
@@ -78,7 +78,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     }
                     else
                     {
-                        ConditionalContext.TrackEvaluatedSchema(elseScope.Schema);
+                        ConditionalContext.TrackEvaluatedSchemaScope(elseScope);
                     }
                 }
             }
@@ -91,12 +91,12 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             InitializeScope(token, scopeIndex, If!, ConditionalContext);
             if (Then != null)
             {
-                ThenContext = ConditionalContext.Create(ConditionalContext, trackEvaluatedSchemas: false);
+                //ThenContext = ConditionalContext.Create(ConditionalContext, trackEvaluatedSchemas: false);
                 InitializeScope(token, scopeIndex, Then, ThenContext!);
             }
             if (Else != null)
             {
-                ElseContext = ConditionalContext.Create(ConditionalContext, trackEvaluatedSchemas: false);
+                //ElseContext = ConditionalContext.Create(ConditionalContext, trackEvaluatedSchemas: false);
                 InitializeScope(token, scopeIndex, Else, ElseContext!);
             }
         }

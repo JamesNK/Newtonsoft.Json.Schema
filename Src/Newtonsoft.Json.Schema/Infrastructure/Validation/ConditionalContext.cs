@@ -10,22 +10,34 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 {
-    [DebuggerDisplay("Errors = {Errors?.Count ?? 0}")]
+    [DebuggerDisplay("{DebuggerDisplay,nq}")]
     internal class ConditionalContext : ContextBase, ISchemaTracker
     {
         private readonly ISchemaTracker? _parentSchemaTracker;
 
         public List<ValidationError>? Errors;
-        public List<JSchema>? EvaluatedSchemas { get; private set; }
+        public List<SchemaScope>? EvaluatedSchemas { get; private set; }
         public bool TrackEvaluatedSchemas { get; }
 
         public ConditionalContext(Validator validator, ContextBase parentContext, bool trackEvaluatedSchemas)
             : base(validator)
         {
-            _parentSchemaTracker = parentContext as ISchemaTracker;
+            if (parentContext is ISchemaTracker schemaTracker && schemaTracker.TrackEvaluatedSchemas)
+            {
+                _parentSchemaTracker = schemaTracker;
+            }
 
             // Track evaluated schemas if requested, or the parent context is already tracking.
-            TrackEvaluatedSchemas = trackEvaluatedSchemas || (_parentSchemaTracker?.TrackEvaluatedSchemas ?? false);
+            TrackEvaluatedSchemas = trackEvaluatedSchemas || _parentSchemaTracker != null;
+        }
+
+        private string DebuggerDisplay
+        {
+            get
+            {
+                var evaluatedSchemas = _parentSchemaTracker?.EvaluatedSchemas ?? EvaluatedSchemas;
+                return $"Errors = {Errors?.Count ?? 0}, TrackEvaluatedSchemas = {TrackEvaluatedSchemas}, EvaluatedSchemas = {evaluatedSchemas?.Count ?? 0}";
+            }
         }
 
         public override void RaiseError(IFormattable message, ErrorType errorType, JSchema schema, object? value, IList<ValidationError>? childErrors)
@@ -38,20 +50,20 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             Errors.Add(Validator.CreateError(message, errorType, schema, value, childErrors));
         }
 
-        public void TrackEvaluatedSchema(JSchema schema)
+        public void TrackEvaluatedSchemaScope(SchemaScope schema)
         {
             if (TrackEvaluatedSchemas)
             {
                 // If a parent is available then only store schemas in parent for efficiency
-                if (_parentSchemaTracker != null && _parentSchemaTracker.TrackEvaluatedSchemas)
+                if (_parentSchemaTracker != null)
                 {
-                    _parentSchemaTracker.TrackEvaluatedSchema(schema);
+                    _parentSchemaTracker.TrackEvaluatedSchemaScope(schema);
                 }
                 else
                 {
                     if (EvaluatedSchemas == null)
                     {
-                        EvaluatedSchemas = new List<JSchema>();
+                        EvaluatedSchemas = new List<SchemaScope>();
                     }
 
                     EvaluatedSchemas.Add(schema);

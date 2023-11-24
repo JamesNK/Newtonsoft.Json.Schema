@@ -18,7 +18,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
         private int _index;
         private int _matchCount;
         private List<JToken>? _uniqueArrayItems;
-        private List<ConditionalContext>? _containsContexts;
+        private Dictionary<int, ConditionalContext>? _containsContexts;
         private Dictionary<int, UnevaluatedContext>? _unevaluatedScopes;
 
         public void Initialize(ContextBase context, SchemaScope? parent, int initialDepth, JSchema schema)
@@ -37,7 +37,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 }
                 else
                 {
-                    _containsContexts = new List<ConditionalContext>();
+                    _containsContexts = new Dictionary<int, ConditionalContext>();
                 }
             }
 
@@ -66,6 +66,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             }
         }
 
+        internal override string DebuggerDisplay => base.DebuggerDisplay + " - Contains=" + _containsContexts?.Count ?? "(null)";
+
         public override bool ShouldValidateUnevaluated()
         {
             // If additional items are validated then there are no unevaluated items
@@ -91,9 +93,12 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                         {
                             foreach (JSchema validScopes in context.ValidScopes)
                             {
-                                if (conditionalScope.EvaluatedSchemas.Contains(validScopes))
+                                foreach (var item in conditionalScope.EvaluatedSchemas)
                                 {
-                                    context.Evaluated = true;
+                                    if (item.HasEvaluatedSchema(validScopes))
+                                    {
+                                        context.Evaluated = true;
+                                    }
                                 }
                             }
                         }
@@ -248,7 +253,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     if (ShouldEvaluateContains())
                     {
                         ConditionalContext containsContext = CreateConditionalContext();
-                        _containsContexts.Add(containsContext);
+                        _containsContexts[_index] = containsContext;
 
                         // contains scope should not have the current scope the parent
                         // do not want contain failures setting the current scope's IsValid
@@ -338,11 +343,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                                         
                                         if (schemaScope is ArrayScope arrayScope && arrayScope.Schema.Contains != null)
                                         {
-                                            ConditionalContext? containsContext = (arrayScope._containsContexts != null && arrayScope._containsContexts.Count > _index)
-                                                ? arrayScope._containsContexts[_index]
-                                                : null;
-
-                                            if (containsContext != null && !containsContext.HasErrors)
+                                            if (arrayScope._containsContexts != null && arrayScope._containsContexts.TryGetValue(_index, out var containsContext) &&
+                                                !containsContext.HasErrors)
                                             {
                                                 unevaluatedContext.AddValidScope(schemaScope.Schema);
                                             }
@@ -363,10 +365,10 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             return false;
         }
 
-        private List<ValidationError> GetValidationErrors(IList<ConditionalContext> contexts)
+        private List<ValidationError> GetValidationErrors(Dictionary<int, ConditionalContext> contexts)
         {
             List<ValidationError> containsErrors = new List<ValidationError>();
-            foreach (ConditionalContext containsContext in contexts)
+            foreach (ConditionalContext containsContext in contexts.Values)
             {
                 if (containsContext.Errors != null)
                 {
@@ -382,6 +384,13 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
         {
             if (Schema.Contains != null)
             {
+                if (ShouldValidateUnevaluated() || (Context is ISchemaTracker tracker && tracker.TrackEvaluatedSchemas))
+                {
+                    // Values that are true for contains are considered evaluated so evaluate all when enabled.
+                    ValidationUtils.Assert(_containsContexts != null);
+                    return true;
+                }
+
                 // Match count is less than minimum
                 if (_matchCount < (Schema.MinimumContains ?? 1))
                 {

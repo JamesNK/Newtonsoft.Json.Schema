@@ -38,7 +38,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                             }
                             else
                             {
-                                ConditionalContext.TrackEvaluatedSchema(schemaScope.Schema);
+                                ConditionalContext.TrackEvaluatedSchemaScope(schemaScope);
                             }
 
                             index++;
@@ -49,7 +49,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     }
                     else
                     {
-                        ConditionalContext.TrackEvaluatedSchema(ChildScopes[0].Schema);
+                        ConditionalContext.TrackEvaluatedSchemaScope(ChildScopes[0]);
                     }
                 }
                 else

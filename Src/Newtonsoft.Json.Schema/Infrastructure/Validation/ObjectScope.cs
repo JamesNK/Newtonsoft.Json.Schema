@@ -105,9 +105,12 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                         {
                             foreach (JSchema validScopes in context.ValidScopes)
                             {
-                                if (conditionalScope.EvaluatedSchemas.Contains(validScopes))
+                                foreach (var item in conditionalScope.EvaluatedSchemas)
                                 {
-                                    context.Evaluated = true;
+                                    if (item.Schema == validScopes)
+                                    {
+                                        context.Evaluated = true;
+                                    }
                                 }
                             }
                         }
