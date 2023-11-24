@@ -3891,6 +3891,29 @@ namespace Newtonsoft.Json.Schema.Tests
             var result = a.IsValid(s, out IList<string> errorMessages);
             Assert.IsFalse(result, string.Join(", ", errorMessages));
         }
+
+        [Test]
+        public void UnevaluatedProperties_Not()
+        {
+            string json = @"{
+                ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
+                ""not"": {
+                    ""$comment"": ""this subschema must still produce annotations internally, even though the 'not' will ultimately discard them"",
+                    ""anyOf"": [
+                        true,
+                        { ""properties"": { ""foo"": true } }
+                    ],
+                    ""unevaluatedProperties"": false
+                }
+            }";
+
+            JSchema s = JSchema.Parse(json);
+
+            JObject o = JObject.Parse(@"{ ""foo"": 1 }");
+            var result = o.IsValid(s, out IList<string> errorMessages);
+            Assert.IsFalse(result, string.Join(", ", errorMessages));
+            Assert.AreEqual("JSON is valid against schema from 'not'. Path '', line 1, position 1.", errorMessages[0]);
+        }
     }
 
     public sealed class JsonReaderStubWithIsClosed : JsonReader
