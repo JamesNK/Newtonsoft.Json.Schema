@@ -23,7 +23,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             : base(validator)
         {
             var parentSchemaTracker = parentContext as ISchemaTracker;
-            if (useParentTracker)
+            if (useParentTracker && (parentSchemaTracker?.TrackEvaluatedSchemas ?? false))
             {
                 _parentSchemaTracker = parentSchemaTracker;
             }
