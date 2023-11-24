@@ -3861,7 +3861,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             JArray a = JArray.Parse(@"[ ""a"", ""b"", ""a"", ""b"", ""a"" ]");
             var result = a.IsValid(s, out IList<string> errorMessages);
-            Assert.IsTrue(result);
+            Assert.IsTrue(result, string.Join(", ", errorMessages));
         }
 
         [Test]
@@ -3889,7 +3889,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             JArray a = JArray.Parse(@"[ ""a"", ""c"" ]");
             var result = a.IsValid(s, out IList<string> errorMessages);
-            Assert.IsFalse(result);
+            Assert.IsFalse(result, string.Join(", ", errorMessages));
         }
     }
 

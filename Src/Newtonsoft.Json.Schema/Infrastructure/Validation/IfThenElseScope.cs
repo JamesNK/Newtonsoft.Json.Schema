@@ -13,6 +13,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 {
     internal sealed class IfThenElseScope : ConditionalScope
     {
+        public ConditionalContext? IfContext;
         public ConditionalContext? ThenContext;
         public ConditionalContext? ElseContext;
 
@@ -28,6 +29,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             Then = null;
             Else = null;
 
+            IfContext = null;
             ThenContext = null;
             ElseContext = null;
         }
@@ -59,6 +61,13 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     else
                     {
                         ConditionalContext.TrackEvaluatedSchemaScope(thenScope);
+                        if (thenScope.Context is ISchemaTracker tracker && !tracker.EvaluatedSchemas.IsNullOrEmpty())
+                        {
+                            foreach (var item in tracker.EvaluatedSchemas)
+                            {
+                                ConditionalContext.TrackEvaluatedSchemaScope(item);
+                            }
+                        }
                     }
                 }
             }
@@ -79,6 +88,13 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                     else
                     {
                         ConditionalContext.TrackEvaluatedSchemaScope(elseScope);
+                        if (elseScope.Context is ISchemaTracker tracker && !tracker.EvaluatedSchemas.IsNullOrEmpty())
+                        {
+                            foreach (var item in tracker.EvaluatedSchemas)
+                            {
+                                ConditionalContext.TrackEvaluatedSchemaScope(item);
+                            }
+                        }
                     }
                 }
             }
@@ -88,7 +104,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
         public void InitializeScopes(JsonToken token, int scopeIndex)
         {
-            InitializeScope(token, scopeIndex, If!, ConditionalContext);
+            InitializeScope(token, scopeIndex, If!, IfContext!);
             if (Then != null)
             {
                 //ThenContext = ConditionalContext.Create(ConditionalContext, trackEvaluatedSchemas: false);
