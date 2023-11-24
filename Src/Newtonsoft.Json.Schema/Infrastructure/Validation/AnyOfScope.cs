@@ -24,7 +24,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 {
                     if (childScope.IsValid)
                     {
-                        ConditionalContext.TrackEvaluatedSchema(childScope.Schema);
+                        ConditionalContext.TrackEvaluatedSchemaScope(childScope);
                     }
                 }
             }

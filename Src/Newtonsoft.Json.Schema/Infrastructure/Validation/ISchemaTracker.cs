@@ -9,8 +9,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 {
     internal interface ISchemaTracker
     {
-        void TrackEvaluatedSchema(JSchema schema);
-        List<JSchema>? EvaluatedSchemas { get; }
+        void TrackEvaluatedSchemaScope(SchemaScope schema);
+        List<SchemaScope>? EvaluatedSchemas { get; }
         bool TrackEvaluatedSchemas { get; }
     }
 }

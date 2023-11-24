@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using Newtonsoft.Json.Linq;
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Validation
@@ -67,9 +66,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             ConditionalChildren.Add(scope);
         }
 
-        internal string DebuggerDisplay => GetType().Name + " - IsValid=" + IsValid + " - Complete=" + Complete
+        internal virtual string DebuggerDisplay => GetType().Name + " - IsValid=" + IsValid + " - Complete=" + Complete + " - ValidateUnevaluated=" + ShouldValidateUnevaluated()
 #if DEBUG
-                                           + " - SchemaId=" + Schema.DebugId
+                                           + " - SchemaId=" + Schema?.DebugId ?? "(null)"
                                            + " - ScopeId=" + DebugId
 #endif
         ;
@@ -191,12 +190,12 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 if (schema.Then != null)
                 {
                     ifThenElseScope.Then = schema.Then;
-                    //ifThenElseScope.ThenContext = scope.CreateConditionalContext();
+                    ifThenElseScope.ThenContext = scope.CreateConditionalContext();
                 }
                 if (schema.Else != null)
                 {
                     ifThenElseScope.Else = schema.Else;
-                    //ifThenElseScope.ElseContext = scope.CreateConditionalContext();
+                    ifThenElseScope.ElseContext = scope.CreateConditionalContext();
                 }
 
                 ifThenElseScope.InitializeScopes(token, context.Scopes.Count - 1);
@@ -451,6 +450,30 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             {
                 return null;
             }
+        }
+
+        internal bool HasEvaluatedSchema(JSchema validScopes)
+        {
+            if (Schema == validScopes)
+            {
+                return true;
+            }
+
+            if (Context is ISchemaTracker tracker && tracker.EvaluatedSchemas != null)
+            {
+                foreach (var item in tracker.EvaluatedSchemas)
+                {
+                    if (item.Schema == validScopes)
+                    {
+                        return true;
+                    }
+                    //if (item.HasEvaluatedSchema(validScopes))
+                    //{
+                    //    return true;
+                    //}
+                }
+            }
+            return false;
         }
     }
 }
