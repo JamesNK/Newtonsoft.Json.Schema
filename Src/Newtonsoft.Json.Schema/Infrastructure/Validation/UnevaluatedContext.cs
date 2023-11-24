@@ -8,7 +8,7 @@ using System.Diagnostics;
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 {
-    [DebuggerDisplay("{DebuggerDisplay,nq}")]
+    [DebuggerDisplay("{DebuggerDisplay(),nq}")]
     internal class UnevaluatedContext
     {
         public UnevaluatedContext(SchemaScope schemaScope)
@@ -30,6 +30,6 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             ValidScopes.Add(schema);
         }
 
-        private string DebuggerDisplay => $"Evaluated = {Evaluated}, ValidScopes = {ValidScopes?.Count ?? 0}";
+        private string DebuggerDisplay() => $"Evaluated = {Evaluated}, ValidScopes = {ValidScopes?.Count ?? 0}";
     }
 }
