@@ -226,7 +226,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             {
                 // If there is no recursive/dynamic anchor then the reference is treated as a standard $ref
                 isRecursiveReference = scopeDynamicAnchor != null;
-                originalReference = referenceSchema.RecursiveReference!;
+                originalReference = referenceSchema.DynamicReference ?? referenceSchema.RecursiveReference!;
             }
         }
 
@@ -592,15 +592,19 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             }
         }
 
-        private void ReadItems(JsonReader reader, JSchema target)
+        private void ReadItems(JsonReader reader, string name, JSchema target)
         {
-            if (EnsureVersion(SchemaVersion.Draft6))
+            if (EnsureVersion(SchemaVersion.Draft6, SchemaVersion.Draft2019_09))
             {
-                EnsureReadAndToken(reader, Constants.PropertyNames.Items, Constants.ItemsTokens);
+                EnsureReadAndToken(reader, name, Constants.ItemsDraft6Tokens);
+            }
+            else if (EnsureVersion(SchemaVersion.Draft2020_12))
+            {
+                EnsureReadAndToken(reader, name, Constants.ItemsDraft2020_12Tokens);
             }
             else
             {
-                EnsureReadAndToken(reader, Constants.PropertyNames.Items, Constants.ItemsDraft4Tokens);
+                EnsureReadAndToken(reader, name, Constants.ItemsDraft4Tokens);
             }
 
             if (target._items == null)
@@ -616,7 +620,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                     target.ItemsPositionValidation = false;
                     break;
                 case JsonToken.StartArray:
-                    PopulateSchemaArray(reader, target, Constants.PropertyNames.Items, target._items);
+                    PopulateSchemaArray(reader, target, name, target._items);
                     target.ItemsPositionValidation = true;
                     break;
                 default:
@@ -633,9 +637,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             PopulateSchemaArray(reader, target, name, schemas);
         }
 
-        private void ReadAdditionalItems(JsonReader reader, JSchema target)
+        private void ReadAdditionalItems(JsonReader reader, string name, JSchema target)
         {
-            EnsureRead(reader, Constants.PropertyNames.AdditionalItems);
+            EnsureRead(reader, name);
 
             if (EnsureVersion(SchemaVersion.Draft3, SchemaVersion.Draft2019_09) &&
                 reader.TokenType == JsonToken.Boolean)
@@ -1016,8 +1020,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             // check whether a schema for this token has already been loaded
             if (reader is JTokenReader tokenReader)
             {
-                JSchemaAnnotation? schemaAnnotication = tokenReader.CurrentToken!.Annotation<JSchemaAnnotation>();
-                JSchema? previousSchema = schemaAnnotication?.GetSchema(null);
+                JSchemaAnnotation? schemaAnnotation = tokenReader.CurrentToken!.Annotation<JSchemaAnnotation>();
+                JSchema? previousSchema = schemaAnnotation?.GetSchema(null);
                 if (previousSchema != null)
                 {
                     setSchema(previousSchema);
@@ -1124,6 +1128,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                         referenceSchema.Ref = resolvedSchema;
                         referenceSchema.Reference = null;
                         referenceSchema.RecursiveReference = null;
+                        referenceSchema.DynamicReference = null;
 
                         resolvedSchema = referenceSchema;
                     }
@@ -1165,6 +1170,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 referenceSchema.Ref = resolvedSchema;
                 referenceSchema.Reference = null;
                 referenceSchema.RecursiveReference = null;
+                referenceSchema.DynamicReference = null;
             }
             else
             {
@@ -1297,7 +1303,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         {
             try
             {
-                return SchemaDiscovery.ResolveSchemaId(scopeId, schema.Reference ?? schema.RecursiveReference!);
+                return SchemaDiscovery.ResolveSchemaId(scopeId, schema.Reference ?? schema.DynamicReference ?? schema.RecursiveReference!);
             }
             catch (Exception ex)
             {
@@ -1370,17 +1376,17 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                     // Continue to use the old behavior if the schema version is unset.
                     if (EnsureVersion(SchemaVersion.Draft3, SchemaVersion.Draft2019_09))
                     {
-                        ReadItems(reader, target);
+                        ReadItems(reader, name, target);
                     }
                     else
                     {
-                        ReadAdditionalItems(reader, target);
+                        ReadAdditionalItems(reader, name, target);
                     }
                     break;
                 case Constants.PropertyNames.PrefixItems:
                     if (EnsureVersion(SchemaVersion.Draft2020_12))
                     {
-                        ReadItems(reader, target);
+                        ReadItems(reader, name, target);
                     }
                     else
                     {
@@ -1506,7 +1512,15 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                     ReadUnevaluatedProperties(reader, target);
                     break;
                 case Constants.PropertyNames.AdditionalItems:
-                    ReadAdditionalItems(reader, target);
+                    // The meaning of "items" changed in 2020-12 to be like "additionalItems".
+                    if (EnsureVersion(SchemaVersion.Draft3, SchemaVersion.Draft2019_09))
+                    {
+                        ReadAdditionalItems(reader, name, target);
+                    }
+                    else
+                    {
+                        ReadExtensionData(reader, target, name);
+                    }
                     break;
                 case Constants.PropertyNames.UnevaluatedItems:
                     ReadUnevaluatedItems(reader, target);

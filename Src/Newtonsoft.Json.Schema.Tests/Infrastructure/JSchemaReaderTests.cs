@@ -4572,6 +4572,43 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         }
 
         [Test]
+        public void PrefixItems_Object()
+        {
+            string json = @"{
+                ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
+                ""prefixItems"": {""type"": ""integer""}
+            }";
+
+            ExceptionAssert.Throws<JSchemaReaderException>(() => JSchema.Parse(json),
+                "Unexpected token encountered when reading value for 'prefixItems'. Expected StartArray, got StartObject. Path 'prefixItems', line 3, position 32.");
+        }
+
+        [Test]
+        public void PrefixItems_Boolean()
+        {
+            string json = @"{
+                ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
+                ""prefixItems"": true
+            }";
+
+            ExceptionAssert.Throws<JSchemaReaderException>(() => JSchema.Parse(json),
+                "Unexpected token encountered when reading value for 'prefixItems'. Expected StartArray, got Boolean. Path 'prefixItems', line 3, position 35.");
+        }
+
+        [Test]
+        public void AdditionalItems_Schema_2020_12()
+        {
+            string json = @"{
+                ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
+                ""additionalItems"": {""type"": ""integer""}
+            }";
+
+            JSchema s = JSchema.Parse(json);
+
+            Assert.AreEqual(null, s.AdditionalItems);
+        }
+
+        [Test]
         public void Items_Ref()
         {
             string json = @"{
@@ -4633,9 +4670,56 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 
             Assert.AreEqual("http://localhost:1234/draft2020-12/strict-tree.json", s.Id.OriginalString);
             Assert.AreEqual("node", s.DynamicAnchor);
+            Assert.AreEqual(false, s.AllowUnevaluatedProperties);
+
             Assert.AreEqual("https://example.com/tree", s.Ref.Id.OriginalString);
             Assert.AreEqual("node", s.Ref.DynamicAnchor);
+
+            JSchema children = s.Ref.Properties["children"];
+            Assert.AreEqual(JSchemaType.Array, children.Type);
+            Assert.AreEqual("http://localhost:1234/2019-09/strict-tree.json", children.AdditionalItems.Id.OriginalString);
+        }
+
+        [Test]
+        public void RecursiveAnchorRef()
+        {
+            string json = @"{
+              ""$schema"": ""https://json-schema.org/draft/2019-09/schema"",
+              ""$id"": ""http://localhost:1234/2019-09/strict-tree.json"",
+              ""$recursiveAnchor"": true,
+              ""$ref"": ""tree.json"",
+              ""unevaluatedProperties"": false
+            }";
+
+            string treeJson = @"{
+              ""$schema"": ""https://json-schema.org/draft/2019-09/schema"",
+              ""$id"": ""https://example.com/tree"",
+              ""$recursiveAnchor"": true,
+              ""type"": ""object"",
+              ""properties"": {
+                ""data"": true,
+                ""children"": {
+                  ""type"": ""array"",
+                  ""items"": { ""$recursiveRef"": ""#"" }
+                }
+              }
+            }";
+
+            JSchemaPreloadedResolver resolver = new JSchemaPreloadedResolver();
+            resolver.Add(new Uri("http://localhost:1234/2019-09/tree.json"), treeJson);
+
+            JSchema s = JSchema.Parse(json, resolver);
+
+            Assert.AreEqual("http://localhost:1234/2019-09/strict-tree.json", s.Id.OriginalString);
+            Assert.AreEqual(true, s.RecursiveAnchor);
             Assert.AreEqual(false, s.AllowUnevaluatedProperties);
+
+            Assert.AreEqual("https://example.com/tree", s.Ref.Id.OriginalString);
+            Assert.AreEqual(true, s.Ref.RecursiveAnchor);
+
+            JSchema children = s.Ref.Properties["children"];
+            Assert.AreEqual(JSchemaType.Array, children.Type);
+            Assert.AreEqual("http://localhost:1234/2019-09/strict-tree.json", children.Items[0].Id.OriginalString);
         }
     }
 }

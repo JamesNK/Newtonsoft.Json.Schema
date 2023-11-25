@@ -4002,7 +4002,7 @@ namespace Newtonsoft.Json.Schema.Tests
         {
             string json = @"{
               ""$schema"": ""https://json-schema.org/draft/2019-09/schema"",
-              ""$id"": ""http://localhost:1234/2019-09/strict-tree"",
+              ""$id"": ""http://localhost:1234/2019-09/strict-tree.json"",
               ""$recursiveAnchor"": true,
               ""$ref"": ""tree.json"",
               ""unevaluatedProperties"": false

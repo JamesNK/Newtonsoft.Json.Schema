@@ -14,7 +14,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure
     {
         public static readonly List<JsonToken> NumberTokens = new List<JsonToken> { JsonToken.Integer, JsonToken.Float };
         public static readonly List<JsonToken> SchemaTokens = new List<JsonToken> { JsonToken.StartObject, JsonToken.Boolean };
-        public static readonly List<JsonToken> ItemsTokens = new List<JsonToken> { JsonToken.StartArray, JsonToken.StartObject, JsonToken.Boolean };
+        public static readonly List<JsonToken> ItemsDraft2020_12Tokens = new List<JsonToken> { JsonToken.StartArray };
+        public static readonly List<JsonToken> ItemsDraft6Tokens = new List<JsonToken> { JsonToken.StartArray, JsonToken.StartObject, JsonToken.Boolean };
         public static readonly List<JsonToken> ItemsDraft4Tokens = new List<JsonToken> { JsonToken.StartArray, JsonToken.StartObject };
         public static readonly List<JsonToken> DependencyTokens = new List<JsonToken> { JsonToken.StartObject, JsonToken.StartArray, JsonToken.String, JsonToken.Boolean };
         public static readonly List<JsonToken> DependencyDraft4Tokens = new List<JsonToken> { JsonToken.StartObject, JsonToken.StartArray, JsonToken.String };
