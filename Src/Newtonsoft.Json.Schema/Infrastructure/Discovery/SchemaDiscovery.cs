@@ -54,6 +54,12 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
 
         private static string? GetTokenDynamicAnchor(JToken o, JSchemaReader schemaReader)
         {
+            if (schemaReader.EnsureVersion(SchemaVersion.Draft2020_12)
+                && o[Constants.PropertyNames.DynamicAnchor] is JValue dynamicAnchor
+                && (dynamicAnchor.Type == JTokenType.String))
+            {
+                return (string)dynamicAnchor!;
+            }
             if (schemaReader.EnsureVersion(SchemaVersion.Draft2019_09)
                 && o[Constants.PropertyNames.RecursiveAnchor] is JValue recursiveAnchor
                 && (recursiveAnchor.Type == JTokenType.Boolean))
@@ -181,7 +187,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                                 }
 
                                 parent = s;
-                                current = GetCurrentFromSchema(s, unescapedPart);
+                                current = GetCurrentFromSchema(schemaReader, s, unescapedPart);
                                 break;
                             case JToken t:
                                 IIdentifierScope? scope = null;
@@ -205,7 +211,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                             case IList<JSchema> l:
                                 if (TryGetImplicitItemsSchema(parent, l, out JSchema? itemsSchema))
                                 {
-                                    current = GetCurrentFromSchema(itemsSchema, unescapedPart);
+                                    current = GetCurrentFromSchema(schemaReader, itemsSchema, unescapedPart);
                                 }
                                 else if (int.TryParse(unescapedPart, NumberStyles.None, CultureInfo.InvariantCulture, out int index))
                                 {
@@ -586,18 +592,41 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             return false;
         }
 
-        private static object? GetCurrentFromSchema(JSchema s, string unescapedPart)
+        private static object? GetCurrentFromSchema(JSchemaReader reader, JSchema s, string unescapedPart)
         {
             switch (unescapedPart)
             {
+                case Constants.PropertyNames.PrefixItems:
+                    if (reader.EnsureVersion(SchemaVersion.Draft3, SchemaVersion.Draft2019_09))
+                    {
+                        goto default;
+                    }
+                    else
+                    {
+                        return s._items;
+                    }
                 case Constants.PropertyNames.Properties:
                     return s._properties;
                 case Constants.PropertyNames.Items:
-                    return s._items;
+                    if (reader.EnsureVersion(SchemaVersion.Draft3, SchemaVersion.Draft2019_09))
+                    {
+                        return s._items;
+                    }
+                    else
+                    {
+                        return s.AdditionalItems;
+                    }
                 case Constants.PropertyNames.AdditionalProperties:
                     return s.AdditionalProperties;
                 case Constants.PropertyNames.AdditionalItems:
-                    return s.AdditionalItems;
+                    if (reader.EnsureVersion(SchemaVersion.Draft3, SchemaVersion.Draft2019_09))
+                    {
+                        return s.AdditionalItems;
+                    }
+                    else
+                    {
+                        goto default;
+                    }
                 case Constants.PropertyNames.Not:
                     return s.Not;
                 case Constants.PropertyNames.OneOf:

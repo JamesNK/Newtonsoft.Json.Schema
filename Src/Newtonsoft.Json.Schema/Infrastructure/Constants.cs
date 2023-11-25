@@ -84,6 +84,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             public const string Ref = "$ref";
             public const string RecursiveRef = "$recursiveRef";
             public const string RecursiveAnchor = "$recursiveAnchor";
+            public const string DynamicRef = "$dynamicRef";
+            public const string DynamicAnchor = "$dynamicAnchor";
             public const string Schema = "$schema";
 
             public const string Definitions = "definitions";

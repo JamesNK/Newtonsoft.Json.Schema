@@ -1340,6 +1340,12 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 case Constants.PropertyNames.RecursiveAnchor:
                     target.RecursiveAnchor = ReadBoolean(reader, name);
                     break;
+                case Constants.PropertyNames.DynamicRef:
+                    target.DynamicReference = ReadUri(reader, name);
+                    break;
+                case Constants.PropertyNames.DynamicAnchor:
+                    target.DynamicAnchor = ReadString(reader, name);
+                    break;
                 case Constants.PropertyNames.Anchor:
                     target.Anchor = ReadString(reader, name);
                     break;
@@ -1829,7 +1835,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                     break;
             }
 
-            if (name != Constants.PropertyNames.Ref && name != Constants.PropertyNames.RecursiveRef)
+            if (name != Constants.PropertyNames.Ref && name != Constants.PropertyNames.RecursiveRef && name != Constants.PropertyNames.DynamicRef)
             {
                 target.HasNonRefContent = true;
             }

@@ -3914,6 +3914,129 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.IsFalse(result, string.Join(", ", errorMessages));
             Assert.AreEqual("JSON is valid against schema from 'not'. Path '', line 1, position 1.", errorMessages[0]);
         }
+
+        [Test]
+        public void DynamicAnchorRef_Success()
+        {
+            string json = @"{
+                ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
+                ""$id"": ""http://localhost:1234/draft2020-12/strict-tree.json"",
+                ""$dynamicAnchor"": ""node"",
+                ""$ref"": ""tree.json"",
+                ""unevaluatedProperties"": false
+            }";
+
+            string treeJson = @"{
+              ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
+              ""$id"": ""https://example.com/tree"",
+              ""$dynamicAnchor"": ""node"",
+              ""type"": ""object"",
+              ""properties"": {
+                ""data"": true,
+                ""children"": {
+                  ""type"": ""array"",
+                  ""items"": { ""$dynamicRef"": ""#node"" }
+                }
+              }
+            }";
+
+            JSchemaPreloadedResolver resolver = new JSchemaPreloadedResolver();
+            resolver.Add(new Uri("http://localhost:1234/draft2020-12/tree.json"), treeJson);
+
+            JSchema s = JSchema.Parse(json, resolver);
+
+            JObject o = JObject.Parse(@"{
+              ""children"": [
+                {
+                  ""data"": 1
+                }
+              ]
+            }");
+            var result = o.IsValid(s, out IList<string> errorMessages);
+            Assert.IsTrue(result, string.Join(", ", errorMessages));
+        }
+
+        [Test]
+        public void DynamicAnchorRef_Failure()
+        {
+            string json = @"{
+                ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
+                ""$id"": ""http://localhost:1234/draft2020-12/strict-tree.json"",
+                ""$dynamicAnchor"": ""node"",
+                ""$ref"": ""tree.json"",
+                ""unevaluatedProperties"": false
+            }";
+
+            string treeJson = @"{
+              ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
+              ""$id"": ""https://example.com/tree"",
+              ""$dynamicAnchor"": ""node"",
+              ""type"": ""object"",
+              ""properties"": {
+                ""data"": true,
+                ""children"": {
+                  ""type"": ""array"",
+                  ""items"": { ""$dynamicRef"": ""#node"" }
+                }
+              }
+            }";
+
+            JSchemaPreloadedResolver resolver = new JSchemaPreloadedResolver();
+            resolver.Add(new Uri("http://localhost:1234/draft2020-12/tree.json"), treeJson);
+
+            JSchema s = JSchema.Parse(json, resolver);
+
+            JObject o = JObject.Parse(@"{
+              ""children"": [
+                {
+                  ""daat"": 1
+                }
+              ]
+            }");
+            var result = o.IsValid(s, out IList<string> errorMessages);
+            Assert.IsFalse(result, string.Join(", ", errorMessages));
+        }
+
+        [Test]
+        public void RecursiveAnchorRef_Failure()
+        {
+            string json = @"{
+              ""$schema"": ""https://json-schema.org/draft/2019-09/schema"",
+              ""$id"": ""http://localhost:1234/2019-09/strict-tree"",
+              ""$recursiveAnchor"": true,
+              ""$ref"": ""tree.json"",
+              ""unevaluatedProperties"": false
+            }";
+
+            string treeJson = @"{
+              ""$schema"": ""https://json-schema.org/draft/2019-09/schema"",
+              ""$id"": ""https://example.com/tree"",
+              ""$recursiveAnchor"": true,
+              ""type"": ""object"",
+              ""properties"": {
+                ""data"": true,
+                ""children"": {
+                  ""type"": ""array"",
+                  ""items"": { ""$recursiveRef"": ""#"" }
+                }
+              }
+            }";
+
+            JSchemaPreloadedResolver resolver = new JSchemaPreloadedResolver();
+            resolver.Add(new Uri("http://localhost:1234/2019-09/tree.json"), treeJson);
+
+            JSchema s = JSchema.Parse(json, resolver);
+
+            JObject o = JObject.Parse(@"{
+              ""children"": [
+                {
+                  ""daat"": 1
+                }
+              ]
+            }");
+            var result = o.IsValid(s, out IList<string> errorMessages);
+            Assert.IsFalse(result, string.Join(", ", errorMessages));
+        }
     }
 
     public sealed class JsonReaderStubWithIsClosed : JsonReader

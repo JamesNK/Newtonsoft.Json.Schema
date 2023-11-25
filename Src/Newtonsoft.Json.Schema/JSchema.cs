@@ -93,6 +93,10 @@ namespace Newtonsoft.Json.Schema
         private double? _multipleOf;
         internal bool? _allowAdditionalProperties;
         internal bool? _allowAdditionalItems;
+        private bool? _recursiveAnchor;
+        private string? _dynamicAnchor;
+        private Uri? _recursiveReference;
+        private Uri? _dynamicReference;
 
         internal void OnChildChanged(JSchema changedSchema)
         {
@@ -159,14 +163,68 @@ namespace Newtonsoft.Json.Schema
         /// <summary>
         /// Gets or sets the $recursiveRef.
         /// </summary>
-        public Uri? RecursiveReference { get; set; }
+        public Uri? RecursiveReference
+        { 
+            get => _recursiveReference;
+            set
+            {
+                _recursiveReference = value;
+                if (_recursiveReference != null)
+                {
+                    _dynamicReference = null;
+                }
+            }
+        }
 
-        internal bool HasReference => Reference != null || RecursiveReference != null;
+        /// <summary>
+        /// Gets or sets the $dynamicRef.
+        /// </summary>
+        public Uri? DynamicReference
+        {
+            get => _dynamicReference;
+            set
+            {
+                _dynamicReference = value;
+                if (_dynamicReference != null)
+                {
+                    _dynamicReference = null;
+                }
+            }
+        }
+
+        internal bool HasReference => Reference != null || RecursiveReference != null || DynamicReference != null;
 
         /// <summary>
         /// Gets or sets the $recursiveAnchor.
         /// </summary>
-        public bool? RecursiveAnchor { get; set; }
+        public bool? RecursiveAnchor
+        {
+            get => _recursiveAnchor;
+            set
+            {
+                _recursiveAnchor = value;
+                if (value != null)
+                {
+                    _dynamicAnchor = null;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the $dynamicAnchor.
+        /// </summary>
+        public string? DynamicAnchor
+        {
+            get => _dynamicAnchor;
+            set
+            {
+                _dynamicAnchor = value;
+                if (value != null)
+                {
+                    _recursiveAnchor = null;
+                }
+            }
+        }
 
         internal Uri? ResolvedId { get; private set; }
         internal bool Root { get; set; }
@@ -175,8 +233,22 @@ namespace Newtonsoft.Json.Schema
 
         bool IIdentifierScope.Root => Root;
 
-        // TODO - improve in next spec
-        string? IIdentifierScope.DynamicAnchor => RecursiveAnchor == true ? bool.TrueString : null;
+        string? IIdentifierScope.DynamicAnchor
+        {
+            get
+            {
+                if (_dynamicAnchor != null)
+                {
+                    return _dynamicAnchor;
+                }
+                if (_recursiveAnchor ?? false)
+                {
+                    return bool.TrueString;
+                }
+
+                return null;
+            }
+        }
 
         /// <summary>
         /// Gets or sets the schema ID.
