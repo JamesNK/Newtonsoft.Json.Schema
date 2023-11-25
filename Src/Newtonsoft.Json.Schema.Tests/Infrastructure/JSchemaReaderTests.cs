@@ -4552,5 +4552,90 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             Assert.AreEqual(false, s.AllowAdditionalItemsSpecified);
             Assert.AreEqual(null, s._items);
         }
+
+        [Test]
+        public void PrefixItems_Ref()
+        {
+            string json = @"{
+                ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
+                ""prefixItems"": [
+                    {""type"": ""integer""},
+                    {""$ref"": ""#/prefixItems/0""}
+                ]
+            }";
+
+            JSchema s = JSchema.Parse(json);
+
+            Assert.AreEqual(2, s.Items.Count);
+            Assert.AreEqual(JSchemaType.Integer, s.Items[0].Type);
+            Assert.AreSame(s.Items[0], s.Items[1]);
+        }
+
+        [Test]
+        public void Items_Ref()
+        {
+            string json = @"{
+                ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
+                ""items"": {""type"": ""integer""},
+                ""properties"": {
+                  ""name"": {""$ref"": ""#/items""}
+                }
+            }";
+
+            JSchema s = JSchema.Parse(json);
+
+            Assert.AreEqual(JSchemaType.Integer, s.AdditionalItems.Type);
+            Assert.AreSame(s.AdditionalItems, s.Properties["name"]);
+        }
+
+        [Test]
+        public void DynamicAnchor()
+        {
+            string json = @"{
+                ""$dynamicAnchor"": ""node""
+            }";
+
+            JSchema s = JSchema.Parse(json);
+            Assert.AreEqual("node", s.DynamicAnchor);
+            Assert.AreEqual(null, s.RecursiveAnchor);
+        }
+
+        [Test]
+        public void DynamicAnchorRef()
+        {
+            string json = @"{
+                ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
+                ""$id"": ""http://localhost:1234/draft2020-12/strict-tree.json"",
+                ""$dynamicAnchor"": ""node"",
+
+                ""$ref"": ""tree.json"",
+                ""unevaluatedProperties"": false
+            }";
+
+            string treeJson = @"{
+              ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
+              ""$id"": ""https://example.com/tree"",
+              ""$dynamicAnchor"": ""node"",
+              ""type"": ""object"",
+              ""properties"": {
+                ""data"": true,
+                ""children"": {
+                  ""type"": ""array"",
+                  ""items"": { ""$dynamicRef"": ""#node"" }
+                }
+              }
+            }";
+
+            JSchemaPreloadedResolver resolver = new JSchemaPreloadedResolver();
+            resolver.Add(new Uri("http://localhost:1234/draft2020-12/tree.json"), treeJson);
+
+            JSchema s = JSchema.Parse(json, resolver);
+
+            Assert.AreEqual("http://localhost:1234/draft2020-12/strict-tree.json", s.Id.OriginalString);
+            Assert.AreEqual("node", s.DynamicAnchor);
+            Assert.AreEqual("https://example.com/tree", s.Ref.Id.OriginalString);
+            Assert.AreEqual("node", s.Ref.DynamicAnchor);
+            Assert.AreEqual(false, s.AllowUnevaluatedProperties);
+        }
     }
 }
