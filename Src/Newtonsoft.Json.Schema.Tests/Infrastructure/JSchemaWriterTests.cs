@@ -1700,9 +1700,11 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         {
             string schemaJson = @"{
   ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
-  ""prefixItems"": {
-    ""type"": ""integer""
-  }
+  ""prefixItems"": [
+    {
+      ""type"": ""integer""
+    }
+  ]
 }";
 
             JSchema schema = JSchema.Parse(schemaJson);

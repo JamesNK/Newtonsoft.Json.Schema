@@ -187,7 +187,7 @@ namespace Newtonsoft.Json.Schema
                 _dynamicReference = value;
                 if (_dynamicReference != null)
                 {
-                    _dynamicReference = null;
+                    _recursiveReference = null;
                 }
             }
         }
@@ -1170,6 +1170,10 @@ namespace Newtonsoft.Json.Schema
             if (Reference != null)
             {
                 return $"$ref: {Reference}";
+            }
+            if (DynamicReference != null)
+            {
+                return $"$dynamicRef: {DynamicReference}";
             }
             if (RecursiveReference != null)
             {
