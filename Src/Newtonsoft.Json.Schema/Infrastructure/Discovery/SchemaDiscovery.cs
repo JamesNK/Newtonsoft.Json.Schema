@@ -48,6 +48,12 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             {
                 anchor = (string)anchorToken!;
             }
+            else if (schemaReader.EnsureVersion(SchemaVersion.Draft2020_12)
+                && o[Constants.PropertyNames.DynamicAnchor] is JValue dynamicAnchorToken
+                && dynamicAnchorToken.Type == JTokenType.String)
+            {
+                anchor = (string)dynamicAnchorToken!;
+            }
 
             return CombineIdAndAnchor(id, anchor);
         }
@@ -292,7 +298,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
 
                 Uri resolvedReference = ResolveSchemaId(rootSchemaId, reference);
 
-                KnownSchema? knownSchema = discovery.KnownSchemas.GetById(new KnownSchemaUriKey(resolvedReference, dynamicScope));
+                KnownSchema? knownSchema = discovery.KnownSchemas.GetById(new KnownSchemaUriKey(resolvedReference, dynamicScope, isRoot: false));
 
                 if (knownSchema != null)
                 {
@@ -303,7 +309,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                 {
                     if (SplitReference(resolvedReference, out Uri path, out Uri? fragment))
                     {
-                        knownSchema = discovery.KnownSchemas.GetById(new KnownSchemaUriKey(path, dynamicScope));
+                        knownSchema = discovery.KnownSchemas.GetById(new KnownSchemaUriKey(path, dynamicScope, isRoot: true));
 
                         if (knownSchema != null)
                         {

@@ -8,26 +8,29 @@ using System.Diagnostics;
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
 {
-    [DebuggerDisplay("Id = {Id}, DynamicScope = {DynamicScope}")]
+    [DebuggerDisplay("Id = {Id}, DynamicScope = {DynamicScope}, IsRoot = {IsRoot}")]
     internal readonly struct KnownSchemaUriKey : IEquatable<KnownSchemaUriKey>
     {
         public readonly Uri Id;
         public readonly Uri? DynamicScope;
+        public readonly bool IsRoot;
 
-        public KnownSchemaUriKey(Uri id, Uri? dynamicScope) : this()
+        public KnownSchemaUriKey(Uri id, Uri? dynamicScope, bool isRoot) : this()
         {
             Id = id;
             DynamicScope = dynamicScope;
+            IsRoot = isRoot;
         }
 
         public static KnownSchemaUriKey Create(KnownSchema knownSchema)
         {
-            return new KnownSchemaUriKey(knownSchema.Id, knownSchema.DynamicScope);
+            return new KnownSchemaUriKey(knownSchema.Id, knownSchema.DynamicScope, knownSchema.IsRoot);
         }
 
         public bool Equals(KnownSchemaUriKey other)
         {
-            if (!UriComparer.Instance.Equals(Id, other.Id))
+            bool compareFragments = !(IsRoot && other.IsRoot);
+            if (!UriComparer.Instance.Equals(Id, other.Id, compareFragments))
             {
                 return false;
             }

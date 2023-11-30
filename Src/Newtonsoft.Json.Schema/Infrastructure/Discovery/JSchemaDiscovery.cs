@@ -18,17 +18,19 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
         private readonly List<SchemaPath> _pathStack;
 
         public List<ValidationError>? ValidationErrors { get; set; }
+        public SchemaVersion SchemaVersion { get; set; }
 
         public KnownSchemaCollection KnownSchemas { get; }
 
         public JSchemaDiscovery(JSchema? rootSchema)
-            : this(rootSchema, new KnownSchemaCollection(), KnownSchemaState.External)
+            : this(rootSchema, SchemaVersion.Unset, new KnownSchemaCollection(), KnownSchemaState.External)
         {
         }
 
-        public JSchemaDiscovery(JSchema? rootSchema, KnownSchemaCollection knownSchemas, KnownSchemaState state)
+        public JSchemaDiscovery(JSchema? rootSchema, SchemaVersion schemaVersion, KnownSchemaCollection knownSchemas, KnownSchemaState state)
         {
             _rootSchema = rootSchema;
+            SchemaVersion = schemaVersion;
             _state = state;
             _pathStack = new List<SchemaPath>();
             KnownSchemas = knownSchemas ?? new KnownSchemaCollection();
@@ -71,7 +73,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                 {
                     int existingKnownSchemaIndex = KnownSchemas.IndexOf(alreadyDiscoveredSchema);
 
-                    KnownSchemas[existingKnownSchemaIndex] = new KnownSchema(schemaKnownId, dynamicScope, schema, resolvedSchemaState);
+                    KnownSchemas[existingKnownSchemaIndex] = new KnownSchema(schemaKnownId, dynamicScope, schema, schema.Root, resolvedSchemaState);
                 }
 
                 return;
@@ -81,7 +83,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             {
                 // check whether a schema with the resolved id is already known
                 // this will be hit when a schema contains duplicate ids or references a schema with a duplicate id
-                var existingSchema = KnownSchemas.GetById(new KnownSchemaUriKey(schemaKnownId, dynamicScope)) != null;
+                bool existingSchema = KnownSchemas.GetById(new KnownSchemaUriKey(schemaKnownId, dynamicScope, schema.Root)) != null;
                 if (existingSchema)
                 {
                     ValidationError error = ValidationError.CreateValidationError($"Duplicate schema id '{schemaKnownId.OriginalString}' encountered.", ErrorType.Id, schema, null, schemaKnownId, null, schema, schema.Path!);
@@ -100,7 +102,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
 
             // add schema to known schemas whether duplicate or not to avoid multiple errors
             // the first schema with a duplicate id will be used
-            KnownSchemas.Add(new KnownSchema(schemaKnownId, dynamicScope, schema, resolvedSchemaState));
+            KnownSchemas.Add(new KnownSchema(schemaKnownId, dynamicScope, schema, schema.Root, resolvedSchemaState));
 
             ValidationUtils.Assert(newScopeId != null);
             _pathStack.Add(new SchemaPath(newScopeId, schema._referencedAs, scopePath, dynamicScope));
@@ -118,20 +120,34 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             }
 
             DiscoverSchema(Constants.PropertyNames.AdditionalProperties, schema.AdditionalProperties);
-            DiscoverSchema(Constants.PropertyNames.AdditionalItems, schema.AdditionalItems);
+            if (SchemaVersionHelpers.EnsureVersion(SchemaVersion, SchemaVersion.Draft3, SchemaVersion.Draft2019_09))
+            {
+                DiscoverSchema(Constants.PropertyNames.AdditionalItems, schema.AdditionalItems);
+            }
+            else
+            {
+                DiscoverSchema(Constants.PropertyNames.Items, schema.AdditionalItems);
+            }
             DiscoverSchema(Constants.PropertyNames.UnevaluatedProperties, schema.UnevaluatedProperties);
             DiscoverSchema(Constants.PropertyNames.UnevaluatedItems, schema.UnevaluatedItems);
             DiscoverDictionarySchemas(Constants.PropertyNames.Properties, schema._properties);
             DiscoverDictionarySchemas(Constants.PropertyNames.PatternProperties, schema._patternProperties);
             DiscoverDictionarySchemas(Constants.PropertyNames.Dependencies, schema._dependencies);
             DiscoverDictionarySchemas(Constants.PropertyNames.DependentSchemas, schema._dependentSchemas);
-            if (schema.ItemsPositionValidation)
+            if (SchemaVersionHelpers.EnsureVersion(SchemaVersion, SchemaVersion.Draft3, SchemaVersion.Draft2019_09))
             {
-                DiscoverArraySchemas(Constants.PropertyNames.Items, schema._items);
+                if (schema.ItemsPositionValidation)
+                {
+                    DiscoverArraySchemas(Constants.PropertyNames.Items, schema._items);
+                }
+                else if (schema._items != null && schema._items.Count > 0)
+                {
+                    DiscoverSchema(Constants.PropertyNames.Items, schema._items[0]);
+                }
             }
-            else if (schema._items != null && schema._items.Count > 0)
+            else
             {
-                DiscoverSchema(Constants.PropertyNames.Items, schema._items[0]);
+                DiscoverArraySchemas(Constants.PropertyNames.PrefixItems, schema._items);
             }
             DiscoverArraySchemas(Constants.PropertyNames.AllOf, schema._allOf);
             DiscoverArraySchemas(Constants.PropertyNames.AnyOf, schema._anyOf);

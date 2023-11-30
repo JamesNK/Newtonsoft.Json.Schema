@@ -4677,7 +4677,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 
             JSchema children = s.Ref.Properties["children"];
             Assert.AreEqual(JSchemaType.Array, children.Type);
-            Assert.AreEqual("http://localhost:1234/2019-09/strict-tree.json", children.AdditionalItems.Id.OriginalString);
+            Assert.AreEqual("http://localhost:1234/draft2020-12/strict-tree.json", children.AdditionalItems.Id.OriginalString);
         }
 
         [Test]
@@ -4720,6 +4720,93 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             JSchema children = s.Ref.Properties["children"];
             Assert.AreEqual(JSchemaType.Array, children.Type);
             Assert.AreEqual("http://localhost:1234/2019-09/strict-tree.json", children.Items[0].Id.OriginalString);
+        }
+
+        [Test]
+        public void RefToDynamicRefFindsDetachedDynamicAnchor()
+        {
+            string json = @"{
+              ""$ref"": ""http://localhost:1234/draft2020-12/detached-dynamicref.json#/$defs/foo""
+            }";
+
+            string detachedJson = @"{
+              ""$id"": ""http://localhost:1234/draft2020-12/detached-dynamicref.json"",
+              ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
+              ""$defs"": {
+                ""foo"": {
+                  ""$dynamicRef"": ""#detached""
+                },
+                ""detached"": {
+                  ""$dynamicAnchor"": ""detached"",
+                  ""type"": ""integer""
+                }
+              }
+            }";
+
+            JSchemaPreloadedResolver resolver = new JSchemaPreloadedResolver();
+            resolver.Add(new Uri("http://localhost:1234/draft2020-12/detached-dynamicref.json"), detachedJson);
+
+            JSchema s = JSchema.Parse(json, resolver);
+            Assert.AreEqual("detached", s.DynamicAnchor);
+            Assert.AreEqual(JSchemaType.Integer, s.Type);
+        }
+
+        [Test]
+        public void DynamicRef_ResolvesToTheFirstDynamicAnchorInTheDynamicScope()
+        {
+            string json = @"{
+                ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
+                ""$id"": ""https://test.json-schema.org/relative-dynamic-reference/root"",
+                ""$dynamicAnchor"": ""meta"",
+                ""type"": ""object"",
+                ""properties"": {
+                    ""foo"": { ""const"": ""pass"" }
+                },
+                ""$ref"": ""extended"",
+                ""$defs"": {
+                    ""extended"": {
+                        ""$id"": ""extended"",
+                        ""$dynamicAnchor"": ""meta"",
+                        ""type"": ""object"",
+                        ""properties"": {
+                            ""bar"": { ""$ref"": ""bar"" }
+                        }
+                    },
+                    ""bar"": {
+                        ""$id"": ""bar"",
+                        ""type"": ""object"",
+                        ""properties"": {
+                            ""baz"": { ""$dynamicRef"": ""extended#meta"" }
+                        }
+                    }
+                }
+            }";
+
+            JSchema s = JSchema.Parse(json);
+        }
+
+        [Test]
+        public void AnchorRoot_RefPath()
+        {
+            string json = @"{
+    ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
+    ""$id"": ""https://json-schema.org/draft/2020-12/meta/core"",
+    ""$anchor"": ""meta"",
+    ""properties"": {
+        ""prop1"": {
+            ""$ref"": ""#/$defs/uriReferenceString""
+        }
+    },
+    ""$defs"": {
+        ""uriReferenceString"": {
+            ""type"": ""string"",
+            ""format"": ""uri-reference""
+        }
+    }
+}";
+
+            JSchema s = JSchema.Parse(json);
+            Assert.AreEqual(JSchemaType.String, s.Properties["prop1"].Type);
         }
     }
 }
