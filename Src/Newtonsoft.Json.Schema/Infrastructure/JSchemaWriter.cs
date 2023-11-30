@@ -256,7 +256,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             {
                 foreach (ExternalSchema externalSchema in _externalSchemas)
                 {
-                    discovery = new JSchemaDiscovery(schema, _knownSchemas, KnownSchemaState.External);
+                    discovery = new JSchemaDiscovery(schema, _version, _knownSchemas, KnownSchemaState.External);
                     discovery.Discover(externalSchema.Schema, externalSchema.Uri);
                 }
             }
@@ -266,7 +266,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 _version = SchemaVersionHelpers.MapSchemaUri(schema.SchemaVersion);
             }
 
-            discovery = new JSchemaDiscovery(schema, _knownSchemas, KnownSchemaState.InlinePending);
+            discovery = new JSchemaDiscovery(schema, _version, _knownSchemas, KnownSchemaState.InlinePending);
             discovery.Discover(schema, null);
 
             KnownSchema rootKnownSchema = _knownSchemas.Single(s => s.Schema == schema);

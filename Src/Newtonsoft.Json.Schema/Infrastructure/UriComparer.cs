@@ -15,6 +15,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         public bool Equals(Uri? x, Uri? y)
         {
+            return Equals(x, y, compareFragments: true);
+        }
+
+        public bool Equals(Uri? x, Uri? y, bool compareFragments)
+        {
             if (x != y)
             {
                 return false;
@@ -33,23 +38,18 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 return true;
             }
 
+            if (!compareFragments)
+            {
+                return true;
+            }
+
             return ResolveFragment(x).Equals(ResolveFragment(y));
         }
 
         public int GetHashCode(Uri obj)
         {
-            if (!obj.IsAbsoluteUri)
-            {
-                return obj.GetHashCode();
-            }
-
-            StringSegment resolvedFragment = ResolveFragment(obj);
-            if (resolvedFragment.IsEmpty)
-            {
-                return obj.GetHashCode();
-            }
-
-            return obj.GetHashCode() ^ resolvedFragment.GetHashCode();
+            // There are some situations where we want to compare the fragment. Only get the hash code for the host + path.
+            return obj.GetHashCode();
         }
 
         private StringSegment ResolveFragment(Uri uri)

@@ -1812,6 +1812,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                         _versionUri = target.SchemaVersion;
 
                         _version = SchemaVersionHelpers.MapSchemaUri(_versionUri);
+                        _schemaDiscovery.SchemaVersion = _version;
 
                         if (_validateSchema)
                         {

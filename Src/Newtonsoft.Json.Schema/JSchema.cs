@@ -210,22 +210,6 @@ namespace Newtonsoft.Json.Schema
             }
         }
 
-        /// <summary>
-        /// Gets or sets the $dynamicAnchor.
-        /// </summary>
-        public string? DynamicAnchor
-        {
-            get => _dynamicAnchor;
-            set
-            {
-                _dynamicAnchor = value;
-                if (value != null)
-                {
-                    _recursiveAnchor = null;
-                }
-            }
-        }
-
         internal Uri? ResolvedId { get; private set; }
         internal bool Root { get; set; }
 
@@ -261,11 +245,13 @@ namespace Newtonsoft.Json.Schema
                 if (!UriComparer.Instance.Equals(value, _id))
                 {
                     _id = value;
-                    ResolvedId = SchemaDiscovery.CombineIdAndAnchor(_id, _anchor);
+                    ResolvedId = SchemaDiscovery.CombineIdAndAnchor(_id, ResolvedAnchor);
                     OnSelfChanged();
                 }
             }
         }
+
+        internal string? ResolvedAnchor => Anchor ?? DynamicAnchor;
 
         /// <summary>
         /// Gets or sets the schema anchor.
@@ -278,7 +264,31 @@ namespace Newtonsoft.Json.Schema
                 if (value != _anchor)
                 {
                     _anchor = value;
-                    ResolvedId = SchemaDiscovery.CombineIdAndAnchor(_id, _anchor);
+                    ResolvedId = SchemaDiscovery.CombineIdAndAnchor(_id, ResolvedAnchor);
+                    OnSelfChanged();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the $dynamicAnchor.
+        /// </summary>
+        public string? DynamicAnchor
+        {
+            get => _dynamicAnchor;
+            set
+            {
+                if (value != _dynamicAnchor)
+                {
+                    _dynamicAnchor = value;
+
+                    if (value != null)
+                    {
+                        _recursiveAnchor = null;
+                        _anchor = null;
+                    }
+
+                    ResolvedId = SchemaDiscovery.CombineIdAndAnchor(_id, ResolvedAnchor);
                     OnSelfChanged();
                 }
             }
