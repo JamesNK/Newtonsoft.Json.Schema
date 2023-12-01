@@ -38,9 +38,12 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             ChildScopes.Clear();
             ParentSchemaScope = parent;
             ConditionalContext = ConditionalContext.Create(context, parent.ShouldValidateUnevaluated());
+#if DEBUG
+            ConditionalContext.Scope = this;
+#endif
         }
 
-        public List<SchemaScope>? EvaluatedSchemas => ConditionalContext.EvaluatedSchemas;
+        public List<SchemaScope>? EvaluatedSchemas => ConditionalContext.ResolveEvaluatedSchemas();
 
         public void InitializeScopes(JsonToken token, List<JSchema> schemas, int scopeIndex)
         {

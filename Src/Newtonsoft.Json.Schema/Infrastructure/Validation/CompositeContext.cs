@@ -42,7 +42,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
         }
 
         public List<SchemaScope> EvaluatedSchemas => throw new NotSupportedException();
- 
+
+        public List<SchemaScope>? ResolveEvaluatedSchemas() => null;
+
         public bool TrackEvaluatedSchemas
         {
             get

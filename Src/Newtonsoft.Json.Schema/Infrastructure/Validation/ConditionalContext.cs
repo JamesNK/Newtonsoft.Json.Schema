@@ -18,6 +18,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
         public List<ValidationError>? Errors;
         public List<SchemaScope>? EvaluatedSchemas { get; private set; }
         public bool TrackEvaluatedSchemas { get; }
+#if DEBUG
+        public Scope? Scope { get; set; }
+#endif
 
         public ConditionalContext(Validator validator, ContextBase parentContext, bool trackEvaluatedSchemas, bool useParentTracker)
             : base(validator)
@@ -32,10 +35,19 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             TrackEvaluatedSchemas = trackEvaluatedSchemas || parentSchemaTracker != null;
         }
 
+        public List<SchemaScope>? ResolveEvaluatedSchemas()
+        {
+            return _parentSchemaTracker?.ResolveEvaluatedSchemas() ?? EvaluatedSchemas;
+        }
+
         private string DebuggerDisplay()
         {
             var evaluatedSchemas = _parentSchemaTracker?.EvaluatedSchemas ?? EvaluatedSchemas;
-            return $"Errors = {Errors?.Count ?? 0}, TrackEvaluatedSchemas = {TrackEvaluatedSchemas}, EvaluatedSchemas = {evaluatedSchemas?.Count ?? 0}";
+            var text = $"Errors = {Errors?.Count ?? 0}, TrackEvaluatedSchemas = {TrackEvaluatedSchemas}, EvaluatedSchemas = {evaluatedSchemas?.Count ?? 0}";
+#if DEBUG
+            text += $", Scope = {Scope}";
+#endif
+            return text;
         }
 
         public override void RaiseError(IFormattable message, ErrorType errorType, JSchema schema, object? value, IList<ValidationError>? childErrors)

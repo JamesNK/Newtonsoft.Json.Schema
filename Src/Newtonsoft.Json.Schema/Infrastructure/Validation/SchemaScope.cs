@@ -53,13 +53,12 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
         public ConditionalContext CreateConditionalContext(bool useParentTracker = true)
         {
-            return ConditionalContext.Create(Context, ShouldValidateUnevaluated(), useParentTracker);
+            var conditionalContext = ConditionalContext.Create(Context, ShouldValidateUnevaluated(), useParentTracker);
+#if DEBUG
+            conditionalContext.Scope = this;
+#endif
+            return conditionalContext;
         }
-
-        //public ConditionalContext CreateConditionalContext(ContextBase context)
-        //{
-        //    return ConditionalContext.Create(context, ShouldValidateUnevaluated());
-        //}
 
         private void AddChildScope(ConditionalScope scope)
         {
