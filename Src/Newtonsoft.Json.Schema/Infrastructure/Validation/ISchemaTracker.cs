@@ -11,6 +11,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
     {
         void TrackEvaluatedSchemaScope(SchemaScope schema);
         List<SchemaScope>? EvaluatedSchemas { get; }
+        List<SchemaScope>? ResolveEvaluatedSchemas();
         bool TrackEvaluatedSchemas { get; }
     }
 }
