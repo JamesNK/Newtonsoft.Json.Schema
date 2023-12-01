@@ -291,9 +291,13 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
                             if (ShouldValidateUnevaluated())
                             {
-                                _unevaluatedScopes![_currentPropertyName] = Schema.UnevaluatedProperties != null
+                                var unevaluatedContext = Schema.UnevaluatedProperties != null
                                     ? new UnevaluatedContext(CreateScopesAndEvaluateToken(token, value, depth, Schema.UnevaluatedProperties, this, CreateConditionalContext()))
                                     : new UnevaluatedContext(AlwaysFalseScope.Instance);
+#if DEBUG
+                                unevaluatedContext.Key = _currentPropertyName;
+#endif
+                                _unevaluatedScopes![_currentPropertyName] = unevaluatedContext;
                             }
                         }
                     }
