@@ -642,7 +642,7 @@ namespace Newtonsoft.Json.Schema.Generation
                 }
             }
 
-            if (type.IsSealed())
+            if (type.IsSealed() && contract.ExtensionDataGetter == null)
             {
                 schema.AllowAdditionalProperties = false;
             }
