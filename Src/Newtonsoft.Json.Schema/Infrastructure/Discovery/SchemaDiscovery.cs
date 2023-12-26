@@ -338,10 +338,10 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
 
                     if (!resolvedSchema)
                     {
-                        resolvedSchema = TryFindSchemaInDefinitions(Constants.PropertyNames.Definitions, setSchema, schema, rootSchemaId, dynamicScope, schemaReader, discovery, resolvedReference);
+                        resolvedSchema = TryFindSchemaInDefinitions(Constants.PropertyNames.Definitions, setSchema, schema, rootSchemaId, dynamicScope, schemaReader, discovery, resolvedReference, originalReference);
                         if (!resolvedSchema)
                         {
-                            resolvedSchema = TryFindSchemaInDefinitions(Constants.PropertyNames.Defs, setSchema, schema, rootSchemaId, dynamicScope, schemaReader, discovery, resolvedReference);
+                            resolvedSchema = TryFindSchemaInDefinitions(Constants.PropertyNames.Defs, setSchema, schema, rootSchemaId, dynamicScope, schemaReader, discovery, resolvedReference, originalReference);
                         }
                     }
                 }
@@ -416,7 +416,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
         }
 
         private static bool TryFindSchemaInDefinitions(string definitionsName, Action<JSchema> setSchema, JSchema schema, Uri? rootSchemaId, Uri? dynamicScope,
-            JSchemaReader schemaReader, JSchemaDiscovery discovery, Uri resolvedReference)
+            JSchemaReader schemaReader, JSchemaDiscovery discovery, Uri resolvedReference, Uri originalReference)
         {
             // special case
             // look in the root schema's definitions for a definition with the same property name and id as reference
@@ -440,10 +440,21 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                                 break;
                             }
                         }
+                        if (matchingProperty == null)
+                        {
+                            foreach (JProperty property in definitionsObject.Properties())
+                            {
+                                if (TryCompare(property.Name, originalReference))
+                                {
+                                    matchingProperty = property;
+                                    break;
+                                }
+                            }
+                        }
 
                         if (matchingProperty?.Value is JObject o)
                         {
-                            if (IsIdMatch(schemaReader, resolvedReference, o, rootSchemaId))
+                            if (IsIdMatch(schemaReader, resolvedReference, o, rootSchemaId, allowFragmentlessMatch: true))
                             {
                                 JSchema inlineSchema = schemaReader.ReadInlineSchema(setSchema, o, dynamicScope);
 
@@ -558,7 +569,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             return false;
         }
 
-        private static bool IsIdMatch(JSchemaReader schemaReader, Uri? resolvedReference, JObject o, Uri? rootSchemaId)
+        private static bool IsIdMatch(JSchemaReader schemaReader, Uri? resolvedReference, JObject o, Uri? rootSchemaId, bool allowFragmentlessMatch = false)
         {
             Uri? id = GetTokenId(o, schemaReader);
 
@@ -575,6 +586,16 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             Uri resolvedId = ResolveSchemaId(rootSchemaId, id);
 
             if (UriComparer.Instance.Equals(resolvedId, resolvedReference))
+            {
+                return true;
+            }
+
+            // If the resolver reference doesn't have an anchor and the token ID does, then repeat check but ignore token ID's fragment.
+            if (allowFragmentlessMatch &&
+                resolvedReference != null &&
+                string.IsNullOrEmpty(resolvedReference.Fragment) &&
+                !string.IsNullOrEmpty(resolvedId.Fragment) &&
+                resolvedId == resolvedReference)
             {
                 return true;
             }
