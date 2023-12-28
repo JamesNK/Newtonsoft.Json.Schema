@@ -267,7 +267,7 @@ namespace Newtonsoft.Json.Schema.Tests
                                 continue;
                             }
                             // Can't test support the future because the future isn't supported yet.
-                            if (schemaSpecTest.Version == "Draft2019-09" &&
+                            if (string.Equals(schemaSpecTest.Version, "Draft2019-09", StringComparison.OrdinalIgnoreCase) &&
                                 schemaSpecTest.FileName == "cross-draft.json" &&
                                 schemaSpecTest.TestCaseDescription == "refs to future drafts are processed as future drafts")
                             {
@@ -306,7 +306,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
         private static Uri GetSchemaUri(string version)
         {
-            SchemaVersion schemaVersion = (SchemaVersion)Enum.Parse(typeof(SchemaVersion), version.Replace('-', '_'));
+            SchemaVersion schemaVersion = (SchemaVersion)Enum.Parse(typeof(SchemaVersion), version.Replace('-', '_'), ignoreCase: true);
 
             return SchemaVersionHelpers.MapSchemaVersion(schemaVersion);
         }
