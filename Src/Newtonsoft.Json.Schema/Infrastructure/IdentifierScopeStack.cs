@@ -12,20 +12,20 @@ using System.Diagnostics;
 namespace Newtonsoft.Json.Schema.Infrastructure
 {
     [DebuggerDisplay("Count = {Count}")]
-    [DebuggerTypeProxy(typeof(IdentiferScopeStackDebugView))]
-    internal sealed class IdentiferScopeStack : List<IIdentiferScope>
+    [DebuggerTypeProxy(typeof(IdentifierScopeStackDebugView))]
+    internal sealed class IdentifierScopeStack : List<IIdentifierScope>
     {
-        private sealed class IdentiferScopeStackDebugView
+        private sealed class IdentifierScopeStackDebugView
         {
-            private readonly IdentiferScopeStack _stack;
+            private readonly IdentifierScopeStack _stack;
 
-            public IdentiferScopeStackDebugView(IdentiferScopeStack stack)
+            public IdentifierScopeStackDebugView(IdentifierScopeStack stack)
             {
                 _stack = stack;
             }
 
             [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
-            public JsonIdentiferScope[] Items => _stack.Select(s => new JsonIdentiferScope(s.ScopeId, s.Root, s.DynamicAnchor)).ToArray();
+            public JsonIdentifierScope[] Items => _stack.Select(s => new JsonIdentifierScope(s.ScopeId, s.Root, s.DynamicAnchor)).ToArray();
         }
     }
 }

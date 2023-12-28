@@ -30,7 +30,7 @@ namespace Newtonsoft.Json.Schema
     /// </summary>
     [JsonConverter(typeof(JSchemaConverter))]
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public class JSchema : IJsonLineInfo, IIdentiferScope
+    public class JSchema : IJsonLineInfo, IIdentifierScope
     {
 #if DEBUG
         internal static long LastDebugId;
@@ -171,12 +171,12 @@ namespace Newtonsoft.Json.Schema
         internal Uri? ResolvedId { get; private set; }
         internal bool Root { get; set; }
 
-        Uri? IIdentiferScope.ScopeId => ResolvedId;
+        Uri? IIdentifierScope.ScopeId => ResolvedId;
 
-        bool IIdentiferScope.Root => Root;
+        bool IIdentifierScope.Root => Root;
 
         // TODO - improve in next spec
-        string? IIdentiferScope.DynamicAnchor => RecursiveAnchor == true ? bool.TrueString : null;
+        string? IIdentifierScope.DynamicAnchor => RecursiveAnchor == true ? bool.TrueString : null;
 
         /// <summary>
         /// Gets or sets the schema ID.

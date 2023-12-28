@@ -28,7 +28,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         private static readonly List<JsonToken> ValidLongTokens = new List<JsonToken> { JsonToken.Integer, JsonToken.Float };
 
         internal JSchemaDiscovery _schemaDiscovery;
-        internal readonly IdentiferScopeStack _identiferScopeStack;
+        internal readonly IdentifierScopeStack _identifierScopeStack;
         private readonly DeferredSchemaCollection _deferredSchemas;
         private readonly DeferredSchemaCollection _resolvedDeferredSchemas;
         private readonly JSchemaResolver _resolver;
@@ -58,7 +58,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             Cache = new Dictionary<Uri, JSchema>(UriComparer.Instance);
             _deferredSchemas = new DeferredSchemaCollection();
             _resolvedDeferredSchemas = new DeferredSchemaCollection();
-            _identiferScopeStack = new IdentiferScopeStack();
+            _identifierScopeStack = new IdentifierScopeStack();
 
             _resolver = settings.Resolver ?? JSchemaDummyResolver.Instance;
             _baseUri = settings.BaseUri;
@@ -75,14 +75,14 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             }
         }
 
-        internal void PushIdentiferScope(IIdentiferScope identiferScope)
+        internal void PushIdentifierScope(IIdentifierScope identifierScope)
         {
-            _identiferScopeStack.Add(identiferScope);
+            _identifierScopeStack.Add(identifierScope);
         }
 
-        internal void PopIdentiferScope()
+        internal void PopIdentifierScope()
         {
-            _identiferScopeStack.RemoveAt(_identiferScopeStack.Count - 1);
+            _identifierScopeStack.RemoveAt(_identifierScopeStack.Count - 1);
         }
 
         internal JSchema ReadRoot(JsonReader reader)
@@ -270,22 +270,22 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                     JSchemaReader resolvingReader = this;
                     if (deferredSchema.IsRecursiveReference)
                     {
-                        while (((IIdentiferScope)resolvingReader.RootSchema).DynamicAnchor == deferredSchema.DynamicAnchor
+                        while (((IIdentifierScope)resolvingReader.RootSchema).DynamicAnchor == deferredSchema.DynamicAnchor
                             && resolvingReader.Parent != null
-                            && ((IIdentiferScope)resolvingReader.Parent.RootSchema).DynamicAnchor == deferredSchema.DynamicAnchor)
+                            && ((IIdentifierScope)resolvingReader.Parent.RootSchema).DynamicAnchor == deferredSchema.DynamicAnchor)
                         {
                             resolvingReader = resolvingReader.Parent;
                         }
                     }
 
-                    resolvingReader.PushIdentiferScope(deferredSchema);
+                    resolvingReader.PushIdentifierScope(deferredSchema);
                     try
                     {
                         resolvingReader.ResolveDeferredSchema(deferredSchema);
                     }
                     finally
                     {
-                        resolvingReader.PopIdentiferScope();
+                        resolvingReader.PopIdentifierScope();
                     }
 
                     DeferredSchemaKey deferredSchemaKey = DeferredSchema.CreateKey(deferredSchema);
@@ -1035,7 +1035,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             }
             loadingSchema.Path = reader.Path;
 
-            PushIdentiferScope(loadingSchema);
+            PushIdentifierScope(loadingSchema);
 
             try
             {
@@ -1065,9 +1065,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                     if (isRecursiveReference)
                     {
                         // Outer most matching dynamic anchor in scope
-                        for (int i = 0; i < _identiferScopeStack.Count; i++)
+                        for (int i = 0; i < _identifierScopeStack.Count; i++)
                         {
-                            IIdentiferScope current = _identiferScopeStack[i];
+                            IIdentifierScope current = _identifierScopeStack[i];
                             if (current.ScopeId != null && current.DynamicAnchor == scopeDynamicAnchor)
                             {
                                 scopeId = current.ScopeId;
@@ -1103,7 +1103,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             }
             finally
             {
-                PopIdentiferScope();
+                PopIdentifierScope();
             }
         }
 
@@ -1219,9 +1219,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
             schemaReader.Cache = Cache;
             schemaReader.Parent = this;
-            for (int i = 0; i < _identiferScopeStack.Count; i++)
+            for (int i = 0; i < _identifierScopeStack.Count; i++)
             {
-                schemaReader.PushIdentiferScope(_identiferScopeStack[i]);
+                schemaReader.PushIdentifierScope(_identifierScopeStack[i]);
             }
 
             JSchema rootSchema;
@@ -1250,9 +1250,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             dynamicScope = null;
             Uri? scopeId = null;
 
-            for (int i = 0; i < _identiferScopeStack.Count; i++)
+            for (int i = 0; i < _identifierScopeStack.Count; i++)
             {
-                IIdentiferScope current = _identiferScopeStack[i];
+                IIdentifierScope current = _identifierScopeStack[i];
                 if (current.Root)
                 {
                     // Clear the scope when moving into a new schema file

@@ -9,7 +9,7 @@ using System;
 
 namespace Newtonsoft.Json.Schema.Infrastructure
 {
-    internal interface IIdentiferScope
+    internal interface IIdentifierScope
     {
         Uri? ScopeId { get; }
         bool Root { get; }

@@ -43,7 +43,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
     }
 
     [DebuggerDisplay("Reference = {ResolvedReference}, IsRecursive = {IsRecursiveReference}, Success = {Success}, DynamicScope = {DynamicScope}")]
-    internal class DeferredSchema : IIdentiferScope
+    internal class DeferredSchema : IIdentifierScope
     {
         public readonly Uri OriginalReference;
         public readonly Uri? DynamicScope;
