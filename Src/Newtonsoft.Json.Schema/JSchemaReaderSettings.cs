@@ -34,7 +34,7 @@ namespace Newtonsoft.Json.Schema
         public bool ResolveSchemaReferences { get; set; } = true;
 
         /// <summary>
-        /// Gets or sets a value indicating whether the schema JSON should be validated using the JSON Schema version identifer defined by '$schema'.
+        /// Gets or sets a value indicating whether the schema JSON should be validated using the JSON Schema version identifier defined by '$schema'.
         /// </summary>
         public bool ValidateVersion { get; set; }
 

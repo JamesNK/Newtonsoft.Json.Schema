@@ -153,9 +153,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
 
             if (IsInternalSchemaReference(referenceText, rootSchemaId))
             {
-                int scopeInitialCount = schemaReader._identiferScopeStack.Count;
+                int scopeInitialCount = schemaReader._identifierScopeStack.Count;
 
-                schemaReader.PushIdentiferScope(schema);
+                schemaReader.PushIdentifierScope(schema);
 
                 JSchema parent = schema;
                 object? current = schema;
@@ -173,24 +173,24 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                             case JSchema s:
                                 if (s != schema)
                                 {
-                                    schemaReader.PushIdentiferScope(s);
+                                    schemaReader.PushIdentifierScope(s);
                                 }
 
                                 parent = s;
                                 current = GetCurrentFromSchema(s, unescapedPart);
                                 break;
                             case JToken t:
-                                IIdentiferScope? scope = null;
+                                IIdentifierScope? scope = null;
                                 if (t is JObject)
                                 {
                                     Uri? id = GetTokenId(t, schemaReader);
                                     if (id != null)
                                     {
-                                        scope = new JsonIdentiferScope(id, false, GetTokenDynamicAnchor(t, schemaReader));
+                                        scope = new JsonIdentifierScope(id, false, GetTokenDynamicAnchor(t, schemaReader));
                                     }
                                 }
 
-                                schemaReader.PushIdentiferScope(scope ?? JsonIdentiferScope.Empty);
+                                schemaReader.PushIdentifierScope(scope ?? JsonIdentifierScope.Empty);
 
                                 current = GetCurrentFromToken(t, unescapedPart, dynamicScope);
                                 break;
@@ -271,9 +271,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                         break;
                 }
 
-                while (schemaReader._identiferScopeStack.Count > scopeInitialCount)
+                while (schemaReader._identifierScopeStack.Count > scopeInitialCount)
                 {
-                    schemaReader.PopIdentiferScope();
+                    schemaReader.PopIdentifierScope();
                 }
             }
             else
@@ -409,7 +409,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                 // Add root schema ID to the scope stack. This is required because schemas in definitions may be loaded as
                 // fragments when deferred schemas are resolver. If the root schema has an "$id" value, this is need to
                 // correctly resolve IDs using it.
-                schemaReader.PushIdentiferScope(new JsonIdentiferScope(rootSchemaId, false, dynamicAnchor: null));
+                schemaReader.PushIdentifierScope(new JsonIdentifierScope(rootSchemaId, false, dynamicAnchor: null));
 
                 try
                 {
@@ -446,7 +446,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                 }
                 finally
                 {
-                    schemaReader.PopIdentiferScope();
+                    schemaReader.PopIdentifierScope();
                 }
             }
 
