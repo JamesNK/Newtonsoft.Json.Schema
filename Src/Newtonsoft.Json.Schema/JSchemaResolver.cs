@@ -127,7 +127,7 @@ namespace Newtonsoft.Json.Schema
 
             if (subSchema != null)
             {
-                resolverSchemaReader.ResolveDeferedSchemas();
+                resolverSchemaReader.ResolveDeferredSchemas();
                 resolverSchemaReader.RaiseValidationErrors();
 
                 return subSchema;

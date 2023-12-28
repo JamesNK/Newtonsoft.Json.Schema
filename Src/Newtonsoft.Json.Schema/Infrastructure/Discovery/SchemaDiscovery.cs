@@ -263,7 +263,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                         // schema is a reference schema and needs to be resolved
                         if (s.HasReference)
                         {
-                            schemaReader.AddDeferedSchema(null, setSchema, s);
+                            schemaReader.AddDeferredSchema(null, setSchema, s);
                         }
                         break;
                     default:
@@ -407,7 +407,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             if (schema.ExtensionData.TryGetValue(definitionsName, out JToken definitions))
             {
                 // Add root schema ID to the scope stack. This is required because schemas in definitions may be loaded as
-                // fragments when defered schemas are resolver. If the root schema has an "$id" value, this is need to
+                // fragments when deferred schemas are resolver. If the root schema has an "$id" value, this is need to
                 // correctly resolve IDs using it.
                 schemaReader.PushIdentiferScope(new JsonIdentiferScope(rootSchemaId, false, dynamicAnchor: null));
 

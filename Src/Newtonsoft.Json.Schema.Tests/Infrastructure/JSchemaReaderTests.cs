@@ -2279,7 +2279,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         }
 
         [Test]
-        public void ErrorPathWhenFailureReadingDeferedReference()
+        public void ErrorPathWhenFailureReadingDeferredReference()
         {
             string schemaJson = @"{
   ""type"":""object"",
@@ -2303,7 +2303,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         }
 
         [Test]
-        public void ErrorPathWhenFailureReadingDeferedReference_Array()
+        public void ErrorPathWhenFailureReadingDeferredReference_Array()
         {
             string schemaJson = @"{
   ""type"":""object"",
@@ -2338,7 +2338,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         }
 
         [Test]
-        public void ErrorPathWhenFailureReadingDeferedReference_Nested()
+        public void ErrorPathWhenFailureReadingDeferredReference_Nested()
         {
             string schemaJson = @"{
   ""type"":""object"",
