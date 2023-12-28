@@ -9,9 +9,9 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Newtonsoft.Json.Schema.Infrastructure
 {
-    internal struct DeferedSchemaKey : IEquatable<DeferedSchemaKey>
+    internal struct DeferredSchemaKey : IEquatable<DeferredSchemaKey>
     {
-        public DeferedSchemaKey(Uri resolvedReference, Uri? dynamicScopeId)
+        public DeferredSchemaKey(Uri resolvedReference, Uri? dynamicScopeId)
         {
             ResolvedReference = resolvedReference;
             DynamicScopeId = dynamicScopeId;
@@ -22,7 +22,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         public override bool Equals(object obj)
         {
-            if (obj is DeferedSchemaKey key)
+            if (obj is DeferredSchemaKey key)
             {
                 return Equals(key);
             }
@@ -30,7 +30,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             return false;
         }
 
-        public bool Equals(DeferedSchemaKey other)
+        public bool Equals(DeferredSchemaKey other)
         {
             return UriComparer.Instance.Equals(ResolvedReference, other.ResolvedReference)
                 && UriComparer.Instance.Equals(DynamicScopeId, other.DynamicScopeId);
@@ -47,14 +47,14 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         }
     }
 
-    internal class DeferedSchemaCollection : KeyedCollection<DeferedSchemaKey, DeferedSchema>
+    internal class DeferredSchemaCollection : KeyedCollection<DeferredSchemaKey, DeferredSchema>
     {
-        protected override DeferedSchemaKey GetKeyForItem(DeferedSchema item)
+        protected override DeferredSchemaKey GetKeyForItem(DeferredSchema item)
         {
-            return DeferedSchema.CreateKey(item);
+            return DeferredSchema.CreateKey(item);
         }
 
-        public bool TryGetValue(DeferedSchemaKey key, [NotNullWhen(true)] out DeferedSchema? value)
+        public bool TryGetValue(DeferredSchemaKey key, [NotNullWhen(true)] out DeferredSchema? value)
         {
             if (Dictionary == null)
             {

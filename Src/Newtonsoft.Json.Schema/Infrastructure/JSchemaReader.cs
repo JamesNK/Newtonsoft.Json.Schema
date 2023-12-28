@@ -29,8 +29,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         internal JSchemaDiscovery _schemaDiscovery;
         internal readonly IdentiferScopeStack _identiferScopeStack;
-        private readonly DeferedSchemaCollection _deferedSchemas;
-        private readonly DeferedSchemaCollection _resolvedDeferedSchemas;
+        private readonly DeferredSchemaCollection _deferredSchemas;
+        private readonly DeferredSchemaCollection _resolvedDeferredSchemas;
         private readonly JSchemaResolver _resolver;
         private readonly Uri? _baseUri;
         private readonly bool _validateSchema;
@@ -56,8 +56,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         public JSchemaReader(JSchemaReaderSettings settings)
         {
             Cache = new Dictionary<Uri, JSchema>(UriComparer.Instance);
-            _deferedSchemas = new DeferedSchemaCollection();
-            _resolvedDeferedSchemas = new DeferedSchemaCollection();
+            _deferredSchemas = new DeferredSchemaCollection();
+            _resolvedDeferredSchemas = new DeferredSchemaCollection();
             _identiferScopeStack = new IdentiferScopeStack();
 
             _resolver = settings.Resolver ?? JSchemaDummyResolver.Instance;
@@ -90,7 +90,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             return ReadRoot(reader, _resolveSchemaReferences);
         }
 
-        internal JSchema ReadRoot(JsonReader reader, bool resolveDeferedSchemas)
+        internal JSchema ReadRoot(JsonReader reader, bool resolveDeferredSchemas)
         {
             if (reader.TokenType == JsonToken.None || reader.TokenType == JsonToken.Comment)
             {
@@ -115,9 +115,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 }
             }, true);
 
-            if (resolveDeferedSchemas)
+            if (resolveDeferredSchemas)
             {
-                ResolveDeferedSchemas();
+                ResolveDeferredSchemas();
             }
 
             RaiseValidationErrors();
@@ -205,13 +205,13 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             return inlineToken.Annotation<JSchemaAnnotation>()!.GetSchema(dynamicScope)!;
         }
 
-        internal bool AddDeferedSchema(JSchema? target, Action<JSchema> setSchema, JSchema referenceSchema)
+        internal bool AddDeferredSchema(JSchema? target, Action<JSchema> setSchema, JSchema referenceSchema)
         {
             Uri? scopeId = ResolveScopeId(out string? scopeDynamicAnchor, out Uri? dynamicScope);
             Uri resolvedReference = ResolveSchemaReference(scopeId, referenceSchema);
 
             ResolveReferenceFromSchema(referenceSchema, scopeDynamicAnchor, out bool isRecursiveReference, out Uri originalReference);
-            return AddDeferedSchema(resolvedReference, originalReference, scopeId, scopeDynamicAnchor, isRecursiveReference, dynamicScope, referenceSchema, target, setSchema);
+            return AddDeferredSchema(resolvedReference, originalReference, scopeId, scopeDynamicAnchor, isRecursiveReference, dynamicScope, referenceSchema, target, setSchema);
         }
 
         private static void ResolveReferenceFromSchema(JSchema referenceSchema, string? scopeDynamicAnchor, out bool isRecursiveReference, out Uri originalReference)
@@ -251,7 +251,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             throw JSchemaReaderException.Create(reader, _baseUri, "Unexpected end when reading schema.");
         }
 
-        public void ResolveDeferedSchemas()
+        public void ResolveDeferredSchemas()
         {
             if (_isReentrant)
             {
@@ -260,57 +260,57 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
             _isReentrant = true;
 
-            if (_deferedSchemas.Count > 0)
+            if (_deferredSchemas.Count > 0)
             {
-                // note that defered schemas could be added while resolving
-                while (_deferedSchemas.Count > 0)
+                // note that deferred schemas could be added while resolving
+                while (_deferredSchemas.Count > 0)
                 {
-                    DeferedSchema deferedSchema = _deferedSchemas[0];
+                    DeferredSchema deferredSchema = _deferredSchemas[0];
 
                     JSchemaReader resolvingReader = this;
-                    if (deferedSchema.IsRecursiveReference)
+                    if (deferredSchema.IsRecursiveReference)
                     {
-                        while (((IIdentiferScope)resolvingReader.RootSchema).DynamicAnchor == deferedSchema.DynamicAnchor
+                        while (((IIdentiferScope)resolvingReader.RootSchema).DynamicAnchor == deferredSchema.DynamicAnchor
                             && resolvingReader.Parent != null
-                            && ((IIdentiferScope)resolvingReader.Parent.RootSchema).DynamicAnchor == deferedSchema.DynamicAnchor)
+                            && ((IIdentiferScope)resolvingReader.Parent.RootSchema).DynamicAnchor == deferredSchema.DynamicAnchor)
                         {
                             resolvingReader = resolvingReader.Parent;
                         }
                     }
 
-                    resolvingReader.PushIdentiferScope(deferedSchema);
+                    resolvingReader.PushIdentiferScope(deferredSchema);
                     try
                     {
-                        resolvingReader.ResolveDeferedSchema(deferedSchema);
+                        resolvingReader.ResolveDeferredSchema(deferredSchema);
                     }
                     finally
                     {
                         resolvingReader.PopIdentiferScope();
                     }
 
-                    DeferedSchemaKey deferedSchemaKey = DeferedSchema.CreateKey(deferedSchema);
+                    DeferredSchemaKey deferredSchemaKey = DeferredSchema.CreateKey(deferredSchema);
 
-                    if (_resolvedDeferedSchemas.TryGetValue(deferedSchemaKey, out DeferedSchema? previouslyResolvedSchema))
+                    if (_resolvedDeferredSchemas.TryGetValue(deferredSchemaKey, out DeferredSchema? previouslyResolvedSchema))
                     {
-                        if (!deferedSchema.Success)
+                        if (!deferredSchema.Success)
                         {
-                            throw JSchemaReaderException.Create(previouslyResolvedSchema.ReferenceSchema, _baseUri, previouslyResolvedSchema.ReferenceSchema.Path, "Could not resolve schema reference '{0}'.".FormatWith(CultureInfo.InvariantCulture, deferedSchema.ResolvedReference));
+                            throw JSchemaReaderException.Create(previouslyResolvedSchema.ReferenceSchema, _baseUri, previouslyResolvedSchema.ReferenceSchema.Path, "Could not resolve schema reference '{0}'.".FormatWith(CultureInfo.InvariantCulture, deferredSchema.ResolvedReference));
                         }
                         else
                         {
-                            _resolvedDeferedSchemas.Remove(previouslyResolvedSchema);
+                            _resolvedDeferredSchemas.Remove(previouslyResolvedSchema);
                         }
                     }
 
-                    _resolvedDeferedSchemas.Add(deferedSchema);
-                    _deferedSchemas.Remove(deferedSchema);
+                    _resolvedDeferredSchemas.Add(deferredSchema);
+                    _deferredSchemas.Remove(deferredSchema);
                 }
 
-                foreach (DeferedSchema resolvedDeferedSchema in _resolvedDeferedSchemas)
+                foreach (DeferredSchema resolvedDeferredSchema in _resolvedDeferredSchemas)
                 {
-                    if (!resolvedDeferedSchema.Success)
+                    if (!resolvedDeferredSchema.Success)
                     {
-                        throw JSchemaReaderException.Create(resolvedDeferedSchema.ReferenceSchema, _baseUri, resolvedDeferedSchema.ReferenceSchema.Path, "Could not resolve schema reference '{0}'.".FormatWith(CultureInfo.InvariantCulture, resolvedDeferedSchema.ResolvedReference));
+                        throw JSchemaReaderException.Create(resolvedDeferredSchema.ReferenceSchema, _baseUri, resolvedDeferredSchema.ReferenceSchema.Path, "Could not resolve schema reference '{0}'.".FormatWith(CultureInfo.InvariantCulture, resolvedDeferredSchema.ResolvedReference));
                     }
                 }
             }
@@ -318,11 +318,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             _isReentrant = false;
         }
 
-        private void ResolveDeferedSchema(DeferedSchema deferedSchema)
+        private void ResolveDeferredSchema(DeferredSchema deferredSchema)
         {
             // We don't want to use the dynamic scope if we're resolving the actual recursive reference.
             // It resolves back to the original scopeless object
-            Uri? dynamicScope = deferedSchema.DynamicScope;
+            Uri? dynamicScope = deferredSchema.DynamicScope;
 
             bool found = SchemaDiscovery.FindSchema(
                 s =>
@@ -332,21 +332,21 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                     // Kind of hacky.
                     if (!EnsureVersion(SchemaVersion.Draft2019_09))
                     {
-                        if (s != deferedSchema.ReferenceSchema && deferedSchema.ReferenceSchema._extensionData != null)
+                        if (s != deferredSchema.ReferenceSchema && deferredSchema.ReferenceSchema._extensionData != null)
                         {
-                            foreach (KeyValuePair<string, JToken> keyValuePair in deferedSchema.ReferenceSchema._extensionData)
+                            foreach (KeyValuePair<string, JToken> keyValuePair in deferredSchema.ReferenceSchema._extensionData)
                             {
                                 s.ExtensionData[keyValuePair.Key] = keyValuePair.Value;
                             }
                         }
                     }
 
-                    deferedSchema.SetResolvedSchema(s);
+                    deferredSchema.SetResolvedSchema(s);
                 },
                 RootSchema,
                 RootSchema.ResolvedId,
-                deferedSchema.ResolvedReference,
-                deferedSchema.OriginalReference,
+                deferredSchema.ResolvedReference,
+                deferredSchema.OriginalReference,
                 dynamicScope,
                 this,
                 ref _schemaDiscovery);
@@ -359,21 +359,21 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             JSchema? resolvedSchema;
             try
             {
-                ValidationUtils.ArgumentNotNull(deferedSchema.ReferenceSchema.Reference, "Reference");
-                resolvedSchema = ResolvedSchema(deferedSchema.ReferenceSchema.Reference, deferedSchema.ResolvedReference);
+                ValidationUtils.ArgumentNotNull(deferredSchema.ReferenceSchema.Reference, "Reference");
+                resolvedSchema = ResolvedSchema(deferredSchema.ReferenceSchema.Reference, deferredSchema.ResolvedReference);
             }
             catch (Exception ex)
             {
-                throw JSchemaReaderException.Create(deferedSchema.ReferenceSchema, _baseUri, deferedSchema.ReferenceSchema.Path, "Error when resolving schema reference '{0}'.".FormatWith(CultureInfo.InvariantCulture, deferedSchema.ReferenceSchema.Reference), ex);
+                throw JSchemaReaderException.Create(deferredSchema.ReferenceSchema, _baseUri, deferredSchema.ReferenceSchema.Path, "Error when resolving schema reference '{0}'.".FormatWith(CultureInfo.InvariantCulture, deferredSchema.ReferenceSchema.Reference), ex);
             }
 
             if (resolvedSchema != null)
             {
-                deferedSchema.SetResolvedSchema(resolvedSchema);
+                deferredSchema.SetResolvedSchema(resolvedSchema);
                 return;
             }
 
-            throw JSchemaReaderException.Create(deferedSchema.ReferenceSchema, _baseUri, deferedSchema.ReferenceSchema.Path, "Could not resolve schema reference '{0}'.".FormatWith(CultureInfo.InvariantCulture, deferedSchema.ResolvedReference));
+            throw JSchemaReaderException.Create(deferredSchema.ReferenceSchema, _baseUri, deferredSchema.ReferenceSchema.Path, "Could not resolve schema reference '{0}'.".FormatWith(CultureInfo.InvariantCulture, deferredSchema.ResolvedReference));
         }
 
         private void ReadSchema(JsonReader reader, JSchema target, string name, Action<JSchema> setSchema)
@@ -1078,7 +1078,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
                     Uri resolvedReference = ResolveSchemaReference(scopeId, loadingSchema);
 
-                    if (AddDeferedSchema(resolvedReference, originalReference, scopeId, scopeDynamicAnchor, isRecursiveReference, dynamicScope, loadingSchema, target, setSchema))
+                    if (AddDeferredSchema(resolvedReference, originalReference, scopeId, scopeDynamicAnchor, isRecursiveReference, dynamicScope, loadingSchema, target, setSchema))
                     {
                         return;
                     }
@@ -1107,16 +1107,16 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             }
         }
 
-        private bool AddDeferedSchema(Uri resolvedReference, Uri originalReference, Uri? scopeId, string? dynamicAnchor, bool isRecursiveReference, Uri? dynamicScope, JSchema referenceSchema, JSchema? target, Action<JSchema> setSchema)
+        private bool AddDeferredSchema(Uri resolvedReference, Uri originalReference, Uri? scopeId, string? dynamicAnchor, bool isRecursiveReference, Uri? dynamicScope, JSchema referenceSchema, JSchema? target, Action<JSchema> setSchema)
         {
-            DeferedSchemaKey deferedSchemaKey = new DeferedSchemaKey(resolvedReference, dynamicAnchor != null ? scopeId : null);
+            DeferredSchemaKey deferredSchemaKey = new DeferredSchemaKey(resolvedReference, dynamicAnchor != null ? scopeId : null);
 
-            if (_resolvedDeferedSchemas.TryGetValue(deferedSchemaKey, out DeferedSchema? deferedSchema))
+            if (_resolvedDeferredSchemas.TryGetValue(deferredSchemaKey, out DeferredSchema? deferredSchema))
             {
                 // schema has already been successfully resolved
-                if (deferedSchema.Success)
+                if (deferredSchema.Success)
                 {
-                    JSchema resolvedSchema = deferedSchema.ResolvedSchema;
+                    JSchema resolvedSchema = deferredSchema.ResolvedSchema;
                     if (referenceSchema.HasNonRefContent && EnsureVersion(SchemaVersion.Draft2019_09))
                     {
                         referenceSchema.Ref = resolvedSchema;
@@ -1131,31 +1131,31 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 }
                 else
                 {
-                    deferedSchema.AddSchemaSet(setSchema, target);
+                    deferredSchema.AddSchemaSet(setSchema, target);
                     return false;
                 }
             }
             else
             {
-                if (!_deferedSchemas.TryGetValue(deferedSchemaKey, out deferedSchema))
+                if (!_deferredSchemas.TryGetValue(deferredSchemaKey, out deferredSchema))
                 {
                     bool supportsRef = EnsureVersion(SchemaVersion.Draft2019_09);
 
-                    deferedSchema = new DeferedSchema(resolvedReference, originalReference, scopeId, dynamicAnchor, dynamicScope, isRecursiveReference, referenceSchema, supportsRef);
-                    _deferedSchemas.Add(deferedSchema);
+                    deferredSchema = new DeferredSchema(resolvedReference, originalReference, scopeId, dynamicAnchor, dynamicScope, isRecursiveReference, referenceSchema, supportsRef);
+                    _deferredSchemas.Add(deferredSchema);
                 }
 
                 Action<JSchema> updatedSetSchema = s =>
                 {
-                    SetResolvedSchema(referenceSchema, setSchema, s, deferedSchema);
+                    SetResolvedSchema(referenceSchema, setSchema, s, deferredSchema);
                 };
 
-                deferedSchema.AddSchemaSet(updatedSetSchema, target);
+                deferredSchema.AddSchemaSet(updatedSetSchema, target);
                 return false;
             }
         }
 
-        internal void SetResolvedSchema(JSchema referenceSchema, Action<JSchema> setSchema, JSchema resolvedSchema, DeferedSchema deferedSchema)
+        internal void SetResolvedSchema(JSchema referenceSchema, Action<JSchema> setSchema, JSchema resolvedSchema, DeferredSchema deferredSchema)
         {
             bool supportsRef = EnsureVersion(SchemaVersion.Draft2019_09);
             if (supportsRef && referenceSchema.HasReference && referenceSchema.HasNonRefContent)
@@ -1234,9 +1234,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
             Cache[schemaReference.BaseUri] = rootSchema;
 
-            // resolve defered schemas after it has been cached to avoid
+            // resolve deferred schemas after it has been cached to avoid
             // stackoverflow on circular references
-            schemaReader.ResolveDeferedSchemas();
+            schemaReader.ResolveDeferredSchemas();
 
             // root schema might have been a reference so update cache again
             Cache[schemaReference.BaseUri] = schemaReader.RootSchema;
