@@ -309,6 +309,8 @@ namespace Newtonsoft.Json.Schema.Generation
                 PopulateSchema(schema, contract, memberProperty, resolvedRequired);
             }
 
+            _generator.OnSchemaGenerated(type, schema);
+
             return schema;
         }
 
