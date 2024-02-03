@@ -4808,5 +4808,39 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             JSchema s = JSchema.Parse(json);
             Assert.AreEqual(JSchemaType.String, s.Properties["prop1"].Type);
         }
+
+        [Test]
+        public void UseFirstDynamicAnchor()
+        {
+            string json = @"{
+                ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
+                ""$id"": ""https://test.json-schema.org/typical-dynamic-resolution/root"",
+                ""$ref"": ""list"",
+                ""$defs"": {
+                    ""foo"": {
+                        ""$dynamicAnchor"": ""items"",
+                        ""type"": ""string""
+                    },
+                    ""list"": {
+                        ""$id"": ""list"",
+                        ""type"": ""array"",
+                        ""items"": { ""$dynamicRef"": ""#items"" },
+                        ""$defs"": {
+                          ""items"": {
+                              ""$comment"": ""This is only needed to satisfy the bookending requirement"",
+                              ""$dynamicAnchor"": ""items""
+                          }
+                        }
+                    }
+                }
+            }";
+
+            JSchema s = JSchema.Parse(json);
+            Assert.AreEqual(JSchemaType.String, s.Ref.AdditionalItems.Type);
+            //Assert.AreEqual(JSchemaType.String, s.Properties["prop1"].Type);
+
+            JArray a = JArray.Parse(@"[""foo"", 42]");
+            Assert.IsFalse(a.IsValid(s));
+        }
     }
 }

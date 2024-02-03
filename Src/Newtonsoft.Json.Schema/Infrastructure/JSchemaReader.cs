@@ -1148,7 +1148,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 {
                     bool supportsRef = EnsureVersion(SchemaVersion.Draft2019_09);
 
-                    deferredSchema = new DeferredSchema(resolvedReference, originalReference, scopeId, dynamicAnchor, dynamicScope, isRecursiveReference, referenceSchema, supportsRef);
+                    deferredSchema = new DeferredSchema(resolvedReference, originalReference, scopeId, dynamicAnchor, dynamicScope, isRecursiveReference, referenceSchema, supportsRef, _identifierScopeStack.ToList());
                     _deferredSchemas.Add(deferredSchema);
                 }
 
