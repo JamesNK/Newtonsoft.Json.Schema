@@ -15,7 +15,7 @@ namespace Newtonsoft.Json.Schema.Generation
     /// </summary>
     public class StringEnumGenerationProvider : JSchemaGenerationProvider
     {
-        private static readonly NamingStrategy _camelCaseNamingStrategy = new CamelCaseNamingStrategy();
+        private static readonly CamelCaseNamingStrategy _camelCaseNamingStrategy = new CamelCaseNamingStrategy();
 
         private bool _camelCaseText;
         private NamingStrategy? _nameStrategy;
