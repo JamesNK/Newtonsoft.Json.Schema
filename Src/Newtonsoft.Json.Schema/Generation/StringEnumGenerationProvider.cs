@@ -22,9 +22,10 @@ namespace Newtonsoft.Json.Schema.Generation
 
         /// <summary>
         /// Gets or sets a value indicating whether the written enum text should be camel case.
+        /// <br/>
+        /// This property is obsolete and has been replaced by the NamingStrategy property.
         /// </summary>
         /// <value><c>true</c> if the written enum text will be camel case; otherwise, <c>false</c>.</value>
-        [Obsolete("This property is obsolete and has been replaced by the NamingStrategy property.")]
         public bool CamelCaseText
         {
             get => _camelCaseText;
