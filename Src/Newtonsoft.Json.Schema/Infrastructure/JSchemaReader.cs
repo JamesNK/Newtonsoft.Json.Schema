@@ -133,7 +133,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
                 foreach (ValidationError error in _validationErrors)
                 {
-                    KnownSchema knownSchema = _schemaDiscovery.KnownSchemas.SingleOrDefault(s => s.Schema == error.Schema);
+                    // Get first match because the schema could have been added multiple times with duplicate IDs.
+                    KnownSchema knownSchema = _schemaDiscovery.KnownSchemas.FirstOrDefault(s => s.Schema == error.Schema);
                     if (knownSchema != null)
                     {
                         error.SchemaId = knownSchema.Id;
