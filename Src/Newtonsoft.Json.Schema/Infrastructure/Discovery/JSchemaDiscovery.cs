@@ -78,18 +78,13 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                 return;
             }
 
-            // check whether a schema with the resolved id is already known
-            // this will be hit when a schema contains duplicate ids or references a schema with a duplicate id
-            var existingSchema = KnownSchemas.GetById(new KnownSchemaUriKey(schemaKnownId, dynamicScope));
-
-            if (existingSchema != null)
+            if (ValidationErrors != null)
             {
-                if (ValidationErrors != null)
+                // check whether a schema with the resolved id is already known
+                // this will be hit when a schema contains duplicate ids or references a schema with a duplicate id
+                var existingSchema = KnownSchemas.GetById(new KnownSchemaUriKey(schemaKnownId, dynamicScope)) != null;
+                if (existingSchema)
                 {
-                    if (existingSchema.Schema != schema)
-                    {
-                        _ = string.Empty;
-                    }
                     ValidationError error = ValidationError.CreateValidationError($"Duplicate schema id '{schemaKnownId.OriginalString}' encountered.", ErrorType.Id, schema, null, schemaKnownId, null, schema, schema.Path!);
                     ValidationErrors.Add(error);
                 }
