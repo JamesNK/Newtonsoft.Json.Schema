@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Text;
 using Newtonsoft.Json.Linq;
@@ -49,7 +50,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
         {
             // Resolving the current scope from the path stack is a bit of a hack to avoid passing it to each method.
             // Maybe there should be a discover context that gets passed around and dynamicScope is a value on it?
-            dynamicScope ??= GetDynamicScope();
+            dynamicScope ??= schema.DynamicLoadScope ?? GetDynamicScope();
 
             // give schemas that are dependencies a special state so they are written as a dependency and not inline
             KnownSchemaState resolvedSchemaState = (_state == KnownSchemaState.InlinePending && isDefinitionSchema)
@@ -79,12 +80,16 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
 
             // check whether a schema with the resolved id is already known
             // this will be hit when a schema contains duplicate ids or references a schema with a duplicate id
-            bool existingSchema = KnownSchemas.GetById(new KnownSchemaUriKey(schemaKnownId, dynamicScope)) != null;
+            var existingSchema = KnownSchemas.GetById(new KnownSchemaUriKey(schemaKnownId, dynamicScope));
 
-            if (existingSchema)
+            if (existingSchema != null)
             {
                 if (ValidationErrors != null)
                 {
+                    if (existingSchema.Schema != schema)
+                    {
+                        _ = string.Empty;
+                    }
                     ValidationError error = ValidationError.CreateValidationError($"Duplicate schema id '{schemaKnownId.OriginalString}' encountered.", ErrorType.Id, schema, null, schemaKnownId, null, schema, schema.Path!);
                     ValidationErrors.Add(error);
                 }
