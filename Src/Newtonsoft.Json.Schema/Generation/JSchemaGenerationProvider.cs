@@ -17,7 +17,7 @@ namespace Newtonsoft.Json.Schema.Generation
         /// </summary>
         /// <param name="context">The <see cref="Type"/> and associated information used to generate a <see cref="JSchema"/>.</param>
         /// <returns>The generated <see cref="JSchema"/> or <c>null</c> if type should not have a customized schema.</returns>
-        public abstract JSchema GetSchema(JSchemaTypeGenerationContext context);
+        public abstract JSchema? GetSchema(JSchemaTypeGenerationContext context);
 
         /// <summary>
         /// Determines whether this instance can generate a <see cref="JSchema"/> for the specified object type.

@@ -28,7 +28,7 @@ namespace Newtonsoft.Json.Schema.Generation
         /// </summary>
         /// <param name="context">The <see cref="Type"/> and associated information used to generate a <see cref="JSchema"/>.</param>
         /// <returns>The generated <see cref="JSchema"/>.</returns>
-        public override JSchema GetSchema(JSchemaTypeGenerationContext context)
+        public override JSchema? GetSchema(JSchemaTypeGenerationContext context)
         {
             bool isNullable = ReflectionUtils.IsNullableType(context.ObjectType);
             Type t = isNullable ? Nullable.GetUnderlyingType(context.ObjectType) : context.ObjectType;
