@@ -49,7 +49,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Licensing
 #elif NETSTANDARD2_0_OR_GREATER
             if (hashAlgorithm != HashAlgorithm.SHA1)
             {
-                return false;
+                throw new JSchemaException("License hash algorithm is not supported on this platform: " + hashAlgorithm);
             }
 
             using (RSA rsa = RSA.Create())

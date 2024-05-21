@@ -28,6 +28,7 @@ namespace Newtonsoft.Json.Schema.Tests
         [Test]
         public void RegexMatchTimeout()
         {
+            // From https://owasp.org/www-community/attacks/Regular_expression_Denial_of_Service_-_ReDoS
             JSchema schema = JSchema.Parse(@"{
     ""type"": ""object"",
     ""properties"": {
