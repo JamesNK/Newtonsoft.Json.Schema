@@ -36,6 +36,7 @@ namespace Newtonsoft.Json.Schema.Tests
             ExceptionAssert.Throws<JSchemaException>(() => License.RegisterLicense(licenseText), "License ID does not match signature license ID.");
         }
 
+#if !NET35
         [Test]
         public void RegisterLicense_Sha256_Success_ish()
         {
@@ -59,9 +60,9 @@ namespace Newtonsoft.Json.Schema.Tests
             string errorMessage = "License ID does not match signature license ID.";
 #endif
 
-
             ExceptionAssert.Throws<JSchemaException>(() => License.RegisterLicense(licenseText), errorMessage);
         }
+#endif
 
         [Test]
         public void RegisterLicense_Sample()
