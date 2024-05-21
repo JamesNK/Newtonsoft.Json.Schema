@@ -4,6 +4,7 @@
 #endregion
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Security;
@@ -145,22 +146,26 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Licensing
                 throw new JSchemaException("Specified license text is invalid.");
             }
 
-            LicenseDetails deserializedLicense;
-
-            using (MemoryStream ms = new MemoryStream(licenseData, 128, licenseData.Length - 128))
-            using (JsonTextReader reader = new JsonTextReader(new StreamReader(ms)))
+            // Unfortunatly there isn't a clean way to figure out the signature length. Guess based on overall data length and fallback.
+            LicenseDetails? deserializedLicense;
+            byte[]? signature;
+            if (licenseData.Length > 256 && TryGetLicenseAndSignature(keyLength: 256, licenseData, out deserializedLicense, out signature))
             {
-                JsonSerializer serializer = new JsonSerializer();
-
-                deserializedLicense = serializer.Deserialize<LicenseDetails>(reader)!;
+                if (!CryptographyHelpers.ValidateData(deserializedLicense.GetSignificateData(), signature, HashAlgorithm.SHA256))
+                {
+                    throw new JSchemaException("License text does not match signature.");
+                }
             }
-
-            byte[] data = deserializedLicense.GetSignificateData();
-            byte[] signature = SubArray(licenseData, 0, 128);
-
-            if (!CryptographyHelpers.ValidateData(data, signature))
+            else if (TryGetLicenseAndSignature(keyLength: 128, licenseData, out deserializedLicense, out signature))
             {
-                throw new JSchemaException("License text does not match signature.");
+                if (!CryptographyHelpers.ValidateData(deserializedLicense.GetSignificateData(), signature, HashAlgorithm.SHA1))
+                {
+                    throw new JSchemaException("License text does not match signature.");
+                }
+            }
+            else
+            {
+                throw new JSchemaException("Error parsing license text.");
             }
 
             if (deserializedLicense.Id != licenseId)
@@ -189,6 +194,28 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Licensing
             }
 
             return deserializedLicense;
+        }
+
+        private static bool TryGetLicenseAndSignature(int keyLength, byte[] licenseData, [NotNullWhen(true)] out LicenseDetails? deserializedLicense, [NotNullWhen(true)] out byte[]? signature)
+        {
+            try
+            {
+                using (MemoryStream ms = new MemoryStream(licenseData, keyLength, licenseData.Length - keyLength))
+                using (JsonTextReader reader = new JsonTextReader(new StreamReader(ms)))
+                {
+                    JsonSerializer serializer = new JsonSerializer();
+
+                    deserializedLicense = serializer.Deserialize<LicenseDetails>(reader)!;
+                }
+                signature = SubArray(licenseData, 0, keyLength);
+                return true;
+            }
+            catch
+            {
+                deserializedLicense = null;
+                signature = null;
+                return false;
+            }
         }
 
         private static void SplitLicense(string license, out string licenseBase64, out int licenseId)

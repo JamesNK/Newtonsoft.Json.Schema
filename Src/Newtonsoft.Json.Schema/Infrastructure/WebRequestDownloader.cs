@@ -17,7 +17,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
     {
         public Stream GetStream(Uri uri, ICredentials? credentials, int? timeout, int? byteLimit)
         {
-#if (!PORTABLE || NETSTANDARD1_3 || NETSTANDARD2_0)
+#if NETSTANDARD2_0_OR_GREATER
             if (uri.Scheme == "file")
             {
                 return File.OpenRead(uri.LocalPath);
@@ -25,12 +25,10 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 #endif
 
             WebRequest request = WebRequest.Create(uri);
-#if !PORTABLE
             if (timeout != null)
             {
                 request.Timeout = timeout.Value;
             }
-#endif
 
             if (credentials != null)
             {

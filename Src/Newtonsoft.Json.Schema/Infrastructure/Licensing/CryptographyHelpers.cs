@@ -7,81 +7,87 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Linq;
-#if !PORTABLE || NETSTANDARD1_3 || NETSTANDARD2_0
 using System.Security.Cryptography;
-#endif
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Licensing
 {
+    internal enum HashAlgorithm
+    {
+        SHA1,
+        SHA256
+    }
+
     internal static class CryptographyHelpers
     {
         private const string PublicKey = "<RSAKeyValue><Modulus>wNE8tiipWCy2LmB3cZYW8nj5Nm/fn3X2GYsoSx6XE1yfvW96Ul/vRBw6/jAAwk9aZIdix9+gleh5x7XE8snzZlNMDDCmIFz2SWY9f7SdYYD5gif2rIpeeIDS/5J731d6XX/BKISwtM+MRWakY6ihNU1SUIGsKH6HxUXPm80Q66s=</Modulus><Exponent>AQAB</Exponent></RSAKeyValue>";
         private const string PublicKeyCsp = "BgIAAACkAABSU0ExAAQAAAEAAQCr6xDNm89FxYd+KKyBUFJNNaGoY6RmRYzPtLCEKMF/XXpX33uS/9KAeF6KrPYngvmAYZ20fz1mSfZcIKYwDExTZvPJ8sS1x3nolaDfx2KHZFpPwgAw/jocRO9fUnpvvZ9cE5ceSyiLGfZ1n99vNvl48haWcXdgLrYsWKkotjzRwA==";
 
-        internal static bool ValidateData(byte[] data, byte[] signature)
-        {
-            bool valid;
+        private const string PublicKey2048Xml = "<RSAKeyValue><Modulus>vTcWi0k75jLKRKN1eqkDfDuCIFfhhXFDFFKW9BnjIsWBzfl3lvDFC/ev8m6Aimz3QNZEbZMX8e0uPipzo9BaxQNn3k5NCb64Y7lww8KbwKiiQI6yZOOHf/ImX5yUI5H3w1DeMf9Nx5ccBOIh1vFfAHiDhGK7dgLOfw2rRPTGk46RgNZJgqMOoDQEeM10VcJpHi4hDs5nvhptSXVIv3kkSfUPNgeJ70HPG+eyq2hwOlCMj/c9SQCc69tyiY3twdStDP6ikIDu8A0T921BzJbANSLS7IoQUySkviIkNDUnOn5QyZqJS3oUgR94ObP9DFew8x1WBgVpPdfbx4mcNXCh0Q==</Modulus><Exponent>AQAB</Exponent></RSAKeyValue>";
+        private const string PublicKey2048Blob = "MIIBCgKCAQEAvTcWi0k75jLKRKN1eqkDfDuCIFfhhXFDFFKW9BnjIsWBzfl3lvDFC/ev8m6Aimz3QNZEbZMX8e0uPipzo9BaxQNn3k5NCb64Y7lww8KbwKiiQI6yZOOHf/ImX5yUI5H3w1DeMf9Nx5ccBOIh1vFfAHiDhGK7dgLOfw2rRPTGk46RgNZJgqMOoDQEeM10VcJpHi4hDs5nvhptSXVIv3kkSfUPNgeJ70HPG+eyq2hwOlCMj/c9SQCc69tyiY3twdStDP6ikIDu8A0T921BzJbANSLS7IoQUySkviIkNDUnOn5QyZqJS3oUgR94ObP9DFew8x1WBgVpPdfbx4mcNXCh0QIDAQAB";
 
-#if (NETSTANDARD1_3 || NETSTANDARD2_0)
+        internal static bool ValidateData(byte[] data, byte[] signature, HashAlgorithm hashAlgorithm)
+        {
+#if NETSTANDARD2_1_OR_GREATER
+            using (RSA rsa = RSA.Create())
+            {
+                HashAlgorithmName hashAlgorithmName;
+                switch (hashAlgorithm)
+                {
+                    default:
+                    case HashAlgorithm.SHA1:
+                        rsa.ImportParameters(ToRSAParameters(Convert.FromBase64String(PublicKeyCsp), false));
+                        hashAlgorithmName = HashAlgorithmName.SHA1;
+                        break;
+                    case HashAlgorithm.SHA256:
+                        rsa.ImportRSAPublicKey(Convert.FromBase64String(PublicKey2048Blob), out int bytesRead);
+                        hashAlgorithmName = HashAlgorithmName.SHA256;
+                        break;
+                }
+
+                return rsa.VerifyData(data, signature, hashAlgorithmName, RSASignaturePadding.Pkcs1);
+            }
+#elif NETSTANDARD2_0_OR_GREATER
+            if (hashAlgorithm != HashAlgorithm.SHA1)
+            {
+                return false;
+            }
+
             using (RSA rsa = RSA.Create())
             {
                 rsa.ImportParameters(ToRSAParameters(Convert.FromBase64String(PublicKeyCsp), false));
 
-                valid = rsa.VerifyData(data, signature, HashAlgorithmName.SHA1, RSASignaturePadding.Pkcs1);
-            }
-#elif (PORTABLE && !NETSTANDARD1_3 && !NETSTANDARD2_0)
-            try
-            {
-                Type rsaCryptoServiceProviderType = Type.GetType("System.Security.Cryptography.RSACryptoServiceProvider");
-                MethodInfo importCspBlobMethod = rsaCryptoServiceProviderType.GetTypeInfo().GetDeclaredMethod("ImportCspBlob");
-                MethodInfo verifyDataMethod = rsaCryptoServiceProviderType.GetTypeInfo().GetDeclaredMethod("VerifyData");
-                Type sha1CryptoServiceProviderType = Type.GetType("System.Security.Cryptography.SHA1CryptoServiceProvider");
-
-                using (IDisposable rsaCryptoServiceProvider = (IDisposable) Activator.CreateInstance(rsaCryptoServiceProviderType))
-                using (IDisposable sha1CryptoServiceProvider = (IDisposable) Activator.CreateInstance(sha1CryptoServiceProviderType))
-                {
-                    importCspBlobMethod.Invoke(rsaCryptoServiceProvider, new object[] { Convert.FromBase64String(PublicKeyCsp) });
-
-                    valid = (bool) verifyDataMethod.Invoke(rsaCryptoServiceProvider, new object[] { data, sha1CryptoServiceProvider, signature });
-                }
-            }
-            catch (InvalidOperationException)
-            {
-                // WinRT - Microsoft why do you do this? STAHP!
-
-                Type asymmetricKeyAlgorithmProviderType = Type.GetType("Windows.Security.Cryptography.Core.AsymmetricKeyAlgorithmProvider, Windows.Security, ContentType=WindowsRuntime");
-                MethodInfo openAlgorithmMethod = asymmetricKeyAlgorithmProviderType.GetTypeInfo().GetDeclaredMethod("OpenAlgorithm");
-                MethodInfo importPublicKeyMethod = asymmetricKeyAlgorithmProviderType.GetTypeInfo().DeclaredMethods.Single(m => m.Name == "ImportPublicKey" && m.GetParameters().Length == 2);
-
-                Type cryptographicBufferType = Type.GetType("Windows.Security.Cryptography.CryptographicBuffer, Windows.Security, ContentType=WindowsRuntime");
-                MethodInfo decodeFromBase64StringMethod = cryptographicBufferType.GetTypeInfo().GetDeclaredMethod("DecodeFromBase64String");
-                MethodInfo createFromByteArrayMethod = cryptographicBufferType.GetTypeInfo().GetDeclaredMethod("CreateFromByteArray");
-
-                Type cryptographicEngineType = Type.GetType("Windows.Security.Cryptography.Core.CryptographicEngine, Windows.Security, ContentType=WindowsRuntime");
-                MethodInfo verifySignatureMethod = cryptographicEngineType.GetTypeInfo().GetDeclaredMethod("VerifySignature");
-
-                object algorithmProvider = openAlgorithmMethod.Invoke(null, new object[] { "RSASIGN_PKCS1_SHA1" });
-                object publicKeyBuffer = decodeFromBase64StringMethod.Invoke(null, new object[] { PublicKeyCsp });
-                object publicKey = importPublicKeyMethod.Invoke(algorithmProvider, new object[] { publicKeyBuffer, 3 });
-                object dataBuffer = createFromByteArrayMethod.Invoke(null, new object[] { data });
-                object signatureBuffer = createFromByteArrayMethod.Invoke(null, new object[] { signature });
-
-                valid = (bool) verifySignatureMethod.Invoke(null, new object[] { publicKey, dataBuffer, signatureBuffer });
+                return rsa.VerifyData(data, signature, HashAlgorithmName.SHA1, RSASignaturePadding.Pkcs1);
             }
 #else
             using (RSACryptoServiceProvider rsaCryptoServiceProvider = new RSACryptoServiceProvider())
-            using (SHA1CryptoServiceProvider sha1CryptoServiceProvider = new SHA1CryptoServiceProvider())
             {
-                rsaCryptoServiceProvider.ImportCspBlob(Convert.FromBase64String(PublicKeyCsp));
+                IDisposable algorithmProvider;
+                switch (hashAlgorithm)
+                {
+                    default:
+                    case HashAlgorithm.SHA1:
+                        algorithmProvider = new SHA1CryptoServiceProvider();
+                        rsaCryptoServiceProvider.ImportCspBlob(Convert.FromBase64String(PublicKeyCsp));
+                        break;
+                    case HashAlgorithm.SHA256:
+                        algorithmProvider = new SHA256CryptoServiceProvider();
+                        rsaCryptoServiceProvider.FromXmlString(PublicKey2048Xml);
+                        break;
+                }
 
-                valid = rsaCryptoServiceProvider.VerifyData(data, sha1CryptoServiceProvider, signature);
+                try
+                {
+                    return rsaCryptoServiceProvider.VerifyData(data, algorithmProvider, signature);
+                }
+                finally
+                {
+                    algorithmProvider.Dispose();
+                }
             }
 #endif
-
-            return valid;
         }
 
-#if (NETSTANDARD1_3 || NETSTANDARD2_0)
+#if NETSTANDARD2_0_OR_GREATER
         internal const int ALG_TYPE_RSA = (2 << 9);
         internal const int ALG_CLASS_KEY_EXCHANGE = (5 << 13);
         internal const int CALG_RSA_KEYX = (ALG_CLASS_KEY_EXCHANGE | ALG_TYPE_RSA | 0);

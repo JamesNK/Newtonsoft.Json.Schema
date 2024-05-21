@@ -54,6 +54,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             return DeferredSchema.CreateKey(item);
         }
 
+#if !NETSTANDARD2_1_OR_GREATER
         public bool TryGetValue(DeferredSchemaKey key, [NotNullWhen(true)] out DeferredSchema? value)
         {
             if (Dictionary == null)
@@ -64,5 +65,6 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
             return Dictionary.TryGetValue(key, out value);
         }
+#endif
     }
 }

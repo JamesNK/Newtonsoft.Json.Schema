@@ -12,6 +12,33 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 {
     internal static class StringHelpers
     {
+        public static string Replace(string s, string oldValue, string newValue)
+        {
+#if NETSTANDARD2_1_OR_GREATER
+            return s.Replace(oldValue, newValue, StringComparison.Ordinal);
+#else
+            return s.Replace(oldValue, newValue);
+#endif
+        }
+
+        public static int IndexOf(string s, char c)
+        {
+#if NETSTANDARD2_1_OR_GREATER
+            return s.IndexOf(c, StringComparison.Ordinal);
+#else
+            return s.IndexOf(c);
+#endif
+        }
+
+        public static int GetHashCode(string s)
+        {
+#if NETSTANDARD2_1_OR_GREATER
+            return s.GetHashCode(StringComparison.Ordinal);
+#else
+            return s.GetHashCode();
+#endif
+        }
+
         public static string Join<T>(string separator, IEnumerable<T> values)
         {
 #if !NET35
@@ -127,7 +154,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
     }
 }
 
-#if !(NETSTANDARD1_3 || NETSTANDARD2_0)
+#if !NETSTANDARD2_0_OR_GREATER
 namespace System.Runtime.CompilerServices
 {
     internal static class FormattableStringFactory
