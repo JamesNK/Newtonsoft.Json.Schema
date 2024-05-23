@@ -146,7 +146,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Licensing
                 throw new JSchemaException("Specified license text is invalid.");
             }
 
-            // Unfortunatly there isn't a clean way to figure out the signature length. Guess based on overall data length and fallback.
+            // Unfortunately there isn't a clean way to figure out the signature length. Guess based on overall data length and fallback.
             LicenseDetails? deserializedLicense;
             byte[]? signature;
             if (licenseData.Length > 256 && TryGetLicenseAndSignature(keyLength: 256, licenseData, out deserializedLicense, out signature))
