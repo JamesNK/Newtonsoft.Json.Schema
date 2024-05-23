@@ -1691,9 +1691,9 @@ namespace Newtonsoft.Json.Schema.Tests
         [JsonConverter(typeof(StringEnumConverter))]
         public enum SortTypeFlagAsString
         {
-            No = 0,
-            Asc = 1,
-            Desc = -1
+            NoSort = 0,
+            AscSort = 1,
+            DescSort = -1
         }
 
         public class Y
@@ -1701,14 +1701,45 @@ namespace Newtonsoft.Json.Schema.Tests
             public SortTypeFlagAsString y;
         }
 
-#if !DNXCORE50
         [Test]
-        public void GenerateSchemaWithStringEnum()
+        public void GenerateSchemaWithStringEnum_CamelCase()
+        {
+            JSchemaGenerator generator = new JSchemaGenerator();
+#pragma warning disable CS0618 // Type or member is obsolete
+            generator.GenerationProviders.Add(new StringEnumGenerationProvider
+            {
+                CamelCaseText = true
+            });
+#pragma warning restore CS0618 // Type or member is obsolete
+            JSchema schema = generator.Generate(typeof(Y));
+
+            string json = schema.ToString();
+
+            StringAssert.AreEqual(@"{
+  ""type"": ""object"",
+  ""properties"": {
+    ""y"": {
+      ""type"": ""string"",
+      ""enum"": [
+        ""noSort"",
+        ""ascSort"",
+        ""descSort""
+      ]
+    }
+  },
+  ""required"": [
+    ""y""
+  ]
+}", json);
+        }
+
+        [Test]
+        public void GenerateSchemaWithStringEnum_NamingStrategy()
         {
             JSchemaGenerator generator = new JSchemaGenerator();
             generator.GenerationProviders.Add(new StringEnumGenerationProvider
             {
-                CamelCaseText = true
+                NamingStrategy = new SnakeCaseNamingStrategy()
             });
             JSchema schema = generator.Generate(typeof(Y));
 
@@ -1720,9 +1751,9 @@ namespace Newtonsoft.Json.Schema.Tests
     ""y"": {
       ""type"": ""string"",
       ""enum"": [
-        ""no"",
-        ""asc"",
-        ""desc""
+        ""no_sort"",
+        ""asc_sort"",
+        ""desc_sort""
       ]
     }
   },
@@ -1731,7 +1762,6 @@ namespace Newtonsoft.Json.Schema.Tests
   ]
 }", json);
         }
-#endif
 
         [Test]
         public void DefinitionsOrder()

@@ -32,12 +32,14 @@ namespace Newtonsoft.Json.Schema.Tests.Issues
         public void Test()
         {
             JSchemaGenerator stringEnumGenerator = new JSchemaGenerator();
-            
+
+#pragma warning disable CS0618 // Type or member is obsolete
             stringEnumGenerator.GenerationProviders.Add(new StringEnumGenerationProvider
             {
                 CamelCaseText = true
             });
-            
+#pragma warning restore CS0618 // Type or member is obsolete
+
             JSchema stringEnumSchema = stringEnumGenerator.Generate(typeof(BuildingReport));
 
             string json = @"{
