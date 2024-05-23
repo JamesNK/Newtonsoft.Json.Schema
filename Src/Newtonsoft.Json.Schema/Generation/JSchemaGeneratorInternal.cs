@@ -85,17 +85,9 @@ namespace Newtonsoft.Json.Schema.Generation
 
         private string GetTypeName(Type type)
         {
-#if (PORTABLE || NETSTANDARD1_3 || NETSTANDARD2_0)
-            if (type.GetTypeInfo().IsGenericType)
-#else
             if (type.IsGenericType)
-#endif
             {
-#if (PORTABLE || NETSTANDARD1_3 || NETSTANDARD2_0)
-                Type[] genericTypeArguments = type.GetTypeInfo().GenericTypeArguments;
-#else
                 Type[] genericTypeArguments = type.GetGenericArguments();
-#endif
 
                 return type.Name.Split('`')[0] + "<" + string.Join(", ", genericTypeArguments.Select(GetTypeName)
 #if NET35
@@ -462,7 +454,7 @@ namespace Newtonsoft.Json.Schema.Generation
                             }
                         }
                         break;
-#if !PORTABLE || NETSTANDARD1_3 || NETSTANDARD2_0
+#if !PORTABLE || NETSTANDARD1_3 || NETSTANDARD2_0_OR_GREATER
                     case JsonISerializableContract serializableContract:
                         if (schema.Id == null)
                         {

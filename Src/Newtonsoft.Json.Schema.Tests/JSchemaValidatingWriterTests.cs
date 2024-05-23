@@ -28,17 +28,13 @@ namespace Newtonsoft.Json.Schema.Tests
         [Test]
         public void RegexMatchTimeout()
         {
+            // From https://owasp.org/www-community/attacks/Regular_expression_Denial_of_Service_-_ReDoS
             JSchema schema = JSchema.Parse(@"{
-    ""description"": ""Sample regexp schema, which will take ** ~1h ** per event to validate…"",
     ""type"": ""object"",
     ""properties"": {
         ""bomb"": {
-            ""description"": ""The PCRE library (regexp) is well-known to be bad in some cases. E.g. this kind of pattern."",
             ""type"": ""string"",
-            ""pattern"": ""a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"",
-            ""examples"": [
-                ""aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa""
-            ]
+            ""pattern"": ""^(([a-z])+.)+[A-Z]([a-z])+$""
         }
     }
 }");
@@ -54,10 +50,10 @@ namespace Newtonsoft.Json.Schema.Tests
             {
                 validatingWriter.WriteStartObject();
                 validatingWriter.WritePropertyName("bomb");
-                validatingWriter.WriteValue("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+                validatingWriter.WriteValue("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa!");
                 validatingWriter.WriteEndObject();
                 validatingWriter.Flush();
-            }, "Timeout when matching regex pattern 'a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'.");
+            }, "Timeout when matching regex pattern '^(([a-z])+.)+[A-Z]([a-z])+$'.");
         }
 #endif
 

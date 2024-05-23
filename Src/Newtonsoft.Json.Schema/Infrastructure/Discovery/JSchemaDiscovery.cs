@@ -171,7 +171,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                 for (int i = 0; i < _pathStack.Count; i++)
                 {
                     SchemaPath p = _pathStack[i];
-                    if (p.ScopeId == currentScopeId && p.Path != null && p.Path.IndexOf('#') != -1)
+                    if (p.ScopeId == currentScopeId && p.Path != null && StringHelpers.IndexOf(p.Path, '#') != -1)
                     {
                         parentHash = true;
                         break;
@@ -238,7 +238,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
         private static string GetFragment(Uri referencedAs)
         {
             string reference = referencedAs.OriginalString;
-            int fragmentIndex = reference.IndexOf('#');
+            int fragmentIndex = StringHelpers.IndexOf(reference, '#');
             if (fragmentIndex > 0)
             {
                 reference = reference.Substring(fragmentIndex);
@@ -380,7 +380,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                 if (path[i] == '~' || path[i] == '/')
                 {
                     // Could be faster but most paths don't need to be escaped.
-                    return path.Replace("~", "~0").Replace("/", "~1");
+                    string escapedPath = StringHelpers.Replace(path, "~", "~0");
+                    escapedPath = StringHelpers.Replace(escapedPath, "/", "~1");
+                    return escapedPath;
                 }
             }
 

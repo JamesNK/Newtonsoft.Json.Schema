@@ -19,7 +19,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
     {
         private static string UnescapeReference(string reference)
         {
-            return Uri.UnescapeDataString(reference).Replace("~1", "/").Replace("~0", "~");
+            string newReference = Uri.UnescapeDataString(reference);
+            newReference = StringHelpers.Replace(newReference, "~1", "/");
+            newReference = StringHelpers.Replace(newReference, "~0", "~");
+
+            return newReference;
         }
 
         private static Uri? GetTokenId(JToken o, JSchemaReader schemaReader)
@@ -160,7 +164,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                 JSchema parent = schema;
                 object? current = schema;
 
-                int separatorIndex = referenceText.IndexOf('/');
+                int separatorIndex = StringHelpers.IndexOf(referenceText, '/');
                 if (separatorIndex != -1)
                 {
                     SplitEnumerator enumerator = new SplitEnumerator(referenceText, separatorIndex);
@@ -336,7 +340,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
 
         private static bool SplitReference(Uri reference, out Uri path, [NotNullWhen(true)] out Uri? fragment)
         {
-            int hashIndex = reference.OriginalString.IndexOf('#');
+            int hashIndex = StringHelpers.IndexOf(reference.OriginalString, '#');
             if (hashIndex != -1)
             {
                 path = new Uri(reference.OriginalString.Substring(0, hashIndex), UriKind.RelativeOrAbsolute);
@@ -372,7 +376,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             {
                 string id = rootSchemaId.ToString();
 
-                var separatorIndex = reference.IndexOf('/');
+                var separatorIndex = StringHelpers.IndexOf(reference, '/');
                 var length = separatorIndex == -1 ? reference.Length : separatorIndex;
 
                 if (!id.EndsWith("#", StringComparison.Ordinal))

@@ -37,7 +37,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         private static bool IsAtom(char c, bool allowInternational)
         {
-            return c < 128 ? IsLetterOrDigit(c) || AtomCharacters.IndexOf(c) != -1 : allowInternational;
+            return c < 128 ? IsLetterOrDigit(c) || StringHelpers.IndexOf(AtomCharacters, c) != -1 : allowInternational;
         }
 
         private static bool IsDomain(char c, bool allowInternational)

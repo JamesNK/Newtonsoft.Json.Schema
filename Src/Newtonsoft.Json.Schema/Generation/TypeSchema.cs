@@ -4,6 +4,7 @@
 #endregion
 
 using System;
+using Newtonsoft.Json.Schema.Infrastructure;
 
 namespace Newtonsoft.Json.Schema.Generation
 {
@@ -93,11 +94,11 @@ namespace Newtonsoft.Json.Schema.Generation
             }
             if (Title != null)
             {
-                hashCode ^= Title.GetHashCode();
+                hashCode ^= StringHelpers.GetHashCode(Title);
             }
             if (Description != null)
             {
-                hashCode ^= Description.GetHashCode();
+                hashCode ^= StringHelpers.GetHashCode(Description);
             }
 
             return hashCode;

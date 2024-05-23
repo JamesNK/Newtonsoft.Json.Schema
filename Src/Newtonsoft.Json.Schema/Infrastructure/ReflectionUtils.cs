@@ -111,7 +111,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             return attributes?.FirstOrDefault();
         }
 
-#if !(DOTNET || PORTABLE) || NETSTANDARD2_0
+#if !(DOTNET || PORTABLE) || NETSTANDARD2_0_OR_GREATER
         public static T[] GetAttributes<T>(object attributeProvider, bool inherit) where T : Attribute
         {
             Attribute[] a = GetAttributes(attributeProvider, typeof(T), inherit);

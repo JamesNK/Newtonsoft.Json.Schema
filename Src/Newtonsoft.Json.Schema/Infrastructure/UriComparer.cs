@@ -54,7 +54,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         private StringSegment ResolveFragment(Uri uri)
         {
-            int fragmentIndex = uri.OriginalString.IndexOf('#');
+            int fragmentIndex = StringHelpers.IndexOf(uri.OriginalString, '#');
             if (fragmentIndex == -1)
             {
                 return default;
