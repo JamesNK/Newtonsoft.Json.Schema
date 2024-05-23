@@ -17,11 +17,52 @@ namespace Newtonsoft.Json.Schema.Generation
     {
         private static readonly CamelCaseNamingStrategy _camelCaseNamingStrategy = new CamelCaseNamingStrategy();
 
+        private bool _camelCaseText;
+        private NamingStrategy? _nameStrategy;
+
         /// <summary>
         /// Gets or sets a value indicating whether the written enum text should be camel case.
         /// </summary>
         /// <value><c>true</c> if the written enum text will be camel case; otherwise, <c>false</c>.</value>
-        public bool CamelCaseText { get; set; }
+        [Obsolete("This property is obsolete and has been replaced by the NamingStrategy property. Set the new property to an instance of CamelCaseNamingStrategy to perverse the current behavior.")]
+        public bool CamelCaseText
+        {
+            get => _camelCaseText;
+            set
+            {
+                _camelCaseText = value;
+                // we use this to ensure compatibility with the old property.
+                NamingStrategy = value ? _camelCaseNamingStrategy : null;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the naming strategy used to resolve enum values.
+        /// </summary>
+        public NamingStrategy? NamingStrategy
+        {
+            get => _nameStrategy;
+            set
+            {
+                _nameStrategy = value;
+                // we use this to ensure compatibility with the old property.
+                _camelCaseText = (typeof(CamelCaseNamingStrategy) == value?.GetType());
+            }
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="StringEnumGenerationProvider"/> class.
+        /// </summary>
+        public StringEnumGenerationProvider() { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="StringEnumGenerationProvider"/> class 
+        /// with a specified naming strategy.
+        /// </summary>
+        public StringEnumGenerationProvider(NamingStrategy namingStrategy)
+        {
+            NamingStrategy = namingStrategy;
+        }
 
         /// <summary>
         /// Gets a <see cref="JSchema"/> for a <see cref="Type"/>.
@@ -49,12 +90,12 @@ namespace Newtonsoft.Json.Schema.Generation
             object? defaultValue = context.MemberProperty?.DefaultValue;
             if (defaultValue != null)
             {
-                EnumUtils.TryToString(t, defaultValue, GetResolveNamingStrategy(), out string? finalName);
+                EnumUtils.TryToString(t, defaultValue, NamingStrategy, out string? finalName);
 
                 schema.Default = JToken.FromObject(finalName ?? defaultValue.ToString());
             }
 
-            EnumInfo enumValues = EnumUtils.GetEnumValuesAndNames(t, GetResolveNamingStrategy());
+            EnumInfo enumValues = EnumUtils.GetEnumValuesAndNames(t, NamingStrategy);
 
             for (int i = 0; i < enumValues.Values.Length; i++)
             {
@@ -64,11 +105,6 @@ namespace Newtonsoft.Json.Schema.Generation
             }
 
             return schema;
-        }
-
-        private NamingStrategy? GetResolveNamingStrategy()
-        {
-            return CamelCaseText ? _camelCaseNamingStrategy : null;
         }
 
         /// <summary>
