@@ -42,7 +42,14 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         }
     }
 
-    [DebuggerDisplay("Reference = {ResolvedReference}, IsRecursive = {IsRecursiveReference}, Success = {Success}, DynamicScope = {DynamicScope}")]
+    internal enum ReferenceType
+    {
+        Ref,
+        RecursiveRef,
+        DynamicRef
+    }
+
+    [DebuggerDisplay("Reference = {ResolvedReference}, ReferenceType = {ReferenceType}, Success = {Success}, DynamicScope = {DynamicScope}")]
     internal class DeferredSchema : IIdentifierScope
     {
         public readonly Uri OriginalReference;
@@ -52,7 +59,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         private readonly bool _supportsRef;
         public readonly List<SetSchema> SetSchemas;
         public readonly List<IIdentifierScope> Scopes;
-        public readonly bool IsRecursiveReference;
+        public readonly ReferenceType ReferenceType;
 
         private bool _success;
         private JSchema? _resolvedSchema;
@@ -66,7 +73,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         public bool Root => false;
         public string? DynamicAnchor { get; }
 
-        public DeferredSchema(Uri resolvedReference, Uri originalReference, Uri? scopeId, string? dynamicAnchor, Uri? dynamicScope, bool isRecursiveReference, JSchema referenceSchema, bool supportsRef, List<IIdentifierScope> scopes)
+        public DeferredSchema(Uri resolvedReference, Uri originalReference, Uri? scopeId, string? dynamicAnchor, Uri? dynamicScope, ReferenceType referenceType, JSchema referenceSchema, bool supportsRef, List<IIdentifierScope> scopes)
         {
             SetSchemas = new List<SetSchema>();
             ResolvedReference = resolvedReference;
@@ -74,7 +81,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             ScopeId = scopeId;
             DynamicAnchor = dynamicAnchor;
             DynamicScope = dynamicScope;
-            IsRecursiveReference = isRecursiveReference;
+            ReferenceType = referenceType;
             ReferenceSchema = referenceSchema;
             _supportsRef = supportsRef;
             Scopes = scopes;
