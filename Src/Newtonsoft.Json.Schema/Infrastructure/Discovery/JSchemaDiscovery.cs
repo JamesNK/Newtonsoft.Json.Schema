@@ -251,7 +251,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             return schemaKnownId;
         }
 
-        private static string GetFragment(Uri referencedAs)
+        internal static string GetFragment(Uri referencedAs)
         {
             string reference = referencedAs.OriginalString;
             int fragmentIndex = StringHelpers.IndexOf(reference, '#');

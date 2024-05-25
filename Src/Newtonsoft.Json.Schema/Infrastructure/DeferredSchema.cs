@@ -54,12 +54,12 @@ namespace Newtonsoft.Json.Schema.Infrastructure
     {
         public readonly Uri OriginalReference;
         public readonly Uri? DynamicScope;
-        public readonly Uri ResolvedReference;
+        public Uri ResolvedReference;
         public readonly JSchema ReferenceSchema;
         private readonly bool _supportsRef;
         public readonly List<SetSchema> SetSchemas;
         public readonly List<IIdentifierScope> Scopes;
-        public readonly ReferenceType ReferenceType;
+        public ReferenceType ReferenceType;
 
         private bool _success;
         private JSchema? _resolvedSchema;
@@ -114,6 +114,14 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             {
                 _success = false;
             }
+        }
+
+        public void Reset(Uri resolvedReference, ReferenceType referenceType)
+        {
+            _success = false;
+            _resolvedSchema = null;
+            ResolvedReference = resolvedReference;
+            ReferenceType = referenceType;
         }
     }
 }

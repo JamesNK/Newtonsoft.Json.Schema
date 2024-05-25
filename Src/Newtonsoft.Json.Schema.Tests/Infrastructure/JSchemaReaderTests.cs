@@ -4837,10 +4837,192 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 
             JSchema s = JSchema.Parse(json);
             Assert.AreEqual(JSchemaType.String, s.Ref.AdditionalItems.Type);
-            //Assert.AreEqual(JSchemaType.String, s.Properties["prop1"].Type);
 
             JArray a = JArray.Parse(@"[""foo"", 42]");
             Assert.IsFalse(a.IsValid(s));
+        }
+
+        [Test]
+        public void DynamicRefWithNonMatchingDynamicAnchor()
+        {
+            string json = @"{
+                ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
+                ""$id"": ""https://test.json-schema.org/unmatched-dynamic-anchor/root"",
+                ""$ref"": ""list"",
+                ""$defs"": {
+                    ""foo"": {
+                        ""$dynamicAnchor"": ""items"",
+                        ""type"": ""string""
+                    },
+                    ""list"": {
+                        ""$id"": ""list"",
+                        ""type"": ""array"",
+                        ""items"": { ""$dynamicRef"": ""#items"" },
+                        ""$defs"": {
+                            ""items"": {
+                                ""$comment"": ""This is only needed to give the reference somewhere to resolve to when it behaves like $ref"",
+                                ""$anchor"": ""items"",
+                                ""$dynamicAnchor"": ""foo""
+                            }
+                        }
+                    }
+                }
+            }";
+
+            JSchema s = JSchema.Parse(json);
+
+            JArray a = JArray.Parse(@"[""foo"", 42]");
+
+            bool valid = a.IsValid(s, out IList<string> errorMessages);
+            Assert.IsTrue(valid, "Should be valid. Errors: " + string.Join(", ", errorMessages));
+        }
+
+        [Test]
+        public void DynamicRefAnchorWithSameNameAsDynamicAnchorNotUsed()
+        {
+            string json = @"{
+                ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
+                ""$id"": ""https://test.json-schema.org/dynamic-resolution-ignores-anchors/root"",
+                ""$ref"": ""list"",
+                ""$defs"": {
+                    ""foo"": {
+                        ""$anchor"": ""items"",
+                        ""type"": ""string""
+                    },
+                    ""list"": {
+                        ""$id"": ""list"",
+                        ""type"": ""array"",
+                        ""items"": { ""$dynamicRef"": ""#items"" },
+                        ""$defs"": {
+                          ""items"": {
+                              ""$comment"": ""This is only needed to satisfy the bookending requirement"",
+                              ""$dynamicAnchor"": ""items""
+                          }
+                        }
+                    }
+                }
+            }";
+
+            JSchema s = JSchema.Parse(json);
+
+            JArray a = JArray.Parse(@"[""foo"", 42]");
+
+            bool valid = a.IsValid(s, out IList<string> errorMessages);
+            Assert.IsTrue(valid, "Should be valid. Errors: " + string.Join(", ", errorMessages));
+        }
+
+        [Test]
+        public void DynamicRefAfterLeavingDynamicScope()
+        {
+            string json = @"{
+                ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
+                ""$id"": ""https://test.json-schema.org/dynamic-ref-leaving-dynamic-scope/main"",
+                ""if"": {
+                    ""$id"": ""first_scope"",
+                    ""$defs"": {
+                        ""thingy"": {
+                            ""$comment"": ""this is first_scope#thingy"",
+                            ""$dynamicAnchor"": ""thingy"",
+                            ""type"": ""number""
+                        }
+                    }
+                },
+                ""then"": {
+                    ""$id"": ""second_scope"",
+                    ""$ref"": ""start"",
+                    ""$defs"": {
+                        ""thingy"": {
+                            ""$comment"": ""this is second_scope#thingy, the final destination of the $dynamicRef"",
+                            ""$dynamicAnchor"": ""thingy"",
+                            ""type"": ""null""
+                        }
+                    }
+                },
+                ""$defs"": {
+                    ""start"": {
+                        ""$comment"": ""this is the landing spot from $ref"",
+                        ""$id"": ""start"",
+                        ""$dynamicRef"": ""inner_scope#thingy""
+                    },
+                    ""thingy"": {
+                        ""$comment"": ""this is the first stop for the $dynamicRef"",
+                        ""$id"": ""inner_scope"",
+                        ""$dynamicAnchor"": ""thingy"",
+                        ""type"": ""string""
+                    }
+                }
+            }";
+
+            JSchema s = JSchema.Parse(json);
+
+            JToken stringToken = new JValue("a string");
+
+            bool valid = stringToken.IsValid(s, out IList<string> errorMessages);
+            Assert.IsFalse(valid, "Should be invalid. Errors: " + string.Join(", ", errorMessages));
+        }
+
+        [Test]
+        public void DynamicRefMultipleDynamicPaths()
+        {
+            string json = @"{
+                ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
+                ""$id"": ""https://test.json-schema.org/dynamic-ref-with-multiple-paths/main"",
+                ""if"": {
+                    ""properties"": {
+                        ""kindOfList"": { ""const"": ""numbers"" }
+                    },
+                    ""required"": [""kindOfList""]
+                },
+                ""then"": { ""$ref"": ""numberList"" },
+                ""else"": { ""$ref"": ""stringList"" },
+
+                ""$defs"": {
+                    ""genericList"": {
+                        ""$id"": ""genericList"",
+                        ""properties"": {
+                            ""list"": {
+                                ""items"": { ""$dynamicRef"": ""#itemType"" }
+                            }
+                        },
+                        ""$defs"": {
+                            ""defaultItemType"": {
+                                ""$comment"": ""Only needed to satisfy bookending requirement"",
+                                ""$dynamicAnchor"": ""itemType""
+                            }
+                        }
+                    },
+                    ""numberList"": {
+                        ""$id"": ""numberList"",
+                        ""$defs"": {
+                            ""itemType"": {
+                                ""$dynamicAnchor"": ""itemType"",
+                                ""type"": ""number""
+                            }
+                        },
+                        ""$ref"": ""genericList""
+                    },
+                    ""stringList"": {
+                        ""$id"": ""stringList"",
+                        ""$defs"": {
+                            ""itemType"": {
+                                ""$dynamicAnchor"": ""itemType"",
+                                ""type"": ""string""
+                            }
+                        },
+                        ""$ref"": ""genericList""
+                    }
+                }
+            }";
+
+            JSchema s = JSchema.Parse(json);
+
+            JObject data = JObject.Parse(@"{
+                ""kindOfList"": ""strings"",
+                ""list"": [1.1]
+            }");
+
+            bool valid = data.IsValid(s, out IList<string> errorMessages);
+            Assert.IsFalse(valid, "Should be invalid. Errors: " + string.Join(", ", errorMessages));
         }
     }
 }

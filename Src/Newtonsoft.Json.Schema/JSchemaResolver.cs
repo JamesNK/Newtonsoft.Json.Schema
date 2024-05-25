@@ -123,7 +123,8 @@ namespace Newtonsoft.Json.Schema
 
             Uri? dynamicScope = null; // Might be a problem. Should dynamic scope be passed in?
 
-            SchemaDiscovery.FindSchema(s => subSchema = s, rootSchema, rootSchemaId, subschemaId, subschemaId, dynamicScope, resolverSchemaReader, ref resolverSchemaReader._schemaDiscovery);
+            // TODO: ref lookup always used here. Might need to support passing in reference type.
+            SchemaDiscovery.FindSchema(s => subSchema = s, rootSchema, rootSchemaId, subschemaId, subschemaId, dynamicScope, ReferenceType.Ref, resolverSchemaReader, ref resolverSchemaReader._schemaDiscovery);
 
             if (subSchema != null)
             {
