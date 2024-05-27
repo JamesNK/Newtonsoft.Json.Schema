@@ -10,7 +10,7 @@ using System.Diagnostics;
 
 namespace Newtonsoft.Json.Schema.Infrastructure
 {
-    [DebuggerDisplay("ScopeId = {ScopeId}, Root = {Root}, DynamicAnchor = {DynamicAnchor}")]
+    [DebuggerDisplay("ScopeId = {ScopeId}, Root = {Root}, DynamicAnchor = {DynamicAnchor}, CouldBeDynamic = {CouldBeDynamic}")]
     internal class JsonIdentifierScope : IIdentifierScope
     {
         public static readonly JsonIdentifierScope Empty = new JsonIdentifierScope(null, false, null, false);

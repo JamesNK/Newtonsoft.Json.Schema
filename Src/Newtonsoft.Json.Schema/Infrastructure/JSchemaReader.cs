@@ -421,9 +421,6 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         private bool TryResolveDeferredSchemaCore(DeferredSchema deferredSchema)
         {
-            var startReference = GetReference(deferredSchema.ReferenceSchema)!;
-            _ = startReference;
-
             // We don't want to use the dynamic scope if we're resolving the actual recursive reference.
             // It resolves back to the original scopeless object
             Uri? dynamicScope = deferredSchema.DynamicScope;
@@ -1280,6 +1277,14 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 referenceSchema.Reference = null;
                 referenceSchema.RecursiveReference = null;
                 referenceSchema.DynamicReference = null;
+            }
+            else if (deferredSchema.ReferenceType == ReferenceType.DynamicRef && referenceSchema.Ref != null)
+            {
+                // Setting a dynamicRef could happen multiple times.
+                // There is an initial match in the current scope which will clear the reference.
+                // Then an optional match could happen if a dynamicAnchor is found in an outer scope.
+                // Because the reference is cleared in the initial match, extra logic is required to correctly set the extra match.
+                referenceSchema.Ref = resolvedSchema;
             }
             else
             {

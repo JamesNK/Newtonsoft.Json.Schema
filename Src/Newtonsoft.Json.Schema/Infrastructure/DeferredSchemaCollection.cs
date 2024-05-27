@@ -5,10 +5,12 @@
 
 using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Newtonsoft.Json.Schema.Infrastructure
 {
+    [DebuggerDisplay("ResolvedReference = {ResolvedReference}, DynamicScopeId = {DynamicScopeId}")]
     internal struct DeferredSchemaKey : IEquatable<DeferredSchemaKey>
     {
         public DeferredSchemaKey(Uri resolvedReference, Uri? dynamicScopeId)

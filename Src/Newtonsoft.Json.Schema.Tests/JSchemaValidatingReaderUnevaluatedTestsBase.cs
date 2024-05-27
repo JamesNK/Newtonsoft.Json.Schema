@@ -916,6 +916,8 @@ namespace Newtonsoft.Json.Schema.Tests
             }";
 
             JSchema s = JSchema.Parse(json);
+            JSchema addonSchema = s.Ref.Ref;
+            Assert.AreEqual(JSchemaType.String, addonSchema.Properties["bar"].Type);
 
             JObject o = JObject.Parse(@"{
                 ""foo"": ""foo"",
