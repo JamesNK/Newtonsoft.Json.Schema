@@ -5092,7 +5092,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         }
 
         [Test]
-        public void AAAA()
+        public void DynamicRefLookToRootBecauseOfDynamicAnchor()
         {
             string json = @"{
                 ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",

@@ -242,7 +242,7 @@ namespace Newtonsoft.Json.Schema
                     {
                         if (definitions is JObject o)
                         {
-                            foreach (var item in o)
+                            foreach (KeyValuePair<string, JToken?> item in o)
                             {
                                 if (item.Value is JObject definitionSchema)
                                 {

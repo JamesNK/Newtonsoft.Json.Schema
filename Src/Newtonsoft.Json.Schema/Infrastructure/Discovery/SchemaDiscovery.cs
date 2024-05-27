@@ -206,7 +206,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                                     Uri? id = GetTokenId(t, schemaReader, referenceType);
                                     if (id != null)
                                     {
-                                        var dynamicAnchor = GetTokenDynamicAnchor(t, schemaReader);
+                                        string? dynamicAnchor = GetTokenDynamicAnchor(t, schemaReader);
                                         scope = new JsonIdentifierScope(id, false, dynamicAnchor, dynamicAnchor != null);
                                     }
                                 }
