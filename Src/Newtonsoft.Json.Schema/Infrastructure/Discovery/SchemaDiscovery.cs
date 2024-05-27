@@ -206,7 +206,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                                     Uri? id = GetTokenId(t, schemaReader, referenceType);
                                     if (id != null)
                                     {
-                                        scope = new JsonIdentifierScope(id, false, GetTokenDynamicAnchor(t, schemaReader));
+                                        var dynamicAnchor = GetTokenDynamicAnchor(t, schemaReader);
+                                        scope = new JsonIdentifierScope(id, false, dynamicAnchor, dynamicAnchor != null);
                                     }
                                 }
 
@@ -347,6 +348,28 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                         {
                             resolvedSchema = TryFindSchemaInDefinitions(Constants.PropertyNames.Defs, setSchema, schema, rootSchemaId, dynamicScope, referenceType, schemaReader, discovery, resolvedReference, originalReference);
                         }
+                        if (!resolvedSchema)
+                        {
+                            if (schema._allOf != null)
+                            {
+                                foreach (var item in schema._allOf)
+                                {
+                                    if (item.ResolvedId == null)
+                                    {
+                                        resolvedSchema = TryFindSchemaInDefinitions(Constants.PropertyNames.Definitions, setSchema, item, rootSchemaId, dynamicScope, referenceType, schemaReader, discovery, resolvedReference, originalReference);
+                                        if (!resolvedSchema)
+                                        {
+                                            resolvedSchema = TryFindSchemaInDefinitions(Constants.PropertyNames.Defs, setSchema, item, rootSchemaId, dynamicScope, referenceType, schemaReader, discovery, resolvedReference, originalReference);
+                                        }
+
+                                        if (resolvedSchema)
+                                        {
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -429,7 +452,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                 // Add root schema ID to the scope stack. This is required because schemas in definitions may be loaded as
                 // fragments when deferred schemas are resolver. If the root schema has an "$id" value, this is need to
                 // correctly resolve IDs using it.
-                schemaReader.PushIdentifierScope(new JsonIdentifierScope(rootSchemaId, false, dynamicAnchor: null));
+                schemaReader.PushIdentifierScope(new JsonIdentifierScope(rootSchemaId, false, dynamicAnchor: null, couldBeDynamic: false));
 
                 try
                 {

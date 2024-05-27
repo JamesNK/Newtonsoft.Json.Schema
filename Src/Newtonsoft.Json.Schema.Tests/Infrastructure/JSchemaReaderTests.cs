@@ -5016,9 +5016,121 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 
             JSchema s = JSchema.Parse(json);
 
+            Assert.AreNotSame(s.Then.Ref, s.Else.Ref);
+            Assert.AreEqual(JSchemaType.Number, s.Then.Ref.Properties["list"].AdditionalItems.Type);
+            Assert.AreEqual(JSchemaType.String, s.Else.Ref.Properties["list"].AdditionalItems.Type);
+
             JObject data = JObject.Parse(@"{
                 ""kindOfList"": ""strings"",
                 ""list"": [1.1]
+            }");
+
+            bool valid = data.IsValid(s, out IList<string> errorMessages);
+            Assert.IsFalse(valid, "Should be invalid. Errors: " + string.Join(", ", errorMessages));
+        }
+
+        [Test]
+        public void DynamicRefWithAnchorInAllOfRefs()
+        {
+            string json = @"{
+                ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
+                ""$id"": ""http://localhost:1234/draft2020-12/strict-extendible-allof-defs-first.json"",
+                ""allOf"": [
+                    {
+                        ""$ref"": ""extendible-dynamic-ref.json""
+                    },
+                    {
+                        ""$defs"": {
+                            ""elements"": {
+                                ""$dynamicAnchor"": ""elements"",
+                                ""properties"": {
+                                    ""a"": true
+                                },
+                                ""required"": [""a""],
+                                ""additionalProperties"": false
+                            }
+                        }
+                    }
+                ]
+            }";
+
+            string referencedJson = @"{
+                ""description"": ""extendible array"",
+                ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
+                ""$id"": ""http://localhost:1234/draft2020-12/extendible-dynamic-ref.json"",
+                ""type"": ""object"",
+                ""properties"": {
+                    ""elements"": {
+                        ""type"": ""array"",
+                        ""items"": {
+                            ""$dynamicRef"": ""#elements""
+                        }
+                    }
+                },
+                ""required"": [""elements""],
+                ""additionalProperties"": false,
+                ""$defs"": {
+                    ""elements"": {
+                        ""$dynamicAnchor"": ""elements""
+                    }
+                }
+            }";
+
+            JSchemaPreloadedResolver resolver = new JSchemaPreloadedResolver();
+            resolver.Add(new Uri("http://localhost:1234/draft2020-12/extendible-dynamic-ref.json"), referencedJson);
+
+            JSchema s = JSchema.Parse(json, resolver);
+
+            JObject data = JObject.Parse(@"{
+                ""elements"": [
+                    { ""b"": 1 }
+                ]
+            }");
+
+            bool valid = data.IsValid(s, out IList<string> errorMessages);
+            Assert.IsFalse(valid, "Should be invalid. Errors: " + string.Join(", ", errorMessages));
+        }
+
+        [Test]
+        public void AAAA()
+        {
+            string json = @"{
+                ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
+                ""$id"": ""https://test.json-schema.org/relative-dynamic-reference/root"",
+                ""$dynamicAnchor"": ""meta"",
+                ""type"": ""object"",
+                ""properties"": {
+                    ""foo"": { ""const"": ""pass"" }
+                },
+                ""$ref"": ""extended"",
+                ""$defs"": {
+                    ""extended"": {
+                        ""$id"": ""extended"",
+                        ""$dynamicAnchor"": ""meta"",
+                        ""type"": ""object"",
+                        ""properties"": {
+                            ""bar"": { ""$ref"": ""bar"" }
+                        }
+                    },
+                    ""bar"": {
+                        ""$id"": ""bar"",
+                        ""type"": ""object"",
+                        ""properties"": {
+                            ""baz"": { ""$dynamicRef"": ""extended#meta"" }
+                        }
+                    }
+                }
+            }";
+
+            JSchema s = JSchema.Parse(json);
+            JSchema bazSchema = s.Ref.Properties["bar"].Properties["baz"];
+            Assert.AreEqual("pass", (string)bazSchema.Properties["foo"].Const);
+
+            JObject data = JObject.Parse(@"{
+                ""foo"": ""pass"",
+                ""bar"": {
+                    ""baz"": { ""foo"": ""fail"" }
+                }
             }");
 
             bool valid = data.IsValid(s, out IList<string> errorMessages);

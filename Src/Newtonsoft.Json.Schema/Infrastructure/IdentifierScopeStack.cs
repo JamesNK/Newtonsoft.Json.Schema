@@ -15,6 +15,10 @@ namespace Newtonsoft.Json.Schema.Infrastructure
     [DebuggerTypeProxy(typeof(IdentifierScopeStackDebugView))]
     internal sealed class IdentifierScopeStack : List<IIdentifierScope>
     {
+        public IdentifierScopeStack() { }
+
+        public IdentifierScopeStack(IdentifierScopeStack scopes) : base(scopes) { }
+
         private sealed class IdentifierScopeStackDebugView
         {
             private readonly IdentifierScopeStack _stack;
@@ -25,7 +29,12 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             }
 
             [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
-            public JsonIdentifierScope[] Items => _stack.Select(s => new JsonIdentifierScope(s.ScopeId, s.Root, s.DynamicAnchor)).ToArray();
+            public JsonIdentifierScope[] Items => _stack.Select(s => new JsonIdentifierScope(s.ScopeId, s.Root, s.DynamicAnchor, s.CouldBeDynamic)).ToArray();
+        }
+
+        public IdentifierScopeStack Clone()
+        {
+            return new IdentifierScopeStack(this);
         }
     }
 }

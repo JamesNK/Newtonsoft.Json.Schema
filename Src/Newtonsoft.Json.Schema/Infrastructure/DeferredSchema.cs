@@ -58,7 +58,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         public readonly JSchema ReferenceSchema;
         private readonly bool _supportsRef;
         public readonly List<SetSchema> SetSchemas;
-        public readonly List<IIdentifierScope> Scopes;
+        public readonly IdentifierScopeStack Scopes;
         public ReferenceType ReferenceType;
 
         private bool _success;
@@ -72,14 +72,16 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         public Uri? ScopeId { get; }
         public bool Root => false;
         public string? DynamicAnchor { get; }
+        public bool CouldBeDynamic { get; }
 
-        public DeferredSchema(Uri resolvedReference, Uri originalReference, Uri? scopeId, string? dynamicAnchor, Uri? dynamicScope, ReferenceType referenceType, JSchema referenceSchema, bool supportsRef, List<IIdentifierScope> scopes)
+        public DeferredSchema(Uri resolvedReference, Uri originalReference, Uri? scopeId, string? dynamicAnchor, bool couldBeDynamic, Uri? dynamicScope, ReferenceType referenceType, JSchema referenceSchema, bool supportsRef, IdentifierScopeStack scopes)
         {
             SetSchemas = new List<SetSchema>();
             ResolvedReference = resolvedReference;
             OriginalReference = originalReference;
             ScopeId = scopeId;
             DynamicAnchor = dynamicAnchor;
+            CouldBeDynamic = couldBeDynamic;
             DynamicScope = dynamicScope;
             ReferenceType = referenceType;
             ReferenceSchema = referenceSchema;
@@ -89,7 +91,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
 
         public static DeferredSchemaKey CreateKey(DeferredSchema deferredSchema)
         {
-            return new DeferredSchemaKey(deferredSchema.ResolvedReference, deferredSchema.DynamicAnchor != null ? deferredSchema.ScopeId : null);
+            return new DeferredSchemaKey(deferredSchema.ResolvedReference, deferredSchema.DynamicScope);
         }
 
         public void AddSchemaSet(Action<JSchema> setSchema, JSchema? target)

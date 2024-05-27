@@ -164,7 +164,7 @@ namespace Newtonsoft.Json.Schema
         /// Gets or sets the $recursiveRef.
         /// </summary>
         public Uri? RecursiveReference
-        { 
+        {
             get => _recursiveReference;
             set
             {
@@ -216,6 +216,48 @@ namespace Newtonsoft.Json.Schema
         Uri? IIdentifierScope.ScopeId => ResolvedId;
 
         bool IIdentifierScope.Root => Root;
+
+        bool IIdentifierScope.CouldBeDynamic
+        {
+            get
+            {
+                if (_dynamicAnchor != null || (_recursiveAnchor ?? false))
+                {
+                    return true;
+                }
+                if (_extensionData != null)
+                {
+                    if (HasDynamicAnchorDefinition(_extensionData, Constants.PropertyNames.Definitions) ||
+                        HasDynamicAnchorDefinition(_extensionData, Constants.PropertyNames.Defs))
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+
+                bool HasDynamicAnchorDefinition(Dictionary<string, JToken> extensionData, string name)
+                {
+                    if (extensionData.TryGetValue(name, out JToken definitions))
+                    {
+                        if (definitions is JObject o)
+                        {
+                            foreach (var item in o)
+                            {
+                                if (item.Value is JObject definitionSchema)
+                                {
+                                    if (definitionSchema[Constants.PropertyNames.DynamicAnchor] != null)
+                                    {
+                                        return true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    return false;
+                }
+            }
+        }
 
         string? IIdentifierScope.DynamicAnchor
         {
