@@ -419,7 +419,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             // It resolves back to the original scopeless object
             Uri? dynamicScope = deferredSchema.DynamicScope;
 
-            bool found = SchemaDiscovery.FindSchema(
+            FindSchemaContext context = new FindSchemaContext(
                 s =>
                 {
                     // 2019-09 and later support the $ref property with content.
@@ -445,7 +445,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure
                 dynamicScope,
                 deferredSchema.ReferenceType,
                 this,
-                ref _schemaDiscovery);
+                _schemaDiscovery);
+
+            bool found = SchemaDiscovery.FindSchema(context);
 
             if (found)
             {

@@ -156,29 +156,20 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             public string Current { get; private set; }
         }
 
-        public static bool FindSchema(
-            Action<JSchema> setSchema,
-            JSchema schema,
-            Uri? rootSchemaId,
-            Uri reference,
-            Uri originalReference,
-            Uri? dynamicScope,
-            ReferenceType referenceType,
-            JSchemaReader schemaReader,
-            ref JSchemaDiscovery discovery)
+        public static bool FindSchema(FindSchemaContext context)
         {
             bool resolvedSchema;
 
-            string referenceText = reference.ToString();
+            string referenceText = context.Reference.ToString();
 
-            if (IsInternalSchemaReference(referenceText, rootSchemaId))
+            if (IsInternalSchemaReference(referenceText, context.RootSchemaId))
             {
-                int scopeInitialCount = schemaReader._identifierScopeStack.Count;
+                int scopeInitialCount = context.SchemaReader._identifierScopeStack.Count;
 
-                schemaReader.PushIdentifierScope(schema);
+                context.SchemaReader.PushIdentifierScope(context.Schema);
 
-                JSchema parent = schema;
-                object? current = schema;
+                JSchema parent = context.Schema;
+                object? current = context.Schema;
 
                 int separatorIndex = StringHelpers.IndexOf(referenceText, '/');
                 if (separatorIndex != -1)
@@ -191,29 +182,29 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                         switch (current)
                         {
                             case JSchema s:
-                                if (s != schema)
+                                if (s != context.Schema)
                                 {
-                                    schemaReader.PushIdentifierScope(s);
+                                    context.SchemaReader.PushIdentifierScope(s);
                                 }
 
                                 parent = s;
-                                current = GetCurrentFromSchema(schemaReader, s, unescapedPart);
+                                current = GetCurrentFromSchema(context.SchemaReader, s, unescapedPart);
                                 break;
                             case JToken t:
                                 IIdentifierScope? scope = null;
                                 if (t is JObject)
                                 {
-                                    Uri? id = GetTokenId(t, schemaReader, referenceType);
+                                    Uri? id = GetTokenId(t, context.SchemaReader, context.ReferenceType);
                                     if (id != null)
                                     {
-                                        string? dynamicAnchor = GetTokenDynamicAnchor(t, schemaReader);
+                                        string? dynamicAnchor = GetTokenDynamicAnchor(t, context.SchemaReader);
                                         scope = new JsonIdentifierScope(id, false, dynamicAnchor, dynamicAnchor != null);
                                     }
                                 }
 
-                                schemaReader.PushIdentifierScope(scope ?? JsonIdentifierScope.Empty);
+                                context.SchemaReader.PushIdentifierScope(scope ?? JsonIdentifierScope.Empty);
 
-                                current = GetCurrentFromToken(t, unescapedPart, dynamicScope);
+                                current = GetCurrentFromToken(t, unescapedPart, context.DynamicScope);
                                 break;
                             case IDictionary<string, JSchema> d:
                                 d.TryGetValue(unescapedPart, out JSchema temp);
@@ -222,7 +213,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                             case IList<JSchema> l:
                                 if (TryGetImplicitItemsSchema(parent, l, out JSchema? itemsSchema))
                                 {
-                                    current = GetCurrentFromSchema(schemaReader, itemsSchema, unescapedPart);
+                                    current = GetCurrentFromSchema(context.SchemaReader, itemsSchema, unescapedPart);
                                 }
                                 else if (int.TryParse(unescapedPart, NumberStyles.None, CultureInfo.InvariantCulture, out int index))
                                 {
@@ -261,30 +252,30 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                 {
                     case JToken t:
                         JSchemaAnnotation? annotation = t.Annotation<JSchemaAnnotation>();
-                        JSchema? previousSchema = annotation?.GetSchema(dynamicScope);
+                        JSchema? previousSchema = annotation?.GetSchema(context.DynamicScope);
                         if (previousSchema != null)
                         {
-                            setSchema(previousSchema);
+                            context.SetSchema(previousSchema);
                             resolvedSchema = true;
                         }
                         else
                         {
-                            JSchema inlineSchema = schemaReader.ReadInlineSchema(setSchema, t, dynamicScope);
-                            inlineSchema._referencedAs = originalReference;
+                            JSchema inlineSchema = context.SchemaReader.ReadInlineSchema(context.SetSchema, t, context.DynamicScope);
+                            inlineSchema._referencedAs = context.OriginalReference;
 
-                            discovery.Discover(inlineSchema, rootSchemaId, dynamicScope: dynamicScope);
+                            context.Discovery.Discover(inlineSchema, context.RootSchemaId, dynamicScope: context.DynamicScope);
 
                             resolvedSchema = true;
                         }
                         break;
                     case JSchema s:
-                        setSchema(s);
+                        context.SetSchema(s);
                         resolvedSchema = true;
 
                         // schema is a reference schema and needs to be resolved
                         if (s.HasReference)
                         {
-                            schemaReader.AddDeferredSchema(null, setSchema, s);
+                            context.SchemaReader.AddDeferredSchema(null, context.SetSchema, s);
                         }
                         break;
                     default:
@@ -292,39 +283,41 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                         break;
                 }
 
-                while (schemaReader._identifierScopeStack.Count > scopeInitialCount)
+                while (context.SchemaReader._identifierScopeStack.Count > scopeInitialCount)
                 {
-                    schemaReader.PopIdentifierScope();
+                    context.SchemaReader.PopIdentifierScope();
                 }
             }
             else
             {
-                discovery.Discover(schema, null, dynamicScope: dynamicScope);
+                context.Discovery.Discover(context.Schema, null, dynamicScope: context.DynamicScope);
 
-                Uri resolvedReference = ResolveSchemaId(rootSchemaId, reference);
+                Uri resolvedReference = ResolveSchemaId(context.RootSchemaId, context.Reference);
 
-                KnownSchema? knownSchema = discovery.KnownSchemas.GetById(new KnownSchemaUriKey(resolvedReference, dynamicScope, isRoot: false));
+                KnownSchema? knownSchema = context.Discovery.KnownSchemas.GetById(new KnownSchemaUriKey(resolvedReference, context.DynamicScope, isRoot: false));
 
                 if (knownSchema != null)
                 {
                     resolvedSchema = true;
-                    setSchema(knownSchema.Schema);
+                    context.SetSchema(knownSchema.Schema);
                 }
                 else
                 {
                     if (SplitReference(resolvedReference, out Uri path, out Uri? fragment))
                     {
-                        knownSchema = discovery.KnownSchemas.GetById(new KnownSchemaUriKey(path, dynamicScope, isRoot: true));
+                        knownSchema = context.Discovery.KnownSchemas.GetById(new KnownSchemaUriKey(path, context.DynamicScope, isRoot: true));
 
                         if (knownSchema != null)
                         {
                             // don't attempt to find a schema in the same schema again
                             // avoids stackoverflow
-                            if (knownSchema.Schema != schema
-                                || !UriComparer.Instance.Equals(rootSchemaId, path)
-                                || !UriComparer.Instance.Equals(reference, fragment))
+                            if (knownSchema.Schema != context.Schema
+                                || !UriComparer.Instance.Equals(context.RootSchemaId, path)
+                                || !UriComparer.Instance.Equals(context.Reference, fragment))
                             {
-                                resolvedSchema = FindSchema(setSchema, knownSchema.Schema, path, fragment, originalReference, dynamicScope, referenceType, schemaReader, ref discovery);
+                                var knownSchemaContext = context with { Schema = knownSchema.Schema, RootSchemaId = path, Reference = fragment };
+
+                                resolvedSchema = FindSchema(knownSchemaContext);
                             }
                             else
                             {
@@ -343,23 +336,24 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
 
                     if (!resolvedSchema)
                     {
-                        resolvedSchema = TryFindSchemaInDefinitions(Constants.PropertyNames.Definitions, setSchema, schema, rootSchemaId, dynamicScope, referenceType, schemaReader, discovery, resolvedReference, originalReference);
+                        resolvedSchema = TryFindSchemaInDefinitions(Constants.PropertyNames.Definitions, context, resolvedReference);
                         if (!resolvedSchema)
                         {
-                            resolvedSchema = TryFindSchemaInDefinitions(Constants.PropertyNames.Defs, setSchema, schema, rootSchemaId, dynamicScope, referenceType, schemaReader, discovery, resolvedReference, originalReference);
+                            resolvedSchema = TryFindSchemaInDefinitions(Constants.PropertyNames.Defs, context, resolvedReference);
                         }
                         if (!resolvedSchema)
                         {
-                            if (schema._allOf != null)
+                            if (context.Schema._allOf != null)
                             {
-                                foreach (var item in schema._allOf)
+                                foreach (var item in context.Schema._allOf)
                                 {
                                     if (item.ResolvedId == null)
                                     {
-                                        resolvedSchema = TryFindSchemaInDefinitions(Constants.PropertyNames.Definitions, setSchema, item, rootSchemaId, dynamicScope, referenceType, schemaReader, discovery, resolvedReference, originalReference);
+                                        FindSchemaContext allOfSchemaContext = context with { Schema = item };
+                                        resolvedSchema = TryFindSchemaInDefinitions(Constants.PropertyNames.Definitions, allOfSchemaContext, resolvedReference);
                                         if (!resolvedSchema)
                                         {
-                                            resolvedSchema = TryFindSchemaInDefinitions(Constants.PropertyNames.Defs, setSchema, item, rootSchemaId, dynamicScope, referenceType, schemaReader, discovery, resolvedReference, originalReference);
+                                            resolvedSchema = TryFindSchemaInDefinitions(Constants.PropertyNames.Defs, allOfSchemaContext, resolvedReference);
                                         }
 
                                         if (resolvedSchema)
@@ -442,17 +436,16 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             return false;
         }
 
-        private static bool TryFindSchemaInDefinitions(string definitionsName, Action<JSchema> setSchema, JSchema schema, Uri? rootSchemaId, Uri? dynamicScope, ReferenceType referenceType,
-            JSchemaReader schemaReader, JSchemaDiscovery discovery, Uri resolvedReference, Uri originalReference)
+        private static bool TryFindSchemaInDefinitions(string definitionsName, FindSchemaContext context, Uri resolvedReference)
         {
             // special case
             // look in the root schema's definitions for a definition with the same property name and id as reference
-            if (schema.ExtensionData.TryGetValue(definitionsName, out JToken definitions))
+            if (context.Schema.ExtensionData.TryGetValue(definitionsName, out JToken definitions))
             {
                 // Add root schema ID to the scope stack. This is required because schemas in definitions may be loaded as
                 // fragments when deferred schemas are resolver. If the root schema has an "$id" value, this is need to
                 // correctly resolve IDs using it.
-                schemaReader.PushIdentifierScope(new JsonIdentifierScope(rootSchemaId, false, dynamicAnchor: null, couldBeDynamic: false));
+                context.SchemaReader.PushIdentifierScope(new JsonIdentifierScope(context.RootSchemaId, false, dynamicAnchor: null, couldBeDynamic: false));
 
                 try
                 {
@@ -471,7 +464,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                         {
                             foreach (JProperty property in definitionsObject.Properties())
                             {
-                                if (TryCompare(property.Name, originalReference))
+                                if (TryCompare(property.Name, context.OriginalReference))
                                 {
                                     matchingProperty = property;
                                     break;
@@ -481,11 +474,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
 
                         if (matchingProperty?.Value is JObject o)
                         {
-                            if (IsIdMatch(schemaReader, resolvedReference, o, rootSchemaId, referenceType, allowFragmentlessMatch: true))
+                            if (IsIdMatch(resolvedReference, o, context, allowFragmentlessMatch: true))
                             {
-                                JSchema inlineSchema = schemaReader.ReadInlineSchema(setSchema, o, dynamicScope);
+                                JSchema inlineSchema = context.SchemaReader.ReadInlineSchema(context.SetSchema, o, context.DynamicScope);
 
-                                discovery.Discover(inlineSchema, rootSchemaId, definitionsName + "/" + matchingProperty.Name, dynamicScope);
+                                context.Discovery.Discover(inlineSchema, context.RootSchemaId, definitionsName + "/" + matchingProperty.Name, context.DynamicScope);
 
                                 return true;
                             }
@@ -494,26 +487,26 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                         {
                             SplitReference(resolvedReference, out Uri path, out Uri? fragment);
 
-                            return CheckDefinitionSchemaIds(definitionsName, setSchema, rootSchemaId, dynamicScope, referenceType, schemaReader, discovery, resolvedReference, path, fragment, definitionsObject);
+                            return CheckDefinitionSchemaIds(definitionsName, context, resolvedReference, path, fragment, definitionsObject);
                         }
                     }
                 }
                 finally
                 {
-                    schemaReader.PopIdentifierScope();
+                    context.SchemaReader.PopIdentifierScope();
                 }
             }
 
             return false;
         }
 
-        private static bool CheckDefinitionSchemaIds(string definitionsName, Action<JSchema> setSchema, Uri? rootSchemaId, Uri? dynamicScope, ReferenceType referenceType, JSchemaReader schemaReader, JSchemaDiscovery discovery, Uri resolvedReference, Uri matchingId, Uri? matchingFragment, JObject definitionsObject)
+        private static bool CheckDefinitionSchemaIds(string definitionsName, FindSchemaContext context, Uri resolvedReference, Uri matchingId, Uri? matchingFragment, JObject definitionsObject)
         {
             foreach (KeyValuePair<string, JToken?> property in definitionsObject)
             {
                 if (property.Value is JObject obj)
                 {
-                    if (CheckObject(obj, definitionsName + "/" + property.Key, setSchema, rootSchemaId, dynamicScope, referenceType, schemaReader, discovery, resolvedReference, matchingId, matchingFragment, definitionsObject))
+                    if (CheckObject(obj, definitionsName + "/" + property.Key, context, resolvedReference, matchingId, matchingFragment, definitionsObject))
                     {
                         return true;
                     }
@@ -523,47 +516,50 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             return false;
         }
 
-        private static bool CheckObject(JObject obj, string key, Action<JSchema> setSchema, Uri? rootSchemaId, Uri? dynamicScope, ReferenceType referenceType, JSchemaReader schemaReader, JSchemaDiscovery discovery, Uri resolvedReference, Uri matchingId, Uri? matchingFragment, JObject definitionsObject)
+        private static bool CheckObject(JObject obj, string key, FindSchemaContext context, Uri resolvedReference, Uri matchingId, Uri? matchingFragment, JObject definitionsObject)
         {
-            if (IsIdMatch(schemaReader, matchingId, obj, rootSchemaId, referenceType))
+            if (IsIdMatch(matchingId, obj, context))
             {
                 // Pass in no setSchema here because we want to find a schema using the path first,
                 // without setting the schema, and then resolve the fragment using that schema.
-                JSchema inlineSchema = schemaReader.ReadInlineSchema(setSchema: null, obj, dynamicScope);
-                discovery.Discover(inlineSchema, rootSchemaId, key, dynamicScope);
+                JSchema inlineSchema = context.SchemaReader.ReadInlineSchema(setSchema: null, obj, context.DynamicScope);
+                context.Discovery.Discover(inlineSchema, context.RootSchemaId, key, context.DynamicScope);
 
                 if (matchingFragment != null)
                 {
-                    return FindSchema(setSchema, inlineSchema, rootSchemaId: matchingId, matchingFragment, matchingFragment, dynamicScope, referenceType, schemaReader, ref discovery);
+                    FindSchemaContext inlineFindContext = context with { Schema = inlineSchema, RootSchemaId = matchingId, Reference = matchingFragment, OriginalReference = matchingFragment };
+                    return FindSchema(inlineFindContext);
                 }
                 else
                 {
-                    setSchema(inlineSchema);
+                    context.SetSchema(inlineSchema);
                 }
 
                 return true;
             }
-            else if (IsIdMatch(schemaReader, matchingFragment, obj, rootSchemaId, referenceType) ||
-                IsIdMatch(schemaReader, resolvedReference, obj, rootSchemaId, referenceType))
+            else if (IsIdMatch(matchingFragment, obj, context) ||
+                IsIdMatch(resolvedReference, obj, context))
             {
-                JSchema inlineSchema = schemaReader.ReadInlineSchema(setSchema, obj, dynamicScope);
-                discovery.Discover(inlineSchema, rootSchemaId, key, dynamicScope);
+                JSchema inlineSchema = context.SchemaReader.ReadInlineSchema(context.SetSchema, obj, context.DynamicScope);
+                context.Discovery.Discover(inlineSchema, context.RootSchemaId, key, context.DynamicScope);
 
                 return true;
             }
             else
             {
-                Uri? id = GetTokenId(obj, schemaReader, referenceType);
+                Uri? id = GetTokenId(obj, context.SchemaReader, context.ReferenceType);
 
                 Uri? resolvedId = id != null
-                    ? ResolveSchemaId(rootSchemaId, id)
-                    : rootSchemaId;
+                    ? ResolveSchemaId(context.RootSchemaId, id)
+                    : context.RootSchemaId;
+
+                FindSchemaContext contextWithResolvedId = context with { RootSchemaId = resolvedId };
 
                 // This is a hack so one spec test passes.
                 // A complete fix would be to visit all properties that could contain a schema in JSON and check whether it matches the desired ID.
                 if (obj[Constants.PropertyNames.Not] is JObject o)
                 {
-                    if (CheckObject(o, Constants.PropertyNames.Not, setSchema, resolvedId, dynamicScope, referenceType, schemaReader, discovery, resolvedReference, matchingId, matchingFragment, definitionsObject))
+                    if (CheckObject(o, Constants.PropertyNames.Not, contextWithResolvedId, resolvedReference, matchingId, matchingFragment, definitionsObject))
                     {
                         return true;
                     }
@@ -571,11 +567,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
 
                 // Definition object doesn't match but one of its nested definitions might
                 // Recurse into nested definitions using the current definition scope
-                if (IsNestedDefinitionMatch(Constants.PropertyNames.Definitions, setSchema, resolvedId, dynamicScope, referenceType, schemaReader, discovery, resolvedReference, matchingId, matchingFragment, obj))
+                if (IsNestedDefinitionMatch(Constants.PropertyNames.Definitions, contextWithResolvedId, resolvedReference, matchingId, matchingFragment, obj))
                 {
                     return true;
                 }
-                if (IsNestedDefinitionMatch(Constants.PropertyNames.Defs, setSchema, resolvedId, dynamicScope, referenceType, schemaReader, discovery, resolvedReference, matchingId, matchingFragment, obj))
+                if (IsNestedDefinitionMatch(Constants.PropertyNames.Defs, contextWithResolvedId, resolvedReference, matchingId, matchingFragment, obj))
                 {
                     return true;
                 }
@@ -584,21 +580,21 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             }
         }
 
-        private static bool IsNestedDefinitionMatch(string definitionsName, Action<JSchema> setSchema, Uri? rootSchemaId, Uri? dynamicScope, ReferenceType referenceType, JSchemaReader schemaReader, JSchemaDiscovery discovery,
+        private static bool IsNestedDefinitionMatch(string definitionsName, FindSchemaContext context,
             Uri resolvedReference, Uri matchingId, Uri? matchingFragment, JObject obj)
         {
             JObject? nestedDefinitions = obj[definitionsName] as JObject;
             if (nestedDefinitions != null)
             {
-                return CheckDefinitionSchemaIds(definitionsName, setSchema, rootSchemaId, dynamicScope, referenceType, schemaReader, discovery, resolvedReference, matchingId, matchingFragment, nestedDefinitions);
+                return CheckDefinitionSchemaIds(definitionsName, context, resolvedReference, matchingId, matchingFragment, nestedDefinitions);
             }
 
             return false;
         }
 
-        private static bool IsIdMatch(JSchemaReader schemaReader, Uri? resolvedReference, JObject o, Uri? rootSchemaId, ReferenceType referenceType, bool allowFragmentlessMatch = false)
+        private static bool IsIdMatch(Uri? resolvedReference, JObject o, FindSchemaContext context, bool allowFragmentlessMatch = false)
         {
-            Uri? id = GetTokenId(o, schemaReader, referenceType);
+            Uri? id = GetTokenId(o, context.SchemaReader, context.ReferenceType);
 
             if (id == null)
             {
@@ -610,7 +606,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                 return true;
             }
 
-            Uri resolvedId = ResolveSchemaId(rootSchemaId, id);
+            Uri resolvedId = ResolveSchemaId(context.RootSchemaId, id);
 
             if (UriComparer.Instance.Equals(resolvedId, resolvedReference))
             {
@@ -801,4 +797,15 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             }
         }
     }
+
+    internal readonly record struct FindSchemaContext(
+        Action<JSchema> SetSchema,
+        JSchema Schema,
+        Uri? RootSchemaId,
+        Uri Reference,
+        Uri OriginalReference,
+        Uri? DynamicScope,
+        ReferenceType ReferenceType,
+        JSchemaReader SchemaReader,
+        JSchemaDiscovery Discovery);
 }
