@@ -336,13 +336,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
 
                     if (!resolvedSchema)
                     {
-                        resolvedSchema = TryFindSchemaInDefinitions(Constants.PropertyNames.Definitions, context, resolvedReference);
+                        resolvedSchema = TryFindSchemaInDefinitions(context, resolvedReference);
                         if (!resolvedSchema)
                         {
-                            resolvedSchema = TryFindSchemaInDefinitions(Constants.PropertyNames.Defs, context, resolvedReference);
-                        }
-                        if (!resolvedSchema)
-                        {
+                            // TODO: Hack to pass a schema suite test. Putting defs in nested schemas is valid but an odd thing to do.
+                            // Should ideally look in every possible nested schema to do this properly.
                             if (context.Schema._allOf != null)
                             {
                                 foreach (var item in context.Schema._allOf)
@@ -350,14 +348,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                                     if (item.ResolvedId == null)
                                     {
                                         FindSchemaContext allOfSchemaContext = context with { Schema = item };
-                                        resolvedSchema = TryFindSchemaInDefinitions(Constants.PropertyNames.Definitions, allOfSchemaContext, resolvedReference);
-                                        if (!resolvedSchema)
+                                        if (TryFindSchemaInDefinitions(allOfSchemaContext, resolvedReference))
                                         {
-                                            resolvedSchema = TryFindSchemaInDefinitions(Constants.PropertyNames.Defs, allOfSchemaContext, resolvedReference);
-                                        }
-
-                                        if (resolvedSchema)
-                                        {
+                                            resolvedSchema = true;
                                             break;
                                         }
                                     }
@@ -369,6 +362,16 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             }
 
             return resolvedSchema;
+
+            static bool TryFindSchemaInDefinitions(FindSchemaContext context, Uri resolvedReference)
+            {
+                if (TryFindSchemaInDefinitionsCore(Constants.PropertyNames.Definitions, context, resolvedReference))
+                {
+                    return true;
+                }
+
+                return TryFindSchemaInDefinitionsCore(Constants.PropertyNames.Defs, context, resolvedReference);
+            }
         }
 
         private static bool SplitReference(Uri reference, out Uri path, [NotNullWhen(true)] out Uri? fragment)
@@ -436,7 +439,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             return false;
         }
 
-        private static bool TryFindSchemaInDefinitions(string definitionsName, FindSchemaContext context, Uri resolvedReference)
+        private static bool TryFindSchemaInDefinitionsCore(string definitionsName, FindSchemaContext context, Uri resolvedReference)
         {
             // special case
             // look in the root schema's definitions for a definition with the same property name and id as reference
