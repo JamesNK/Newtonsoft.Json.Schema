@@ -73,13 +73,6 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             }
         }
 
-        internal List<IIdentifierScope> GetAndClearScopes()
-        {
-            var scopes = _identifierScopeStack.ToList();
-            _identifierScopeStack.Clear();
-            return scopes;
-        }
-
         internal void PushIdentifierScope(IIdentifierScope identifierScope)
         {
             _identifierScopeStack.Add(identifierScope);

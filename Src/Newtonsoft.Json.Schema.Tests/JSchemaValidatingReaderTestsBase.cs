@@ -26,6 +26,7 @@ using System.Xml.Schema;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema;
 using Newtonsoft.Json.Schema.Generation;
+using System.Linq;
 
 namespace Newtonsoft.Json.Schema.Tests
 {
@@ -3861,7 +3862,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             JArray a = JArray.Parse(@"[ ""a"", ""b"", ""a"", ""b"", ""a"" ]");
             var result = a.IsValid(s, out IList<string> errorMessages);
-            Assert.IsTrue(result, string.Join(", ", errorMessages));
+            Assert.IsTrue(result, string.Join(", ", errorMessages.ToArray()));
         }
 
         [Test]
@@ -3889,7 +3890,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             JArray a = JArray.Parse(@"[ ""a"", ""c"" ]");
             var result = a.IsValid(s, out IList<string> errorMessages);
-            Assert.IsFalse(result, string.Join(", ", errorMessages));
+            Assert.IsFalse(result, string.Join(", ", errorMessages.ToArray()));
         }
 
         [Test]
@@ -3911,7 +3912,7 @@ namespace Newtonsoft.Json.Schema.Tests
 
             JObject o = JObject.Parse(@"{ ""foo"": 1 }");
             var result = o.IsValid(s, out IList<string> errorMessages);
-            Assert.IsFalse(result, string.Join(", ", errorMessages));
+            Assert.IsFalse(result, string.Join(", ", errorMessages.ToArray()));
             Assert.AreEqual("JSON is valid against schema from 'not'. Path '', line 1, position 1.", errorMessages[0]);
         }
 
@@ -3953,7 +3954,7 @@ namespace Newtonsoft.Json.Schema.Tests
               ]
             }");
             var result = o.IsValid(s, out IList<string> errorMessages);
-            Assert.IsTrue(result, string.Join(", ", errorMessages));
+            Assert.IsTrue(result, string.Join(", ", errorMessages.ToArray()));
         }
 
         [Test]
@@ -3994,7 +3995,7 @@ namespace Newtonsoft.Json.Schema.Tests
               ]
             }");
             var result = o.IsValid(s, out IList<string> errorMessages);
-            Assert.IsFalse(result, string.Join(", ", errorMessages));
+            Assert.IsFalse(result, string.Join(", ", errorMessages.ToArray()));
         }
 
         [Test]
@@ -4035,7 +4036,7 @@ namespace Newtonsoft.Json.Schema.Tests
               ]
             }");
             var result = o.IsValid(s, out IList<string> errorMessages);
-            Assert.IsTrue(result, string.Join(", ", errorMessages));
+            Assert.IsTrue(result, string.Join(", ", errorMessages.ToArray()));
         }
 
         [Test]
@@ -4076,7 +4077,7 @@ namespace Newtonsoft.Json.Schema.Tests
               ]
             }");
             var result = o.IsValid(s, out IList<string> errorMessages);
-            Assert.IsFalse(result, string.Join(", ", errorMessages));
+            Assert.IsFalse(result, string.Join(", ", errorMessages.ToArray()));
         }
     }
 

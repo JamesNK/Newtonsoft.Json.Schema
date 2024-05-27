@@ -464,20 +464,6 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 return true;
             }
 
-            //if (Context is ISchemaTracker tracker && tracker.EvaluatedSchemas != null)
-            //{
-            //    foreach (var item in tracker.EvaluatedSchemas)
-            //    {
-            //        if (item.Schema == validScopes)
-            //        {
-            //            return true;
-            //        }
-            //        //if (item.HasEvaluatedSchema(validScopes))
-            //        //{
-            //        //    return true;
-            //        //}
-            //    }
-            //}
             return false;
         }
     }

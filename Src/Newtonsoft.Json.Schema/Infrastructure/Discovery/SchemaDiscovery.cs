@@ -583,8 +583,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             }
         }
 
-        private static bool IsNestedDefinitionMatch(string definitionsName, FindSchemaContext context,
-            Uri resolvedReference, Uri matchingId, Uri? matchingFragment, JObject obj)
+        private static bool IsNestedDefinitionMatch(string definitionsName, FindSchemaContext context, Uri resolvedReference, Uri matchingId, Uri? matchingFragment, JObject obj)
         {
             JObject? nestedDefinitions = obj[definitionsName] as JObject;
             if (nestedDefinitions != null)

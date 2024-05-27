@@ -10,6 +10,8 @@ using Newtonsoft.Json.Schema.Infrastructure;
 #if !(NET20 || NET35 || PORTABLE) || DNXCORE50
 using System.Numerics;
 #endif
+using Newtonsoft.Json.Linq;
+using System.Linq;
 using System.Text;
 #if DNXCORE50
 using Xunit;
@@ -20,8 +22,6 @@ using Assert = Newtonsoft.Json.Schema.Tests.XUnitAssert;
 #else
 using NUnit.Framework;
 using Theory = NUnit.Framework.TestAttribute;
-using Newtonsoft.Json.Linq;
-using System.Linq;
 #endif
 
 namespace Newtonsoft.Json.Schema.Tests
@@ -925,7 +925,7 @@ namespace Newtonsoft.Json.Schema.Tests
             }");
             var result = o.IsValid(s, out IList<ValidationError> errorMessages);
             PrintErrorsRecursive(errorMessages, 0);
-            Assert.IsTrue(result, string.Join(", ", errorMessages));
+            Assert.IsTrue(result, string.Join(", ", errorMessages.Select(e => e.ToString()).ToArray()));
         }
 
         private void PrintErrorsRecursive(IList<ValidationError> errors, int depth)

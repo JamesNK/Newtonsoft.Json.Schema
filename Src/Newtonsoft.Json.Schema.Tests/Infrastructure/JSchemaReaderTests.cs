@@ -18,6 +18,7 @@ using System.Reflection;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema.Infrastructure;
 using System.Text;
+using System.Linq;
 
 namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 {
@@ -4874,7 +4875,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             JArray a = JArray.Parse(@"[""foo"", 42]");
 
             bool valid = a.IsValid(s, out IList<string> errorMessages);
-            Assert.IsTrue(valid, "Should be valid. Errors: " + string.Join(", ", errorMessages));
+            Assert.IsTrue(valid, "Should be valid. Errors: " + string.Join(", ", errorMessages.ToArray()));
         }
 
         [Test]
@@ -4908,7 +4909,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             JArray a = JArray.Parse(@"[""foo"", 42]");
 
             bool valid = a.IsValid(s, out IList<string> errorMessages);
-            Assert.IsTrue(valid, "Should be valid. Errors: " + string.Join(", ", errorMessages));
+            Assert.IsTrue(valid, "Should be valid. Errors: " + string.Join(", ", errorMessages.ToArray()));
         }
 
         [Test]
@@ -4958,7 +4959,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             JToken stringToken = new JValue("a string");
 
             bool valid = stringToken.IsValid(s, out IList<string> errorMessages);
-            Assert.IsFalse(valid, "Should be invalid. Errors: " + string.Join(", ", errorMessages));
+            Assert.IsFalse(valid, "Should be invalid. Errors: " + string.Join(", ", errorMessages.ToArray()));
         }
 
         [Test]
@@ -5026,7 +5027,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             }");
 
             bool valid = data.IsValid(s, out IList<string> errorMessages);
-            Assert.IsFalse(valid, "Should be invalid. Errors: " + string.Join(", ", errorMessages));
+            Assert.IsFalse(valid, "Should be invalid. Errors: " + string.Join(", ", errorMessages.ToArray()));
         }
 
         [Test]
@@ -5088,7 +5089,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             }");
 
             bool valid = data.IsValid(s, out IList<string> errorMessages);
-            Assert.IsFalse(valid, "Should be invalid. Errors: " + string.Join(", ", errorMessages));
+            Assert.IsFalse(valid, "Should be invalid. Errors: " + string.Join(", ", errorMessages.ToArray()));
         }
 
         [Test]
@@ -5134,7 +5135,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             }");
 
             bool valid = data.IsValid(s, out IList<string> errorMessages);
-            Assert.IsFalse(valid, "Should be invalid. Errors: " + string.Join(", ", errorMessages));
+            Assert.IsFalse(valid, "Should be invalid. Errors: " + string.Join(", ", errorMessages.ToArray()));
         }
     }
 }
