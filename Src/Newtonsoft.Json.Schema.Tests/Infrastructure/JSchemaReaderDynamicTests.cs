@@ -864,7 +864,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         }
 
         [Test]
-        public void DynamicRefSkipOverIntermediateResources_PointerReferenceAcrossResourceBoundary()
+        public void DynamicRefSkipOverIntermediateResources_AcrossResourceBoundary()
         {
             string json = @"{
                 ""$schema"": ""https://json-schema.org/draft/next/schema"",
