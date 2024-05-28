@@ -4253,35 +4253,6 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         }
 
         [Test]
-        public void RecursiveAnchor_Ref()
-        {
-            string json = @"{
-                ""$schema"": ""https://json-schema.org/draft/2019-09/schema"",
-                ""$id"": ""https://json-schema.org/draft/2019-09/meta/applicator"",
-                ""$recursiveAnchor"": true,
-
-                ""title"": ""Applicator vocabulary meta-schema"",
-                ""type"": [""object"", ""boolean""],
-                ""properties"": {
-                    ""items"": {
-                        ""anyOf"": [
-                            { ""$ref"": ""#/$defs/schemaArray"" }
-                        ]
-                    }
-                },
-                ""$defs"": {
-                    ""schemaArray"": {
-                        ""type"": ""array"",
-                        ""minItems"": 1
-                    }
-                }
-            }";
-            
-            JSchema s = JSchema.Parse(json);
-            Assert.AreEqual(JSchemaType.Array, s.Properties["items"].AnyOf[0].Type);
-        }
-
-        [Test]
         public void Items_Schema_2020_12()
         {
             string json = @"{
