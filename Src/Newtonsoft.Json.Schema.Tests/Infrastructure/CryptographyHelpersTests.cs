@@ -46,7 +46,7 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             Assert.IsFalse(valid);
         }
 
-#if !(NETCOREAPP3_1 || NET35)
+#if !(NETSTANDARD2_0 || NET35)
         [Test]
         public void ValidateData_Sha256()
         {
