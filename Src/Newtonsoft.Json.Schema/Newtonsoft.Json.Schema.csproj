@@ -2,9 +2,9 @@
   <PropertyGroup>
     <TargetFrameworks Condition="'$(LibraryFrameworks)'==''">net45;net40;net35;netstandard2.0;netstandard2.1</TargetFrameworks>
     <TargetFrameworks Condition="'$(LibraryFrameworks)'!=''">$(LibraryFrameworks)</TargetFrameworks>
-    <AssemblyVersion>2.0.0.0</AssemblyVersion>
-    <FileVersion>2.0.1</FileVersion>
-    <VersionPrefix>2.0.1</VersionPrefix>
+    <AssemblyVersion>4.0.0.0</AssemblyVersion>
+    <FileVersion>4.0.1</FileVersion>
+    <VersionPrefix>4.0.1</VersionPrefix>
     <VersionSuffix></VersionSuffix>
     <Authors>Newtonsoft</Authors>
     <Company>Newtonsoft</Company>
