@@ -225,6 +225,9 @@ namespace Newtonsoft.Json.Schema
                 {
                     return true;
                 }
+
+                // TODO: It's possible that referenced schemas (e.g. schemas in current schema's allOf) have a dynamic anchor.
+                // Consider expanding this search to all places in the current scope.
                 if (_extensionData != null)
                 {
                     if (HasDynamicAnchorDefinition(_extensionData, Constants.PropertyNames.Definitions) ||
@@ -236,7 +239,7 @@ namespace Newtonsoft.Json.Schema
 
                 return false;
 
-                bool HasDynamicAnchorDefinition(Dictionary<string, JToken> extensionData, string name)
+                static bool HasDynamicAnchorDefinition(Dictionary<string, JToken> extensionData, string name)
                 {
                     if (extensionData.TryGetValue(name, out JToken definitions))
                     {
