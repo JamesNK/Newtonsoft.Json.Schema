@@ -11,7 +11,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace Newtonsoft.Json.Schema.Infrastructure
 {
     [DebuggerDisplay("ResolvedReference = {ResolvedReference}, DynamicScopeId = {DynamicScopeId}")]
-    internal struct DeferredSchemaKey : IEquatable<DeferredSchemaKey>
+    internal readonly struct DeferredSchemaKey : IEquatable<DeferredSchemaKey>
     {
         public DeferredSchemaKey(Uri resolvedReference, Uri? dynamicScopeId)
         {
