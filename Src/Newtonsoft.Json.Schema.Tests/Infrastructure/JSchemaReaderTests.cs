@@ -5137,5 +5137,115 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
             bool valid = data.IsValid(s, out IList<string> errorMessages);
             Assert.IsFalse(valid, "Should be invalid. Errors: " + string.Join(", ", errorMessages.ToArray()));
         }
+
+        [Test]
+        public void DynamicRefSkipOverIntermediateResources_DirectReference()
+        {
+            string json = @"{
+                ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
+                ""$id"": ""https://test.json-schema.org/dynamic-ref-skips-intermediate-resource/main"",
+                ""type"": ""object"",
+                ""properties"": {
+                    ""bar-item"": {
+                        ""$ref"": ""item""
+                    }
+                },
+                ""$defs"": {
+                    ""bar"": {
+                        ""$id"": ""bar"",
+                        ""type"": ""array"",
+                        ""items"": {
+                            ""$ref"": ""item""
+                        },
+                        ""$defs"": {
+                            ""item"": {
+                                ""$id"": ""item"",
+                                ""type"": ""object"",
+                                ""properties"": {
+                                    ""content"": {
+                                        ""$dynamicRef"": ""#content""
+                                    }
+                                },
+                                ""$defs"": {
+                                    ""defaultContent"": {
+                                        ""$dynamicAnchor"": ""content"",
+                                        ""type"": ""integer""
+                                    }
+                                }
+                            },
+                            ""content"": {
+                                ""$dynamicAnchor"": ""content"",
+                                ""type"": ""string""
+                            }
+                        }
+                    }
+                }
+            }";
+
+            JSchema s = JSchema.Parse(json);
+
+            JObject data1 = JObject.Parse(@"{ ""bar-item"": { ""content"": 42 } }");
+            bool valid1 = data1.IsValid(s, out IList<string> errorMessages1);
+            Assert.IsTrue(valid1, "Should be valid. Errors: " + string.Join(", ", errorMessages1.ToArray()));
+
+            JObject data2 = JObject.Parse(@"{ ""bar-item"": { ""content"": ""value"" } }");
+            bool valid2 = data2.IsValid(s, out IList<string> errorMessages2);
+            Assert.IsFalse(valid2, "Should be invalid. Errors: " + string.Join(", ", errorMessages2.ToArray()));
+        }
+
+        [Test]
+        public void DynamicRefSkipOverIntermediateResources_PointerReferenceAcrossResourceBoundary()
+        {
+            string json = @"{
+                ""$schema"": ""https://json-schema.org/draft/next/schema"",
+                ""$id"": ""https://test.json-schema.org/dynamic-ref-skips-intermediate-resource/optional/main"",
+                ""type"": ""object"",
+                ""properties"": {
+                    ""bar-item"": {
+                        ""$ref"": ""bar#/$defs/item""
+                    }
+                },
+                ""$defs"": {
+                    ""bar"": {
+                        ""$id"": ""bar"",
+                        ""type"": ""array"",
+                        ""items"": {
+                            ""$ref"": ""item""
+                        },
+                        ""$defs"": {
+                            ""item"": {
+                                ""$id"": ""item"",
+                                ""type"": ""object"",
+                                ""properties"": {
+                                    ""content"": {
+                                        ""$dynamicRef"": ""#content""
+                                    }
+                                },
+                                ""$defs"": {
+                                    ""defaultContent"": {
+                                        ""$dynamicAnchor"": ""content"",
+                                        ""type"": ""integer""
+                                    }
+                                }
+                            },
+                            ""content"": {
+                                ""$dynamicAnchor"": ""content"",
+                                ""type"": ""string""
+                            }
+                        }
+                    }
+                }
+            }";
+
+            JSchema s = JSchema.Parse(json);
+
+            JObject data1 = JObject.Parse(@"{ ""bar-item"": { ""content"": 42 } }");
+            bool valid1 = data1.IsValid(s, out IList<string> errorMessages1);
+            Assert.IsTrue(valid1, "Should be valid. Errors: " + string.Join(", ", errorMessages1.ToArray()));
+
+            JObject data2 = JObject.Parse(@"{ ""bar-item"": { ""content"": ""value"" } }");
+            bool valid2 = data2.IsValid(s, out IList<string> errorMessages2);
+            Assert.IsFalse(valid2, "Should be invalid. Errors: " + string.Join(", ", errorMessages2.ToArray()));
+        }
     }
 }
