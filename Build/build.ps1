@@ -1,5 +1,5 @@
 ﻿properties { 
-  $zipFileName = "JsonSchema40r6.zip"
+  $zipFileName = "JsonSchema40r1.zip"
   $majorVersion = "4.0"
   $majorWithReleaseVersion = "4.0.1"
   $nugetPrerelease = $null
