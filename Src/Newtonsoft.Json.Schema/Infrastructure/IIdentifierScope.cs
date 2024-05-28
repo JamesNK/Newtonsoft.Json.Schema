@@ -14,5 +14,6 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         Uri? ScopeId { get; }
         bool Root { get; }
         string? DynamicAnchor { get; }
+        bool CouldBeDynamic { get; }
     }
 }

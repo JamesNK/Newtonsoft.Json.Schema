@@ -44,12 +44,12 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 }
                 else
                 {
-                    // TODO: A little inefficent to find the valid child again
+                    // TODO: A little inefficient to find the valid child again
                     foreach (SchemaScope childScope in ChildScopes)
                     {
                         if (childScope.IsValid)
                         {
-                            ConditionalContext.TrackEvaluatedSchema(childScope.Schema);
+                            ConditionalContext.TrackEvaluatedSchemaScope(childScope);
                         }
                     }
                 }

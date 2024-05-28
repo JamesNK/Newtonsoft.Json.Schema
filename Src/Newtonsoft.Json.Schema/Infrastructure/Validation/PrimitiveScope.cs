@@ -15,7 +15,7 @@ using Newtonsoft.Json.Schema.Utilities;
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 {
-    internal sealed class PrimativeScope : SchemaScope
+    internal sealed class PrimitiveScope : SchemaScope
     {
         private static readonly Regex HostnameRegex = new Regex(@"^(?=.{1,255}$)[0-9A-Za-z](?:(?:[0-9A-Za-z]|-){0,61}[0-9A-Za-z])?(?:\.[0-9A-Za-z](?:(?:[0-9A-Za-z]|-){0,61}[0-9A-Za-z])?)*\.?$", RegexOptions.CultureInvariant);
 #if NET35
@@ -244,7 +244,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                 }
             }
 
-            if (schema.Format != null)
+            if (schema.Format != null && IsFormatValidationEnabled(scope.Context.Validator))
             {
                 bool valid = ValidateFormat(schema.Format, value);
 
@@ -257,7 +257,21 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             return true;
         }
 
-        private static readonly char[] CaseInsensitiveDateTimeChars = new[] { 't', 'z' };
+        private static bool IsFormatValidationEnabled(Validator validator)
+        {
+            // 2020-12 and later reports format failures as annotations instead of assertions.
+            // Newtonsoft.Json.Schema currently doesn't support annotations so don't run format.
+            switch (validator.FormatHandling)
+            {
+                case FormatHandling.Default:
+                default:
+                    return !SchemaVersionHelpers.EnsureVersion(validator.SchemaVersion, SchemaVersion.Draft2020_12, unsetDefault: false);
+                case FormatHandling.Annotation:
+                    return false;
+                case FormatHandling.Assertion:
+                    return true;
+            }
+        }
 
         private static bool ValidateFormat(string format, string value)
         {

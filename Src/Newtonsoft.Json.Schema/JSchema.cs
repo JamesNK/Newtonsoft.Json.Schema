@@ -29,7 +29,7 @@ namespace Newtonsoft.Json.Schema
     /// An in-memory representation of a JSON Schema.
     /// </summary>
     [JsonConverter(typeof(JSchemaConverter))]
-    [DebuggerDisplay("{DebuggerDisplay,nq}")]
+    [DebuggerDisplay("{DebuggerDisplay(),nq}")]
     public class JSchema : IJsonLineInfo, IIdentifierScope
     {
 #if DEBUG
@@ -93,6 +93,10 @@ namespace Newtonsoft.Json.Schema
         private double? _multipleOf;
         internal bool? _allowAdditionalProperties;
         internal bool? _allowAdditionalItems;
+        private bool? _recursiveAnchor;
+        private string? _dynamicAnchor;
+        private Uri? _recursiveReference;
+        private Uri? _dynamicReference;
 
         internal void OnChildChanged(JSchema changedSchema)
         {
@@ -159,14 +163,52 @@ namespace Newtonsoft.Json.Schema
         /// <summary>
         /// Gets or sets the $recursiveRef.
         /// </summary>
-        public Uri? RecursiveReference { get; set; }
+        public Uri? RecursiveReference
+        {
+            get => _recursiveReference;
+            set
+            {
+                _recursiveReference = value;
+                if (_recursiveReference != null)
+                {
+                    _dynamicReference = null;
+                }
+            }
+        }
 
-        internal bool HasReference => Reference != null || RecursiveReference != null;
+        /// <summary>
+        /// Gets or sets the $dynamicRef.
+        /// </summary>
+        public Uri? DynamicReference
+        {
+            get => _dynamicReference;
+            set
+            {
+                _dynamicReference = value;
+                if (_dynamicReference != null)
+                {
+                    _recursiveReference = null;
+                }
+            }
+        }
+
+        internal bool HasReference => Reference != null || RecursiveReference != null || DynamicReference != null;
 
         /// <summary>
         /// Gets or sets the $recursiveAnchor.
         /// </summary>
-        public bool? RecursiveAnchor { get; set; }
+        public bool? RecursiveAnchor
+        {
+            get => _recursiveAnchor;
+            set
+            {
+                _recursiveAnchor = value;
+                if (value != null)
+                {
+                    _dynamicAnchor = null;
+                }
+            }
+        }
 
         internal Uri? ResolvedId { get; private set; }
         internal bool Root { get; set; }
@@ -175,8 +217,67 @@ namespace Newtonsoft.Json.Schema
 
         bool IIdentifierScope.Root => Root;
 
-        // TODO - improve in next spec
-        string? IIdentifierScope.DynamicAnchor => RecursiveAnchor == true ? bool.TrueString : null;
+        bool IIdentifierScope.CouldBeDynamic
+        {
+            get
+            {
+                if (_dynamicAnchor != null || (_recursiveAnchor ?? false))
+                {
+                    return true;
+                }
+
+                // TODO: It's possible that referenced schemas (e.g. schemas in current schema's allOf) have a dynamic anchor.
+                // Consider expanding this search to all places in the current scope.
+                if (_extensionData != null)
+                {
+                    if (HasDynamicAnchorDefinition(_extensionData, Constants.PropertyNames.Definitions) ||
+                        HasDynamicAnchorDefinition(_extensionData, Constants.PropertyNames.Defs))
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+
+                static bool HasDynamicAnchorDefinition(Dictionary<string, JToken> extensionData, string name)
+                {
+                    if (extensionData.TryGetValue(name, out JToken definitions))
+                    {
+                        if (definitions is JObject o)
+                        {
+                            foreach (KeyValuePair<string, JToken?> item in o)
+                            {
+                                if (item.Value is JObject definitionSchema)
+                                {
+                                    if (definitionSchema[Constants.PropertyNames.DynamicAnchor] != null)
+                                    {
+                                        return true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    return false;
+                }
+            }
+        }
+
+        string? IIdentifierScope.DynamicAnchor
+        {
+            get
+            {
+                if (_dynamicAnchor != null)
+                {
+                    return _dynamicAnchor;
+                }
+                if (_recursiveAnchor ?? false)
+                {
+                    return bool.TrueString;
+                }
+
+                return null;
+            }
+        }
 
         /// <summary>
         /// Gets or sets the schema ID.
@@ -189,11 +290,13 @@ namespace Newtonsoft.Json.Schema
                 if (!UriComparer.Instance.Equals(value, _id))
                 {
                     _id = value;
-                    ResolvedId = SchemaDiscovery.CombineIdAndAnchor(_id, _anchor);
+                    ResolvedId = SchemaDiscovery.CombineIdAndAnchor(_id, ResolvedAnchor);
                     OnSelfChanged();
                 }
             }
         }
+
+        internal string? ResolvedAnchor => Anchor ?? DynamicAnchor;
 
         /// <summary>
         /// Gets or sets the schema anchor.
@@ -206,7 +309,31 @@ namespace Newtonsoft.Json.Schema
                 if (value != _anchor)
                 {
                     _anchor = value;
-                    ResolvedId = SchemaDiscovery.CombineIdAndAnchor(_id, _anchor);
+                    ResolvedId = SchemaDiscovery.CombineIdAndAnchor(_id, ResolvedAnchor);
+                    OnSelfChanged();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the $dynamicAnchor.
+        /// </summary>
+        public string? DynamicAnchor
+        {
+            get => _dynamicAnchor;
+            set
+            {
+                if (value != _dynamicAnchor)
+                {
+                    _dynamicAnchor = value;
+
+                    if (value != null)
+                    {
+                        _recursiveAnchor = null;
+                        _anchor = null;
+                    }
+
+                    ResolvedId = SchemaDiscovery.CombineIdAndAnchor(_id, ResolvedAnchor);
                     OnSelfChanged();
                 }
             }
@@ -1093,21 +1220,22 @@ namespace Newtonsoft.Json.Schema
             _linePosition = lineInfo.LinePosition;
         }
 
-        private string DebuggerDisplay
+        private string DebuggerDisplay()
         {
-            get
+            if (Reference != null)
             {
-                if (Reference != null)
-                {
-                    return $"$ref: {Reference}";
-                }
-                if (RecursiveReference != null)
-                {
-                    return $"$recursiveRef: {RecursiveReference}";
-                }
-
-                return ToString();
+                return $"$ref: {Reference}";
             }
+            if (DynamicReference != null)
+            {
+                return $"$dynamicRef: {DynamicReference}";
+            }
+            if (RecursiveReference != null)
+            {
+                return $"$recursiveRef: {RecursiveReference}";
+            }
+
+            return ToString();
         }
     }
 }

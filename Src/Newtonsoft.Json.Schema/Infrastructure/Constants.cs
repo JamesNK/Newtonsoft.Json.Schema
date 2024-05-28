@@ -14,7 +14,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure
     {
         public static readonly List<JsonToken> NumberTokens = new List<JsonToken> { JsonToken.Integer, JsonToken.Float };
         public static readonly List<JsonToken> SchemaTokens = new List<JsonToken> { JsonToken.StartObject, JsonToken.Boolean };
-        public static readonly List<JsonToken> ItemsTokens = new List<JsonToken> { JsonToken.StartArray, JsonToken.StartObject, JsonToken.Boolean };
+        public static readonly List<JsonToken> ItemsDraft2020_12Tokens = new List<JsonToken> { JsonToken.StartArray };
+        public static readonly List<JsonToken> ItemsDraft6Tokens = new List<JsonToken> { JsonToken.StartArray, JsonToken.StartObject, JsonToken.Boolean };
         public static readonly List<JsonToken> ItemsDraft4Tokens = new List<JsonToken> { JsonToken.StartArray, JsonToken.StartObject };
         public static readonly List<JsonToken> DependencyTokens = new List<JsonToken> { JsonToken.StartObject, JsonToken.StartArray, JsonToken.String, JsonToken.Boolean };
         public static readonly List<JsonToken> DependencyDraft4Tokens = new List<JsonToken> { JsonToken.StartObject, JsonToken.StartArray, JsonToken.String };
@@ -71,6 +72,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             public const string ContentMediaType = "contentMediaType";
             public const string ReadOnly = "readOnly";
             public const string WriteOnly = "writeOnly";
+            public const string PrefixItems = "prefixItems";
 
             public const string AnyOf = "anyOf";
             public const string AllOf = "allOf";
@@ -83,6 +85,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             public const string Ref = "$ref";
             public const string RecursiveRef = "$recursiveRef";
             public const string RecursiveAnchor = "$recursiveAnchor";
+            public const string DynamicRef = "$dynamicRef";
+            public const string DynamicAnchor = "$dynamicAnchor";
             public const string Schema = "$schema";
 
             public const string Definitions = "definitions";
@@ -157,6 +161,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             public static readonly Uri Draft6 = new Uri("http://json-schema.org/draft-06/schema#");
             public static readonly Uri Draft7 = new Uri("http://json-schema.org/draft-07/schema#");
             public static readonly Uri Draft2019_09 = new Uri("https://json-schema.org/draft/2019-09/schema");
+            public static readonly Uri Draft2020_12 = new Uri("https://json-schema.org/draft/2020-12/schema");
         }
     }
 }

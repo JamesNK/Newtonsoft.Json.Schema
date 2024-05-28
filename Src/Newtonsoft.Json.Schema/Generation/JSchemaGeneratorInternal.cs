@@ -390,7 +390,7 @@ namespace Newtonsoft.Json.Schema.Generation
                     case JsonObjectContract objectContract:
                         if (nonNullableUnderlyingType == typeof(object))
                         {
-                            PopulatePrimativeSchema(schema, objectContract, memberProperty, valueRequired);
+                            PopulatePrimitiveSchema(schema, objectContract, memberProperty, valueRequired);
                         }
                         else
                         {
@@ -436,7 +436,7 @@ namespace Newtonsoft.Json.Schema.Generation
                         schema.MaximumLength = AttributeHelpers.GetMaxLength(memberProperty);
                         break;
                     case JsonPrimitiveContract primitiveContract:
-                        PopulatePrimativeSchema(schema, primitiveContract, memberProperty, valueRequired);
+                        PopulatePrimitiveSchema(schema, primitiveContract, memberProperty, valueRequired);
                         break;
                     case JsonDictionaryContract dictionaryContract:
                         schema.Type = AddNullType(JSchemaType.Object, valueRequired);
@@ -477,7 +477,7 @@ namespace Newtonsoft.Json.Schema.Generation
             }
         }
 
-        private void PopulatePrimativeSchema(JSchema schema, JsonContract contract, JsonProperty? memberProperty, Required valueRequired)
+        private void PopulatePrimitiveSchema(JSchema schema, JsonContract contract, JsonProperty? memberProperty, Required valueRequired)
         {
             Type nonNullableUnderlyingType = GetNonNullableUnderlyingType(contract);
             JSchemaType type = GetJSchemaType(contract.UnderlyingType, valueRequired);

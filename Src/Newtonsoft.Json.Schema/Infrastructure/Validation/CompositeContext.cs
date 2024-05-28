@@ -41,8 +41,10 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             }
         }
 
-        public List<JSchema> EvaluatedSchemas => throw new NotSupportedException();
- 
+        public List<SchemaScope> EvaluatedSchemas => throw new NotSupportedException();
+
+        public List<SchemaScope>? ResolveEvaluatedSchemas() => null;
+
         public bool TrackEvaluatedSchemas
         {
             get
@@ -59,13 +61,13 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             }
         }
 
-        public void TrackEvaluatedSchema(JSchema schema)
+        public void TrackEvaluatedSchemaScope(SchemaScope schema)
         {
             for (int i = 0; i < Contexts.Count; i++)
             {
                 if (Contexts[i] is ISchemaTracker schemaTracker)
                 {
-                    schemaTracker.TrackEvaluatedSchema(schema);
+                    schemaTracker.TrackEvaluatedSchemaScope(schema);
                 }
             }
         }

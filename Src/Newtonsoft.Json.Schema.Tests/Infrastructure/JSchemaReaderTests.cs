@@ -18,6 +18,7 @@ using System.Reflection;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema.Infrastructure;
 using System.Text;
+using System.Linq;
 
 namespace Newtonsoft.Json.Schema.Tests.Infrastructure
 {
@@ -3584,194 +3585,10 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         }
 
         [Test]
-        public void RecursiveRef()
-        {
-            string json = @"{
-                ""allOf"": [{
-                    ""$recursiveRef"": ""#""
-                }]
-            }";
-
-            JSchema s = JSchema.Parse(json);
-
-            Assert.AreEqual(s, s.AllOf[0]);
-        }
-
-        [Test]
-        public void RecursiveAnchor()
-        {
-            string json = @"{
-                ""$recursiveAnchor"": false
-            }";
-
-            JSchema s = JSchema.Parse(json);
-            Assert.AreEqual(false, s.RecursiveAnchor);
-        }
-
-        [Test]
-        public void RecursiveAnchor_OnBothLevels_OuterSchemaResolved()
-        {
-            string json = @"{
-                ""$schema"": ""https://json-schema.org/draft/2019-09/schema"",
-                ""$id"": ""https://example.com/root"",
-                ""$recursiveAnchor"": true,
-                ""properties"": {
-                    ""prop1"": { ""$ref"": ""tree"" }
-                }
-            }";
-
-            JSchemaPreloadedResolver resolver = new JSchemaPreloadedResolver();
-            resolver.Add(new Uri("https://example.com/tree", UriKind.RelativeOrAbsolute), @"{
-                ""$schema"": ""https://json-schema.org/draft/2019-09/schema"",
-                ""$id"": ""https://example.com/tree"",
-                ""$recursiveAnchor"": true,
-
-                ""type"": ""object"",
-                ""properties"": {
-                    ""data"": true,
-                    ""children"": {
-                        ""type"": ""array"",
-                        ""items"": {
-                            ""$recursiveRef"": ""#""
-                        }
-                    }
-                }
-            }");
-
-            JSchema s = JSchema.Parse(json, resolver);
-            Assert.AreEqual(true, s.RecursiveAnchor);
-
-            JSchema prop1 = s.Properties["prop1"];
-
-            Assert.AreEqual("https://example.com/tree", prop1.Id.OriginalString);
-            Assert.AreEqual(true, prop1.RecursiveAnchor);
-
-            JSchema items = prop1.Properties["children"].Items[0];
-            Assert.AreEqual(s, items);
-        }
-
-        [Test]
-        public void RecursiveAnchor_SingleLevel_InnerSchemaResolved()
-        {
-            string json = @"{
-                ""$schema"": ""https://json-schema.org/draft/2019-09/schema"",
-                ""$id"": ""https://example.com/root"",
-
-                ""properties"": {
-                    ""prop1"": { ""$ref"": ""tree"" }
-                }
-            }";
-
-            JSchemaPreloadedResolver resolver = new JSchemaPreloadedResolver();
-            resolver.Add(new Uri("https://example.com/tree", UriKind.RelativeOrAbsolute), @"{
-                ""$schema"": ""https://json-schema.org/draft/2019-09/schema"",
-                ""$id"": ""https://example.com/tree"",
-                ""$recursiveAnchor"": true,
-
-                ""type"": ""object"",
-                ""properties"": {
-                    ""data"": true,
-                    ""children"": {
-                        ""type"": ""array"",
-                        ""items"": {
-                            ""$recursiveRef"": ""#""
-                        }
-                    }
-                }
-            }");
-
-            JSchema s = JSchema.Parse(json, resolver);
-            JSchema prop1 = s.Properties["prop1"];
-
-            Assert.AreEqual("https://example.com/tree", prop1.Id.OriginalString);
-            Assert.AreEqual(true, prop1.RecursiveAnchor);
-
-            JSchema items = prop1.Properties["children"].Items[0];
-            Assert.AreEqual(prop1, items);
-        }
-
-        [Test]
-        public void RecursiveRef_RecursiveAnchorFalse()
-        {
-            string schemaJson = @"{
-    ""$id"": ""http://localhost:4242/recursiveRef4/schema.json"",
-    ""$recursiveAnchor"": false,
-    ""$defs"": {
-        ""myobject"": {
-            ""$id"": ""myobject.json"",
-            ""$recursiveAnchor"": false,
-            ""anyOf"": [
-                { ""type"": ""string"" },
-                {
-                    ""type"": ""object"",
-                    ""additionalProperties"": { ""$recursiveRef"": ""#"" }
-                }
-            ]
-        }
-    },
-    ""anyOf"": [
-        { ""type"": ""integer"" },
-        { ""$ref"": ""#/$defs/myobject"" }
-    ]
-}";
-
-            JSchema s = JSchema.Parse(schemaJson);
-            JSchema myObject = s.AnyOf[1];
-            Assert.AreEqual("myobject.json", myObject.Id.OriginalString);
-            Assert.AreEqual(false, myObject.RecursiveAnchor);
-            Assert.AreEqual(myObject, myObject.AnyOf[1].AdditionalProperties);
-        }
-
-        [Test]
-        public void RecursiveRef_DynamicSelection()
-        {
-            string schemaJson = @"{
-    ""$id"": ""recursiveRef8_main.json"",
-    ""$defs"": {
-        ""inner"": {
-            ""$id"": ""recursiveRef8_inner.json"",
-            ""$recursiveAnchor"": true,
-            ""title"": ""inner"",
-            ""additionalProperties"": {
-                ""$recursiveRef"": ""#""
-            }
-        }
-    },
-    ""if"": {
-        ""propertyNames"": {
-            ""pattern"": ""^[a-m]""
-        }
-    },
-    ""then"": {
-        ""title"": ""any type of node"",
-        ""$id"": ""recursiveRef8_anyLeafNode.json"",
-        ""$recursiveAnchor"": true,
-        ""$ref"": ""recursiveRef8_main.json#/$defs/inner""
-    },
-    ""else"": {
-        ""title"": ""integer node"",
-        ""$id"": ""recursiveRef8_integerNode.json"",
-        ""$recursiveAnchor"": true,
-        ""type"": [ ""object"", ""integer"" ],
-        ""$ref"": ""recursiveRef8_main.json#/$defs/inner""
-    }
-}";
-
-            JSchema s = JSchema.Parse(schemaJson);
-            Assert.AreEqual("recursiveRef8_main.json", s.Id.OriginalString);
-
-            Assert.AreEqual("recursiveRef8_anyLeafNode.json", s.Then.Id.OriginalString);
-            Assert.AreEqual("recursiveRef8_anyLeafNode.json", s.Then.Ref.AdditionalProperties.Id.OriginalString);
-
-            Assert.AreEqual("recursiveRef8_integerNode.json", s.Else.Id.OriginalString);
-            Assert.AreEqual("recursiveRef8_integerNode.json", s.Else.Ref.AdditionalProperties.Id.OriginalString);
-        }
-
-        [Test]
         public void LoadSchemaSpec201909()
         {
             var resolver = new JSchemaPreloadedResolver();
-            AddSchema(resolver, "draft2019-09/draft2019-09.json", "https://json-schema.org/draft/2019-09/schema", "drafts");
+            AddSchema(resolver, "draft2019-09/schema.json", "https://json-schema.org/draft/2019-09/schema", "drafts");
             AddSchema(resolver, "draft2019-09/meta/applicator.json", "https://json-schema.org/draft/2019-09/meta/applicator", "drafts");
             AddSchema(resolver, "draft2019-09/meta/content.json", "https://json-schema.org/draft/2019-09/meta/content", "drafts");
             AddSchema(resolver, "draft2019-09/meta/core.json", "https://json-schema.org/draft/2019-09/meta/core", "drafts");
@@ -4436,90 +4253,106 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
         }
 
         [Test]
-        public void RecursiveAnchor_Ref()
+        public void Items_Schema_2020_12()
         {
             string json = @"{
-                ""$schema"": ""https://json-schema.org/draft/2019-09/schema"",
-                ""$id"": ""https://json-schema.org/draft/2019-09/meta/applicator"",
-                ""$recursiveAnchor"": true,
-
-                ""title"": ""Applicator vocabulary meta-schema"",
-                ""type"": [""object"", ""boolean""],
-                ""properties"": {
-                    ""items"": {
-                        ""anyOf"": [
-                            { ""$ref"": ""#/$defs/schemaArray"" }
-                        ]
-                    }
-                },
-                ""$defs"": {
-                    ""schemaArray"": {
-                        ""type"": ""array"",
-                        ""minItems"": 1
-                    }
-                }
-            }";
-            
-            JSchema s = JSchema.Parse(json);
-            Assert.AreEqual(JSchemaType.Array, s.Properties["items"].AnyOf[0].Type);
-        }
-
-        [Test]
-        public void RecursiveAnchor_RefcursiveRefToRoot()
-        {
-            string json = @"{
-                ""$schema"": ""https://json-schema.org/draft/2019-09/schema"",
-                ""$id"": ""https://json-schema.org/draft/2019-09/meta/core"",
-                ""$vocabulary"": {
-                    ""https://json-schema.org/draft/2019-09/vocab/core"": true
-                },
-                ""$recursiveAnchor"": true,
-
-                ""title"": ""Core vocabulary meta-schema"",
-                ""type"": [""object"", ""boolean""],
-                ""properties"": {
-                    ""$defs"": {
-                        ""type"": ""object"",
-                        ""additionalProperties"": { ""$recursiveRef"": ""#"" },
-                        ""default"": {}
-                    }
-                }
+                ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
+                ""items"": {""type"": ""integer""}
             }";
 
             JSchema s = JSchema.Parse(json);
-            Assert.AreEqual(s, s.Properties["$defs"].AdditionalProperties);
+
+            Assert.AreEqual(JSchemaType.Integer, s.AdditionalItems.Type);
+            Assert.AreEqual(null, s.AdditionalItems.Valid);
+            Assert.AreEqual(false, s.AllowAdditionalItemsSpecified);
+            Assert.AreEqual(null, s._items);
         }
 
         [Test]
-        public void RecursiveAnchor_Nested()
+        public void Items_False_2020_12()
         {
             string json = @"{
-                ""$schema"": ""https://json-schema.org/draft/2019-09/schema"",
-                ""$id"": ""https://json-schema.org/draft/2019-09/schema"",
-                ""$recursiveAnchor"": true,
+                ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
+                ""items"": false
+            }";
 
-                ""allOf"": [
-                    {""$ref"": ""meta/core""}
+            JSchema s = JSchema.Parse(json);
+
+            Assert.AreEqual(false, s.AdditionalItems.Valid);
+            Assert.AreEqual(false, s.AllowAdditionalItemsSpecified);
+            Assert.AreEqual(null, s._items);
+        }
+
+        [Test]
+        public void PrefixItems_Ref()
+        {
+            string json = @"{
+                ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
+                ""prefixItems"": [
+                    {""type"": ""integer""},
+                    {""$ref"": ""#/prefixItems/0""}
                 ]
             }";
 
-            string coreJson = @"{
-                ""$schema"": ""https://json-schema.org/draft/2019-09/schema"",
-                ""$id"": ""https://json-schema.org/draft/2019-09/meta/core"",
-                ""$recursiveAnchor"": true,
+            JSchema s = JSchema.Parse(json);
 
+            Assert.AreEqual(2, s.Items.Count);
+            Assert.AreEqual(JSchemaType.Integer, s.Items[0].Type);
+            Assert.AreSame(s.Items[0], s.Items[1]);
+        }
+
+        [Test]
+        public void PrefixItems_Object()
+        {
+            string json = @"{
+                ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
+                ""prefixItems"": {""type"": ""integer""}
+            }";
+
+            ExceptionAssert.Throws<JSchemaReaderException>(() => JSchema.Parse(json),
+                "Unexpected token encountered when reading value for 'prefixItems'. Expected StartArray, got StartObject. Path 'prefixItems', line 3, position 32.");
+        }
+
+        [Test]
+        public void PrefixItems_Boolean()
+        {
+            string json = @"{
+                ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
+                ""prefixItems"": true
+            }";
+
+            ExceptionAssert.Throws<JSchemaReaderException>(() => JSchema.Parse(json),
+                "Unexpected token encountered when reading value for 'prefixItems'. Expected StartArray, got Boolean. Path 'prefixItems', line 3, position 35.");
+        }
+
+        [Test]
+        public void AdditionalItems_Schema_2020_12()
+        {
+            string json = @"{
+                ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
+                ""additionalItems"": {""type"": ""integer""}
+            }";
+
+            JSchema s = JSchema.Parse(json);
+
+            Assert.AreEqual(null, s.AdditionalItems);
+        }
+
+        [Test]
+        public void Items_Ref()
+        {
+            string json = @"{
+                ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
+                ""items"": {""type"": ""integer""},
                 ""properties"": {
-                    ""$defs"": {
-                        ""additionalProperties"": { ""$recursiveRef"": ""#"" },
-                    }
+                  ""name"": {""$ref"": ""#/items""}
                 }
             }";
 
-            JSchemaPreloadedResolver resolver = new JSchemaPreloadedResolver();
-            resolver.Add(new Uri("https://json-schema.org/draft/2019-09/meta/core"), coreJson);
+            JSchema s = JSchema.Parse(json);
 
-            JSchema s = JSchema.Parse(json, resolver);
-            Assert.AreEqual(s, s.AllOf[0].Properties["$defs"].AdditionalProperties);
+            Assert.AreEqual(JSchemaType.Integer, s.AdditionalItems.Type);
+            Assert.AreSame(s.AdditionalItems, s.Properties["name"]);
         }
     }
 }

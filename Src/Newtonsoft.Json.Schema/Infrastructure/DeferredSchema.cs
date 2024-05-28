@@ -42,16 +42,24 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         }
     }
 
-    [DebuggerDisplay("Reference = {ResolvedReference}, IsRecursive = {IsRecursiveReference}, Success = {Success}, DynamicScope = {DynamicScope}")]
+    internal enum ReferenceType
+    {
+        Ref,
+        RecursiveRef,
+        DynamicRef
+    }
+
+    [DebuggerDisplay("Reference = {ResolvedReference}, ReferenceType = {ReferenceType}, Success = {Success}, DynamicScope = {DynamicScope}")]
     internal class DeferredSchema : IIdentifierScope
     {
         public readonly Uri OriginalReference;
         public readonly Uri? DynamicScope;
-        public readonly Uri ResolvedReference;
+        public Uri ResolvedReference;
         public readonly JSchema ReferenceSchema;
         private readonly bool _supportsRef;
         public readonly List<SetSchema> SetSchemas;
-        public readonly bool IsRecursiveReference;
+        public readonly IdentifierScopeStack Scopes;
+        public ReferenceType ReferenceType;
 
         private bool _success;
         private JSchema? _resolvedSchema;
@@ -64,23 +72,26 @@ namespace Newtonsoft.Json.Schema.Infrastructure
         public Uri? ScopeId { get; }
         public bool Root => false;
         public string? DynamicAnchor { get; }
+        public bool CouldBeDynamic { get; }
 
-        public DeferredSchema(Uri resolvedReference, Uri originalReference, Uri? scopeId, string? dynamicAnchor, Uri? dynamicScope, bool isRecursiveReference, JSchema referenceSchema, bool supportsRef)
+        public DeferredSchema(Uri resolvedReference, Uri originalReference, Uri? scopeId, string? dynamicAnchor, bool couldBeDynamic, Uri? dynamicScope, ReferenceType referenceType, JSchema referenceSchema, bool supportsRef, IdentifierScopeStack scopes)
         {
             SetSchemas = new List<SetSchema>();
             ResolvedReference = resolvedReference;
             OriginalReference = originalReference;
             ScopeId = scopeId;
             DynamicAnchor = dynamicAnchor;
+            CouldBeDynamic = couldBeDynamic;
             DynamicScope = dynamicScope;
-            IsRecursiveReference = isRecursiveReference;
+            ReferenceType = referenceType;
             ReferenceSchema = referenceSchema;
             _supportsRef = supportsRef;
+            Scopes = scopes;
         }
 
         public static DeferredSchemaKey CreateKey(DeferredSchema deferredSchema)
         {
-            return new DeferredSchemaKey(deferredSchema.ResolvedReference, deferredSchema.DynamicAnchor != null ? deferredSchema.ScopeId : null);
+            return new DeferredSchemaKey(deferredSchema.ResolvedReference, deferredSchema.DynamicScope);
         }
 
         public void AddSchemaSet(Action<JSchema> setSchema, JSchema? target)
@@ -105,6 +116,14 @@ namespace Newtonsoft.Json.Schema.Infrastructure
             {
                 _success = false;
             }
+        }
+
+        public void Reset(Uri resolvedReference, ReferenceType referenceType)
+        {
+            _success = false;
+            _resolvedSchema = null;
+            ResolvedReference = resolvedReference;
+            ReferenceType = referenceType;
         }
     }
 }

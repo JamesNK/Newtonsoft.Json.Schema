@@ -72,6 +72,23 @@ namespace Newtonsoft.Json.Schema
         }
 
         /// <summary>
+        /// Gets or sets how <c>format</c> keywords are validated.
+        /// </summary>
+        public FormatHandling FormatHandling
+        {
+            get => _validator.FormatHandling;
+            set
+            {
+                if (value < FormatHandling.Default || value > FormatHandling.Assertion)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(value));
+                }
+
+                _validator.FormatHandling = value;
+            }
+        }
+
+        /// <summary>
         /// Gets the text value of the current JSON token.
         /// </summary>
         /// <value></value>
@@ -303,7 +320,7 @@ namespace Newtonsoft.Json.Schema
         /// </returns>
         public override bool Read()
         {
-            // clear out exlicit value and token so inner reader values are used
+            // clear out explicit value and token so inner reader values are used
             _readAsValue = null;
             _readAsToken = null;
 

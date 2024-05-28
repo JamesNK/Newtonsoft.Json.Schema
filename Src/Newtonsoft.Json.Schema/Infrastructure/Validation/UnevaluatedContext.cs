@@ -4,9 +4,11 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 {
+    [DebuggerDisplay("{DebuggerDisplay(),nq}")]
     internal class UnevaluatedContext
     {
         public UnevaluatedContext(SchemaScope schemaScope)
@@ -14,6 +16,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             SchemaScope = schemaScope;
         }
 
+#if DEBUG
+        public object? Key { get; set; }
+#endif
         public SchemaScope SchemaScope { get; }
         public List<JSchema>? ValidScopes { get; set; }
         public bool Evaluated { get; set; }
@@ -26,6 +31,15 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             }
 
             ValidScopes.Add(schema);
+        }
+
+        private string DebuggerDisplay()
+        {
+            var text = $"Evaluated = {Evaluated}, ValidScopes = {ValidScopes?.Count ?? 0}";
+#if DEBUG
+            text += $", Key = {Key}";
+#endif
+            return text;
         }
     }
 }

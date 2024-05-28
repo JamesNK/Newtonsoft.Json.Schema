@@ -26,6 +26,7 @@ using System.Xml.Schema;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema;
 using Newtonsoft.Json.Schema.Generation;
+using System.Linq;
 
 namespace Newtonsoft.Json.Schema.Tests
 {
@@ -3767,6 +3768,316 @@ namespace Newtonsoft.Json.Schema.Tests
             }");
             var result = a.IsValid(s);
             Assert.IsFalse(result);
+        }
+
+        [Test]
+        public void Read_Items_Schema_2020_12()
+        {
+            string json = @"{
+                ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
+                ""items"": {""type"": ""integer""}
+            }";
+
+            JSchema s = JSchema.Parse(json);
+
+            JArray a = JArray.Parse(@"[1, ""x""]");
+            var result = a.IsValid(s, out IList<string> errorMessages);
+            Assert.IsFalse(result);
+            Assert.AreEqual("Invalid type. Expected Integer but got String. Path '[1]', line 1, position 7.", errorMessages[0]);
+        }
+
+        [Test]
+        public void Read_Items_False_2020_12()
+        {
+            string json = @"{
+                ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
+                ""items"": false
+            }";
+
+            JSchema s = JSchema.Parse(json);
+
+            JArray a = JArray.Parse(@"[1, ""x""]");
+            var result = a.IsValid(s, out IList<string> errorMessages);
+            Assert.IsFalse(result);
+            Assert.AreEqual("Schema always fails validation. Path '[0]', line 1, position 2.", errorMessages[0]);
+            Assert.AreEqual("Schema always fails validation. Path '[1]', line 1, position 7.", errorMessages[1]);
+        }
+
+        [Test]
+        public void Read_UnevaluatedItemsDependsOnAdjacentContains_SecondItemEvaluatedByContains()
+        {
+            string json = @"{
+    ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
+    ""prefixItems"": [true],
+    ""contains"": {""type"": ""string""},
+    ""unevaluatedItems"": false
+}";
+
+            JSchema s = JSchema.Parse(json);
+
+            JArray a = JArray.Parse(@"[ 1, ""foo"" ]");
+            var result = a.IsValid(s, out IList<string> errorMessages);
+            Assert.IsTrue(result);
+        }
+
+        [Test]
+        public void Read_UnevaluatedItemsDependsOnAdjacentContains_SecondItemInvalid()
+        {
+            string json = @"{
+    ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
+    ""prefixItems"": [true],
+    ""contains"": {""type"": ""string""},
+    ""unevaluatedItems"": false
+}";
+
+            JSchema s = JSchema.Parse(json);
+
+            JArray a = JArray.Parse(@"[ 1, 2, ""foo"" ]");
+            var result = a.IsValid(s, out IList<string> errorMessages);
+            Assert.IsFalse(result);
+        }
+
+        [Test]
+        public void Read_UnevaluatedItems_Contains_IfElse_A_B_Valid()
+        {
+            string json = @"{
+                ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
+                ""if"": {
+                    ""contains"": {""const"": ""a""}
+                },
+                ""then"": {
+                    ""if"": {
+                        ""contains"": {""const"": ""b""}
+                    },
+                    ""then"": {
+                        ""if"": {
+                            ""contains"": {""const"": ""c""}
+                        }
+                    }
+                },
+                ""unevaluatedItems"": false
+            }";
+
+            JSchema s = JSchema.Parse(json);
+
+            JArray a = JArray.Parse(@"[ ""a"", ""b"", ""a"", ""b"", ""a"" ]");
+            var result = a.IsValid(s, out IList<string> errorMessages);
+            Assert.IsTrue(result, string.Join(", ", errorMessages.ToArray()));
+        }
+
+        [Test]
+        public void Read_UnevaluatedItems_Contains_IfElse_A_C_Invalid()
+        {
+            string json = @"{
+                ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
+                ""if"": {
+                    ""contains"": {""const"": ""a""}
+                },
+                ""then"": {
+                    ""if"": {
+                        ""contains"": {""const"": ""b""}
+                    },
+                    ""then"": {
+                        ""if"": {
+                            ""contains"": {""const"": ""c""}
+                        }
+                    }
+                },
+                ""unevaluatedItems"": false
+            }";
+
+            JSchema s = JSchema.Parse(json);
+
+            JArray a = JArray.Parse(@"[ ""a"", ""c"" ]");
+            var result = a.IsValid(s, out IList<string> errorMessages);
+            Assert.IsFalse(result, string.Join(", ", errorMessages.ToArray()));
+        }
+
+        [Test]
+        public void UnevaluatedProperties_Not()
+        {
+            string json = @"{
+                ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
+                ""not"": {
+                    ""$comment"": ""this subschema must still produce annotations internally, even though the 'not' will ultimately discard them"",
+                    ""anyOf"": [
+                        true,
+                        { ""properties"": { ""foo"": true } }
+                    ],
+                    ""unevaluatedProperties"": false
+                }
+            }";
+
+            JSchema s = JSchema.Parse(json);
+
+            JObject o = JObject.Parse(@"{ ""foo"": 1 }");
+            var result = o.IsValid(s, out IList<string> errorMessages);
+            Assert.IsFalse(result, string.Join(", ", errorMessages.ToArray()));
+            Assert.AreEqual("JSON is valid against schema from 'not'. Path '', line 1, position 1.", errorMessages[0]);
+        }
+
+        [Test]
+        public void DynamicAnchorRef_Success()
+        {
+            string json = @"{
+                ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
+                ""$id"": ""http://localhost:1234/draft2020-12/strict-tree.json"",
+                ""$dynamicAnchor"": ""node"",
+                ""$ref"": ""tree.json"",
+                ""unevaluatedProperties"": false
+            }";
+
+            string treeJson = @"{
+              ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
+              ""$id"": ""https://example.com/tree"",
+              ""$dynamicAnchor"": ""node"",
+              ""type"": ""object"",
+              ""properties"": {
+                ""data"": true,
+                ""children"": {
+                  ""type"": ""array"",
+                  ""items"": { ""$dynamicRef"": ""#node"" }
+                }
+              }
+            }";
+
+            JSchemaPreloadedResolver resolver = new JSchemaPreloadedResolver();
+            resolver.Add(new Uri("http://localhost:1234/draft2020-12/tree.json"), treeJson);
+
+            JSchema s = JSchema.Parse(json, resolver);
+
+            JObject o = JObject.Parse(@"{
+              ""children"": [
+                {
+                  ""data"": 1
+                }
+              ]
+            }");
+            var result = o.IsValid(s, out IList<string> errorMessages);
+            Assert.IsTrue(result, string.Join(", ", errorMessages.ToArray()));
+        }
+
+        [Test]
+        public void DynamicAnchorRef_Failure()
+        {
+            string json = @"{
+                ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
+                ""$id"": ""http://localhost:1234/draft2020-12/strict-tree.json"",
+                ""$dynamicAnchor"": ""node"",
+                ""$ref"": ""tree.json"",
+                ""unevaluatedProperties"": false
+            }";
+
+            string treeJson = @"{
+              ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
+              ""$id"": ""https://example.com/tree"",
+              ""$dynamicAnchor"": ""node"",
+              ""type"": ""object"",
+              ""properties"": {
+                ""data"": true,
+                ""children"": {
+                  ""type"": ""array"",
+                  ""items"": { ""$dynamicRef"": ""#node"" }
+                }
+              }
+            }";
+
+            JSchemaPreloadedResolver resolver = new JSchemaPreloadedResolver();
+            resolver.Add(new Uri("http://localhost:1234/draft2020-12/tree.json"), treeJson);
+
+            JSchema s = JSchema.Parse(json, resolver);
+
+            JObject o = JObject.Parse(@"{
+              ""children"": [
+                {
+                  ""daat"": 1
+                }
+              ]
+            }");
+            var result = o.IsValid(s, out IList<string> errorMessages);
+            Assert.IsFalse(result, string.Join(", ", errorMessages.ToArray()));
+        }
+
+        [Test]
+        public void RecursiveAnchorRef_Success()
+        {
+            string json = @"{
+              ""$schema"": ""https://json-schema.org/draft/2019-09/schema"",
+              ""$id"": ""http://localhost:1234/2019-09/strict-tree.json"",
+              ""$recursiveAnchor"": true,
+              ""$ref"": ""tree.json"",
+              ""unevaluatedProperties"": false
+            }";
+
+            string treeJson = @"{
+              ""$schema"": ""https://json-schema.org/draft/2019-09/schema"",
+              ""$id"": ""https://example.com/tree"",
+              ""$recursiveAnchor"": true,
+              ""type"": ""object"",
+              ""properties"": {
+                ""data"": true,
+                ""children"": {
+                  ""type"": ""array"",
+                  ""items"": { ""$recursiveRef"": ""#"" }
+                }
+              }
+            }";
+
+            JSchemaPreloadedResolver resolver = new JSchemaPreloadedResolver();
+            resolver.Add(new Uri("http://localhost:1234/2019-09/tree.json"), treeJson);
+
+            JSchema s = JSchema.Parse(json, resolver);
+
+            JObject o = JObject.Parse(@"{
+              ""children"": [
+                {
+                  ""data"": 1
+                }
+              ]
+            }");
+            var result = o.IsValid(s, out IList<string> errorMessages);
+            Assert.IsTrue(result, string.Join(", ", errorMessages.ToArray()));
+        }
+
+        [Test]
+        public void RecursiveAnchorRef_Failure()
+        {
+            string json = @"{
+              ""$schema"": ""https://json-schema.org/draft/2019-09/schema"",
+              ""$id"": ""http://localhost:1234/2019-09/strict-tree.json"",
+              ""$recursiveAnchor"": true,
+              ""$ref"": ""tree.json"",
+              ""unevaluatedProperties"": false
+            }";
+
+            string treeJson = @"{
+              ""$schema"": ""https://json-schema.org/draft/2019-09/schema"",
+              ""$id"": ""https://example.com/tree"",
+              ""$recursiveAnchor"": true,
+              ""type"": ""object"",
+              ""properties"": {
+                ""data"": true,
+                ""children"": {
+                  ""type"": ""array"",
+                  ""items"": { ""$recursiveRef"": ""#"" }
+                }
+              }
+            }";
+
+            JSchemaPreloadedResolver resolver = new JSchemaPreloadedResolver();
+            resolver.Add(new Uri("http://localhost:1234/2019-09/tree.json"), treeJson);
+
+            JSchema s = JSchema.Parse(json, resolver);
+
+            JObject o = JObject.Parse(@"{
+              ""children"": [
+                {
+                  ""daat"": 1
+                }
+              ]
+            }");
+            var result = o.IsValid(s, out IList<string> errorMessages);
+            Assert.IsFalse(result, string.Join(", ", errorMessages.ToArray()));
         }
     }
 

@@ -5,25 +5,49 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 {
+    [DebuggerDisplay("{DebuggerDisplay(),nq}")]
     internal class ConditionalContext : ContextBase, ISchemaTracker
     {
         private readonly ISchemaTracker? _parentSchemaTracker;
 
         public List<ValidationError>? Errors;
-        public List<JSchema>? EvaluatedSchemas { get; private set; }
+        public List<SchemaScope>? EvaluatedSchemas { get; private set; }
         public bool TrackEvaluatedSchemas { get; }
+#if DEBUG
+        public Scope? Scope { get; set; }
+#endif
 
-        public ConditionalContext(Validator validator, ContextBase parentContext, bool trackEvaluatedSchemas)
+        public ConditionalContext(Validator validator, ContextBase parentContext, bool trackEvaluatedSchemas, bool useParentTracker)
             : base(validator)
         {
-            _parentSchemaTracker = parentContext as ISchemaTracker;
+            var parentSchemaTracker = (parentContext is ISchemaTracker st && st.TrackEvaluatedSchemas) ? st : null;
+            if (useParentTracker)
+            {
+                _parentSchemaTracker = parentSchemaTracker;
+            }
 
             // Track evaluated schemas if requested, or the parent context is already tracking.
-            TrackEvaluatedSchemas = trackEvaluatedSchemas || (_parentSchemaTracker?.TrackEvaluatedSchemas ?? false);
+            TrackEvaluatedSchemas = trackEvaluatedSchemas || parentSchemaTracker != null;
+        }
+
+        public List<SchemaScope>? ResolveEvaluatedSchemas()
+        {
+            return _parentSchemaTracker?.ResolveEvaluatedSchemas() ?? EvaluatedSchemas;
+        }
+
+        private string DebuggerDisplay()
+        {
+            var evaluatedSchemas = _parentSchemaTracker?.EvaluatedSchemas ?? EvaluatedSchemas;
+            var text = $"Errors = {Errors?.Count ?? 0}, TrackEvaluatedSchemas = {TrackEvaluatedSchemas}, EvaluatedSchemas = {evaluatedSchemas?.Count ?? 0}";
+#if DEBUG
+            text += $", Scope = {Scope}";
+#endif
+            return text;
         }
 
         public override void RaiseError(IFormattable message, ErrorType errorType, JSchema schema, object? value, IList<ValidationError>? childErrors)
@@ -36,20 +60,20 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             Errors.Add(Validator.CreateError(message, errorType, schema, value, childErrors));
         }
 
-        public void TrackEvaluatedSchema(JSchema schema)
+        public void TrackEvaluatedSchemaScope(SchemaScope schema)
         {
             if (TrackEvaluatedSchemas)
             {
-                // If a parent is available then only store schemas in parent for efficency
-                if (_parentSchemaTracker != null && _parentSchemaTracker.TrackEvaluatedSchemas)
+                // If a parent is available then only store schemas in parent for efficiency
+                if (_parentSchemaTracker != null)
                 {
-                    _parentSchemaTracker.TrackEvaluatedSchema(schema);
+                    _parentSchemaTracker.TrackEvaluatedSchemaScope(schema);
                 }
                 else
                 {
                     if (EvaluatedSchemas == null)
                     {
-                        EvaluatedSchemas = new List<JSchema>();
+                        EvaluatedSchemas = new List<SchemaScope>();
                     }
 
                     EvaluatedSchemas.Add(schema);
@@ -57,9 +81,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
             }
         }
 
-        public static ConditionalContext Create(ContextBase context, bool trackEvaluatedSchemas)
+        public static ConditionalContext Create(ContextBase context, bool trackEvaluatedSchemas, bool useParentTracker = true)
         {
-            return new ConditionalContext(context.Validator, context, trackEvaluatedSchemas);
+            return new ConditionalContext(context.Validator, context, trackEvaluatedSchemas, useParentTracker);
         }
 
         [MemberNotNullWhen(true, nameof(Errors))]

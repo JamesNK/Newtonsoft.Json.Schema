@@ -10,6 +10,8 @@ using Newtonsoft.Json.Schema.Infrastructure;
 #if !(NET20 || NET35 || PORTABLE) || DNXCORE50
 using System.Numerics;
 #endif
+using Newtonsoft.Json.Linq;
+using System.Linq;
 using System.Text;
 #if DNXCORE50
 using Xunit;
@@ -874,6 +876,68 @@ namespace Newtonsoft.Json.Schema.Tests
             Assert.AreEqual("Item at index 1 has not been successfully evaluated and the schema does not allow unevaluated items.", validationEventArgs.ValidationError.Message);
             Assert.AreEqual(ErrorType.UnevaluatedItems, validationEventArgs.ValidationError.ErrorType);
             Assert.AreEqual("String 'fo' is less than minimum length of 3.", validationEventArgs.ValidationError.ChildErrors[0].Message);
+        }
+
+        [Test]
+        public void UnevaluatedPropertiesWithDynamicRef()
+        {
+            string json = @"{
+                ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
+                ""$id"": ""https://example.com/derived"",
+
+                ""$ref"": ""/baseSchema"",
+
+                ""$defs"": {
+                    ""derived"": {
+                        ""$dynamicAnchor"": ""addons"",
+                        ""properties"": {
+                            ""bar"": { ""type"": ""string"" }
+                        }
+                    },
+                    ""baseSchema"": {
+                        ""$id"": ""/baseSchema"",
+
+                        ""$comment"": ""unevaluatedProperties comes first so it's more likely to catch bugs with implementations that are sensitive to keyword ordering"",
+                        ""unevaluatedProperties"": false,
+                        ""type"": ""object"",
+                        ""properties"": {
+                            ""foo"": { ""type"": ""string"" }
+                        },
+                        ""$dynamicRef"": ""#addons"",
+
+                        ""$defs"": {
+                            ""defaultAddons"": {
+                                ""$comment"": ""Needed to satisfy the bookending requirement"",
+                                ""$dynamicAnchor"": ""addons""
+                            }
+                        }
+                    }
+                }
+            }";
+
+            JSchema s = JSchema.Parse(json);
+            JSchema addonSchema = s.Ref.Ref;
+            Assert.AreEqual(JSchemaType.String, addonSchema.Properties["bar"].Type);
+
+            JObject o = JObject.Parse(@"{
+                ""foo"": ""foo"",
+                ""bar"": ""bar""
+            }");
+            var result = o.IsValid(s, out IList<ValidationError> errorMessages);
+            PrintErrorsRecursive(errorMessages, 0);
+            Assert.IsTrue(result, string.Join(", ", errorMessages.Select(e => e.ToString()).ToArray()));
+        }
+
+        private void PrintErrorsRecursive(IList<ValidationError> errors, int depth)
+        {
+            foreach (ValidationError validationError in errors)
+            {
+                string prefix = new string(' ', depth);
+
+                Console.WriteLine(prefix + validationError.GetExtendedMessage() + " - " + validationError.SchemaId + " - " + validationError.SchemaBaseUri);
+
+                PrintErrorsRecursive(validationError.ChildErrors, depth + 2);
+            }
         }
     }
 }
