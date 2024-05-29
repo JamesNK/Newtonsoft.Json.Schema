@@ -62,7 +62,7 @@
     <DefineConstants>HAVE_ADO_NET;HAVE_BIG_INTEGER;HAVE_DATE_TIME_OFFSET;HAVE_FULL_REFLECTION;NETSTANDARD2_0;PORTABLE;$(AdditionalConstants)</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
-    <AssemblyTitle>Json.NET Schema .NET Standard 2.0</AssemblyTitle>
+    <AssemblyTitle>Json.NET Schema .NET Standard 2.1</AssemblyTitle>
     <DefineConstants>HAVE_ADO_NET;HAVE_BIG_INTEGER;HAVE_DATE_TIME_OFFSET;HAVE_FULL_REFLECTION;NETSTANDARD2_1;PORTABLE;$(AdditionalConstants)</DefineConstants>
   </PropertyGroup>
 </Project>
