@@ -25,6 +25,22 @@ namespace Newtonsoft.Json.Schema.Tests.Infrastructure
     public class JSchemaDiscoveryTests : TestFixtureBase
     {
         [Test]
+        public void HasFragment()
+        {
+            Assert.IsTrue(JSchemaDiscovery.HasFragment(new Uri("http://example.com#test")));
+            Assert.IsFalse(JSchemaDiscovery.HasFragment(new Uri("http://example.com#")));
+            Assert.IsFalse(JSchemaDiscovery.HasFragment(new Uri("http://example.com")));
+
+            Assert.IsTrue(JSchemaDiscovery.HasFragment(new Uri("a#test", UriKind.Relative)));
+            Assert.IsFalse(JSchemaDiscovery.HasFragment(new Uri("a#", UriKind.Relative)));
+            Assert.IsFalse(JSchemaDiscovery.HasFragment(new Uri("a", UriKind.Relative)));
+
+            Assert.IsTrue(JSchemaDiscovery.HasFragment(new Uri("#test", UriKind.Relative)));
+            Assert.IsFalse(JSchemaDiscovery.HasFragment(new Uri("#", UriKind.Relative)));
+            Assert.IsFalse(JSchemaDiscovery.HasFragment(new Uri("", UriKind.Relative)));
+        }
+
+        [Test]
         public void SimpleTest()
         {
             JSchema prop = new JSchema();

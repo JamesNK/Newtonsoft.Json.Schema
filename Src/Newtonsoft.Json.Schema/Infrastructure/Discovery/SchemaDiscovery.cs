@@ -603,29 +603,48 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
                 return false;
             }
 
-            if (UriComparer.Instance.Equals(id, resolvedReference))
+            if (MatchIdCore(id, resolvedReference, allowFragmentlessMatch))
             {
                 return true;
             }
 
             Uri resolvedId = ResolveSchemaId(context.RootSchemaId, id);
-
-            if (UriComparer.Instance.Equals(resolvedId, resolvedReference))
+            if (MatchIdCore(resolvedId, resolvedReference, allowFragmentlessMatch))
             {
                 return true;
             }
 
-            // If the resolver reference doesn't have an anchor and the token ID does, then repeat check but ignore token ID's fragment.
-            if (allowFragmentlessMatch &&
-                resolvedReference != null &&
-                string.IsNullOrEmpty(resolvedReference.Fragment) &&
-                !string.IsNullOrEmpty(resolvedId.Fragment) &&
-                resolvedId == resolvedReference)
+            if (context.RootSchemaId == null)
             {
-                return true;
+                // This could remove leading / and ./ before comparison.
+                resolvedId = ResolveSchemaId(TempHash, id);
+                if (MatchIdCore(resolvedId, resolvedReference, allowFragmentlessMatch))
+                {
+                    return true;
+                }
             }
 
             return false;
+
+            static bool MatchIdCore(Uri resolvedId, Uri? resolvedReference, bool allowFragmentlessMatch)
+            {
+                if (UriComparer.Instance.Equals(resolvedId, resolvedReference))
+                {
+                    return true;
+                }
+
+                // If the resolver reference doesn't have an anchor and the token ID does, then repeat check but ignore token ID's fragment.
+                if (allowFragmentlessMatch &&
+                    resolvedReference != null &&
+                    !JSchemaDiscovery.HasFragment(resolvedReference) &&
+                    JSchemaDiscovery.HasFragment(resolvedId) &&
+                    resolvedId == resolvedReference)
+                {
+                    return true;
+                }
+
+                return false;
+            }
         }
 
         private static bool TryGetImplicitItemsSchema(JSchema parent, IList<JSchema> items, [NotNullWhen(true)] out JSchema? schema)
@@ -764,10 +783,11 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
         }
 
         private static readonly Uri TempRoot = new Uri("http://localhost/");
+        private static readonly Uri TempHash = new Uri("#", UriKind.RelativeOrAbsolute);
 
         public static Uri ResolveSchemaId(Uri? idScope, Uri schemaId)
         {
-            if (idScope == null || schemaId.IsAbsoluteUri || schemaId.OriginalString.StartsWith("//", StringComparison.Ordinal))
+            if (idScope == null || schemaId.IsAbsoluteUri)
             {
                 return schemaId;
             }

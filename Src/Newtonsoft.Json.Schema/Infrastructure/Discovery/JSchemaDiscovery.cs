@@ -251,9 +251,9 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             return schemaKnownId;
         }
 
-        internal static string GetFragment(Uri referencedAs)
+        internal static string GetFragment(Uri uri)
         {
-            string reference = referencedAs.OriginalString;
+            string reference = uri.OriginalString;
             int fragmentIndex = StringHelpers.IndexOf(reference, '#');
             if (fragmentIndex > 0)
             {
@@ -261,6 +261,15 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Discovery
             }
 
             return reference;
+        }
+
+        internal static bool HasFragment(Uri uri)
+        {
+            string reference = uri.OriginalString;
+            int fragmentIndex = StringHelpers.IndexOf(reference, '#');
+
+            // Fragment is missing or empty.
+            return fragmentIndex != -1 && fragmentIndex != reference.Length - 1;
         }
 
         public static Uri ResolveSchemaIdAndScopeId(Uri? idScope, JSchema schema, string path, out Uri? newScope)
