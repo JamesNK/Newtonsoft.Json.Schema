@@ -98,6 +98,12 @@ namespace Newtonsoft.Json.Schema.Generation
         }
 
         /// <summary>
+        /// Is called each time a schema is generated.
+        /// Allows the user to manipulate the schema. 
+        /// </summary>
+        public Action<Type, JSchema>? SchemaGenerated;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="JSchemaGenerator"/> class.
         /// </summary>
         public JSchemaGenerator()
@@ -151,6 +157,15 @@ namespace Newtonsoft.Json.Schema.Generation
 
             JSchemaGeneratorInternal generator = new JSchemaGeneratorInternal(this);
             return generator.Generate(type, required, memberProperty);
+        }
+
+        /// <summary>
+        /// Is called each time a schema is generated.
+        /// Allows the user to manipulate the schema. 
+        /// </summary>
+        internal protected virtual void OnSchemaGenerated(Type type, JSchema schema)
+        {
+            this.SchemaGenerated?.Invoke(type, schema);
         }
     }
 }
