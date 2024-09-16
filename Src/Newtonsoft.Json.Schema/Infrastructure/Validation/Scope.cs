@@ -43,6 +43,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
         public ScopeType Type;
         public CompleteState Complete;
 
+        protected bool HasCircularReference;
+
         public virtual void Initialize(ContextBase context, SchemaScope? parent, int initialDepth, ScopeType type)
         {
             Context = context;
@@ -59,6 +61,12 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
         internal virtual void RaiseError(IFormattable message, ErrorType errorType, JSchema schema, object? value, IList<ValidationError>? childErrors)
         {
+            if (HasCircularReference)
+            {
+                // Don't record errors after a circular reference is detected. They could create circular references between themselves.
+                return;
+            }
+
             // mark all parent SchemaScopes as invalid
             Scope current = this;
             SchemaScope? parentSchemaScope;
