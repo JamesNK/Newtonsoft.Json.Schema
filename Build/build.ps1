@@ -1,7 +1,7 @@
 ﻿properties { 
-  $zipFileName = "JsonSchema40r1.zip"
+  $zipFileName = "JsonSchema40r2.zip"
   $majorVersion = "4.0"
-  $majorWithReleaseVersion = "4.0.1"
+  $majorWithReleaseVersion = "4.0.2"
   $nugetPrerelease = $null
   $version = GetVersion $majorWithReleaseVersion
   $packageId = "Newtonsoft.Json.Schema"
