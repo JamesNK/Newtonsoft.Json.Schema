@@ -255,7 +255,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
 
         protected void RaiseCircularDependencyError(ErrorType errorType)
         {
-            RaiseError($"Conditional schema has a circular dependency and can't be evaluated.", errorType, ParentSchemaScope.Schema, null, ConditionalContext.Errors);
+            RaiseError($"Conditional schema has a circular dependency and can't be evaluated.", errorType, ParentSchemaScope.Schema, null, null);
+            HasCircularReference = true;
         }
     }
 }
