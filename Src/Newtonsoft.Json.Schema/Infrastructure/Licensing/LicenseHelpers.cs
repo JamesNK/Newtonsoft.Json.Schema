@@ -82,9 +82,8 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Licensing
         {
             if (_resetTimer == null)
             {
-#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
-                Timer timer = new Timer(ResetCounts, null, 0, Convert.ToInt32(TimeSpan.FromHours(1).TotalMilliseconds));
-#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
+                int interval = Convert.ToInt32(TimeSpan.FromHours(1).TotalMilliseconds);
+                Timer timer = new Timer(ResetCounts, null, interval, interval);
 
                 _resetTimer = timer;
             }
