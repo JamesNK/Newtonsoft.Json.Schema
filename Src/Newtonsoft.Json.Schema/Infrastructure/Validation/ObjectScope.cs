@@ -178,7 +178,7 @@ namespace Newtonsoft.Json.Schema.Infrastructure.Validation
                         }
 
                         // Evaluate after dependency schemas have been validated
-                        if (!_unevaluatedScopes.IsNullOrEmpty())
+                        if (ShouldValidateUnevaluated() && !_unevaluatedScopes.IsNullOrEmpty())
                         {
                             foreach (KeyValuePair<string, UnevaluatedContext> item in _unevaluatedScopes)
                             {
