@@ -1,0 +1,14 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/Solution Items/">
+    <File Path="global.json" />
+    <File Path="NuGet.Config" />
+  </Folder>
+  <Project Path="Newtonsoft.Json.Schema.TestConsole/Newtonsoft.Json.Schema.TestConsole.csproj" />
+  <Project Path="Newtonsoft.Json.Schema.Tests/Newtonsoft.Json.Schema.Tests.csproj" />
+  <Project Path="Newtonsoft.Json.Schema/Newtonsoft.Json.Schema.csproj" />
+</Solution>
