@@ -145,7 +145,7 @@ task Test -depends Build {
 
 function NetCliBuild()
 {
-  $projectPath = "$sourceDir\Newtonsoft.Json.Schema.sln"
+  $projectPath = "$sourceDir\Newtonsoft.Json.Schema.slnx"
   $libraryFrameworks = ($script:enabledBuilds | Select-Object @{Name="Framework";Expression={$_.Framework}} | select -expand Framework) -join ";"
   $testFrameworks = ($script:enabledBuilds | Select-Object @{Name="Resolved";Expression={if ($_.TestFramework -ne $null) { $_.TestFramework } else { $_.Framework }}} | select -expand Resolved) -join ";"
 
