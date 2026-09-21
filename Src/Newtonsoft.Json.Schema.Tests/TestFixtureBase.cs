@@ -177,7 +177,7 @@ namespace Newtonsoft.Json.Schema.Tests
                 message = string.Format(CultureInfo.InvariantCulture, message, args);
             }
 
-            XAssert.True(false, message);
+            XAssert.Fail(message);
         }
 
         public static void Pass()
